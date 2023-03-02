@@ -1,2 +1,2 @@
-https://github.com/Dungyichao/http_server:w
+https://github.com/Dungyichao/http_server
 
