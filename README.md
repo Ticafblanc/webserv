@@ -69,6 +69,7 @@ Knowing its arcane will be useful, even if you won’t be working on a website.
 ### Built With
 
 * [CLion](https://www.jetbrains.com/clion/promo/?source=google&medium=cpc&campaign=11960744855&term=clion&content=489240779234&gclid=EAIaIQobChMIjYSpkeeX_AIVh6XICh0CqwhAEAAYASAAEgLIVPD_BwE)
+* [AstroNvim](https://github.com/AstroNvim/AstroNvim)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -124,6 +125,8 @@ c++98
 
 Matthis DoQuocBao - [![LinkedIn][linkedin-shield]][linkedin-url] - matthisdqb@icloud.com
 
+Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanbenoit.rossignol.eleve
+
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
 
 
@@ -136,9 +139,6 @@ Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafbl
 
 * https://github.com/yann1731
 
-<img height="80" src="Images/jrossign.JPG">
-
-* https://github.com/xApologize
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
