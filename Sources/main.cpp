@@ -12,6 +12,14 @@
 
 #include "../Include/webserv.hpp"
 
-int main(){
-    std::cout<<"webserv"<<std::endl;
+
+
+int main(int argc, char **argv, char **envp){
+    init(argv[]);
+    if (argc == 1)
+        minishell_loop(&envp);
+    else if (argc > 1 && ft_strncmp(argv[1], "-c", 2) == 0)
+        exit(execute(ft_strdup(argv[2]), &envp));
+
+    exit(0);
 }

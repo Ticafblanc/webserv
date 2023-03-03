@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 #pragma once
+#include <iostream>
 
-#ifendef WEBSERV_HPP
+#ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
 #endif //WEBSERV_HPP

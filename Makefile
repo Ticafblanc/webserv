@@ -26,9 +26,9 @@ BIN2 = $(addprefix $(BIN_PATH),$(BIN_NAME2))
 
 	#  INCLUDES  #
 
-INC_PATH2 = ./Include
+INC_PATH = ./Include
 
-INC_FLAGS += -I $(INC_PATH)
+INC_FLAGS = -I $(INC_PATH)
 
 	#  SOURCES  #
 
@@ -96,8 +96,8 @@ $(BIN): title directory $(OBJ)
 		@$(CC) $(OBJ) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
-run:
-
+run: all
+		@./Bin/$(PROJECT)
 
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************
