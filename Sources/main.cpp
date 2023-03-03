@@ -13,13 +13,9 @@
 #include "../Include/webserv.hpp"
 
 void  webserv_loop(){
-    pid_t pid;
-    pid = fork();
-    char** cmd = new char **;
-    cmd[0] = strdup("bash");
-    if (pid == 0)
-        execve("/bin/bash", cmd, environ);
-    while (1);
+    while (1){
+//        watch_sochet
+    }
 }
 
 int main(int argc, char **argv, char **envp){
