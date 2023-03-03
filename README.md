@@ -125,7 +125,7 @@ c++98
 
 Matthis DoQuocBao - [![LinkedIn][linkedin-shield]][linkedin-url] - matthisdqb@icloud.com
 
-Jean-Benoit Rossignol - [https://github.com/xApologize]
+Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanbenoit.rossignol.eleve
 
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
 
