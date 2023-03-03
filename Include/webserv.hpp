@@ -10,8 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+extern char** environ;
+
 #pragma once
 #include <iostream>
+#include<unistd.h>
 
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP

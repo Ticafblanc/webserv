@@ -12,14 +12,20 @@
 
 #include "../Include/webserv.hpp"
 
-
+void  webserv_loop(){
+    pid_t pid;
+    pid = fork();
+    char** cmd = new char **;
+    cmd[0] = strdup("bash");
+    if (pid == 0)
+        execve("/bin/bash", cmd, environ);
+    while (1);
+}
 
 int main(int argc, char **argv, char **envp){
-    init(argv[]);
-    if (argc == 1)
-        minishell_loop(&envp);
-    else if (argc > 1 && ft_strncmp(argv[1], "-c", 2) == 0)
-        exit(execute(ft_strdup(argv[2]), &envp));
+//    init(argv[1]);
+
+    webserv_loop();
 
     exit(0);
 }
