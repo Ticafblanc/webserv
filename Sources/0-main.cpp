@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   0-main.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -13,8 +13,15 @@
 #include "../Include/webserv.hpp"
 
 void  webserv_loop(){
+    pid_t pid;
     while (1){
-//        watch_sochet
+        std::cout << "start server" << std::endl;
+        pid = fork();
+        if(pid < 0)
+            exit(EXIT_FAILURE);
+        if(pid == 0){
+
+        }
     }
 }
 
@@ -25,3 +32,4 @@ int main(int argc, char **argv, char **envp){
 
     exit(0);
 }
+
