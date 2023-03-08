@@ -15,7 +15,7 @@
 void  webserv_loop(){
     pid_t pid;
     while (1){
-        std::cout << "start server" << std::endl;
+        std::cout << "start servers" << std::endl;
         pid = fork();
         if(pid < 0)
             exit(EXIT_FAILURE);
