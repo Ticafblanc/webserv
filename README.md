@@ -132,7 +132,6 @@ Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanb
 
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
