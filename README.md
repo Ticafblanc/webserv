@@ -71,9 +71,13 @@ Knowing its arcane will be useful, even if you won’t be working on a website.
 * [CLion](https://www.jetbrains.com/clion/promo/?source=google&medium=cpc&campaign=11960744855&term=clion&content=489240779234&gclid=EAIaIQobChMIjYSpkeeX_AIVh6XICh0CqwhAEAAYASAAEgLIVPD_BwE)
 * [AstroNvim](https://github.com/AstroNvim/AstroNvim)
 <<<<<<< HEAD
+<<<<<<< HEAD
 * [VsCode](https://code.visualstudio.com/)
 =======
 >>>>>>> e0930a079c9e85034cea2bcf539651a86f47c129
+=======
+* [VsCode](https://code.visualstudio.com/)
+>>>>>>> b793f772c4983adef432f90befeb53cfedf8fa7a
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -134,7 +138,6 @@ Yannick St-laurent - [![LinkedIn][linkedin-shield]][linkedin-url-yan] - https://
 Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanbenoit.rossignol.eleve
 
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
-
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
