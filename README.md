@@ -70,6 +70,14 @@ Knowing its arcane will be useful, even if you won’t be working on a website.
 
 * [CLion](https://www.jetbrains.com/clion/promo/?source=google&medium=cpc&campaign=11960744855&term=clion&content=489240779234&gclid=EAIaIQobChMIjYSpkeeX_AIVh6XICh0CqwhAEAAYASAAEgLIVPD_BwE)
 * [AstroNvim](https://github.com/AstroNvim/AstroNvim)
+<<<<<<< HEAD
+<<<<<<< HEAD
+* [VsCode](https://code.visualstudio.com/)
+=======
+>>>>>>> e0930a079c9e85034cea2bcf539651a86f47c129
+=======
+* [VsCode](https://code.visualstudio.com/)
+>>>>>>> b793f772c4983adef432f90befeb53cfedf8fa7a
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -125,19 +133,13 @@ c++98
 
 Matthis DoQuocBao - [![LinkedIn][linkedin-shield]][linkedin-url] - matthisdqb@icloud.com
 
+Yannick St-laurent - [![LinkedIn][linkedin-shield]][linkedin-url-yan] - https://github.com/yann1731 - yan_1731@hotmail.com
+
 Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanbenoit.rossignol.eleve
 
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
 
-
 <p align="right">(<a href="#top">back to top</a>)</p>
-
-<!-- HANDICAP -->
-## Handicap
-
-<img height="80" src="Images/5635770.jpg">
-
-* https://github.com/yann1731
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
@@ -161,5 +163,7 @@ Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafbl
 [license-shield]: https://img.shields.io/github/license/Ticafblanc/.svg?style=for-the-badge
 [license-url]: https://github.com/Ticafblanc/webserv/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://www.linkedin.com/in/matthis-doquocbao-a4a381192?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_viewBase_contact_details%3Bqur1a8wNS0OuvMWTRXIihA%3D%3D
+[linkedin-url]: https://www.linkedin.com/in/matthis-doquocbao-a4a381192?
+[linkedin-url-yan]: https://www.linkedin.com/in/yannick-st-laurent-3ab2b3224/
+lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_viewBase_contact_details%3Bqur1a8wNS0OuvMWTRXIihA%3D%3D
 <!--[product-screenshot]: Images/cpp_logo.png-->

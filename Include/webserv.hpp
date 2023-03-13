@@ -9,10 +9,14 @@
 /*   Updated: 2023/03/02 16:23:37 by mdoquocb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#pragma once
-
-#ifendef WEBSERV_HPP
+#ifndef WEBSERV_HPP
 # define WEBSERV_HPP
+# include <iostream>
+# include <string>
+
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::string;
 
 #endif //WEBSERV_HPP
