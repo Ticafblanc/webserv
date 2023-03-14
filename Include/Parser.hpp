@@ -13,15 +13,16 @@
 // ◦Set a default file to answer if the request is a directory.
 // ◦Execute CGI based on certain file extension (for example .php).
 // ◦Make the route able to accept uploaded files and configure where they should be saved.
-// ∗Do you wonder what a CGI is?
-// ∗Because you won’t call the CGI directly, use the full path as PATH_INFO.
-// ∗Just remember that, for chunked request, your server needs to unchunked
+
+// Do you wonder what a CGI is? Because you won’t call the CGI directly, use the full path as PATH_INFO.
+// Just remember that, for chunked request, your server needs to unchunked
 // it and the CGI will expect EOF as end of the body.
-// ∗Same things for the output of the CGI. If no content_length is returned
+// Same things for the output of the CGI. If no content_length is returned
 // from the CGI, EOF will mark the end of the returned data.
-// ∗Your program should call the CGI with the file requested as first argument.
-// ∗The CGI should be run in the correct directory for relative path file access.
-// ∗Your server should work with one CGI (php-CGI, Python, and so forth).
+// Your program should call the CGI with the file requested as first argument.
+// The CGI should be run in the correct directory for relative path file access.
+// Your server should work with one CGI (php-CGI, Python, and so forth).
+
 // You must provide some configuration files and default basic files to test and demon-
 // strate every feature works during evaluation.
 
