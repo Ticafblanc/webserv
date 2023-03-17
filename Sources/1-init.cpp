@@ -10,4 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../Include/0-webserv.hpp"
 
+c_webserv* Webserv(){
+
+    static t_webserv cw;
+    if (!cw.init)
+    {
+
+    }
+    return (&cw);
+}
+
+void init(std::string str){
+
+}

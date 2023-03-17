@@ -10,26 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/webserv.hpp"
-
-void  webserv_loop(){
-    pid_t pid;
-    while (1){
-        std::cout << "start servers" << std::endl;
-        pid = fork();
-        if(pid < 0)
-            exit(EXIT_FAILURE);
-        if(pid == 0){
-
-        }
-    }
-}
+#include "../Include/0-webserv.hpp"
 
 int main(int argc, char **argv, char **envp){
-//    init(argv[1]);
+    try{
+        if(argc == 2)
+            init(argv[1]);//parse file
+        else
+            init("config_files/default")//parse default file
+        else
+            throw std::exception();
+    }
+    catch(const std::exception& e){
+        std::cout << e.what() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    Webserv();
+    launch_webserv();
 
-    webserv_loop();
-
-    exit(0);
+    exit(EXIT_SUCCESS);
 }
 
