@@ -11,4 +11,21 @@
 /* ************************************************************************** */
 
 
-#include "server.hpp"
+#include "../Include/server.class.hpp"
+
+server::server() : pid(), server_fd(), new_socket(), address() {std::cout << "without arg" <<std::endl;}
+
+server::server(pid_t& pid_, int& server_fd_, int& new_socket_, struct sockaddr_in& address_)
+        : pid(pid_), server_fd(server_fd_), new_socket(new_socket_), address(address_){std::cout << "arg" <<std::endl;}
+
+server::~server() {std::cout << "arg" <<std::endl;}
+
+server::server(const server& other) : pid(other.pid), server_fd(other.pid), new_socket(other.new_socket), address(other.address){std::cout << "copy" <<std::endl;}
+
+server& server::operator=(const server& rhs){
+    pid = rhs.pid;
+    server_fd = rhs.server_fd;
+    new_socket = rhs.new_socket;
+    address = rhs.address;
+    return *this;
+}

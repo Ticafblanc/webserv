@@ -17,17 +17,16 @@ int main(int argc, char **argv, char **envp){
         if(argc == 2)
             init(argv[1]);//parse file
         else
-            init("config_files/default")//parse default file
-        else
-            throw std::exception();
+            init("config_files/default");//parse default file
     }
     catch(const std::exception& e){
-        std::cout << e.what() << std::endl;
+        std::cout << e.what() << " error" << std::endl;
         exit(EXIT_FAILURE);
     }
-    Webserv();
-    launch_webserv();
-
+    /*see if try catch to do*/
+//    for (int i = 0; i < Webserv()->nb_serv; ++i) {
+//        Webserv()->serv[i];
+//    }
     exit(EXIT_SUCCESS);
 }
 

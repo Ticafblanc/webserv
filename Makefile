@@ -38,6 +38,14 @@ SRC_NAME = $(notdir $(wildcard Sources/*.cpp))
 
 SRC = $(addprefix $(SRC_PATH),$(SRC_NAME))
 
+	#  CLASS  #
+
+CLASS_PATH = CLASS/
+
+SRC_NAME = $(notdir $(wildcard Sources/*.cpp))
+
+SRC = $(addprefix $(SRC_PATH),$(SRC_NAME))
+
 	#  OBJECTS  #
 
 OBJ_PATH = $(BIN_PATH)Objects/

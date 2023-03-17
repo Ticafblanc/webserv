@@ -17,22 +17,41 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
+/*
+*====================================================================================
+*|                                         std headers                              |
+*====================================================================================
+*/
+
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+*====================================================================================
+*|                                         class                                    |
+*====================================================================================
+*/
+
+#include "server.class.hpp"//buidl and manage server
+
+
+
+
 typedef struct webserv_content{
     int init;
-
+    int nb_serv;
+    server **serv;
 
 } t_webserv;
 
 /*init webserve (parsing and preliminary check)*/
-c_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
+t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
 void init(std::string str);//main init .... paring to do
 
 /*launch server web*/
+void lauch_webserv(void);
 
 /*manage server*/
 
