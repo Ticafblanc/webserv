@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
+#include "server.class.hpp"
 
 /*
 *====================================================================================
@@ -40,10 +42,9 @@
 
 
 typedef struct webserv_content{
-    int init;
-    int nb_serv;
-    server **serv;
-
+    int _init;
+    int _nb_server;
+    std::vector<server> *_server;
 } t_webserv;
 
 /*init webserve (parsing and preliminary check)*/

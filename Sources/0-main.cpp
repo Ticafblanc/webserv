@@ -14,6 +14,7 @@
 
 int main(int argc, char **argv, char **envp){
     try{
+        int i = 1;
         if(argc == 2)
             init(argv[1]);//parse file
         else
@@ -24,9 +25,7 @@ int main(int argc, char **argv, char **envp){
         exit(EXIT_FAILURE);
     }
     /*see if try catch to do*/
-//    for (int i = 0; i < Webserv()->nb_serv; ++i) {
-//        Webserv()->serv[i];
-//    }
+    std::cout << Webserv()->_server->size() << std::endl;
     exit(EXIT_SUCCESS);
 }
 

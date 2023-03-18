@@ -20,7 +20,8 @@ server::server(pid_t& pid_, int& server_fd_, int& new_socket_, struct sockaddr_i
 
 server::~server() {std::cout << "arg" <<std::endl;}
 
-server::server(const server& other) : pid(other.pid), server_fd(other.pid), new_socket(other.new_socket), address(other.address){std::cout << "copy" <<std::endl;}
+server::server(const server& other) : pid(other.pid), server_fd(other.pid),
+        new_socket(other.new_socket), address(other.address){std::cout << "copy" <<std::endl;}
 
 server& server::operator=(const server& rhs){
     pid = rhs.pid;
@@ -29,3 +30,4 @@ server& server::operator=(const server& rhs){
     address = rhs.address;
     return *this;
 }
+

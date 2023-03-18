@@ -58,7 +58,7 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 
 CC = c++
 
-#CC_FLAGS = -std=c++98-Wall -Wextra -Werror
+#CC_FLAGS = -std=c++98 -Wall -Wextra -Werror
 
 CL = rm -rf
 

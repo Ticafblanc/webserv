@@ -15,14 +15,11 @@
 t_webserv* Webserv(){
 
     static t_webserv cw;
-    if (!cw.init)
+    if (!cw._init)
     {
-        cw.init = 1;
-        cw.nb_serv = 2;
-        cw.serv = new server *;
-        for (int i = 0; i < cw.nb_serv; ++i) {
-            cw.serv[i] = new server;
-        }
+        cw._init = 1;
+        cw._nb_server = 2;
+        cw._server = new std::vector<server>(2);
     }
     return (&cw);
 }
