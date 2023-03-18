@@ -38,13 +38,10 @@
 
 #include "server.class.hpp"//buidl and manage server
 
-
-
-
 typedef struct webserv_content{
     int _init;
     int _nb_server;
-    std::vector<server> *_server;
+    std::vector<server> _server;
 } t_webserv;
 
 /*init webserve (parsing and preliminary check)*/

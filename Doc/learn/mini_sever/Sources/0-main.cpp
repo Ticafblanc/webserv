@@ -49,7 +49,7 @@ void  webserv_loop(){
         exit(EXIT_FAILURE);
     }
     if (listen(server_fd, 10) < 0)
-    {
+    {=
         perror("In listen");
         exit(EXIT_FAILURE);
     }

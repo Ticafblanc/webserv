@@ -18,14 +18,18 @@ t_webserv* Webserv(){
     if (!cw._init)
     {
         cw._init = 1;
-        cw._nb_server = 2;
-        cw._server = new std::vector<server>(2);
+        cw._server();
     }
     return (&cw);
 }
 
 void init(std::string str){
     (void)str;
-    Webserv();
+    //build 4 server for test during wait parsing
+    for (int i = 0; i < 4; ++i) {
+        Webserv()->_server.push_back(server(pid_t &, socket(AF_INET, SOCK_STREAM, 0)))
+
+    }
+
 //    throw std::exception();
 }
