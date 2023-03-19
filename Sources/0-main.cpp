@@ -13,8 +13,7 @@
 #include "../Include/0-webserv.hpp"
 
 int main(int argc, char **argv, char **envp){
-    Webserv();
-    init("sdfs");
+    init("config_files/default");//parse default file
 //    try{
 //        if(argc == 2)
 //            init(argv[1]);//parse file

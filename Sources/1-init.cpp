@@ -29,7 +29,7 @@ void init(std::string str){
         address[i].sin_addr.s_addr = inet_addr("127.0.0.1");
         address[i].sin_port = htons( 8081 );
         memset(address[i].sin_zero, '\0', sizeof address[i].sin_zero);
-        Webserv()->_server.push_back(server(socket(AF_INET, SOCK_STREAM, 0), address[i]));
+        Webserv()->_server.push_back(server(socket(AF_INET, SOCK_STREAM, 0), address[i]));//le socket thread a modifier
         std::cout<< "coucou = "<< cw->_server.size() << std::endl;
     }
     std::cout << "test" <<std::endl;
