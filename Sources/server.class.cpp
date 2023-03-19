@@ -156,8 +156,9 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 //    if(pid == 0){
 //        std::cout << address.sin_addr.s_addr << " " << inet_addr("127.0.0.1") << std::endl;
 //
-//    }
-}
+    return 0;
+    }
+
 
 
 
