@@ -25,7 +25,7 @@ int main(int argc, char **argv, char **envp){
 //        exit(EXIT_FAILURE);
 //    }
     /*see if try catch to do*/
-    std::cout << Webserv()->_server.size() << std::endl;
+    std::cout <<"fin " <<  Webserv()->_server.size() << std::endl;
     exit(EXIT_SUCCESS);
 }
 

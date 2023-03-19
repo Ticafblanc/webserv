@@ -28,7 +28,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
-#include <arpa/inet.h>
 #include "server.class.hpp"
 
 /*
@@ -51,7 +50,6 @@ t_webserv* Webserv(void);//singleton is main on acces to data to fill during de 
 void init(std::string str);//main init .... paring to do
 
 /*launch server web*/
-void lauch_webserv(void);
 
 /*manage server*/
 
