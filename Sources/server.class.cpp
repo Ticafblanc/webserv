@@ -159,6 +159,26 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
     return 0;
     }
 
+void server::setPid(pid_t pid) {
+    server::pid = pid;
+}
+
+void server::setServerFd(int serverFd) {
+    server_fd = serverFd;
+}
+
+void server::setNewSocket(int newSocket) {
+    new_socket = newSocket;
+}
+
+void server::setAddress(const sockaddr_in &address) {
+    server::address = address;
+}
+
+void server::setAddrlen(int addrlen) {
+    server::addrlen = addrlen;
+}
+
 
 
 

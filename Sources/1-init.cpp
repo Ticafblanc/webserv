@@ -34,7 +34,7 @@ void init(std::string str){
     Webserv()->_server[1].setIdServer(1);//set id server
     Webserv()->_server[1].set_socket(AF_INET, SOCK_STREAM, 0);//set sochet
     Webserv()->_server[1].set_address(AF_INET, "127.0.0.1", 8082);// set address struct
-    Webserv()->_server[1].set_bind(Webserv()->_server[1].getServerFd(), (sockaddr *)&Webserv()->_server[1].getAddress(), Webserv()->_server[1].getAddrlen());//set bind
+    Webserv()->_server[1].set_bind(Webserv()->_server[1].getServerFd(), (sockaddr *) &Webserv()->_server[1].getAddress(), Webserv()->_server[1].getAddrlen());//set bind
     Webserv()->_server[1].set_listen(Webserv()->_server[1].getServerFd(), 10);//set listen
 
     std::cout << "create class with arg" << std::endl;

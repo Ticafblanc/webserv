@@ -117,7 +117,17 @@ const sockaddr_in& getAddress() const;
 
 const int& getAddrlen() const;
 
-void setIdServer(int idServer);
+    void setPid(pid_t pid);
+
+    void setServerFd(int serverFd);
+
+    void setNewSocket(int newSocket);
+
+    void setAddress(const sockaddr_in &address);
+
+    void setAddrlen(int addrlen);
+
+    void setIdServer(int idServer);
 
 //      https://man7.org/linux/man-pages/man2/socket.2.html
 //    tcp_socket = socket(AF_INET, SOCK_STREAM, 0);

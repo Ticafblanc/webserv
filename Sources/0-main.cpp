@@ -23,8 +23,11 @@ int main(int argc, char **argv, char **envp){
         std::cout << e.what() << " error" << std::endl;
         exit(EXIT_FAILURE);
     }
+    for (int i = 0; i < Webserv()->_nb_server; ++i) {
+//        Webserv()->_server[i].launcher()
+    }
     /*see if try catch to do*/
-    std::cout <<"fin " <<  Webserv()->_server.size() << std::endl;
+    std::cout <<"fin "<< std::endl;
     exit(EXIT_SUCCESS);
 }
 
