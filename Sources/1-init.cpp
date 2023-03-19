@@ -15,21 +15,24 @@
 t_webserv* Webserv(){
 
     static t_webserv cw;
-    if (!cw._init)
-    {
-        cw._init = 1;
-        cw._server();
-    }
     return (&cw);
 }
 
 void init(std::string str){
     (void)str;
     //build 4 server for test during wait parsing
-    for (int i = 0; i < 4; ++i) {
-        Webserv()->_server.push_back(server(pid_t &, socket(AF_INET, SOCK_STREAM, 0)))
-
+    t_webserv *cw = Webserv();
+    std::cout << "Hello" << std::endl;
+    struct sockaddr_in address[4];
+    for (int i = 0; i < Webserv()->_nb_server; ++i) {
+        address[i].sin_family = AF_INET;
+        address[i].sin_addr.s_addr = inet_addr("127.0.0.1");
+        address[i].sin_port = htons( 8081 );
+        memset(address[i].sin_zero, '\0', sizeof address[i].sin_zero);
+        Webserv()->_server.push_back(server(socket(AF_INET, SOCK_STREAM, 0), address[i]));
+        std::cout<< "coucou = "<< cw->_server.size() << std::endl;
     }
+    std::cout << "test" <<std::endl;
 
 //    throw std::exception();
 }

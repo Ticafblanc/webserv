@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <arpa/inet.h>
 #include "server.class.hpp"
 
 /*
@@ -39,6 +40,7 @@
 #include "server.class.hpp"//buidl and manage server
 
 typedef struct webserv_content{
+    webserv_content() : _init(1), _nb_server(4), _server(){};
     int _init;
     int _nb_server;
     std::vector<server> _server;

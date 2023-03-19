@@ -28,7 +28,6 @@
 //#include <sys/types.h>
 //#include <sys/socket.h>
 //#include <sys/uio.h>
-//#include <arpa/inet.h>
 
 
 class server {
@@ -53,7 +52,7 @@ private:
 public:
     server();
 
-    server(pid_t& pid_, int& server_fd_, int& new_socket_, struct sockaddr_in& address_);
+    server(int server_fd_, struct sockaddr_in& address_);
 
     ~server();
 
