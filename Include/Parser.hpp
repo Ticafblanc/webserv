@@ -1,4 +1,4 @@
-#include "webserv.hpp"
+#include "Config.hpp"
 // •Choose the port and host of each ’server’.
 // •Setup the server_names or not.
 // •The first server for a host:port will be the default for this host:port (that means it will answer to all the requests that don’t belong to an other server).
@@ -87,9 +87,7 @@
 class Parser
 {
 private:
-	unsigned int port;
-	string host;
-	string server_name;
-	string default_pages[1024];
-	
+	Config configFile; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
+public:
+	//methods
 };
