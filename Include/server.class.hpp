@@ -123,7 +123,7 @@ void setIdServer(int idServer);
 //    tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 //    udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 //    raw_socket = socket(AF_INET, SOCK_RAW, protocol);
-void set_socket(const int domain, const int type, const int protocol);
+void set_socket(int domain, int type, int protocol);
 
 //      https://linux.die.net/man/3/inet_addr
 //      https://linux.die.net/man/3/htons
@@ -154,7 +154,15 @@ void set_listen(const int sockfd, const int backlog) ;
 //    https://man7.org/linux/man-pages/man2/accept.2.html
 int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
 
+/*
+*====================================================================================
+*|                                      signal                                      |
+*====================================================================================
+*/
+
+static void handle(int sig) ;
 };
+
 
 
 #endif //WEBSERV_SERVER_HPP

@@ -55,6 +55,7 @@ server& server::operator=(const server& rhs){
 */
 
 const char *  server::socket_exception::what() const throw(){
+    std::cout <<"errno = "<< errno << std::endl;
     return ("socket error");
 }
 
@@ -108,11 +109,12 @@ void server::setIdServer(int idServer) {
     this->id_server = idServer;
 }
 
-void server::set_socket(const int domain, const int type, const int protocol) {
+void server::set_socket(int domain, int type, int protocol) {
     if (domain != AF_INET)//add other error
         throw server::arg_exception();
-    this->server_fd = socket(domain, type, protocol);
-    if (this->server_fd == 0)
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
+//    this->server_fd = socket(domain, type, protocol);
+    if (fd == 0)
         throw server::socket_exception();
 }
 
@@ -147,22 +149,37 @@ void server::set_listen(const int sockfd, const int backlog) {
 */
 
 int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
+//    signal(SIGINT, handle);
     this->pid = fork();
     if (!this->pid) {
-        this->new_socket = accept(sockfd, addr, addr_len);
-        if (this->new_socket < 0)
-            throw server::accept_exception();
-        std::cout << this->id_server << std::endl;
-        close(this->new_socket);
-//start manage fork and process see to free rocess accept
-//    pid = fork();
-//    if(pid < 0)
-//        exit(EXIT_FAILURE);
-//    if(pid == 0){
+        while (1) {
+            this->new_socket = accept(sockfd, addr, addr_len);
+            if (this->new_socket < 0)
+                throw server::accept_exception();
+            std::cout << this->id_server << std::endl;
+            close(this->new_socket);
+            //start manage fork and process see to free rocess accept
+            //    pid = fork();
+            //    if(pid < 0)
+            //        exit(EXIT_FAILURE);
+            //    if(pid == 0){
+        }
     }
 
     return 0;
 }
+
+/*
+*====================================================================================
+*|                                      signal                                      |
+*====================================================================================
+*/
+
+//void server::handle(int sig) {
+//    close(this->new_socket);
+//    close(this->server_fd);
+//    exit(this->id_server);
+//}
 
 
 
