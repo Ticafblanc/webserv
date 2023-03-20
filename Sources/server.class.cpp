@@ -35,10 +35,10 @@ server::server(const int id, const char * ip_address, const int port, const int 
     }
 }
 
-server::~server() {/*std::cout << "arg" <<std::endl;*/}
+server::~server() { close(this->server_fd); }
 
-server::server(const server& other) : id_server(other.addrlen), pid(other.pid), server_fd(other.pid),
-        new_socket(other.new_socket), address(other.address), addrlen(){/*std::cout << "copy" <<std::endl;*/}
+server::server(const server& other) : id_server(other.id_server), pid(other.pid), server_fd(other.server_fd),
+        new_socket(other.new_socket), address(other.address), addrlen(other.addrlen){/*std::cout << "copy" <<std::endl;*/}
 
 server& server::operator=(const server& rhs){
     pid = rhs.pid;
@@ -55,7 +55,7 @@ server& server::operator=(const server& rhs){
 */
 
 const char *  server::socket_exception::what() const throw(){
-    return ("socket exeption");//voir si return errno !!
+    return ("socket error");
 }
 
 const char *  server::arg_exception::what() const throw(){
@@ -63,15 +63,16 @@ const char *  server::arg_exception::what() const throw(){
 }
 
 const char *  server::bind_exception::what() const throw(){
-    return ("bind exeption");//voir si return errno
+    return ("bind error");
 }
 
 const char *  server::listen_exception::what() const throw(){
-    return ("listen exeption");//voir si return errno
+    return ("listen error");
 }
 
-std::pair<int, const char *> server::accept_exception::what(int status) throw(){
-    return (std::make_pair(status, "accept error"));//voir si return errno
+const char * server::accept_exception::what() const throw(){
+    return ("accept error");
+
 }
 /*
 *====================================================================================
@@ -79,39 +80,39 @@ std::pair<int, const char *> server::accept_exception::what(int status) throw(){
 *====================================================================================
 */
 
-const int& server::getIdServer() const {
+int& server::getIdServer() {
     return id_server;
 }
 
-const pid_t& server::getPid() const {
+pid_t& server::getPid() {
     return pid;
 }
 
-const int& server::getServerFd() const {
+int& server::getServerFd(){
     return server_fd;
 }
 
-const int& server::getNewSocket() const {
+int& server::getNewSocket(){
     return new_socket;
 }
 
-const sockaddr_in& server::getAddress() const{
+sockaddr_in& server::getAddress() {
     return address;
 }
 
-const int& server::getAddrlen() const {
+size_t & server::getAddrlen(){
     return addrlen;
 }
 
 void server::setIdServer(int idServer) {
-    id_server = idServer;
+    this->id_server = idServer;
 }
 
 void server::set_socket(const int domain, const int type, const int protocol) {
     if (domain != AF_INET)//add other error
         throw server::arg_exception();
     this->server_fd = socket(domain, type, protocol);
-    if (server_fd == 0)
+    if (this->server_fd == 0)
         throw server::socket_exception();
 }
 
@@ -121,21 +122,21 @@ void server::set_address(const int domain, const char *ip_address, const int por
     this->address.sin_family = domain;
     this->address.sin_addr.s_addr = inet_addr(ip_address);//check format ip address during the parsing no ERROR
     this->address.sin_port = htons(port);//no error
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);
+    memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
     this->addrlen = sizeof(this->address);
 }
 
 void server::set_bind(const int sockfd, struct sockaddr* addr, const size_t size) {
-    int res;
-    res = bind(sockfd, addr, size);
-    if (res < 0)
+    this->new_socket = bind(sockfd, addr, size);
+    if (this->new_socket < 0) {
+        close(sockfd);
         throw server::bind_exception();
+    }
 }
 
 void server::set_listen(const int sockfd, const int backlog) {
-    int res;
-    res = listen(sockfd, backlog);
-    if (res < 0)
+    this->new_socket = listen(sockfd, backlog);
+    if (this->new_socket < 0)
         throw server::listen_exception();
 }
 
@@ -145,39 +146,25 @@ void server::set_listen(const int sockfd, const int backlog) {
 *====================================================================================
 */
 
-int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len){
-    int res;
-    res = accept(sockfd, addr, addr_len);
-    if (res < 0)
-        throw server::accept_exception();
+int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
+    this->pid = fork();
+    if (!this->pid) {
+        this->new_socket = accept(sockfd, addr, addr_len);
+        if (this->new_socket < 0)
+            throw server::accept_exception();
+        std::cout << this->id_server << std::endl;
+        close(this->new_socket);
+//start manage fork and process see to free rocess accept
 //    pid = fork();
 //    if(pid < 0)
 //        exit(EXIT_FAILURE);
 //    if(pid == 0){
-//        std::cout << address.sin_addr.s_addr << " " << inet_addr("127.0.0.1") << std::endl;
-//
-    return 0;
     }
 
-void server::setPid(pid_t pid) {
-    server::pid = pid;
+    return 0;
 }
 
-void server::setServerFd(int serverFd) {
-    server_fd = serverFd;
-}
 
-void server::setNewSocket(int newSocket) {
-    new_socket = newSocket;
-}
-
-void server::setAddress(const sockaddr_in &address) {
-    server::address = address;
-}
-
-void server::setAddrlen(int addrlen) {
-    server::addrlen = addrlen;
-}
 
 
 

@@ -44,7 +44,7 @@ private:// see if to switch const
     int server_fd;
     int new_socket;
     struct sockaddr_in address;
-    int addrlen;
+    size_t addrlen;
 
 /*
 *====================================================================================
@@ -96,7 +96,7 @@ public:
     class accept_exception: public std::exception
     {
     public:
-        static std::pair<int, const char *> what(int status) throw();
+        const char * what() const throw();
     };
 
 /*
@@ -105,29 +105,19 @@ public:
 *====================================================================================
 */
 
-const int& getIdServer() const;
+int& getIdServer();
 
-const pid_t& getPid() const;
+pid_t& getPid() ;
 
-const int& getServerFd() const;
+int& getServerFd();
 
-const int& getNewSocket() const;
+int& getNewSocket();
 
-const sockaddr_in& getAddress() const;
+sockaddr_in& getAddress();
 
-const int& getAddrlen() const;
+size_t& getAddrlen();
 
-    void setPid(pid_t pid);
-
-    void setServerFd(int serverFd);
-
-    void setNewSocket(int newSocket);
-
-    void setAddress(const sockaddr_in &address);
-
-    void setAddrlen(int addrlen);
-
-    void setIdServer(int idServer);
+void setIdServer(int idServer);
 
 //      https://man7.org/linux/man-pages/man2/socket.2.html
 //    tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -150,10 +140,10 @@ void set_socket(const int domain, const int type, const int protocol);
 void set_address(const int domain, const char * ip_address, const int port);
 
 //      https://man7.org/linux/man-pages/man2/bind.2.html
-static void set_bind(const int sockfd, struct sockaddr *addr, const size_t size);
+void set_bind(const int sockfd, struct sockaddr *addr, const size_t size);
 
 //    https://man7.org/linux/man-pages/man2/listen.2.html
-static void set_listen(const int sockfd, const int backlog) ;
+void set_listen(const int sockfd, const int backlog) ;
 
 /*
 *====================================================================================
@@ -162,7 +152,7 @@ static void set_listen(const int sockfd, const int backlog) ;
 */
 
 //    https://man7.org/linux/man-pages/man2/accept.2.html
-static int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
 
 };
 

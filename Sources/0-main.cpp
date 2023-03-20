@@ -18,14 +18,18 @@ int main(int argc, char **argv, char **envp){
             init(argv[1]);//parse file
         else
             init("config_files/default");//parse default file
+        for (int i = 0; i < Webserv()->_nb_server; ++i) {
+            Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
+                                           (sockaddr *)&Webserv()->_server[i].getAddress(),
+                                           (socklen_t*)&Webserv()->_server[i].getAddrlen());
+        }
+        wait(NULL);
     }
     catch(const std::exception& e){
-        std::cout << e.what() << " error" << std::endl;
+        std::cout << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < Webserv()->_nb_server; ++i) {
-//        Webserv()->_server[i].launcher()
-    }
+    printf("sdf");
     /*see if try catch to do*/
     std::cout <<"fin "<< std::endl;
     exit(EXIT_SUCCESS);
