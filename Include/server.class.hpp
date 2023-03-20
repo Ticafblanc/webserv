@@ -40,11 +40,11 @@ class server {
 */
 private:// see if to switch const
     int id_server;
-    pid_t pid;
+//    pid_t pid;
     int server_fd;
     int new_socket;
+    int addr_len;
     struct sockaddr_in address;
-    size_t addrlen;
 
 /*
 *====================================================================================
@@ -107,7 +107,7 @@ public:
 
 int& getIdServer();
 
-pid_t& getPid() ;
+//pid_t getPid() const;
 
 int& getServerFd();
 
@@ -115,7 +115,7 @@ int& getNewSocket();
 
 sockaddr_in& getAddress();
 
-size_t& getAddrlen();
+int& getAddrlen();
 
 void setIdServer(int idServer);
 

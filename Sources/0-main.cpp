@@ -20,13 +20,14 @@ int main(int argc, char **argv, char **envp){
             init(argv[1]);//parse file
         else
             init("config_files/default");//parse default file
-//        for (int i = 0; i < Webserv()->_nb_server; ++i) {
-//            Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
-//                                           (sockaddr *)&Webserv()->_server[i].getAddress(),
-//                                           (socklen_t*)&Webserv()->_server[i].getAddrlen());
-//        }
-//        for (int i = 0; i < Webserv()->_nb_server; ++i)
-//            wait(NULL);
+        for (int i = 0; i < Webserv()->_nb_server; ++i) {
+            std::cout <<"coucu" << std::endl;
+            Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
+                                           (sockaddr *)&Webserv()->_server[i].getAddress(),
+                                           (socklen_t*)&Webserv()->_server[i].getAddrlen());
+        }
+        for (int i = 0; i < Webserv()->_nb_server; ++i)
+            waitpid(-1, NULL, 0);
     }
     catch(const std::exception& e){
         std::cout << e.what() << std::endl;

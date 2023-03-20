@@ -19,10 +19,12 @@
 *====================================================================================
 */
 
-server::server() : id_server(), pid(), server_fd(), new_socket(), address(), addrlen() {/*std::cout << "without arg" <<std::endl;*/}
+server::server() : id_server(), server_fd(), new_socket(), address(), addr_len() {
+    return;
+}
 
 server::server(const int id, const char * ip_address, const int port, const int domain, const int type, const int protocol, const int backlog)
-        : id_server(id), pid(), server_fd(), new_socket(), address(), addrlen() {/*std::cout << "without arg" <<std::endl;*/
+        : id_server(id), server_fd(), new_socket(), address(), addr_len() {/*std::cout << "without arg" <<std::endl;*/
     try{
         set_socket(domain, type, protocol);//throw exception
         set_address(domain, ip_address, port);
@@ -37,11 +39,10 @@ server::server(const int id, const char * ip_address, const int port, const int 
 
 server::~server() { close(this->server_fd); }
 
-server::server(const server& other) : id_server(other.id_server), pid(other.pid), server_fd(other.server_fd),
-        new_socket(other.new_socket), address(other.address), addrlen(other.addrlen){/*std::cout << "copy" <<std::endl;*/}
+server::server(const server& other) : id_server(other.id_server), server_fd(other.server_fd),
+                                      new_socket(other.new_socket), address(other.address), addr_len(other.addr_len){/*std::cout << "copy" <<std::endl;*/}
 
 server& server::operator=(const server& rhs){
-    pid = rhs.pid;
     server_fd = rhs.server_fd;
     new_socket = rhs.new_socket;
     address = rhs.address;
@@ -85,10 +86,6 @@ int& server::getIdServer() {
     return id_server;
 }
 
-pid_t& server::getPid() {
-    return pid;
-}
-
 int& server::getServerFd(){
     return server_fd;
 }
@@ -101,8 +98,8 @@ sockaddr_in& server::getAddress() {
     return address;
 }
 
-size_t & server::getAddrlen(){
-    return addrlen;
+int & server::getAddrlen(){
+    return addr_len;
 }
 
 void server::setIdServer(int idServer) {
@@ -112,9 +109,8 @@ void server::setIdServer(int idServer) {
 void server::set_socket(int domain, int type, int protocol) {
     if (domain != AF_INET)//add other error
         throw server::arg_exception();
-    int fd = socket(AF_INET, SOCK_STREAM, 0);
-//    this->server_fd = socket(domain, type, protocol);
-    if (fd == 0)
+    this->server_fd = socket(domain, type, protocol);
+    if (this->server_fd == 0)
         throw server::socket_exception();
 }
 
@@ -125,7 +121,7 @@ void server::set_address(const int domain, const char *ip_address, const int por
     this->address.sin_addr.s_addr = inet_addr(ip_address);//check format ip address during the parsing no ERROR
     this->address.sin_port = htons(port);//no error
     memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
-    this->addrlen = sizeof(this->address);
+    this->addr_len = sizeof(this->address);
 }
 
 void server::set_bind(const int sockfd, struct sockaddr* addr, const size_t size) {
@@ -150,10 +146,10 @@ void server::set_listen(const int sockfd, const int backlog) {
 
 int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
 //    signal(SIGINT, handle);
-    this->pid = fork();
-    if (!this->pid) {
+    pid_t pid = fork();
+    if (!pid) {
         while (1) {
-            this->new_socket = accept(sockfd, addr, addr_len);
+            this->new_socket = accept(this->server_fd, (struct sockaddr *)&this->address, (socklen_t*)&this->addr_len);
             if (this->new_socket < 0)
                 throw server::accept_exception();
             std::cout << this->id_server << std::endl;
@@ -168,6 +164,10 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 
     return 0;
 }
+
+//pid_t server::getPid() const {
+//    return pid;
+//}
 
 /*
 *====================================================================================
