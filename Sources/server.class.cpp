@@ -19,29 +19,30 @@
 *====================================================================================
 */
 
-server::server() : id_server(), server_fd(), new_socket(), address(), addr_len() {}
+server::server() : id_server(), pid(), server_fd(), new_socket(), address(), addr_len() {}
 
 server::server(const int id, const char * ip_address, const int port, const int domain, const int type, const int protocol, const int backlog)
-        : id_server(id), server_fd(), new_socket(), address(), addr_len() {/*std::cout << "without arg" <<std::endl;*/
-
+        : id_server(id), server_fd(), new_socket(), address(), addr_len() {
+    try{
         set_socket(domain, type, protocol);//throw exception
         set_address(domain, ip_address, port);
         set_bind(this->server_fd, reinterpret_cast<struct sockaddr *>(&this->address), sizeof(address));//throw exception
         set_listen(this->server_fd, backlog);
-
-//    catch (const server::bind_exception& e){
-//        close(this->server_fd);
-//        throw e;
-//    }
+    }
+    catch (const server::bind_exception& e){
+        close(this->server_fd);
+        throw e;
+    }
 }
 
 server::~server() { close(this->server_fd); }
 
-server::server(const server& other) : id_server(other.id_server), server_fd(other.server_fd),
+server::server(const server& other) : id_server(other.id_server), pid(other.pid), server_fd(other.server_fd),
                                       new_socket(other.new_socket), address(other.address), addr_len(other.addr_len){/*std::cout << "copy" <<std::endl;*/}
 
 server& server::operator=(const server& rhs){
     id_server = rhs.id_server;
+    pid = rhs.pid;
     server_fd = rhs.server_fd;
     new_socket = rhs.new_socket;
     address = rhs.address;
@@ -102,6 +103,10 @@ size_t& server::getAddrlen(){
     return addr_len;
 }
 
+pid_t server::getPid() const {
+    return pid;
+}
+
 void server::setIdServer(int idServer) {
     this->id_server = idServer;
 }
@@ -147,26 +152,25 @@ void server::set_listen(const int sockfd, const int backlog) {
 
 int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
 //    signal(SIGINT, handle);
+    std::cout << "server = " << this->id_server << " is open on fd = " << this->getServerFd() << std::endl;
+    pid = fork();
+    if (!pid){
+        while (1) {
+    //        int fd = accept(sockfd, NULL, NULL);
+    //        if (fd < 0)
+    //            throw server::accept_exception();
 
-    while (1) {
-        int fd = accept(sockfd, NULL, NULL);
-        if (fd < 0)
-            throw server::accept_exception();
-        std::cout << this->id_server << std::endl;
-//        close(this->new_socket);
-        //start manage fork and process see to free rocess accept
-        //    pid = fork();
-        //    if(pid < 0)
-        //        exit(EXIT_FAILURE);
-        //    if(pid == 0){
+    //        close(this->new_socket);
+            //start manage fork and process see to free rocess accept
+            //    pid = fork();
+            //    if(pid < 0)
+            //        exit(EXIT_FAILURE);
+            //    if(pid == 0){
+        }
     }
 
     return 0;
 }
-
-//pid_t server::getPid() const {
-//    return pid;
-//}
 
 /*
 *====================================================================================

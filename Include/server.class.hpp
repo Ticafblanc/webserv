@@ -40,7 +40,7 @@ class server {
 */
 private:// see if to switch const
     int id_server;
-//    pid_t pid;
+    pid_t pid;
     int server_fd;
     int new_socket;
     size_t addr_len;
@@ -107,7 +107,7 @@ public:
 
 int& getIdServer();
 
-//pid_t getPid() const;
+pid_t getPid() const;
 
 int& getServerFd();
 

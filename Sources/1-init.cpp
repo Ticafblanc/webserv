@@ -49,8 +49,12 @@ void init(std::string str){
     Webserv()->_server.push_back(serv1);
 
     std::cout << "create class with arg x 2" << std::endl;
-    Webserv()->_server.push_back(server(3, "127.0.0.1", 4242, AF_INET, SOCK_STREAM, 0, 10));
+    server  *serv2 = new server(3, "127.0.0.1", 4242, AF_INET, SOCK_STREAM, 0, 10);
+    serv2->getServerFd();
+    Webserv()->_server.push_back(*serv2);
 
     Webserv()->_server.push_back(server(4, "127.0.0.1", 4243, AF_INET, SOCK_STREAM, 0, 10));
     std::cout << "size of vector = " <<Webserv()->_server.size() << std::endl;
+
+    delete serv2;
 }
