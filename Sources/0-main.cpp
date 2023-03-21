@@ -20,21 +20,22 @@ int main(int argc, char **argv, char **envp){
             init(argv[1]);//parse file
         else
             init("config_files/default");//parse default file
+        std::vector<server> serv =  Webserv()->_server;
         for (int i = 0; i < Webserv()->_nb_server; ++i) {
-            std::cout <<"coucu" << std::endl;
             Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
                                            (sockaddr *)&Webserv()->_server[i].getAddress(),
                                            (socklen_t*)&Webserv()->_server[i].getAddrlen());
         }
-        for (int i = 0; i < Webserv()->_nb_server; ++i)
-            waitpid(-1, NULL, 0);
+//        for (int i = 0; i < Webserv()->_nb_server; ++i)
+//            waitpid(-1, NULL, 0);
     }
     catch(const std::exception& e){
         std::cout << e.what() << std::endl;
+        std::cout <<"end failure"<< std::endl;
         exit(EXIT_FAILURE);
     }
     /*see if try catch to do*/
-    std::cout <<"fin "<< std::endl;
+    std::cout <<"end succes"<< std::endl;
     exit(EXIT_SUCCESS);
 }
 

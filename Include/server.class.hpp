@@ -43,7 +43,7 @@ private:// see if to switch const
 //    pid_t pid;
     int server_fd;
     int new_socket;
-    int addr_len;
+    size_t addr_len;
     struct sockaddr_in address;
 
 /*
@@ -115,7 +115,7 @@ int& getNewSocket();
 
 sockaddr_in& getAddress();
 
-int& getAddrlen();
+size_t& getAddrlen();
 
 void setIdServer(int idServer);
 
