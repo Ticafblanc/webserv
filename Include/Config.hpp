@@ -4,5 +4,5 @@
 class Config
 {
 private:
-	std::string sever_name;
+	std::string server_name;
 };
