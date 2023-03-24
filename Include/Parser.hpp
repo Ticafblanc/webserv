@@ -87,7 +87,12 @@
 class Parser
 {
 private:
+	Parser();
+	std::string arg;
 	Config configFile; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
 public:
+	Parser(char **argv);
+	~Parser();
+	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	//methods
 };

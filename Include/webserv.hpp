@@ -13,6 +13,7 @@
 # define WEBSERV_HPP
 # include <iostream>
 # include <string>
+# include "Parser.hpp"
 
 using std::cout;
 using std::cerr;
