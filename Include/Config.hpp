@@ -1,4 +1,5 @@
-#include "Config.hpp"
+#include "../Include/webserv.hpp"
+
 // •Choose the port and host of each ’server’.
 // •Setup the server_names or not.
 // •The first server for a host:port will be the default for this host:port (that means it will answer to all the requests that don’t belong to an other server).
@@ -84,15 +85,14 @@
 // The code 308 was not treated as a redirect until version 1.13.0.
 // These directives are inherited from the previous configuration level if and only if there are no error_page directives defined on the current level.
 
-class Parser
+
+// Class that holds relevant information from the parsed server block of a config file
+class Config
 {
 private:
-	Parser();
-	std::string arg;
-	Config configFile; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
-public:
-	Parser(char **argv);
-	~Parser();
-	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
-	//methods
+	std::string server_name;
+	unsigned int port;
+	std::string host;
+	std::string default_error_pages[1024];
+	
 };
