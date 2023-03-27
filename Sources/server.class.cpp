@@ -65,37 +65,8 @@ const char * server::accept_exception::what() const throw(){
 *====================================================================================
 */
 
-void server::set_socket(int domain, int type, int protocol) {
-    if (domain != AF_INET)//add other error
-        throw server::arg_exception();
-    this->server_fd = socket(domain, type, protocol);
-    int i  = this->server_fd;
-    if (this->server_fd == 0)
-        throw server::socket_exception();
-}
-
-void server::set_address(const int domain, const char *ip_address, const int port){
-    if (domain != AF_INET)
-        throw server::arg_exception();
-    this->address.sin_family = domain;
-    this->address.sin_addr.s_addr = inet_addr(ip_address);//check format ip address during the parsing no ERROR
-    this->address.sin_port = htons(port);//no error
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
-    this->addr_len = sizeof(this->address);
-}
-
-void server::set_bind(const int sockfd, struct sockaddr* addr, const size_t size) {
-    this->new_socket = bind(sockfd, addr, size);
-    if (this->new_socket < 0) {
-        close(sockfd);
-        throw server::bind_exception();
-    }
-}
-
-void server::set_listen(const int sockfd, const int backlog) {
-    this->new_socket = listen(sockfd, backlog);
-    if (this->new_socket < 0)
-        throw server::listen_exception();
+data_server& server::getDataServer() const{
+    return this->data;
 }
 
 /*
@@ -104,7 +75,7 @@ void server::set_listen(const int sockfd, const int backlog) {
 *====================================================================================
 */
 
-int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
+int server::launcher() {
     try{
         set_socket();//throw exception
         set_bind();//throw exception
@@ -151,7 +122,32 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 //    exit(this->id_server);
 //}
 
+/*
+*====================================================================================
+*|                                 private utils membre function                    |
+*====================================================================================
+*/
 
+void server::set_socket() {
+    this->data.setServerFd(socket(this->data.getDomain(), this->data.getType(), this->data.getProtocol());
+    if (this->data.getServerFd() == 0)
+        throw server::socket_exception();
+}
+
+
+void server::set_bind() {
+    this->data.setNewSocket(bind(this->data.getServerFd(), reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), size));
+    if (this->new_socket < 0) {
+        close(sockfd);
+        throw server::bind_exception();
+    }
+}
+
+void server::set_listen() {
+    this->new_socket = listen(sockfd, backlog);
+    if (this->new_socket < 0)
+        throw server::listen_exception();
+}
 
 
 
