@@ -4,6 +4,7 @@
 // •Setup the server_names or not.
 // •The first server for a host:port will be the default for this host:port (that means it will answer to all the requests that don’t belong to an other server).
 // •Setup default error pages.
+
 // •Setup routes with one or multiple of the following rules/configuration (routes wont
 // be using regexp):
 // ◦Define a list of accepted HTTP methods for the route.
@@ -90,9 +91,9 @@
 class Config
 {
 private:
-	std::string server_name;
+	string server_name;
 	unsigned int port;
-	std::string host;
-	std::string default_error_pages[1024];
-	
+	string host;
+	vector<string> default_error_pages;
+	vector<string> route;
 };

@@ -3,6 +3,7 @@
 // •Setup the server_names or not.
 // •The first server for a host:port will be the default for this host:port (that means it will answer to all the requests that don’t belong to an other server).
 // •Setup default error pages.
+
 // •Setup routes with one or multiple of the following rules/configuration (routes wont
 // be using regexp):
 // ◦Define a list of accepted HTTP methods for the route.
@@ -88,7 +89,7 @@ class Parser
 {
 private:
 	Parser();
-	std::string arg;
+	string arg;
 	Config configFile; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
 public:
 	Parser(char **argv);
