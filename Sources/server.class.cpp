@@ -19,19 +19,17 @@
 *====================================================================================
 */
 
-server::server() : id_server(), pid(), server_fd(), new_socket(), address(), addr_len() {}
-
-server::server(const int id, const char * ip_address, const int port, const int domain, const int type, const int protocol, const int backlog)
-        : id_server(id), server_fd(), new_socket(), address(), addr_len() {
+server::server(t_data_server& data)
+        : id_server(data.id), server_fd(), new_socket(), address(), addr_len() {
     try{
-        set_socket(domain, type, protocol);//throw exception
-        set_address(domain, ip_address, port);
+        set_socket(data.domain, data.type, data.protocol);//throw exception
+        set_address(data.domain, data.ip_address, data.port);
         set_bind(this->server_fd, reinterpret_cast<struct sockaddr *>(&this->address), sizeof(address));//throw exception
-        set_listen(this->server_fd, backlog);
+        set_listen(this->server_fd, data.backlog);
     }
     catch (const server::bind_exception& e){
         close(this->server_fd);
-        throw e;
+        perror(e);
     }
 }
 
@@ -111,16 +109,15 @@ void server::setIdServer(int idServer) {
     this->id_server = idServer;
 }
 
-void server::set_socket(int domain, int type, int protocol) {
+void server::set_socket() {
     if (domain != AF_INET)//add other error
         throw server::arg_exception();
     this->server_fd = socket(domain, type, protocol);
-    int i  = this->server_fd;
     if (this->server_fd == 0)
         throw server::socket_exception();
 }
 
-void server::set_address(const int domain, const char *ip_address, const int port){
+void server::set_address(){
     if (domain != AF_INET)
         throw server::arg_exception();
     this->address.sin_family = domain;
@@ -130,7 +127,7 @@ void server::set_address(const int domain, const char *ip_address, const int por
     this->addr_len = sizeof(this->address);
 }
 
-void server::set_bind(const int sockfd, struct sockaddr* addr, const size_t size) {
+void server::set_bind() {
     this->new_socket = bind(sockfd, addr, size);
     if (this->new_socket < 0) {
         close(sockfd);
@@ -138,7 +135,7 @@ void server::set_bind(const int sockfd, struct sockaddr* addr, const size_t size
     }
 }
 
-void server::set_listen(const int sockfd, const int backlog) {
+void server::set_listen() {
     this->new_socket = listen(sockfd, backlog);
     if (this->new_socket < 0)
         throw server::listen_exception();
@@ -184,7 +181,33 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 //    exit(this->id_server);
 //}
 
+/*
+*====================================================================================
+*|                            private static fonction utils                         |
+*====================================================================================
+*/
 
+
+int server::fd_isopen() {
+    int ret = fcntl(fd, F_GETFL);
+    if (ret == -1) {
+        perror("fcntl");
+        return 0;
+    }
+    return 0;
+}
+
+int server::socket_isopen() {
+    int error = 0;
+    socklen_t len = sizeof(error);
+    int ret = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
+    if (ret != 0) {
+        perror("getsockopt");
+        return -1;
+    }
+    // Si l'erreur est 0, le socket est ouvert
+    return (error == 0) ? 0 : -1;
+}
 
 
 

@@ -23,9 +23,9 @@ int main(int argc, char **argv, char **envp){
         std::vector<server> serv =  Webserv()->_server;
         for (int i = 0; i < Webserv()->_nb_server; ++i) {
             std::cout << "couc" <<std::endl;
-            Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
-                                           (sockaddr *)&Webserv()->_server[i].getAddress(),
-                                           (socklen_t*)&Webserv()->_server[i].getAddrlen());
+//            Webserv()->_server[i].launcher(Webserv()->_server[i].getServerFd(),
+//                                           (sockaddr *)&Webserv()->_server[i].getAddress(),
+//                                           (socklen_t*)&Webserv()->_server[i].getAddrlen());
         }
         waitpid(-1, NULL, 0);
     }

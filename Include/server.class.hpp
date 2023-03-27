@@ -21,15 +21,23 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
-//#include <string.h>
-//#include <sys/types.h>
-//#include <fcntl.h>
-//#include <sys/sendfile.h>
-//#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <sys/sendfile.h>
+#include <sys/stat.h>
+#include <sys/uio.h>
 
-//#include <sys/types.h>
-//#include <sys/uio.h>
-
+typedef struct data_server{
+    int id,
+    char * ip_address,
+    int port,
+    int domain,
+    int type,
+    int protocol,
+    int backlog
+}              t_data_server;
 
 class server {
 
@@ -53,9 +61,8 @@ private:// see if to switch const
 */
 
 public:
-    server();
 
-    server(const int id, const char * ip_address, const int port, const int domain, const int type, const int protocol, const int backlog);
+    server(t_data_server &);
 
     ~server();
 
@@ -123,7 +130,7 @@ void setIdServer(int idServer);
 //    tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
 //    udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
 //    raw_socket = socket(AF_INET, SOCK_RAW, protocol);
-void set_socket(int domain, int type, int protocol);
+void set_socket();
 
 //      https://linux.die.net/man/3/inet_addr
 //      https://linux.die.net/man/3/htons
@@ -137,13 +144,13 @@ void set_socket(int domain, int type, int protocol);
 //    struct in_addr {
 //        uint32_t       s_addr;     /* address in network byte order */
 //    };
-void set_address(const int domain, const char * ip_address, const int port);
+void set_address();
 
 //      https://man7.org/linux/man-pages/man2/bind.2.html
-void set_bind(const int sockfd, struct sockaddr *addr, const size_t size);
+void set_bind();
 
 //    https://man7.org/linux/man-pages/man2/listen.2.html
-void set_listen(const int sockfd, const int backlog) ;
+void set_listen();
 
 /*
 *====================================================================================
@@ -160,7 +167,17 @@ int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
 *====================================================================================
 */
 
-static void handle(int sig) ;
+void handle(int sig);
+
+/*
+*====================================================================================
+*|                                  private fonction utils                          |
+*====================================================================================
+*/
+
+int fd_isopen();
+int socket_isopen();
+
 };
 
 
