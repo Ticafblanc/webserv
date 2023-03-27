@@ -26,40 +26,16 @@ t_webserv* Webserv(){
 }
 
 void init(std::string str){
-//    int fds = socket(AF_INET, SOCK_STREAM, 0);
-//    if (fds == 0)
-//        throw server::socket_exception();
-//    (void)str;//to start parsing =>>
-//    //test to run during wait parsing
-//    std::cout << "create void class and add arg after and insert in vector x 2" << std::endl;
-//    server serv;
-//    serv.setIdServer(1);
-//    serv.set_socket(AF_INET, SOCK_STREAM, 0);//set sochet
-//    serv.set_address(AF_INET, "127.0.0.1", 8081);// set address struct
-//    serv.set_bind(serv.getServerFd(), (sockaddr *)&serv.getAddress(),serv.getAddrlen());//set bind
-//    serv.set_listen(serv.getServerFd(), 10);//set listen
-//    Webserv()->_server.push_back(serv);
-//
-//    server serv1;
-//    serv1.setIdServer(2);
-//    serv1.set_socket(AF_INET, SOCK_STREAM, 0);//set sochet
-//    serv1.set_address(AF_INET, "127.0.0.1", 8082);// set address struct
-//    serv1.set_bind(serv1.getServerFd(), (sockaddr *)&serv1.getAddress(),serv1.getAddrlen());//set bind
-//    serv1.set_listen(serv1.getServerFd(), 10);//set listen
-//    Webserv()->_server.push_back(serv1);
-//
-//    std::cout << "create class with arg x 2" << std::endl;
-//    server  *serv2 = new server(3, "127.0.0.1", 4242, AF_INET, SOCK_STREAM, 0, 10);
-//    serv2->getServerFd();
-//    Webserv()->_server.push_back(*serv2);
-//
-//    Webserv()->_server.push_back(server(4, "127.0.0.1", 4243, AF_INET, SOCK_STREAM, 0, 10));
-//    std::cout << "size of vector = " <<Webserv()->_server.size() << std::endl;
+    char ip[10] = {"127.0.0.1"};
 
-//    delete serv2;
-    server ser1(1, "127.0.0.1", 8081, AF_INET, SOCK_STREAM, 0, 10);
-    server ser2(2, "127.0.0.1", 8082, AF_INET, SOCK_STREAM, 0, 10);
-    server ser3(3, "127.0.0.1", 8083, AF_INET, SOCK_STREAM, 0, 10);
-    server ser4(4, "127.0.0.1", 8084, AF_INET, SOCK_STREAM, 0, 10);
-    server ser5(5, "127.0.0.1", 8085, AF_INET, SOCK_STREAM, 0, 10);
+    t_data_server data1(1, ip, 8081, AF_INET, SOCK_STREAM, 0, 10);
+    t_data_server data2(2, ip, 8082, AF_INET, SOCK_STREAM, 0, 10);
+    t_data_server data3(3, ip, 8083, AF_INET, SOCK_STREAM, 0, 10);
+    t_data_server data4(4, ip, 8084, AF_INET, SOCK_STREAM, 0, 10);
+    t_data_server data5(5, ip, 8085, AF_INET, SOCK_STREAM, 0, 10);
+    server ser1(data1);
+    server ser2(data2);
+    server ser3(data3);
+    server ser4(data4);
+    server ser5(data5);
 }

@@ -19,6 +19,7 @@
 *====================================================================================
 */
 
+
 server::server(t_data_server& data)
         : id_server(data.id), server_fd(), new_socket(), address(), addr_len() {
     try{
@@ -27,9 +28,14 @@ server::server(t_data_server& data)
         set_bind(this->server_fd, reinterpret_cast<struct sockaddr *>(&this->address), sizeof(address));//throw exception
         set_listen(this->server_fd, data.backlog);
     }
-    catch (const server::bind_exception& e){
-        close(this->server_fd);
-        perror(e);
+    catch (const std::exception& e){
+        try{
+            close(this->server_fd);
+            throw e;
+        }
+        catch (const server::bind_exception& e){
+            throw e;
+        }
     }
 }
 
@@ -54,13 +60,10 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
+
 const char *  server::socket_exception::what() const throw(){
     std::cout <<"errno = "<< errno << std::endl;
     return ("socket error");
-}
-
-const char *  server::arg_exception::what() const throw(){
-    return ("argument invalid");
 }
 
 const char *  server::bind_exception::what() const throw(){
@@ -81,64 +84,8 @@ const char * server::accept_exception::what() const throw(){
 *====================================================================================
 */
 
-int& server::getIdServer() {
-    return id_server;
-}
-
-int& server::getServerFd(){
-    return server_fd;
-}
-
-int& server::getNewSocket(){
-    return new_socket;
-}
-
-sockaddr_in& server::getAddress() {
-    return address;
-}
-
-size_t& server::getAddrlen(){
-    return addr_len;
-}
-
-pid_t server::getPid() const {
-    return pid;
-}
-
-void server::setIdServer(int idServer) {
-    this->id_server = idServer;
-}
-
-void server::set_socket() {
-    if (domain != AF_INET)//add other error
-        throw server::arg_exception();
-    this->server_fd = socket(domain, type, protocol);
-    if (this->server_fd == 0)
-        throw server::socket_exception();
-}
-
-void server::set_address(){
-    if (domain != AF_INET)
-        throw server::arg_exception();
-    this->address.sin_family = domain;
-    this->address.sin_addr.s_addr = inet_addr(ip_address);//check format ip address during the parsing no ERROR
-    this->address.sin_port = htons(port);//no error
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
-    this->addr_len = sizeof(this->address);
-}
-
-void server::set_bind() {
-    this->new_socket = bind(sockfd, addr, size);
-    if (this->new_socket < 0) {
-        close(sockfd);
-        throw server::bind_exception();
-    }
-}
-
-void server::set_listen() {
-    this->new_socket = listen(sockfd, backlog);
-    if (this->new_socket < 0)
-        throw server::listen_exception();
+t_data_server& server::getDataServer(){
+    return this->data;
 }
 
 /*
@@ -150,9 +97,7 @@ void server::set_listen() {
 int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_len) {
 //    signal(SIGINT, handle);
     std::cout << "server = " << this->id_server << " is open on fd = " << this->getServerFd() << std::endl;
-    pid = fork();
-    if (!pid){
-        while (1) {
+//        while (1) {
     //        int fd = accept(sockfd, NULL, NULL);
     //        if (fd < 0)
     //            throw server::accept_exception();
@@ -163,8 +108,8 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
             //    if(pid < 0)
             //        exit(EXIT_FAILURE);
             //    if(pid == 0){
-        }
-    }
+//        }
+//    }
 
     return 0;
 }
@@ -187,28 +132,27 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 *====================================================================================
 */
 
-
-int server::fd_isopen() {
-    int ret = fcntl(fd, F_GETFL);
-    if (ret == -1) {
-        perror("fcntl");
-        return 0;
-    }
-    return 0;
+void server::set_socket(int domain, int type, int protocol) {
+    if (domain != AF_INET)//add other error
+        throw server::arg_exception();
+    this->server_fd = socket(domain, type, protocol);
+    if (this->server_fd == 0)
+        throw server::socket_exception();
 }
 
-int server::socket_isopen() {
-    int error = 0;
-    socklen_t len = sizeof(error);
-    int ret = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
-    if (ret != 0) {
-        perror("getsockopt");
-        return -1;
+void server::set_bind() {
+    this->new_socket = bind(sockfd, addr, size);
+    if (this->new_socket < 0) {
+        close(sockfd);
+        throw server::bind_exception();
     }
-    // Si l'erreur est 0, le socket est ouvert
-    return (error == 0) ? 0 : -1;
 }
 
+void server::set_listen() {
+    this->new_socket = listen(sockfd, backlog);
+    if (this->new_socket < 0)
+        throw server::listen_exception();
+}
 
 
 
