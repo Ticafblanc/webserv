@@ -15,7 +15,8 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
-
+#include <vector>
+#include <unistd.h>
 
 class data_server{
 /*
@@ -27,8 +28,8 @@ class data_server{
 public:
 
     enum{ id_server, port, domain, type, protocol,
-            backlog,server_fd, new_socket, };
-    enum{ server_name, ip_adresse, };
+            backlog, server_fd, new_socket, };
+    enum{ server_name, ip_address, };
 
 /*
 *====================================================================================
@@ -38,8 +39,8 @@ public:
 
 private:
 
-    int i_data[8];
-    std::string s_data[2];
+    std::vector<int> i_data;
+    std::vector<std::string> s_data;
     pid_t pid;//follow process see if ok
     std::size_t addr_len;
     struct sockaddr_in address;
@@ -53,6 +54,7 @@ private:
 public:
 
     data_server();
+    ~data_server();
     data_server(const data_server& other);
     data_server& operator=(const data_server& rhs);
 
@@ -63,6 +65,12 @@ public:
 */
 
 public:
+
+    class data_exception: public std::exception
+    {
+    public:
+        const char * what() const throw();
+    };
 
     class arg_exception: public std::exception
     {
@@ -98,48 +106,50 @@ public:
 
 public:
 
-    int* getIData() const;
-    std::string* getSData() const;
+    std::vector<int>& getIData();
+    std::vector<std::string>& getSData();
 
-    std::string& getServerName() const;
+    std::string getServerName() const;
     void setServer_name(std::string &);
 
-    std::string& getIpAddress() const;
+    std::string getIpAddress() const;
     void setIp_address(std::string &);
 
-    int& getIdServer() const;
+    int getIdServer() const;
     void setIdServer(int &);
 
-    int& getPort() const;
+    int getPort() const;
     void setPort(int &);
 
-    int& getDomain() const;
+    int getDomain() const;
     void setDomain(int &);
 
-    int& getType() const;
+    int getType() const;
     void setType(int &);
 
-    int& getProtocol() const;
+    int getProtocol() const;
     void setProtocol(int &);
 
-    int&  getBacklog() const;
+    int  getBacklog() const;
     void setBacklog(int &);
 
-    int& getServerFd() const;
+    int getServerFd() const;
     void setServerFd(int &);
 
-    int& getNewSocket() const;
+    int getNewSocket() const;
     void setNewSocket(int &);
 
-    sockaddr_in& getAddress() const;
-    void setAddress(int domain, std::string ip_address, int port);
+    sockaddr_in getAddress() const;
+    void setAddress(int domain, const std::string& ip_address, int port);
     void setAddress();
 
-    size_t& getAddrlen() const;
+    size_t getAddrlen() const;
     void setSddrlen(std::size_t &);
 
     pid_t getPid() const;
     void setPid(pid_t &);
+
+    void close_server_fd();
 
 /*
 *====================================================================================

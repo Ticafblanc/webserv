@@ -11,29 +11,35 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(), s_data(), pid(), addr_len(), address(){}
+data_server::data_server() : i_data(8), s_data(2), pid(), addr_len(), address(){}
 
-data_server::data_server(const data_server& other){
-    memccpy(this->i_data, other.i_data, sizeof i_data);
-    memccpy(this->s_data, other.s_data, sizeof s_data);
+data_server::~data_server() {
+    if(!fd_isopen() && !socket_isopen())
+        throw data_server::data_exception();
+    close(this->i_data[server_fd]);
+}
+
+data_server::data_server(const data_server& other) : i_data(8), s_data(2), address(){
+    this->i_data = other.i_data;
+    this->s_data = other.s_data;
     this->pid = other.pid;
     this->addr_len = other.addr_len;
     this->address.sin_family = other.address.sin_family;
     this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
-    this->address.sin_port = other.address.sin_port);
-    memccpy(this->address.sin_zero, other.address.sin_zero, sizeof address.sin_zero);
+    this->address.sin_port = other.address.sin_port;
+    memcpy(this->address.sin_zero, other.address.sin_zero, sizeof address.sin_zero);
 }
 
 data_server& data_server::operator=(const data_server& rhs){
-    memccpy(this->i_data, rhs.i_data, sizeof i_data);
-    memccpy(this->s_data, rhs.s_data, sizeof s_data);
+    this->i_data = rhs.i_data;
+    this->s_data = rhs.s_data;
     this->pid = rhs.pid;
     this->addr_len = rhs.addr_len;
     this->address.sin_family = rhs.address.sin_family;
     this->address.sin_addr.s_addr = rhs.address.sin_addr.s_addr;
-    this->address.sin_port = rhs.address.sin_port);
-    memccpy(this->address.sin_zero, rhs.address.sin_zero, sizeof address.sin_zero);
-    return this*;
+    this->address.sin_port = rhs.address.sin_port;
+    memcpy(this->address.sin_zero, rhs.address.sin_zero, sizeof address.sin_zero);
+    return *this;
 }
 
 /*
@@ -41,6 +47,10 @@ data_server& data_server::operator=(const data_server& rhs){
 *|                                  Member Exception                                 |
 *====================================================================================
 */
+
+const char *  data_server::data_exception::what() const throw(){
+    return ("fd error");
+}
 
 const char *  data_server::arg_exception::what() const throw(){
     return ("argument invalid");
@@ -52,15 +62,15 @@ const char *  data_server::arg_exception::what() const throw(){
 *====================================================================================
 */
 
-int* data_server::getIData() const{
-    return &this->i_data;
+std::vector<int>& data_server::getIData(){
+    return this->i_data;
 }
 
-std::string* data_server::getSData() const{
-    return &this->s_data;
+std::vector<std::string>& data_server::getSData() {
+    return this->s_data;
 }
 
-std::string& data_server::getServerName() const{
+std::string data_server::getServerName() const{
     return this->s_data[server_name];
 }
 
@@ -68,22 +78,22 @@ void data_server::setServer_name(std::string & name){
     this->s_data[server_name] = name;
 }
 
-std::string& data_server::getIpAddress() const{
-    return this->s_data[ip_adresse];
+std::string data_server::getIpAddress() const{
+    return this->s_data[ip_address];
 }
 
 void data_server::setIp_address(std::string & ip){
-    this->s_data[ip_adresse] = ip;
+    this->s_data[ip_address] = ip;
 }
 
-int& data_server::getIdServer() const{
+int data_server::getIdServer() const{
     return this->i_data[id_server];
 }
 void data_server::setIdServer(int & id){
     this->i_data[id_server] = id;
 }
 
-int& data_server::getPort() const{
+int data_server::getPort() const{
     return this->i_data[port];
 
 }
@@ -91,7 +101,7 @@ void data_server::setPort(int & p){
     this->i_data[port] = p;
 }
 
-int& data_server::getDomain() const{
+int data_server::getDomain() const{
     return this->i_data[domain];
 }
 
@@ -99,7 +109,7 @@ void data_server::setDomain(int & dom){
     this->i_data[domain] = dom;
 }
 
-int& data_server::getType() const{
+int data_server::getType() const{
     return this->i_data[type];
 }
 
@@ -107,7 +117,7 @@ void data_server::setType(int & type){
     this->i_data[type] = type;
 }
 
-int& data_server::getProtocol() const{
+int data_server::getProtocol() const{
     return this->i_data[protocol];
 }
 
@@ -115,16 +125,16 @@ void data_server::setProtocol(int & pro){
     this->i_data[protocol] = pro;
 }
 
-int&  data_server::getBacklog() const{
+int  data_server::getBacklog() const{
     return this->i_data[backlog];
 }
 
 void data_server::setBacklog(int & log){
-    this->i_data[backlog] = log
+    this->i_data[backlog] = log;
 }
 
 
-int& data_server::getServerFd() const{
+int data_server::getServerFd() const{
     return this->i_data[server_fd];
 }
 
@@ -132,7 +142,7 @@ void data_server::setServerFd(int & fd){
     this->i_data[server_fd] = fd;
 }
 
-int& data_server::getNewSocket() const{
+int data_server::getNewSocket() const{
     return i_data[new_socket];
 }
 
@@ -140,29 +150,29 @@ void data_server::setNewSocket(int & sok){
     this->i_data[new_socket] = sok;
 }
 
-sockaddr_in& data_server::getAddress() const{
+sockaddr_in data_server::getAddress() const{
     return this->address;
 }
 
-void data_server::set_address(int domain, int ip_address, int port){
+void data_server::setAddress(int dom, const std::string& ip_addr, int por){
     if (domain != AF_INET)
-        throw server::arg_exception();
-    this->address.sin_family = domain;
-    this->address.sin_addr.s_addr = inet_addr(ip_address);//check format ip address during the parsing no ERROR
-    this->address.sin_port = htons(port);//no error
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
+        throw data_server::arg_exception();
+    this->address.sin_family = dom;
+    this->address.sin_addr.s_addr = inet_addr(ip_addr.c_str());//check format ip address during the parsing no ERROR
+    this->address.sin_port = htons(por);//no error
+    memset(this->address.sin_zero, '\0', sizeof this->address.sin_zero);//a delete
     this->addr_len = sizeof(this->address);
 }
 
-void data_server::set_address(){
+void data_server::setAddress(){
     this->address.sin_family = this->domain;
     this->address.sin_addr.s_addr = inet_addr(this->s_data[ip_address].c_str());//check format ip address during the parsing no ERROR
     this->address.sin_port = htons(this->i_data[port]);//no error
-    memset(address.sin_zero, '\0', sizeof address.sin_zero);//a delete
+    memset(this->address.sin_zero, '\0', sizeof this->address.sin_zero);//a delete
     this->addr_len = sizeof(this->address);
 }
 
-size_t& data_server::getAddrlen() const{
+size_t data_server::getAddrlen() const{
     return this->addr_len;
 }
 
@@ -178,6 +188,11 @@ void data_server::setPid(pid_t & p){
     this->pid = p;
 }
 
+void data_server::close_server_fd(){
+    if(!fd_isopen() && !socket_isopen())
+        throw data_server::data_exception();
+    close(this->i_data[server_fd]);
+}
 /*
 *====================================================================================
 *|                                  private fonction utils                          |
@@ -185,9 +200,9 @@ void data_server::setPid(pid_t & p){
 */
 
 int data_server::fd_isopen() {
-    int ret = fcntl(fd, F_GETFL);
+    int ret = fcntl(this->i_data[server_fd], F_GETFL);
     if (ret == -1) {
-        throw server::socket_exception();
+        throw data_server::data_exception();
     }
     return 1;
 }
@@ -195,9 +210,9 @@ int data_server::fd_isopen() {
 int data_server::socket_isopen() {
     int error = 0;
     socklen_t len = sizeof(error);
-    int ret = getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &error, &len);
-    if (ret != 0) {
-        throw server::socket_exception();
+    int ret = getsockopt(this->i_data[server_fd], SOL_SOCKET, SO_ERROR, &error, &len);
+    if (ret != 0 || error > 0) {
+        throw data_server::data_exception();
     }
-    return (error == 0) ?  1 : 0;
+    return 1;
 }

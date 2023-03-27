@@ -14,7 +14,6 @@
 # define WEBSERV_SERVER_HPP
 
 #include "data_server.class.hpp"
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -39,7 +38,7 @@ private:// see if to switch const
 
 public:
 
-    server(t_data_server &);
+    server(data_server &);
 
     ~server();
 
@@ -92,7 +91,7 @@ public:
 */
 
 //    https://man7.org/linux/man-pages/man2/accept.2.html
-int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+    int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
 
 /*
 *====================================================================================
@@ -102,7 +101,7 @@ int launcher(const int sockfd, struct sockaddr* addr, socklen_t* addrlen);
 
 private:
 
-void handle(int sig);
+    void handle(int sig);
 
 /*
 *====================================================================================
