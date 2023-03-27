@@ -84,7 +84,7 @@ const char * server::accept_exception::what() const throw(){
 *====================================================================================
 */
 
-t_data_server& server::getDataServer(){
+t_data_server& server::getDataServer() const{
     return this->data;
 }
 
@@ -132,7 +132,7 @@ int server::launcher(const int sockfd, struct sockaddr* addr, socklen_t* addr_le
 *====================================================================================
 */
 
-void server::set_socket(int domain, int type, int protocol) {
+void server::set_socket() {
     if (domain != AF_INET)//add other error
         throw server::arg_exception();
     this->server_fd = socket(domain, type, protocol);

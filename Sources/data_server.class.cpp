@@ -52,12 +52,12 @@ const char *  data_server::arg_exception::what() const throw(){
 *====================================================================================
 */
 
-int[8]& data_server::getIData() const{
-    return this->i_data;
+int* data_server::getIData() const{
+    return &this->i_data;
 }
 
-std::string[2]& data_server::getSData(){
-    return this->s_data;
+std::string* data_server::getSData() const{
+    return &this->s_data;
 }
 
 std::string& data_server::getServerName() const{

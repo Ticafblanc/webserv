@@ -94,13 +94,12 @@ public:
  * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
- */
 */
 
 public:
 
-    int[8]& getIData() const;
-    std::string[2]& getSData();
+    int* getIData() const;
+    std::string* getSData() const;
 
     std::string& getServerName() const;
     void setServer_name(std::string &);

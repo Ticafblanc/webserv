@@ -29,7 +29,7 @@ class server{
 *====================================================================================
 */
 private:// see if to switch const
-    t_data_server& data
+    data_server& data;
 
 /*
 *====================================================================================
@@ -83,7 +83,7 @@ public:
 *====================================================================================
 */
 
-    t_data_server& getDataServer()
+    data_server& getDataServer() const;
 
 /*
 *====================================================================================
@@ -119,13 +119,13 @@ private:
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
  */
-    void set_socket(t_data_server& data);
+    void set_socket();
 
 //      https://man7.org/linux/man-pages/man2/bind.2.html
-    void set_bind(t_data_server& data);
+    void set_bind();
 
 //    https://man7.org/linux/man-pages/man2/listen.2.html
-    void set_listen(t_data_server& data);
+    void set_listen();
 
 };
 
