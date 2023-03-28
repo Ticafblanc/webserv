@@ -20,41 +20,29 @@
 #include <netinet/in.h>
 #include <errno.h>
 
-t_webserv* Webserv(){
-    static t_webserv cw;
-    return (&cw);
-}
 
-void init(std::string str){
-    int fds = socket(AF_INET, SOCK_STREAM, 0);
-    if (fds == 0)
-        throw server::socket_exception();
-    (void)str;//to start parsing =>>
-    //test to run during wait parsing
-    std::cout << "create void class and add arg after and insert in vector x 2" << std::endl;
-    server serv;
-    serv.setIdServer(1);
-    serv.set_socket(AF_INET, SOCK_STREAM, 0);//set sochet
-    serv.set_address(AF_INET, "127.0.0.1", 8081);// set address struct
-    serv.set_bind(serv.getServerFd(), (sockaddr *)&serv.getAddress(),serv.getAddrlen());//set bind
-    serv.set_listen(serv.getServerFd(), 10);//set listen
-    Webserv()->_server.push_back(serv);
-
-    server serv1;
-    serv1.setIdServer(2);
-    serv1.set_socket(AF_INET, SOCK_STREAM, 0);//set sochet
-    serv1.set_address(AF_INET, "127.0.0.1", 8082);// set address struct
-    serv1.set_bind(serv1.getServerFd(), (sockaddr *)&serv1.getAddress(),serv1.getAddrlen());//set bind
-    serv1.set_listen(serv1.getServerFd(), 10);//set listen
-    Webserv()->_server.push_back(serv1);
-
-    std::cout << "create class with arg x 2" << std::endl;
-    server  *serv2 = new server(3, "127.0.0.1", 4242, AF_INET, SOCK_STREAM, 0, 10);
-    serv2->getServerFd();
-    Webserv()->_server.push_back(*serv2);
-
-    Webserv()->_server.push_back(server(4, "127.0.0.1", 4243, AF_INET, SOCK_STREAM, 0, 10));
-    std::cout << "size of vector = " <<Webserv()->_server.size() << std::endl;
-
-    delete serv2;
+std::vector<server> init(std::string str){
+    std::vector<server> vec(4);
+    std::vector<data_server> data(4);
+    std::vector<data_server>::iterator It = data.begin();
+    std::string ip = "127.0.0.1";
+    int port = 8081;
+    for (int i = 0; It != data.end(); ++It, ++i, ++port) {
+        It->setIdServer(i);
+        It->setIp_address(ip);
+        It->setPort(port);
+        It->setDomain(AF_INET);
+        It->setType(SOCK_STREAM);
+        It->setProtocol(0);
+        It->setBacklog(10);
+        It->setAddress();
+        std::cout << i << std::endl;
+    }
+    std::vector<server>::iterator Vt = vec.begin();
+    It = data.begin();
+    for (; Vt != vec.end(); ++Vt, ++It){
+        Vt->setDataServer(*It);
+        std::cout << "coucou" << std::endl;
+    }
+    return vec;
 }

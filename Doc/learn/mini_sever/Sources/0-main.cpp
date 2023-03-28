@@ -36,7 +36,7 @@ void  webserv_loop(){
         exit(EXIT_FAILURE);
     }
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr =  inet_addr("127.0.0.1");//set ip to numbers IN STRUCT
+    address.sin_addr.s_addr =  inet_addr("10.12.2.3");//set ip to numbers IN STRUCT
     address.sin_port = htons( 8081 ); //set port in struct
 //    std::cout << address.sin_addr.s_addr << " " << inet_addr("127.0.0.1") << std::endl;
 

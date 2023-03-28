@@ -109,44 +109,44 @@ public:
     std::vector<int>& getIData();
     std::vector<std::string>& getSData();
 
-    std::string getServerName() const;
+    std::string& getServerName();
     void setServer_name(std::string &);
 
-    std::string getIpAddress() const;
+    std::string& getIpAddress();
     void setIp_address(std::string &);
 
-    int getIdServer() const;
-    void setIdServer(int &);
+    int& getIdServer() ;
+    void setIdServer(int );
 
-    int getPort() const;
-    void setPort(int &);
+    int& getPort();
+    void setPort(int );
 
-    int getDomain() const;
-    void setDomain(int &);
+    int& getDomain();
+    void setDomain(int );
 
-    int getType() const;
-    void setType(int &);
+    int& getType();
+    void setType(int );
 
-    int getProtocol() const;
-    void setProtocol(int &);
+    int& getProtocol();
+    void setProtocol(int );
 
-    int  getBacklog() const;
-    void setBacklog(int &);
+    int&  getBacklog();
+    void setBacklog(int );
 
-    int getServerFd() const;
-    void setServerFd(int &);
+    int& getServerFd();
+    void setServerFd(int );
 
-    int getNewSocket() const;
-    void setNewSocket(int &);
+    int& getNewSocket();
+    void setNewSocket(int );
 
-    sockaddr_in getAddress() const;
+    sockaddr_in& getAddress();
     void setAddress(int domain, const std::string& ip_address, int port);
     void setAddress();
 
-    size_t getAddrlen() const;
-    void setSddrlen(std::size_t &);
+    size_t& getAddrlen() ;
+    void setAddrlen(std::size_t &);
 
-    pid_t getPid() const;
+    pid_t& getPid();
     void setPid(pid_t &);
 
     void close_server_fd();
