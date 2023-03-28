@@ -10,6 +10,10 @@
 #include <sys/sendfile.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/uio.h>
+
 
 
 //#include <fstream>
@@ -350,7 +354,7 @@ int send_message(int fd, char image_path[], char head[]){
              //   printf("send file error --> file: %d, send size: %d , error: %s\n", fdimg, sent_size, strerror(errno));
              //   img_total_size = -1;
               int send_bytes = ((img_total_size < block_size) ? img_total_size : block_size);
-              int done_bytes = sendfile(fd, fdimg, NULL, block_size);
+              int done_bytes = sendfile(fd, fd, fdimg, NULL, block_size);
               img_total_size = img_total_size - done_bytes;
             //}
         }

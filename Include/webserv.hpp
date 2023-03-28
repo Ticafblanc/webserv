@@ -1,25 +1,25 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   webserv.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/02 16:23:33 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/02 16:23:37 by mdoquocb         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
-# include <iostream>
-# include <string>
-# include <vector>
-# include "Parser.hpp"
 
-using std::cout;
-using std::cerr;
-using std::endl;
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <vector>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/uio.h>
+
 using std::string;
 using std::vector;
 
-#endif //WEBSERV_HPP
+#endif
