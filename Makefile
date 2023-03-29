@@ -20,13 +20,9 @@ BIN_NAME = $(PROJECT)
 
 BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
 
-BIN_NAME2 = $(PROJECT2)
-
-BIN2 = $(addprefix $(BIN_PATH),$(BIN_NAME2))
-
 	#  INCLUDES  #
 
-INC_PATH2 = ./Include
+INC_PATH = ./Include
 
 INC_FLAGS += -I $(INC_PATH)
 
