@@ -19,8 +19,12 @@
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <fstream>
+#include <exception>
 
 using std::string;
 using std::vector;
+using std::exception;
+using std::cout;
+using std::cerr;
 
 #endif

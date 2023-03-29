@@ -91,10 +91,15 @@ private:
 	Parser();
 	string arg;
 	int argc;
+	int Nserv;
 	vector<data_server> servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
+	void getServN();
 public:
 	Parser(char **argv, int argc);
 	~Parser();
 	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	//methods
+	class OpenException: public exception {
+		const char* what() const throw();
+	};
 };
