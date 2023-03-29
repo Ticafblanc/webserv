@@ -6,11 +6,11 @@
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/02 16:20:03 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/03/29 16:20:19 by mdoquocb         ###   ########.ca        #
+#    Updated: 2023/03/02 16:20:06 by mdoquocb         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-PROJECT = webserv
+PROJECT = minisever
 
 	#  BINARY  #
 
@@ -20,11 +20,15 @@ BIN_NAME = $(PROJECT)
 
 BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
 
+BIN_NAME2 = $(PROJECT2)
+
+BIN2 = $(addprefix $(BIN_PATH),$(BIN_NAME2))
+
 	#  INCLUDES  #
 
 INC_PATH = ./Include
 
-INC_FLAGS += -I $(INC_PATH)
+INC_FLAGS = -I $(INC_PATH)
 
 	#  SOURCES  #
 
@@ -46,7 +50,7 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 
 CC = c++
 
-CC_FLAGS = -std=c++98 #-Wall -Wextra -Werror#
+#CC_FLAGS = -std=c++98-Wall -Wextra -Werror
 
 CL = rm -rf
 
@@ -93,8 +97,7 @@ $(BIN): title directory $(OBJ)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
-		@./$(BIN)
-
+		@./Bin/$(PROJECT)
 
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************
