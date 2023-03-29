@@ -12,34 +12,34 @@
 
 //extern char** environ;
 
-#pragma once
+// #pragma once
 
-#ifndef WEBSERV_HPP
-# define WEBSERV_HPP
+// #ifndef WEBSERV_HPP
+// # define WEBSERV_HPP
 
-/*
-*====================================================================================
-*|                                         std headers                              |
-*====================================================================================
-*/
+// /*
+// *====================================================================================
+// *|                                         std headers                              |
+// *====================================================================================
+// */
 
-#include <iostream>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include "server.class.hpp"
+// #include <iostream>
+// #include <unistd.h>
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <vector>
+// #include "server.class.hpp"
 
-using std::string;
-using std::vector;
+// using std::string;
+// using std::vector;
 
-/*
-*====================================================================================
-*|                                         class                                    |
-*====================================================================================
-*/
+// /*
+// *====================================================================================
+// *|                                         class                                    |
+// *====================================================================================
+// */
 
-#include "server.class.hpp"//buidl and manage server
+// #include "server.class.hpp"//buidl and manage server
 
 //typedef struct webserv_content{
 //    webserv_content() : _nb_server(4), _server(){};
@@ -49,11 +49,11 @@ using std::vector;
 
 /*init webserve (parsing and preliminary check)*/
 //t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
-std::vector<server> init(std::string str);//main init .... paring to do
+// std::vector<server> init(std::string str);//main init .... paring to do
 
-/*launch server web*/
+// /*launch server web*/
 
-/*manage server*/
+// /*manage server*/
 
 
-#endif //WEBSERV_HPP
+// #endif //WEBSERV_HPP

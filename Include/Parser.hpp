@@ -90,9 +90,10 @@ class Parser
 private:
 	Parser();
 	string arg;
+	int argc;
 	vector<data_server> servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
 public:
-	Parser(char **argv);
+	Parser(char **argv, int argc);
 	~Parser();
 	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	//methods
