@@ -29,6 +29,17 @@ extern char** environ;
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/poll.h>
+
+#define MAX_CLIENTS 100
 #define PORT 8081
 
 #ifndef WEBSERV_HPP
