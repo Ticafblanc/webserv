@@ -23,26 +23,24 @@ extern char** environ;
 *====================================================================================
 */
 
-#ifdef __APPLE__
-# include "server.class.hpp"
-# include "Parser.hpp"
-# include <unistd.h>
-# include <stdio.h>
-# include <stdlib.h>
-# include <vector>
-# include <iostream>
-# include <cstring>
-# include <string>
-# include <netinet/in.h>
-# include <errno.h>
-# include <fcntl.h>
-# include <vector>
-# include <unistd.h>
-# include <sys/stat.h>
-# include <sys/uio.h>
-# include <fstream>
-# include <exception>
-#endif
+#include "server.class.hpp"
+#include "Parser.hpp"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <netinet/in.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <vector>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/uio.h>
+#include <fstream>
+#include <exception>
 
 #ifdef __linux__
 # include <sendfile.h>
