@@ -10,50 +10,67 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-//extern char** environ;
+extern char** environ;
 
-// #pragma once
+#pragma once
 
-// #ifndef WEBSERV_HPP
-// # define WEBSERV_HPP
+#ifndef WEBSERV_HPP
+# define WEBSERV_HPP
 
-// /*
-// *====================================================================================
-// *|                                         std headers                              |
-// *====================================================================================
-// */
+/*
+*====================================================================================
+*|                                         std headers                              |
+*====================================================================================
+*/
 
-// #include <iostream>
-// #include <unistd.h>
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <vector>
-// #include "server.class.hpp"
+#include "server.class.hpp"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <vector>
+#include <iostream>
+#include <cstring>
+#include <string>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <vector>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/uio.h>
+#include <fstream>
+#include <exception>
 
-// using std::string;
-// using std::vector;
+using std::string;
+using std::vector;
+using std::exception;
+using std::cout;
+using std::cerr;
 
-// /*
-// *====================================================================================
-// *|                                         class                                    |
-// *====================================================================================
-// */
+/*
+*====================================================================================
+*|                                         class                                    |
+*====================================================================================
+*/
 
-// #include "server.class.hpp"//buidl and manage server
+#include "server.class.hpp"//buidl and manage server
 
-//typedef struct webserv_content{
-//    webserv_content() : _nb_server(4), _server(){};
-//    int _nb_server;
-//    std::vector<server> _server;
-//} t_webserv;
+typedef struct webserv_content{
+   webserv_content() : _nb_server(4), _server(){};
+   int _nb_server;
+   std::vector<server> _server;
+} t_webserv;
 
 /*init webserve (parsing and preliminary check)*/
-//t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
-// std::vector<server> init(std::string str);//main init .... paring to do
+t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
+std::vector<server> init(std::string str);//main init .... paring to do
 
-// /*launch server web*/
+/*launch server web*/
 
-// /*manage server*/
+/*manage server*/
 
 
-// #endif //WEBSERV_HPP
+#endif //WEBSERV_HPP
