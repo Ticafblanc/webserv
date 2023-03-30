@@ -43,11 +43,19 @@ extern char** environ;
 #include <exception>
 
 #ifdef __linux__
-# include <sendfile.h>
+ #define IS_UBUNTU (std::ifstream("/etc/lsb-release"))
+ #define IS_ARCH (std::ifstream("/etc/arch-release"))
+#endif
+#ifdef IS_UBUNTU
+ #include <poll.h>
+ #include <sys/epoll.h>
+ #include <arpa/inet.h>
+#elif IS_ARCH
+ #include <sendfile.h>
 #else
-# include <arpa/inet.h>
-# include <sys/types.h>
-# include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <sys/types.h>
+ #include <sys/socket.h>
 #endif
 
 using std::string;
