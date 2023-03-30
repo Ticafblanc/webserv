@@ -23,26 +23,59 @@ extern char** environ;
 *====================================================================================
 */
 
-#include "server.class.hpp"
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <vector>
-#include <iostream>
-#include <cstring>
-#include <string>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <vector>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <fstream>
-#include <exception>
+#ifdef __apple__
+# include "server.class.hpp"
+# include "Parser.hpp"
+# include <unistd.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <vector>
+# include <iostream>
+# include <cstring>
+# include <string>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <errno.h>
+# include <fcntl.h>
+# include <vector>
+# include <unistd.h>
+# include <sys/stat.h>
+# include <sys/uio.h>
+# include <fstream>
+# include <exception>
+#endif
+
+#ifdef __linux__
+# include "server.class.hpp"
+# include "Parser.hpp"
+# include <unistd.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <vector>
+# include <iostream>
+# include <cstring>
+# include <string>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <errno.h>
+# include <fcntl.h>
+# include <vector>
+# include <unistd.h>
+# include <sys/stat.h>
+# include <sys/uio.h>
+# include <fstream>
+# include <exception>
+#include <sys/wait.h>
+#endif
+
+#ifdef _win64
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#endif
 
 using std::string;
 using std::vector;
