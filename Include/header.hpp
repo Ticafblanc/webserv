@@ -1,5 +1,5 @@
-#ifndef WEBSERV_HPP
-# define WEBSERV_HPP
+#ifndef HEADER_HPP
+# define HEADER_HPP
 
 #include <unistd.h>
 #include <stdio.h>

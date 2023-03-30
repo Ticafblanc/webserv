@@ -1,15 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   1-server.cpp                                       :+:      :+:    :+:   */
+/*   server.class.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/17 15:19:31 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/17 15:19:34 by mdoquocb         ###   ########.fr       */
+/*   Created: 2023/03/29 14:27:31 by mdoquocb          #+#    #+#             */
+/*   Updated: 2023/03/29 14:27:37 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "../Include/server.class.hpp"
 
@@ -19,11 +18,13 @@
 *====================================================================================
 */
 
+server::server() : data() {}
+
 server::server(data_server & data) : data(data){ }
 
 server::~server() {
     try {
-        data.close_server_fd();
+//        this->data.close_server_fd();
     }
     catch (const std::exception& e){
         throw e;
@@ -32,7 +33,7 @@ server::~server() {
 server::server(const server& other) : data(other.data) { }
 
 server& server::operator=(const server& rhs){
-    data = rhs.data;
+    this->data = rhs.data;
     return *this;
 }
 
@@ -65,8 +66,11 @@ const char * server::accept_exception::what() const throw(){
 *====================================================================================
 */
 
-data_server& server::getDataServer() const{
+data_server server::getDataServer() const{
     return this->data;
+}
+void server::setDataServer(data_server& d){
+    this->data = d;
 }
 
 /*
@@ -76,36 +80,46 @@ data_server& server::getDataServer() const{
 */
 
 int server::launcher() {
-    try{
-        set_socket();//throw exception
-        set_bind();//throw exception
-        set_listen();
-    }
-    catch (const server::bind_exception& e){
-        try {
-            data.close_server_fd();
-        }
-        catch (const std::exception& e){
-            throw e;
-        }
-    }
-//    signal(SIGINT, handle);
-    std::cout << "server = " << this->id_server << " is open on fd = " << this->getServerFd() << std::endl;
-    pid = fork();
-    if (!pid){
-        while (1) {
-    //        int fd = accept(sockfd, NULL, NULL);
-    //        if (fd < 0)
-    //            throw server::accept_exception();
+//    try{
+    set_socket();//throw exception
+    set_bind();//throw exception
+    set_listen();
+    std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+                << " a l'adress = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
 
-    //        close(this->new_socket);
-            //start manage fork and process see to free rocess accept
-            //    pid = fork();
-            //    if(pid < 0)
-            //        exit(EXIT_FAILURE);
-            //    if(pid == 0){
+    while (1){
+        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *)&this->data.getAddress(), (socklen_t*)&this->data.getAddrlen())) < 0) {
+            perror("In accept");
+            exit(EXIT_FAILURE);
         }
+        std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+        break;
     }
+
+//    catch (const server::bind_exception& e){
+//        try {
+//            data.close_server_fd();
+//            throw e;
+//        }
+//        catch (const std::exception& e){
+//            throw e;
+//        }
+//    }
+//    signal(SIGINT, handle);
+
+//        while (1) {
+//    //        int fd = accept(sockfd, NULL, NULL);
+//    //        if (fd < 0)
+//    //            throw server::accept_exception();
+//
+//    //        close(this->new_socket);
+//            //start manage fork and process see to free rocess accept
+//            //    pid = fork();
+//            //    if(pid < 0)
+//            //        exit(EXIT_FAILURE);
+//            //    if(pid == 0){
+//        }
+//    }
 
     return 0;
 }
@@ -129,23 +143,21 @@ int server::launcher() {
 */
 
 void server::set_socket() {
-    this->data.setServerFd(socket(this->data.getDomain(), this->data.getType(), this->data.getProtocol());
+    this->data.setServerFd(socket(this->data.getDomain(), this->data.getType(), this->data.getProtocol()));
     if (this->data.getServerFd() == 0)
         throw server::socket_exception();
 }
 
 
 void server::set_bind() {
-    this->data.setNewSocket(bind(this->data.getServerFd(), reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), size));
-    if (this->new_socket < 0) {
-        close(sockfd);
+    if (bind(this->data.getServerFd(), reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
+        close(this->data.getServerFd());
         throw server::bind_exception();
     }
 }
 
 void server::set_listen() {
-    this->new_socket = listen(sockfd, backlog);
-    if (this->new_socket < 0)
+    if (listen(this->data.getServerFd(), this->data.getBacklog()) < 0)
         throw server::listen_exception();
 }
 

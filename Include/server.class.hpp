@@ -23,7 +23,8 @@ class server{
 *====================================================================================
 */
 private:// see if to switch const
-    data_server& data;
+
+    data_server data;
 
 /*
 *====================================================================================
@@ -32,6 +33,8 @@ private:// see if to switch const
 */
 
 public:
+
+    server();
 
     server(data_server &);
 
@@ -77,7 +80,8 @@ public:
 *====================================================================================
 */
 
-    data_server& getDataServer() const;
+    data_server getDataServer() const;
+    void setDataServer(data_server& d);
 
 /*
 *====================================================================================

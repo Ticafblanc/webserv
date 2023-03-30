@@ -41,12 +41,6 @@
 
 // #include "server.class.hpp"//buidl and manage server
 
-//typedef struct webserv_content{
-//    webserv_content() : _nb_server(4), _server(){};
-//    int _nb_server;
-//    std::vector<server> _server;
-//} t_webserv;
-
 /*init webserve (parsing and preliminary check)*/
 //t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
 // std::vector<server> init(std::string str);//main init .... paring to do

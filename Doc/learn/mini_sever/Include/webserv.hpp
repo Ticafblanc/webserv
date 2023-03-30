@@ -9,8 +9,6 @@
 /*   Updated: 2023/03/02 16:23:37 by mdoquocb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-<<<<<<< HEAD:Include/webserv.hpp
-=======
 
 extern char** environ;
 
@@ -31,20 +29,20 @@ extern char** environ;
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <arpa/inet.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <sys/poll.h>
+
+#define MAX_CLIENTS 100
 #define PORT 8081
 
->>>>>>> Matthis:Doc/learn/mini_sever/Include/webserv.hpp
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
-# include <iostream>
-# include <string>
-# include <vector>
-# include "Parser.hpp"
-
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
-using std::vector;
 
 #endif //WEBSERV_HPP
