@@ -2,9 +2,7 @@
 
 Parser::Parser(char **argv, int argc): arg(argv[1]), argc(argc), NServ(0) { }
 
-Parser::~Parser() {
-	return ;
-}
+Parser::~Parser() { }
 
 void Parser::openFile(void) {
 	if (this->argc == 2)
