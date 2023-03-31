@@ -101,7 +101,7 @@ int server::launcher() {
 //        }
         std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
         break;
-    }while(1);
+    }while(1):
 
 //    catch (const server::bind_exception& e){
 //        try {
