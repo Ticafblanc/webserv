@@ -94,11 +94,11 @@ int server::launcher() {
                 << " a l'adress = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
 
     do{
-//        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
-//                                                (socklen_t *) &this->data.getAddrlen())) < 0) {
-//            perror("In accept");
-//            exit(EXIT_FAILURE);
-//        }
+        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
+                                                (socklen_t *) &this->data.getAddrlen())) < 0) {
+            perror("In accept");
+            exit(EXIT_FAILURE);
+        }
         std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
         break;
     }while(1):
