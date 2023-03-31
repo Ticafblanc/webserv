@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - name: clean project
+        run: |
+          make finsih
+          
+      - name: compile project
+        run: |
+          make
+          
+      - name: recompile project
+        run: |
+          make re
+
+      - name: Run webserv
+        run: |
+          make run
