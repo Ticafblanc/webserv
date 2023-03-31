@@ -113,7 +113,7 @@ int server::launcher() {
 //        }
 //    }
 //    signal(SIGINT, handle);
-
+//test
 //        while (1) {
 //    //        int fd = accept(sockfd, NULL, NULL);
 //    //        if (fd < 0)
