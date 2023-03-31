@@ -48,6 +48,11 @@ const char *  server::socket_exception::what() const throw(){
     return ("socket error");
 }
 
+const char *  server::socketopt_exception::what() const throw(){
+    std::cout <<"errno = "<< errno << std::endl;
+    return ("socketopt error");
+}
+
 const char *  server::bind_exception::what() const throw(){
     return ("bind error");
 }
@@ -81,20 +86,22 @@ void server::setDataServer(data_server& d){
 
 int server::launcher() {
 //    try{
-    set_socket();//throw exception
-    set_bind();//throw exception
+    set_socket();
+    set_sockoption();
+    set_bind();
     set_listen();
     std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
                 << " a l'adress = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
 
-    while (1){
-        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *)&this->data.getAddress(), (socklen_t*)&this->data.getAddrlen())) < 0) {
+    do{
+        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
+                                                (socklen_t *) &this->data.getAddrlen())) < 0) {
             perror("In accept");
             exit(EXIT_FAILURE);
         }
         std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
         break;
-    }
+    }while(1);
 
 //    catch (const server::bind_exception& e){
 //        try {
@@ -148,6 +155,12 @@ void server::set_socket() {
         throw server::socket_exception();
 }
 
+void server::set_sockoption(){
+    if (setsockopt(this->data.getServerFd(), this->data.getLevel(), this->data.getOptionName(),
+                   &this->data.getOptionVal(), (socklen_t)sizeof(this->data.getOptionVal()))) {
+        throw server::socketopt_exception();
+    }
+}
 
 void server::set_bind() {
     if (bind(this->data.getServerFd(), reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
@@ -160,6 +173,8 @@ void server::set_listen() {
     if (listen(this->data.getServerFd(), this->data.getBacklog()) < 0)
         throw server::listen_exception();
 }
+
+
 
 
 
