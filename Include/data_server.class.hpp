@@ -12,7 +12,6 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <arpa/inet.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <vector>
@@ -28,7 +27,8 @@ class data_server{
 public:
 
     enum{ id_server, port, domain, type, protocol,
-            backlog, server_fd, new_socket, };
+            backlog, server_fd, new_socket, level,
+            optionname, optionval,};
     enum{ server_name, ip_address, };
 
 /*
@@ -110,43 +110,70 @@ public:
     std::vector<std::string>& getSData();
 
     std::string& getServerName();
+    /*set name of server*/
     void setServer_name(std::string &);
 
     std::string& getIpAddress();
+    /*set Ip address */
     void setIp_address(std::string &);
 
-    int& getIdServer() ;
+    int& getIdServer();
+    /* number of server first server = 0 and last = (nbr server-1)*/
     void setIdServer(int );
 
     int& getPort();
+    /*number of port t follow*/
     void setPort(int );
 
     int& getDomain();
+    /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
     void setDomain(int );
 
     int& getType();
+    /*set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET
+     * for service tcp => SOCK_STREAM*/
     void setType(int );
 
     int& getProtocol();
+    /*set protocol to 0*/
     void setProtocol(int );
 
     int&  getBacklog();
+    /*set time to follow socket fd set at 10 for now*/
     void setBacklog(int );
 
     int& getServerFd();
+    /*value of socket */
     void setServerFd(int );
 
     int& getNewSocket();
+    /*set value of new socket after accpet*/
     void setNewSocket(int );
 
     sockaddr_in& getAddress();
+    /*set struct sockaddr_in */
     void setAddress(int domain, const std::string& ip_address, int port);
+    void setAddress(int dom, int por);
     void setAddress();
 
     size_t& getAddrlen() ;
+    /*store size of struct sockaddr_in*/
     void setAddrlen(std::size_t &);
 
+    int& getLevel();
+    /*set level for soc option to SOL_SOCKET and  we will see */
+    void setLevel(int);
+
+    int& getOptionName();
+    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
+    void setOptionName(int);
+
+    int& getOptionVal();
+    /*set option_Value for soc option to 0 or 1 */
+    void setOptionVal(int);
+
     pid_t& getPid();
+    /*store pid of process*/
     void setPid(pid_t &);
 
     void close_server_fd();
