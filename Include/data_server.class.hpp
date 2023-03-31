@@ -1,12 +1,10 @@
 //
 // Created by Matthis DoQuocBao on 2023-03-27.
 //
-
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
-#include "webserv.hpp"
-#include "Route.hpp"
+#include "header.hpp"
 
 class data_server{
 /*
@@ -18,7 +16,8 @@ class data_server{
 public:
 
     enum{ id_server, port, domain, type, protocol,
-            backlog, server_fd, new_socket, };
+            backlog, server_fd, new_socket, level,
+            optionname, optionval,};
     enum{ server_name, ip_address, };
 
 /*
@@ -28,17 +27,12 @@ public:
 */
 
 private:
-
-    vector<int> i_data;
-    vector<std::string> s_data;
+    std::vector<int> i_data;
+    std::vector<std::string> s_data;
     pid_t pid;//follow process see if ok
     std::size_t addr_len;
     struct sockaddr_in address;
-    string server_name;
-	unsigned int port;
-	string host;
-	vector<string> default_error_pages;
-	vector<string> route;
+    
 
 /*
 *====================================================================================
