@@ -93,9 +93,11 @@ class Parser
 private:
 	Parser();
 	string arg;
+	std::ifstream config_file;
 	int argc;
 	unsigned int NServ;
 	vector<data_server> servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
+	void openFile(void);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
