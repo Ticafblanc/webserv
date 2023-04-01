@@ -31,10 +31,7 @@ void Parser::findAmountServers(void) {
 	while (std::getline(this->config_file, buffer, '\n')) {
 		if (buffer.find("server") != string::npos) {
 			for (string::iterator it = (buffer.begin() + buffer.find("server") + 6); it < buffer.end(); it++) {
-				if (*it == ' ') {
-					NServ++;
-					break;
-				}
+				//server block validation
 			}
 		}
 	}
