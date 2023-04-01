@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 

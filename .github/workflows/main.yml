@@ -20,6 +20,11 @@ jobs:
         run: |
           make re
 
-      - name: Run webserv
+      - name: Clean project
+        run: |
+          make finish
+
+      - name: Run Unit test
+        working-directory: ./Unit_test
         run: |
           make run

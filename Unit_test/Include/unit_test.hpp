@@ -1,19 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.cpp                                           :+:      :+:    :+:   */
+/*   Unit_test.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/02 18:57:53 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/02 18:57:57 by mdoquocb         ###   ########.fr       */
+/*   Created: 2023/03/02 16:23:33 by mdoquocb          #+#    #+#             */
+/*   Updated: 2023/03/02 16:23:37 by mdoquocb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/Unit_test.hpp"
+#include "../../Include/webserv.hpp"
 
-int main() {
-    std::cout <<"Unit_test" <<std::endl;
-    return 0;
-}
+#ifndef UNIT_TEST_UNIT_TEST_HPP
+# define UNIT_TEST_UNIT_TEST_HPP
 
+int construcor();
+
+#endif //UNIT_TEST_HPP

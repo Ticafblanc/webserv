@@ -28,7 +28,7 @@ data_server::~data_server() {
 }
 
 data_server::data_server(const data_server& other) : i_data(other.i_data), s_data(other.s_data),
-                                                    address(), pid(other.pid){
+                                                    pid(other.pid), address(){
     this->addr_len = other.addr_len;
     this->address.sin_family = other.address.sin_family;
     this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
@@ -166,7 +166,7 @@ void data_server::setAddress(int dom, const std::string& ip_addr, int por){
     getAddress().sin_addr.s_addr = inet_addr(ip_addr.c_str());//check format ip address during the parsing no ERROR
     getAddress().sin_port = htons(por);//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
-    getAddrlen() = sizeof(getAddress());
+    setAddrlen(sizeof(getAddress()));
 }
 
 void data_server::setAddress(int dom, int por){
@@ -184,14 +184,14 @@ void data_server::setAddress(){
     getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
     getAddress().sin_port = htons(getIData()[port]);//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
-    getAddrlen() = sizeof(getAddress());
+    setAddrlen(sizeof(getAddress()));
 }
 
-size_t& data_server::getAddrlen() {
+std::size_t& data_server::getAddrlen() {
     return this->addr_len;
 }
 
-void data_server::setAddrlen(std::size_t & s){
+void data_server::setAddrlen(const std::size_t & s){
     this->addr_len = s;
 }
 
