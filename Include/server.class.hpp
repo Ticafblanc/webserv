@@ -61,6 +61,12 @@ public:
         const char * what() const throw();
     };
 
+    class socketopt_exception: public std::exception
+    {
+    public:
+        const char * what() const throw();
+    };
+
     class bind_exception: public std::exception
     {
     public:
@@ -123,11 +129,13 @@ private:
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
  */
     void set_socket();
+/*https://linux.die.net/man/3/setsockopt*/
+    void set_sockoption();
 
-//      https://man7.org/linux/man-pages/man2/bind.2.html
+/* https://man7.org/linux/man-pages/man2/bind.2.html*/
     void set_bind();
 
-//    https://man7.org/linux/man-pages/man2/listen.2.html
+/*https://man7.org/linux/man-pages/man2/listen.2.html*/
     void set_listen();
 
 };

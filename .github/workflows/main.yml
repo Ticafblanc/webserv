@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: macOS-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: compile project
+        run: |
+          make
+
+      - name: recompile project
+        run: |
+          make re
+
+      - name: Run webserv
+        run: |
+          make run

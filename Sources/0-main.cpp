@@ -23,8 +23,6 @@ int main(int argc, char **argv, char **envp){
         for (; It != vec.end(); ++It){
             It->launcher();
         }
-
-//        waitpid(-1, NULL, 0);
     }
     catch(const std::exception& e){
         std::cout << e.what() << std::endl;
