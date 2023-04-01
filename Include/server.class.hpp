@@ -145,6 +145,8 @@ private:
 
 };
 
+std::vector<server> init(std::string str);//main init .... paring to do
+
 
 
 #endif //WEBSERV_SERVER_HPP
