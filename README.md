@@ -111,13 +111,14 @@ c++98
 ## Roadmap
 
 - [X] read doc
-- [X] CMake
-- [ ] def
+- [X] build project and dependance (Matthis)
+- [ ] build class server (Matthis)
+- [ ] build class data sever to store data after parsing (Matthis)
+- [X] build main.cpp to start (Matthis)
+- [X] create branch test (Matthis)
+- [X] set git action to automate pull request master(Matthis)
 - [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
+- [ ]   
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
