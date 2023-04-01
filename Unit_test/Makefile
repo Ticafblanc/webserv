@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-PROJECT = minisever
+PROJECT = Unit_test
 
 	#  BINARY  #
 
@@ -34,9 +34,9 @@ INC_FLAGS = -I $(INC_PATH)
 
 SRC_PATH = Sources/
 
-SRC_NAME = $(notdir $(wildcard Sources/*.cpp))
+SRC_NAME = 	$(notdir $(wildcard Sources/*.cpp))
 
-SRC = $(addprefix $(SRC_PATH),$(SRC_NAME))
+SRC =  	$(addprefix $(SRC_PATH),$(SRC_NAME))
 
 	#  OBJECTS  #
 
@@ -44,13 +44,16 @@ OBJ_PATH = $(BIN_PATH)Objects/
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 
-OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
+OBJ = 	$(addprefix $(OBJ_PATH),$(OBJ_NAME))\
+		$(addprefix $(OBJ_PATH),data_server.class.o)\
+		$(addprefix $(OBJ_PATH),server.class.o)
+
 	
 	#  FLAGS  #
 
 CC = c++
 
-CC_FLAGS = -std=c++03
+CC_FLAGS = -std=c++98 -Wall -Wextra -Werror
 
 CL = rm -rf
 
@@ -92,12 +95,14 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@$(CC) $(CC_FLAGS) $(INC_FLAGS) -c $< -o $@
 		@echo $(BLUE) $(notdir $@) is created !!
 
-$(BIN): title directory $(OBJ)
+$(BIN): title directory webserv $(OBJ)
 		@$(CC) $(OBJ) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
 		@./Bin/$(PROJECT)
+webserv:
+		make -C ../ && cp ../$(OBJ_PATH)data_server.class.o ../$(OBJ_PATH)server.class.o ./$(OBJ_PATH)
 
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************

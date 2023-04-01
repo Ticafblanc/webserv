@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+                                                                            /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   1-init.cpp                                         :+:      :+:    :+:   */
@@ -10,22 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/0-webserv.hpp"
-#include <iostream>
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <errno.h>
-
+#include "../Include/server.class.hpp"
 
 std::vector<server> init(std::string str){
+    (void)str;
     std::vector<server> vec(4);
     std::vector<data_server> data(4);
     std::vector<data_server>::iterator It = data.begin();
-    std::string ip = "192.168.2.112";
+    std::string ip =  "127.0.0.1";
     int port = 8081;
     for (int i = 0; It != data.end(); ++It, ++i, ++port) {
         It->setIdServer(i);
@@ -36,6 +28,9 @@ std::vector<server> init(std::string str){
         It->setProtocol(0);
         It->setBacklog(10);
         It->setAddress();
+        It->setLevel(SOL_SOCKET);
+        It->setOptionName(SO_REUSEADDR);
+        It->setOptionVal(1);
         std::cout << i << std::endl;
     }
     std::vector<server>::iterator Vt = vec.begin();

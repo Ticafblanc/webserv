@@ -19,7 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(8), s_data(2), pid(), addr_len(), address(){}
+data_server::data_server() : i_data(10), s_data(2), pid(), addr_len(), address(){}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
@@ -28,7 +28,7 @@ data_server::~data_server() {
 }
 
 data_server::data_server(const data_server& other) : i_data(other.i_data), s_data(other.s_data),
-                                                    address(), pid(other.pid){
+                                                    pid(other.pid), address(){
     this->addr_len = other.addr_len;
     this->address.sin_family = other.address.sin_family;
     this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
@@ -148,7 +148,7 @@ void data_server::setServerFd(int  fd){
 }
 
 int& data_server::getNewSocket(){
-    return i_data[new_socket];
+    return getIData()[new_socket];
 }
 
 void data_server::setNewSocket(int  sok){
@@ -166,23 +166,57 @@ void data_server::setAddress(int dom, const std::string& ip_addr, int por){
     getAddress().sin_addr.s_addr = inet_addr(ip_addr.c_str());//check format ip address during the parsing no ERROR
     getAddress().sin_port = htons(por);//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
+    setAddrlen(sizeof(getAddress()));
+}
+
+void data_server::setAddress(int dom, int por){
+    if (dom != AF_INET)
+        throw data_server::arg_exception();
+    getAddress().sin_family = dom;
+    getAddress().sin_addr.s_addr = INADDR_ANY;//check format ip address during the parsing no ERROR
+    getAddress().sin_port = htons(por);//no error
+    memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
     getAddrlen() = sizeof(getAddress());
 }
 
 void data_server::setAddress(){
     getAddress().sin_family = getDomain();
-    getAddress().sin_addr.s_addr = inet_addr(this->s_data[ip_address].c_str());//check format ip address during the parsing no ERROR
+    getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
     getAddress().sin_port = htons(getIData()[port]);//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
-    getAddrlen() = sizeof(getAddress());
+    setAddrlen(sizeof(getAddress()));
 }
 
-size_t& data_server::getAddrlen() {
+std::size_t& data_server::getAddrlen() {
     return this->addr_len;
 }
 
-void data_server::setAddrlen(std::size_t & s){
+void data_server::setAddrlen(const std::size_t & s){
     this->addr_len = s;
+}
+
+int& data_server::getLevel(){
+    return getIData()[level];
+}
+
+void data_server::setLevel(int lev){
+    getIData()[level] = lev;
+}
+
+int& data_server::getOptionName(){
+    return getIData()[optionname];
+}
+
+void data_server::setOptionName(int opt){
+    getIData()[optionname] = opt;
+}
+
+int& data_server::getOptionVal(){
+    return getIData()[optionval];
+}
+
+void data_server::setOptionVal(int opt){
+    getIData()[optionval] = opt;
 }
 
 pid_t& data_server::getPid() {

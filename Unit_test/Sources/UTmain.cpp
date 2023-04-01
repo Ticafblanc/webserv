@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   0-main.cpp                                         :+:      :+:    :+:   */
+/*   UTmain.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,29 +10,23 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/0-webserv.hpp"
+#include "../Include/unit_test.hpp"
 
-int main(int argc, char **argv, char **envp){
-    std::vector<server> vec;
-    try{
-        if(argc == 2)
-            vec = init(argv[1]);//parse file
-        else
-            vec = init("config_files/default");//parse default file
-        std::vector<server>::iterator It = vec.begin();
-        for (; It != vec.end(); ++It){
-            It->launcher();
+int main() {
+    std::cout <<"====================[ Unit test ]===============================\n" <<std::endl;
+    enum{constructor,}; // add enum for name of test
+    int nbr = 1;//add number for each function
+    int (*funcTester[nbr])(void);
+    funcTester[constructor] = &construcor;
+    std::cout <<"====================[ Start test ]==============================\n" <<std::endl;
+    for (int i = 0; i < nbr; ++i) {
+        if((*funcTester[i])() == -1){
+            std::cout <<"===========[ Unit_test | Crash | test nbr "
+            << nbr << " ]===================" <<std::endl;
+            exit(EXIT_FAILURE);
         }
-
-//        waitpid(-1, NULL, 0);
     }
-    catch(const std::exception& e){
-        std::cout << e.what() << std::endl;
-        std::cout <<"end failure"<< std::endl;
-        exit(EXIT_FAILURE);
-    }
-    /*see if try catch to do*/
-    std::cout <<"end succes"<< std::endl;
+    std::cout <<"\n================[ Unit_test | Success ]=========================" <<std::endl;
     exit(EXIT_SUCCESS);
 }
 

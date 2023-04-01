@@ -1,15 +1,37 @@
-#include "../Include/Parser.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   0-main.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/02 18:57:53 by mdoquocb          #+#    #+#             */
+/*   Updated: 2023/03/02 18:57:57 by mdoquocb         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-int main(int argc, char **argv)
-{
-    if (argc > 2)
-        cerr << "Takes a config file, leave empty for default config" << endl;
-    else if (argc == 2) {
-        Parser parser(argv, argc); //instantiation of parser
-        parser.findAmountServers();
-        std::cout << parser.getNServ() << std::endl;
-    //    parser.parse_config_file(); //call of method that does the parsing
+#include "../Include/server.class.hpp"
+
+int main(int argc, char **argv, char **envp){
+    (void)envp;
+    std::vector<server> vec;
+    try{
+        if(argc == 2)
+            vec = init(argv[1]);//parse file
+        else
+            vec = init("config_files/default");//parse default file
+        std::vector<server>::iterator It = vec.begin();
+        for (; It != vec.end(); ++It){
+            It->launcher();
+        }
     }
-    
-   // server_routine(); // aka do something here
+    catch(const std::exception& e){
+        std::cout << e.what() << std::endl;
+        std::cout <<"end failure"<< std::endl;
+        exit(EXIT_FAILURE);
+    }
+    /*see if try catch to do*/
+    std::cout <<"end succes"<< std::endl;
+    exit(EXIT_SUCCESS);
 }
+

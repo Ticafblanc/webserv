@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever -B /Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever/cmake-build-debug
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever/cmake-build-debug
