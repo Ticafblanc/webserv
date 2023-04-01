@@ -116,7 +116,7 @@ c++98
 - [ ] build class data sever to store data after parsing (Matthis)
 - [X] build main.cpp to start (Matthis)
 - [X] create branch test (Matthis)
-- [X] set git action to automate pull request master(Matthis)
+- [X] set git action to automate pull_request master(Matthis)
 - [ ] 
 - [ ]   
 
