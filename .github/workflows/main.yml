@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: clean project
         run: |
-          make finsih
+          make finish
           
       - name: compile project
         run: |
