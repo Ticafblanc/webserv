@@ -6,7 +6,7 @@
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/02 16:20:03 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/03/02 16:20:06 by mdoquocb         ###   ########.fr        #
+#    Updated: 2023/03/29 16:20:19 by mdoquocb         ###   ########.ca        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,13 +20,9 @@ BIN_NAME = $(PROJECT)
 
 BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
 
-BIN_NAME2 = $(PROJECT2)
-
-BIN2 = $(addprefix $(BIN_PATH),$(BIN_NAME2))
-
 	#  INCLUDES  #
 
-INC_PATH2 = ./Include
+INC_PATH = ./Include
 
 INC_FLAGS += -I $(INC_PATH)
 
@@ -96,7 +92,8 @@ $(BIN): title directory $(OBJ)
 		@$(CC) $(OBJ) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
-run:
+run: all
+		@./$(BIN)
 
 
 title: 

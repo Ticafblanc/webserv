@@ -1,0 +1,3 @@
+/Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever/cmake-build-debug/CMakeFiles/webserv.dir
+/Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever/cmake-build-debug/CMakeFiles/rebuild_cache.dir
