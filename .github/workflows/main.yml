@@ -9,8 +9,10 @@ jobs:
     runs-on: macOS-latest
 
     steps:
+      - name: Checkout code
+     	 uses: actions/checkout@v2
+
       - name: compile project
-	working-directory: ./
         run: |
           make
           
