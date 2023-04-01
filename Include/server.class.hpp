@@ -9,18 +9,21 @@
 /*   Updated: 2023/03/17 14:47:10 by mdoquocb         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#pragma once
-
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 
+#include "header.hpp"
 #include "data_server.class.hpp"
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
 
+// typedef struct webserv_content{
+//    webserv_content() : _nb_server(4), _server(){};
+//    int _nb_server;
+//    std::vector<server> _server;
+// } t_webserv;
+
+// /*init webserve (parsing and preliminary check)*/
+// t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
+// std::vector<server> init(std::string str);//main init .... paring to do
 
 class server{
 
@@ -141,6 +144,8 @@ private:
     void set_listen();
 
 };
+
+std::vector<server> init(std::string str);//main init .... paring to do
 
 
 
