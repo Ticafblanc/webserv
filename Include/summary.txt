@@ -1,0 +1,29 @@
+Define a list of accepted HTTP methods for the route: This directive is about specifying the allowed HTTP methods (like GET, POST, PUT, DELETE) for a
+particular route or endpoint in your web server. By doing so, you can control what types of requests your server will process,
+and which ones will be rejected with an error (e.g., 405 Method Not Allowed).
+
+Define a HTTP redirection: This directive is for setting up HTTP redirections, which is when the server responds with an HTTP status code
+(like 301 Moved Permanently or 302 Found) and a new URL location. This tells the client (browser) to make another request to the
+new location, effectively redirecting the user to a different web address.
+
+Define a directory or a file from where the file should be searched: This directive allows you to map a URL path to a specific directory
+or file on the server's filesystem. This is helpful for organizing your web server's content and serving it based on the requested URL.
+In your example, the URL path "/kapouet" is mapped to the local directory "/tmp/www", so a request to "/kapouet/pouic/toto/pouet" would be served from "/tmp/www/pouic/toto/pouet" on the server.
+
+Turn on or off directory listing: This directive lets you enable or disable directory listing for your web server.
+When directory listing is enabled, the server will generate an index page displaying the contents of a directory if no default file (e.g., index.html)
+is found. When disabled, the server will return an error (e.g., 403 Forbidden) instead.
+
+Set a default file to answer if the request is a directory: This directive is about specifying a default file
+(e.g., index.html) that the server should serve when a client requests a directory. If a user navigates to a
+URL that corresponds to a directory on the server, the server will look for the default file in that directory and
+serve it, instead of returning an error or generating a directory listing.
+
+Execute CGI based on certain file extension (for example .php): This directive allows your web server to execute Common Gateway Interface (CGI)
+scripts for specific file extensions. CGI is a protocol that allows web servers to run external programs and return dynamic content.
+In this case, you would configure your server to execute a script (e.g., PHP) when it encounters a file with the specified extension (e.g., .php).
+The server would then send the output of the script to the client as the response.
+
+Make the route able to accept uploaded files and configure where they should be saved: This directive is about enabling file uploads for a particular route or endpoint in your web server.
+When a client sends a request containing a file upload, your server should be able to process the request, save the uploaded file to a specified location on the server,
+and return an appropriate response (e.g., confirmation of successful upload or an error message).

@@ -1,23 +1,10 @@
 //
 // Created by Matthis DoQuocBao on 2023-03-27.
 //
-
-#pragma once
-
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
-#include <iostream>
-#include <cstring>
-#include <string>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <vector>
-#include <unistd.h>
+#include "header.hpp"
 
 class data_server{
 /*
@@ -40,12 +27,12 @@ public:
 */
 
 private:
-
     std::vector<int> i_data;
     std::vector<std::string> s_data;
     pid_t pid;//follow process see if ok
     std::size_t addr_len;
     struct sockaddr_in address;
+    
 
 /*
 *====================================================================================
