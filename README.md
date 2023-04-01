@@ -110,8 +110,8 @@ c++98
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] read doc
-- [ ] 
+- [X] read doc
+- [X] CMake
 - [ ] 
 - [ ] 
 - [ ] 
