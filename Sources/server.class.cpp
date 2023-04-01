@@ -90,8 +90,8 @@ int server::launcher() {
     set_sockoption();
     set_bind();
     set_listen();
-//    std::cout << "server = " << data.getIdServer() << " is open fd = " << data.getServerFd()
-//                << " a l'adres = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
+    std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+                << " a l'adress = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
 
 //    do{
 //        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
