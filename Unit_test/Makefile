@@ -95,15 +95,15 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@$(CC) $(CC_FLAGS) $(INC_FLAGS) -c $< -o $@
 		@echo $(BLUE) $(notdir $@) is created !!
 
-$(BIN): webserv title directory $(OBJ)
-		cp ../$(OBJ_PATH)data_server.class.o ../$(OBJ_PATH)server.class.o ./$(OBJ_PATH)
+$(BIN): title directory webserv $(OBJ)
 		@$(CC) $(OBJ) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
 		@./Bin/$(PROJECT)
 webserv:
-		make -C ../
+		make -C ../ && cp ../$(OBJ_PATH)data_server.class.o ../$(OBJ_PATH)server.class.o ./$(OBJ_PATH)
+
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************
 
