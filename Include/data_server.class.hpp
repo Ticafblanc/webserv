@@ -2,6 +2,8 @@
 // Created by Matthis DoQuocBao on 2023-03-27.
 //
 
+#pragma once
+
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
@@ -158,7 +160,7 @@ public:
 
     size_t& getAddrlen() ;
     /*store size of struct sockaddr_in*/
-    void setAddrlen(std::size_t &);
+    void setAddrlen(const std::size_t &);
 
     int& getLevel();
     /*set level for soc option to SOL_SOCKET and  we will see */

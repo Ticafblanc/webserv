@@ -10,18 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/0-webserv.hpp"
-#include <iostream>
-#include <unistd.h>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <cerrno>
-
+#include "../Include/webserv.hpp"
 
 std::vector<server> init(std::string str){
+    (void)str;
     std::vector<server> vec(4);
     std::vector<data_server> data(4);
     std::vector<data_server>::iterator It = data.begin();
