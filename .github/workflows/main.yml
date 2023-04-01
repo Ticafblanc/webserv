@@ -11,12 +11,12 @@ jobs:
     steps:
       - name: compile project
         run: |
-          make
+          make ./
           
       - name: recompile project
         run: |
-          make re
+          make re ./
 
       - name: Run webserv
         run: |
-          make run
+          make run ./
