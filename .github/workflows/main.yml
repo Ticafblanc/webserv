@@ -9,10 +9,6 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-      - name: clean project
-        run: |
-          make finish
-          
       - name: compile project
         run: |
           make
