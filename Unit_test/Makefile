@@ -6,11 +6,11 @@
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/02 16:20:03 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/03/29 16:20:19 by mdoquocb         ###   ########.ca        #
+#    Updated: 2023/03/02 16:20:06 by mdoquocb         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-PROJECT = webserv
+PROJECT = Unit_test
 
 	#  BINARY  #
 
@@ -20,19 +20,23 @@ BIN_NAME = $(PROJECT)
 
 BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
 
+BIN_NAME2 = $(PROJECT2)
+
+BIN2 = $(addprefix $(BIN_PATH),$(BIN_NAME2))
+
 	#  INCLUDES  #
 
 INC_PATH = ./Include
 
-INC_FLAGS += -I $(INC_PATH)
+INC_FLAGS = -I $(INC_PATH)
 
 	#  SOURCES  #
 
 SRC_PATH = Sources/
 
-SRC_NAME = $(notdir $(wildcard Sources/*.cpp))
+SRC_NAME = 	$(notdir $(wildcard Sources/*.cpp))
 
-SRC = $(addprefix $(SRC_PATH),$(SRC_NAME))
+SRC =  	$(addprefix $(SRC_PATH),$(SRC_NAME))
 
 	#  OBJECTS  #
 
@@ -40,7 +44,10 @@ OBJ_PATH = $(BIN_PATH)Objects/
 
 OBJ_NAME = $(SRC_NAME:.cpp=.o)
 
-OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
+OBJ = 	$(addprefix $(OBJ_PATH),$(OBJ_NAME))\
+		$(addprefix $(OBJ_PATH),data_server.class.o)\
+		$(addprefix $(OBJ_PATH),server.class.o)
+
 	
 	#  FLAGS  #
 
@@ -88,13 +95,14 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@$(CC) $(CC_FLAGS) $(INC_FLAGS) -c $< -o $@
 		@echo $(BLUE) $(notdir $@) is created !!
 
-$(BIN): title directory $(OBJ)
+$(BIN): title directory webserv $(OBJ)
 		@$(CC) $(OBJ) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
-		@./$(BIN)
-
+		@./Bin/$(PROJECT)
+webserv:
+		make -C ../ && cp ../$(OBJ_PATH)data_server.class.o ../$(OBJ_PATH)server.class.o ./$(OBJ_PATH)
 
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************

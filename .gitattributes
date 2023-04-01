@@ -1,0 +1,3 @@
+*.yml lockable
+#git lfs lock .github/workflows/main.yml
+#git lfs unlock .github/workflows/main.yml

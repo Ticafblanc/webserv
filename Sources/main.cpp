@@ -10,9 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/0-webserv.hpp"
+#include "../Include/webserv.hpp"
 
 int main(int argc, char **argv, char **envp){
+    (void)envp;
     std::vector<server> vec;
     try{
         if(argc == 2)
