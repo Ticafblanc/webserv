@@ -6,7 +6,7 @@
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:27:31 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/29 14:27:37 by mdoquocb         ###   ########.ca       */
+/*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,7 +113,7 @@ int server::launcher() {
 //        }
 //    }
 //    signal(SIGINT, handle);
-//test
+
 //        while (1) {
 //    //        int fd = accept(sockfd, NULL, NULL);
 //    //        if (fd < 0)
