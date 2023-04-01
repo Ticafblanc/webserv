@@ -1,4 +1,4 @@
-#include "../Include/Parser.class.hpp""
+#include "../Include/Parser.class.hpp"
 
 Parser::Parser(char **argv, int argc): arg(argv[1]), argc(argc), NServ(0) { }
 
@@ -6,7 +6,7 @@ Parser::~Parser() { }
 
 void Parser::openFile(void) {
 	if (this->argc == 2)
-		this->config_file.open(arg);
+		this->config_file.open(arg.c_str());
 	else
 		this->config_file.open("../config_files/default");
 	if (this->config_file.fail() || !this->config_file.is_open())
