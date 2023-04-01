@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/server.class.hpp"
+#include "../Include/webserv.hpp"
 
 int main(int argc, char **argv, char **envp){
     (void)envp;

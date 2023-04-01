@@ -1,4 +1,4 @@
-#include "../Include/Parser.hpp"
+#include "../Include/Parser.class.hpp""
 
 Parser::Parser(char **argv, int argc): arg(argv[1]), argc(argc), NServ(0) { }
 

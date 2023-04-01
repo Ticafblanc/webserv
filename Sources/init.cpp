@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/server.class.hpp"
+#include "../Include/webserv.hpp"
 
 std::vector<server> init(std::string str){
     (void)str;
