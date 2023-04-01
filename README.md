@@ -101,9 +101,16 @@ c++98
 • git clone the repo and use with
 <p align="right">(<a href="#top">back to top</a>)</p>
 <!-- USAGE EXAMPLES -->
-## Usage
 
-./webserv [configuration file]
+### Usage
+- ./webserv [configuration file]
+
+- Add configs in -> usr->local/etc/webserv/servers/
+- Default config -> usr->local/etc/webserv/webserv.conf
+- Logs will be in -> usr->local/var/log/webserv/
+- Default webroot is -> usr->local/var/www/
+- Default listen address -> http://localhost:8080
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -117,8 +124,8 @@ c++98
 - [X] build main.cpp to start (Matthis)
 - [X] create branch test (Matthis)
 - [X] set git action to automate pull_request master(Matthis)
-- [ ] 
-- [ ]   
+- [X] create directory like nginx
+- [ ]
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -14,16 +14,9 @@
 
 #include "header.hpp"
 #include "data_server.class.hpp"
+#include <poll.h>
 
-// typedef struct webserv_content{
-//    webserv_content() : _nb_server(4), _server(){};
-//    int _nb_server;
-//    std::vector<server> _server;
-// } t_webserv;
-
-// /*init webserve (parsing and preliminary check)*/
-// t_webserv* Webserv(void);//singleton is main on acces to data to fill during de parsing and use after
-// std::vector<server> init(std::string str);//main init .... paring to do
+#define MAX_CLIENTS 100
 
 class server{
 
@@ -34,7 +27,14 @@ class server{
 */
 private:// see if to switch const
 
+    enum { nbr_clients,};
+
     data_server data;
+    std::vector<int> i_arg;
+    std::vector<std::string> s_arg;
+    struct pollfd fds[MAX_CLIENTS];
+
+
 
 /*
 *====================================================================================
@@ -60,6 +60,9 @@ public:
 *|                                  Member Exception                                 |
 *====================================================================================
 */
+
+public:
+
     class socket_exception: public std::exception
     {
     public:
@@ -90,11 +93,25 @@ public:
         const char * what() const throw();
     };
 
+    class launch_exception: public std::exception
+    {
+    public:
+        const char * what() const throw();
+    };
+
+    class poll_exception: public std::exception
+    {
+    public:
+        const char * what() const throw();
+    };
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
 *====================================================================================
 */
+
+public:
 
     data_server getDataServer() const;
     void setDataServer(data_server& d);
@@ -105,8 +122,10 @@ public:
 *====================================================================================
 */
 
+public:
+
 //    https://man7.org/linux/man-pages/man2/accept.2.html
-    int launcher();
+    void launcher();
 
 /*
 *====================================================================================
@@ -142,6 +161,15 @@ private:
 
 /*https://man7.org/linux/man-pages/man2/listen.2.html*/
     void set_listen();
+
+/*set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)*/
+    void set_server_non_blocking();
+
+/*set fds for news client for server socket*/
+    void set_pollfd();
+/*wait new event or throw exeptiom*/
+    void set_poll();
+
 
 };
 
