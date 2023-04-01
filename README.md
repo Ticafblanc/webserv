@@ -112,7 +112,7 @@ c++98
 
 - [X] read doc
 - [X] CMake
-- [ ] 
+- [ ] CTest unit test (JB)
 - [ ] 
 - [ ] 
 - [ ] 
