@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - name: compile project
+	working-directory: ./
         run: |
           make
           
