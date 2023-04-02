@@ -86,7 +86,7 @@ int main(int argc, char const *argv[])
             perror("In accept");
             exit(EXIT_FAILURE);
         }
-        //Create child process to handle request from different client
+        //Create child process to handle requ   est from different client
         pid = fork();
         if(pid < 0){
             perror("Error on fork");

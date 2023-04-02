@@ -18,9 +18,9 @@
 *====================================================================================
 */
 
-server::server() : data() {}
+server::server() : data(), i_arg(1), s_arg(), fds() {}
 
-server::server(data_server & data) : data(data){ }
+server::server(data_server & data) : data(data), i_arg(1), s_arg(), fds(){ }
 
 server::~server() {
     try {
@@ -30,10 +30,19 @@ server::~server() {
         throw e;
     }
 }
-server::server(const server& other) : data(other.data) { }
+server::server(const server& other) : data(other.data), i_arg(other.i_arg), s_arg(other.s_arg), fds() {
+    for (int i = 0; i < other.i_arg[nbr_clients]; ++i) {
+        fds[i] = other.fds[i];
+    }
+}
 
 server& server::operator=(const server& rhs){
     this->data = rhs.data;
+    this->i_arg = rhs.i_arg;
+    this->s_arg = rhs.s_arg;
+    for (int i = 0; i < rhs.i_arg[nbr_clients]; ++i) {
+        this->fds[i] = rhs.fds[i];
+    }
     return *this;
 }
 
@@ -61,10 +70,18 @@ const char *  server::listen_exception::what() const throw(){
     return ("listen error");
 }
 
-const char * server::accept_exception::what() const throw(){
+const char * server::accept_exception::what() const throw() {
     return ("accept error");
-
 }
+
+const char * server::launch_exception::what() const throw(){
+    return ("launch error");
+}
+
+const char * server::poll_exception::what() const throw(){
+    return ("poll error");
+}
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
@@ -84,51 +101,34 @@ void server::setDataServer(data_server& d){
 *====================================================================================
 */
 
-int server::launcher() {
-//    try{
-    set_socket();
-    set_sockoption();
-    set_bind();
-    set_listen();
-    std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-                << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
+void server::launcher() {
+    try {
+        set_socket();
+        set_sockoption();
+        set_bind();
+        set_listen();
+        std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+                  << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
 
-//    do{
-//        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
-//                                                (socklen_t *) &this->data.getAddrlen())) < 0) {
-//            perror("In accept");
-//            exit(EXIT_FAILURE);
-//        }
-//        std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
-//        break;
-//    }while(1);
+        do {
+            set_server_non_blocking();
+            set_pollfd();
+            this->i_arg[nbr_clients]++;
+//            set_poll();
+//            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
+//                                                    (struct sockaddr *) &this->data.getAddress(),
+//                                                    (socklen_t *) &this->data.getAddrlen())) < 0) {
+//                perror("In accept");
+//                exit(EXIT_FAILURE);
+//            }
+            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+            break;
+        } while (1);
+    }
+    catch (const std::exception& e){
+        throw e;
+    }
 
-//    catch (const server::bind_exception& e){
-//        try {
-//            data.close_server_fd();
-//            throw e;
-//        }
-//        catch (const std::exception& e){
-//            throw e;
-//        }
-//    }
-//    signal(SIGINT, handle);
-
-//        while (1) {
-//    //        int fd = accept(sockfd, NULL, NULL);
-//    //        if (fd < 0)
-//    //            throw server::accept_exception();
-//
-//    //        close(this->new_socket);
-//            //start manage fork and process see to free rocess accept
-//            //    pid = fork();
-//            //    if(pid < 0)
-//            //        exit(EXIT_FAILURE);
-//            //    if(pid == 0){
-//        }
-//    }
-
-    return 0;
 }
 
 /*
@@ -174,9 +174,19 @@ void server::set_listen() {
         throw server::listen_exception();
 }
 
+void server::set_server_non_blocking(){
+    fcntl(this->data.getServerFd(), F_SETFL, O_NONBLOCK);
+}
 
+void server::set_pollfd(){
+    fds[this->i_arg[nbr_clients]].fd = this->data.getServerFd();
+    fds[this->i_arg[nbr_clients]].events = POLLIN;
+}
 
-
+void server::set_poll() {
+    if(poll(fds, this->i_arg[nbr_clients], -1) == -1)
+        throw server::poll_exception();
+}
 
 
 
