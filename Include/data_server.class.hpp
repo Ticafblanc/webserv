@@ -15,10 +15,7 @@ class data_server{
 
 public:
 
-    enum{ id_server, port, domain, type, protocol,
-            backlog, server_fd, new_socket, level,
-            optionname, optionval,};
-    enum{ server_name, ip_address, };
+
 
 /*
 *====================================================================================
@@ -27,6 +24,13 @@ public:
 */
 
 private:
+
+    enum{ id_server, port, domain, type, protocol,
+        backlog, server_fd, new_socket, level,
+        optionname, optionval,};
+
+    enum{ server_name, ip_address, };
+
     std::vector<int> i_data;
     std::vector<std::string> s_data;
     pid_t pid;//follow process see if ok
