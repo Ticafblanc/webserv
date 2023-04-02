@@ -114,7 +114,7 @@ void server::launcher() {
             set_server_non_blocking();
             set_pollfd();
             this->i_arg[nbr_clients]++;
-            set_poll();
+//            set_poll();
 //            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
 //                                                    (struct sockaddr *) &this->data.getAddress(),
 //                                                    (socklen_t *) &this->data.getAddrlen())) < 0) {
