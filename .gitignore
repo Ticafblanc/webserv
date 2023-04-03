@@ -2,3 +2,5 @@
 maintest.cpp
 .vscode
 .DS_store
+localtest.conf
+a.out

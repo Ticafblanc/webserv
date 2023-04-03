@@ -25,17 +25,34 @@ void Parser::parse_config_file(void) {
 	}	
 }
 
-void Parser::findAmountServers(void) {
+void Parser::findAmountServers(void) { //trying a different approach
 	string buffer;
 	bool checkServer = false;
 	int lock = 0;
 	this->openFile();
 	while (std::getline(this->config_file, buffer, '\n')) {
-		if (buffer.find("server") != string::npos)
-			checkServer = true;
-		while (checkServer == true) {
-			
+		while (buffer.find("{") == string::npos) {
+			if (buffer.find("}") != string::npos && lock == 0)
+				throw InvalidConfigFile();
+			if (!std::getline(this->config_file, buffer, '\n'))
+				throw InvalidConfigFile();
 		}
+		if (buffer.find("}") == string::npos)
+			lock++;
+		if (buffer.find("{") > buffer.find("}"))
+				throw InvalidConfigFile();
+		while (lock != 0) {
+			if (!std::getline(this->config_file, buffer, '\n'))
+				throw InvalidConfigFile();
+			if (buffer.find("}") != string::npos)
+				lock--;
+			if (buffer.find("{") != string::npos)
+				lock++;
+		}
+		if (lock!= 0)
+			throw InvalidConfigFile();
+		else
+			NServ++;
 	}
 }
 
@@ -45,4 +62,8 @@ unsigned int Parser::getNServ(void) const {
 
 const char* Parser::OpenException::what() const throw() {
 	return "Failed to open file";
+}
+
+const char* Parser::InvalidConfigFile::what() const throw() {
+	return "Invalid configuration file";
 }
