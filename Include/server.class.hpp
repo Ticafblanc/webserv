@@ -33,7 +33,7 @@ private:// see if to switch const
     data_server data;
     std::vector<int> i_arg;
     std::vector<std::string> s_arg;
-    struct epoll_event i_epoll, t_epoll[MAX_EVENTS];
+    // struct epoll_event i_epoll, t_epoll[MAX_EVENTS];
 
 
 

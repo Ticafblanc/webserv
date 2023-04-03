@@ -108,6 +108,9 @@ public:
 	class OpenException: public exception {
 		const char* what() const throw();
 	};
+	class InvalidConfigFile: public exception {
+		const char * what() const throw();
+	};
 };
 
 #endif
