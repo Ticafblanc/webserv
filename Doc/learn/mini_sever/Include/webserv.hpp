@@ -12,7 +12,7 @@
 
 extern char** environ;
 
-#pragma once
+
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>

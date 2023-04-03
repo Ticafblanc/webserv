@@ -1,0 +1,80 @@
+html {
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+#console {
+    display: flex;
+    flex-direction: column;
+    height: 30em;
+    border: 1px solid #0aa;
+    font-family: sans-serif;
+    word-wrap: break-word;
+}
+
+#console .header footer{
+    display: flex;
+    align-items: center;
+    height: 2em;
+    padding: 0 0 0 .5em;
+}
+
+#console .main {
+    background-color: #000;
+    color: #ddd;
+    height: 100%;
+    overflow-y: scroll;
+    font-family: monospace;
+    font-size: 1.1em;
+    line-height: 1.1em;
+}
+
+nav {
+    display: flex;
+    align-items: stretch;
+    background-color: #302e36;
+}
+
+nav a {
+    margin: 0 1px 0 0;
+}
+
+nav a:hover {
+    background-color: #4d4b53;
+}
+
+nav a.active {
+    background-color: #5e5c66;
+}
+
+nav a.active:hover {
+    background-color: #777481;
+}
+
+nav a > div {
+    padding: .3em .3em;
+    margin: 0 .2em;
+    border-bottom: 3px solid#0aa;
+    transition: all .1s ease;
+}
+
+nav a.active > div {
+    margin: 0;
+    padding: .3em .5em;
+}
+
+nav a:hover > div {
+    margin: 0 0;
+    padding: .3em .5em;
+}
+
+nav img {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(to bottom, transparent 3px, #fff 3px, #fff 26px, transparent 0 );
+    padding: 0 1px;
+    border-radius: 5px;
+}

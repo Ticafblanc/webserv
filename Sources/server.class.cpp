@@ -18,9 +18,9 @@
 *====================================================================================
 */
 
-server::server() : data() {}
+server::server() : data(), i_arg(1), s_arg(), fds() {}
 
-server::server(data_server & data) : data(data){ }
+server::server(data_server & data) : data(data), i_arg(1), s_arg(), fds(){ }
 
 server::~server() {
     try {
@@ -30,10 +30,19 @@ server::~server() {
         throw e;
     }
 }
-server::server(const server& other) : data(other.data) { }
+server::server(const server& other) : data(other.data), i_arg(other.i_arg), s_arg(other.s_arg), fds() {
+    for (int i = 0; i < other.i_arg[nbr_clients]; ++i) {
+        fds[i] = other.fds[i];
+    }
+}
 
 server& server::operator=(const server& rhs){
     this->data = rhs.data;
+    this->i_arg = rhs.i_arg;
+    this->s_arg = rhs.s_arg;
+    for (int i = 0; i < rhs.i_arg[nbr_clients]; ++i) {
+        this->fds[i] = rhs.fds[i];
+    }
     return *this;
 }
 
@@ -44,12 +53,10 @@ server& server::operator=(const server& rhs){
 */
 
 const char *  server::socket_exception::what() const throw(){
-    std::cout <<"errno = "<< errno << std::endl;
     return ("socket error");
 }
 
 const char *  server::socketopt_exception::what() const throw(){
-    std::cout <<"errno = "<< errno << std::endl;
     return ("socketopt error");
 }
 
@@ -61,10 +68,18 @@ const char *  server::listen_exception::what() const throw(){
     return ("listen error");
 }
 
-const char * server::accept_exception::what() const throw(){
+const char * server::accept_exception::what() const throw() {
     return ("accept error");
-
 }
+
+const char * server::launch_exception::what() const throw(){
+    return ("launch error");
+}
+
+const char * server::epoll_exception::what() const throw(){
+    return ("poll error");
+}
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
@@ -84,51 +99,34 @@ void server::setDataServer(data_server& d){
 *====================================================================================
 */
 
-int server::launcher() {
-//    try{
-    set_socket();
-    set_sockoption();
-    set_bind();
-    set_listen();
-    std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-                << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort()<< std::endl;
+void server::launcher() {
+    try {
+        set_socket();
+        set_sockoption();
+        set_bind();
+        set_listen();
+        set_server_non_blocking(this->data.getServerFd());
+        set_pollfd(this->data.getServerFd());
+        this->i_arg[nbr_clients] == 1;
+        std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+                  << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
 
-//    do{
-//        if ((this->data.getNewSocket() = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(),
-//                                                (socklen_t *) &this->data.getAddrlen())) < 0) {
-//            perror("In accept");
-//            exit(EXIT_FAILURE);
-//        }
-//        std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
-//        break;
-//    }while(1);
+        do {
+            set_epoll();
+//            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
+//                                                    (struct sockaddr *) &this->data.getAddress(),
+//                                                    (socklen_t *) &this->data.getAddrlen())) < 0) {
+//                perror("In accept");
+//                exit(EXIT_FAILURE);
+//            }
+            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+            break;
+        } while (1);
+    }
+    catch (const std::exception& e){
+        throw e;
+    }
 
-//    catch (const server::bind_exception& e){
-//        try {
-//            data.close_server_fd();
-//            throw e;
-//        }
-//        catch (const std::exception& e){
-//            throw e;
-//        }
-//    }
-//    signal(SIGINT, handle);
-
-//        while (1) {
-//    //        int fd = accept(sockfd, NULL, NULL);
-//    //        if (fd < 0)
-//    //            throw server::accept_exception();
-//
-//    //        close(this->new_socket);
-//            //start manage fork and process see to free rocess accept
-//            //    pid = fork();
-//            //    if(pid < 0)
-//            //        exit(EXIT_FAILURE);
-//            //    if(pid == 0){
-//        }
-//    }
-
-    return 0;
 }
 
 /*
@@ -174,9 +172,40 @@ void server::set_listen() {
         throw server::listen_exception();
 }
 
+void server::set_server_non_blocking(int fd){
+    fcntl(this->data.getServerFd(), F_SETFL, get_flag(fd) | O_NONBLOCK);
+}
 
+void server::set_t_epoll(int fd){
+    this->t_epoll[this->i_arg[nbr_events]].data.fd = fd;
 
+    fds[this->i_arg[nbr_clients]].events = POLLIN;
+}
 
+void server::create_epoll() {
+    if ((i_epoll = epoll_create(0)) < 0) {
+        perror("Epoll creation failed");
+        exit(EXIT_FAILURE);
+    }
+    if(poll(fds, this->i_arg[nbr_clients], -1) == -1)
+        throw server::epoll_exception();
+}
+
+void server::wait_epoll(){
+    nfds = epoll_wait(epoll_fd, events, MAX_EVENTS, -1);
+    if (nfds == -1) {
+        perror("Epoll wait failed");
+        exit(EXIT_FAILURE);
+    }
+}
+
+int server::get_flag(int fd) {
+    int flag;
+    socklen_t len = sizeof(flag);
+    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &flag, &len) == -1)
+        throw server::socketopt_exception();
+    return flag;
+}
 
 
 
