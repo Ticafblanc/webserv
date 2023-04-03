@@ -27,12 +27,14 @@ void Parser::parse_config_file(void) {
 
 void Parser::findAmountServers(void) {
 	string buffer;
+	bool checkServer = false;
+	int lock = 0;
 	this->openFile();
 	while (std::getline(this->config_file, buffer, '\n')) {
-		if (buffer.find("server") != string::npos) {
-			for (string::iterator it = (buffer.begin() + buffer.find("server") + 6); it < buffer.end(); it++) {
-				//server block validation
-			}
+		if (buffer.find("server") != string::npos)
+			checkServer = true;
+		while (checkServer == true) {
+			
 		}
 	}
 }
