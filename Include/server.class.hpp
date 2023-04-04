@@ -15,6 +15,7 @@
 #include "header.hpp"
 #include "data_server.class.hpp"
 #include <poll.h>
+#include <ostream>
 
 #define MAX_EVENTS 10
 #define BUFFER_SIZE 1024
@@ -53,6 +54,11 @@ public:
     ~server();
 
     server(const server& other);
+
+    server(const data_server &data, const vector<int> &iArg, const vector<std::string> &sArg, const epoll_event &iEpoll,
+           epoll_event *tEpoll);
+
+    friend std::ostream &operator<<(std::ostream &os, const server &server);
 
     server& operator=(const server& rhs);
 
