@@ -187,7 +187,3 @@ void server::set_poll() {
     if(poll(fds, this->i_arg[nbr_clients], -1) == -1)
         throw server::poll_exception();
 }
-
-
-
-
