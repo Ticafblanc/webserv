@@ -1,0 +1,11 @@
+cmake_minimum_required(VERSION 3.23.2)
+project(Unit_test)
+
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+include_directories(SYSTEM ./)
+
+add_executable(Unit_test    Sources/UTmain.cpp
+                            Sources/constructor.cpp
+                            ../Sources/server.class.cpp
+                            ../Sources/data_server.class.cpp)
