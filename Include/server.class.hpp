@@ -15,10 +15,8 @@
 #include "header.hpp"
 #include "data_server.class.hpp"
 #include <poll.h>
-#include <ostream>
 
-#define MAX_EVENTS 10
-#define BUFFER_SIZE 1024
+#define MAX_CLIENTS 100
 
 class server{
 
@@ -29,13 +27,12 @@ class server{
 */
 private:// see if to switch const
 
-    enum { nbr_events,};
+    enum { nbr_clients,};
 
     data_server data;
     std::vector<int> i_arg;
     std::vector<std::string> s_arg;
-    struct epoll_event i_epoll, t_epoll[MAX_EVENTS];
-
+    struct pollfd fds[MAX_CLIENTS];
 
 
 
@@ -54,11 +51,6 @@ public:
     ~server();
 
     server(const server& other);
-
-    server(const data_server &data, const vector<int> &iArg, const vector<std::string> &sArg, const epoll_event &iEpoll,
-           epoll_event *tEpoll);
-
-    friend std::ostream &operator<<(std::ostream &os, const server &server);
 
     server& operator=(const server& rhs);
 
@@ -107,7 +99,7 @@ public:
         const char * what() const throw();
     };
 
-    class epoll_exception: public std::exception
+    class poll_exception: public std::exception
     {
     public:
         const char * what() const throw();
@@ -171,14 +163,13 @@ private:
     void set_listen();
 
 /*set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)*/
-    void set_server_non_blocking(int fd);
+    void set_server_non_blocking();
 
-/*set epoll table  for client for server socket*/
-    void set_t_epoll(int fd);
-/*create new epoll event instance or throw exeptiom*/
-    void create_epoll();
-/*get flag store in socket after poll*/
-    int get_flag(int fd);
+/*set fds for news client for server socket*/
+    void set_pollfd();
+/*wait new event or throw exeptiom*/
+    void set_poll();
+
 
 };
 
