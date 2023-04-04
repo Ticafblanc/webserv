@@ -23,6 +23,7 @@ std::vector<data_server> constructor() {
         It->setLevel(SOL_SOCKET);
         It->setOptionName(SO_REUSEADDR);
         It->setOptionVal(1);
+        std::cout << "getOptionVal constructor loop: " << It->getOptionVal() << std::endl;
 //            std::cout << i << std::endl;
     }
     std::vector<server>::iterator Vt = vec.begin();
@@ -42,6 +43,7 @@ int unitTestConstructor()
     std::vector<data_server> data;
     try {
         data = constructor();
+        std::cout << "data.begin.getOptionVal: " << data.begin()->getOptionVal() << std::endl;
     } catch (std::exception & e) {
         return -1;
     }
@@ -75,10 +77,7 @@ int unitTestConstructor()
         if (it->getOptionName() != SO_REUSEADDR)
             return -1;
         if (it->getOptionVal() != 1)
-        {
-            std::cout << "Option value error\n" << std::endl;
             return -1;
-        }
     }
     
     return 0;
