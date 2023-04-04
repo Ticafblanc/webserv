@@ -31,7 +31,7 @@ void Parser::getBlocks(void) {
 			if (*it == '}')
 				lock--;
 			if (lock == 0) {
-
+				
 			}
 		}
 	}
@@ -60,8 +60,10 @@ void Parser::findAmountServers(void) { //Prolly not my best work
 			if (buffer.find('{') > buffer.find('}')) {
 				throw InvalidConfigFile();
 			}
-			else
+			else {
+				cout << "No failing here" << endl;
 				buffer = buffer.substr(buffer.find('{'));
+			}
 			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
 				if (*it == '{')
 					lock++;
