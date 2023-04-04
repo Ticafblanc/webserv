@@ -25,14 +25,6 @@ void Parser::parse_config_file(void) {
 	}	
 }
 
-void Parser::readfile(void) {
-	this->openFile();
-	string buffer;
-	// int i = 0;
-	std::getline(this->config_file, buffer, '\0');
-	cout << buffer;
-}
-
 void Parser::findAmountServers(void) { //Prolly not my best work
 	string buffer;
 	string comp("{ 	");

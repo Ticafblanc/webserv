@@ -103,7 +103,6 @@ public:
 	~Parser();
 	unsigned int getNServ(void) const;
 	void findAmountServers(void);
-	void readfile(void);
 	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	//methods
 	class OpenException: public exception {
