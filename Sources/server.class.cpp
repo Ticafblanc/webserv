@@ -126,8 +126,11 @@ void server::launcher() {
     catch (const std::exception& e){
         throw e;
     }
-
 }
+
+server::server(const data_server &data, const vector<int> &iArg, const vector<std::string> &sArg,
+               const server::epoll_event &iEpoll, server::epoll_event *tEpoll) : data(data), i_arg(iArg), s_arg(sArg),
+                                                                                 i_epoll(iEpoll), t_epoll(tEpoll) {}
 
 /*
 *====================================================================================
@@ -205,6 +208,12 @@ int server::get_flag(int fd) {
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &flag, &len) == -1)
         throw server::socketopt_exception();
     return flag;
+}
+
+std::ostream &operator<<(std::ostream &os, const server &server) {
+    os << "data: " << server.data << " i_arg: " << server.i_arg << " s_arg: " << server.s_arg << " i_epoll: "
+       << server.i_epoll << " t_epoll: " << server.t_epoll;
+    return os;
 }
 
 

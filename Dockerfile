@@ -25,13 +25,16 @@ RUN apt-get update && apt-get install -y \
 # clone project
 RUN git clone https://github.com/Ticafblanc/webserv.git
 
+
+
 # Compilation du projet Webserv
 WORKDIR webserv
+COPY . webserv
 RUN make run
 
 # Exposition du port 80
 EXPOSE 80
 
 # Commande pour démarrer le serveur
-CMD ["./webserv", "webserv.conf"]
+CMD ["./webserv", "webserv.conf"]#expand shell and of command
 
