@@ -13,16 +13,18 @@ void Parser::openFile(void) {
 		throw OpenException();
 }
 
-void Parser::parse_config_file(void) {
-	// server {info} server marks the type of block and the brackets mark the start and end of the server block
+void Parser::getBlocks(void) {
 	string buffer;
+	string comp("{ 	");
 	this->openFile();
-	while (std::getline(this->config_file, buffer, '\n')) {
-		if (buffer.find("server") != string::npos) {
-			
-		}
-		// if (buffer.find(""))
-	}	
+	std::getline(this->config_file, buffer, '\0');
+	this->config_file.close();
+
+}
+
+void Parser::parseBlocks(void) {
+	// every server block in contained within the vector of strings blocks
+	
 }
 
 void Parser::findAmountServers(void) { //Prolly not my best work
