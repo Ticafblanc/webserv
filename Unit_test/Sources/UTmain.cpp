@@ -11,9 +11,8 @@
 /* ************************************************************************** */
 
 #include "../Include/unit_test.hpp"
-#include "gtest/gtest.h"
 
-int TEST() {
+int main() {
     std::cout <<"====================[ Unit test ]===============================\n" <<std::endl;
     enum{constructor,}; // add enum for name of test
     int nbr = 1;//add number for each function
@@ -30,9 +29,3 @@ int TEST() {
     std::cout <<"\n================[ Unit_test | Success ]=========================" <<std::endl;
     exit(EXIT_SUCCESS);
 }
-
-int main(int argc, char** argv){
-    ::testing::InitGoogleTest(&argc, &argv);
-    return RUN_ALL_TESTS();
-}
-
