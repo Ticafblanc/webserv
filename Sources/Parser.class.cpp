@@ -19,11 +19,11 @@ void Parser::getBlocks(void) {
 	this->openFile();
 	std::getline(this->config_file, buffer, '\0');
 	this->config_file.close();
-
+	
 }
 
 void Parser::parseBlocks(void) {
-	// every server block in contained within the vector of strings blocks
+	// every server block is contained within the vector of strings blocks
 	
 }
 
