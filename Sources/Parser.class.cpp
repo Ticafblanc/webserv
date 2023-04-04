@@ -42,7 +42,9 @@ void Parser::parseBlocks(void) {
 	
 }
 
-void Parser::findAmountServers(void) { //Prolly not my best work
+//need to fix to detect wrong character in between server blocks
+//could make another function that checks in between server blocks. Probably the best option
+void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
 	string buffer;
 	string comp("{ 	");
 	int lock = 0;
@@ -57,11 +59,10 @@ void Parser::findAmountServers(void) { //Prolly not my best work
 			throw InvalidConfigFile();
 		}
 		else {
-			if (buffer.find('{') > buffer.find('}')) {
+			if (buffer.find('{') > buffer.find('}') || buffer.find('{') == string::npos) {
 				throw InvalidConfigFile();
 			}
 			else {
-				cout << "No failing here" << endl;
 				buffer = buffer.substr(buffer.find('{'));
 			}
 			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
