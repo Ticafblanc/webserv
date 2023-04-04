@@ -33,7 +33,7 @@ void Parser::readfile(void) {
 	cout << buffer;
 }
 
-void Parser::findAmountServers(void) { //scene 1 prise 32
+void Parser::findAmountServers(void) { //Prolly not my best work
 	string buffer;
 	string comp("{ 	");
 	int lock = 0;
@@ -45,12 +45,10 @@ void Parser::findAmountServers(void) { //scene 1 prise 32
 			break ;
 		buffer = buffer.substr(buffer.find("server"));
 		if (comp.find(buffer[buffer.find("server") + 6]) == string::npos && buffer[buffer.find("server") + 6] != '\n') {
-			cout << "wtf is this shit" << endl;
 			throw InvalidConfigFile();
 		}
 		else {
 			if (buffer.find('{') > buffer.find('}')) {
-				cout << "Hi fuckface" << endl;
 				throw InvalidConfigFile();
 			}
 			else
