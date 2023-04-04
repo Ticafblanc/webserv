@@ -31,7 +31,7 @@ void Parser::getBlocks(void) {
 			if (*it == '}')
 				lock--;
 			if (lock == 0) {
-				
+
 			}
 		}
 	}
@@ -76,109 +76,6 @@ void Parser::findAmountServers(void) { //Prolly not my best work
 		}
 	}
 }
-
-// void Parser::findAmountServers(void) { //scene 1 prise 32
-// 	string buffer;
-// 	bool checkServer = false;
-// 	string comp("{ 	");
-// 	int lock = 0;
-// 	this->openFile();
-// 	while (std::getline(this->config_file, buffer, '\n')) { // I think this is fine
-// 		if (buffer.find("server") != string::npos){ //I think this is fine
-// 			if (comp.find(buffer[buffer.find("server") + 6]) == string::npos && buffer[buffer.find("server") + 6] != '\0')
-// 				throw InvalidConfigFile();
-// 			checkServer = true;
-// 		}
-// 		if (buffer.find("{") == string::npos) {
-// 			while (std::getline(this->config_file, buffer, '\n'))
-// 				if (buffer.find('{') != string::npos)
-// 					break;
-// 		}
-// 		while (checkServer == true) {
-// 			if (comp.find('{') != string::npos)
-// 				lock++;
-// 			if (comp.find('}') != string::npos)
-// 				lock--;
-// 			if (lock == 0) {
-// 				NServ++;
-// 				checkServer = false;
-// 			}
-// 			if (checkServer == true)
-// 				if (!std::getline(this->config_file, buffer, '\n'))
-// 					break;
-// 		}
-// 	}
-// }
-
-// void Parser::findAmountServers(void) { //fuck
-// 	string buffer;
-// 	string comp("{ 	");
-// 	bool checkServer = false;
-// 	int lock = 0;
-// 	this->openFile();
-// 	while (std::getline(this->config_file, buffer, '\n')) { // I think this is fine
-// 		if (buffer.find("server") != string::npos){ //I think this is fine
-// 			if (comp.find(buffer[buffer.find("server") + 6]) == string::npos && buffer[buffer.find("server") + 6] != '\0')
-// 				throw InvalidConfigFile();
-// 			checkServer = true;
-// 		}
-// 		while (buffer.find('{') == string::npos) {
-// 			if (buffer.find('{') != string::npos) //I have no idea why I have to do this. This is fucking stupid but otherwise the loop runs forever
-// 				break;
-// 			std::getline(this->config_file, buffer, '\n');
-// 		}
-// 		while (checkServer == true) { //need a better loop for when to end
-// 			if (buffer.find('{') != string::npos && buffer.find('}') != string::npos) {
-// 				if (buffer.find('{') > buffer.find('}')){
-// 					throw InvalidConfigFile();   //Throwing exception if closing curly bracket comes before opening curly bracket
-// 				}
-// 			}
-// 			if (buffer.find('{') != string::npos) {
-// 				lock++;
-// 			}
-// 			if (buffer.find('}') != string::npos) {
-// 				lock--;
-// 			}
-// 			if (lock == 0) {
-// 				NServ++;
-// 				checkServer = false;
-// 			}
-// 			if (checkServer == true)
-// 				std::getline(this->config_file, buffer, '\n');
-// 		}
-// 	}
-// }
-
-// void Parser::findAmountServers(void) { //trying a different approach
-// 	string buffer;
-// 	bool checkServer = false;
-// 	int lock = 0;
-// 	this->openFile();
-// 	while (std::getline(this->config_file, buffer, '\n')) {
-// 		while (buffer.find("{") == string::npos) {
-// 			if (buffer.find("}") != string::npos && lock == 0)
-// 				throw InvalidConfigFile();
-// 			if (!std::getline(this->config_file, buffer, '\n'))
-// 				throw InvalidConfigFile();
-// 		}
-// 		if (buffer.find("}") == string::npos)
-// 			lock++;
-// 		if (buffer.find("{") > buffer.find("}"))
-// 				throw InvalidConfigFile();
-// 		while (lock != 0) {
-// 			if (!std::getline(this->config_file, buffer, '\n'))
-// 				throw InvalidConfigFile();
-// 			if (buffer.find("}") != string::npos)
-// 				lock--;
-// 			if (buffer.find("{") != string::npos)
-// 				lock++;
-// 		}
-// 		if (lock!= 0)
-// 			throw InvalidConfigFile();
-// 		else
-// 			NServ++;
-// 	}
-// }
 
 unsigned int Parser::getNServ(void) const {
 	return NServ;
