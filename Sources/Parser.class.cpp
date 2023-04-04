@@ -15,11 +15,26 @@ void Parser::openFile(void) {
 
 void Parser::getBlocks(void) {
 	string buffer;
-	string comp("{ 	");
+	string block;
+	int lock = 0;
 	this->openFile();
 	std::getline(this->config_file, buffer, '\0');
 	this->config_file.close();
-	
+	while (buffer.size() != 0) {
+		if (buffer.find("server") == string::npos)
+			break ;
+		buffer = buffer.substr(buffer.find("server") + 6);
+		buffer = buffer.substr(buffer.find('{'));
+		for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+			if (*it == '{')
+				lock++;
+			if (*it == '}')
+				lock--;
+			if (lock == 0) {
+				
+			}
+		}
+	}
 }
 
 void Parser::parseBlocks(void) {
