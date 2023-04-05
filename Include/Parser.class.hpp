@@ -96,17 +96,22 @@ private:
 	std::ifstream config_file;
 	int argc;
 	unsigned int NServ;
+	vector<string> blocks;
 	vector<data_server> servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
 	void openFile(void);
+	void getBlocks(void);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
-	unsigned int getNServ(void) const;
-	void findAmountServers(void);
-	void parse_config_file(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
+	unsigned int getNServ(void) const; //Returns the amount of server blocks given in the format file given as argument
+	void findAmountServers(void); //Finds the amount of server blocks in the config file given as argumente
+	void parseBlocks(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	//methods
 	class OpenException: public exception {
 		const char* what() const throw();
+	};
+	class InvalidConfigFile: public exception {
+		const char * what() const throw();
 	};
 };
 

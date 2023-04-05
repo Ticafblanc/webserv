@@ -29,4 +29,3 @@ int main() {
     std::cout <<"\n================[ Unit_test | Success ]=========================" <<std::endl;
     exit(EXIT_SUCCESS);
 }
-

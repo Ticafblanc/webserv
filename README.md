@@ -66,7 +66,7 @@ Knowing its arcane will be useful, even if you won’t be working on a website.
 
 
 
-### Built With
+### Built Withddd
 
 * [CLion](https://www.jetbrains.com/clion/promo/?source=google&medium=cpc&campaign=11960744855&term=clion&content=489240779234&gclid=EAIaIQobChMIjYSpkeeX_AIVh6XICh0CqwhAEAAYASAAEgLIVPD_BwE)
 * [AstroNvim](https://github.com/AstroNvim/AstroNvim)
@@ -101,9 +101,16 @@ c++98
 • git clone the repo and use with
 <p align="right">(<a href="#top">back to top</a>)</p>
 <!-- USAGE EXAMPLES -->
-## Usage
 
-./webserv [configuration file]
+### Usage
+- ./webserv [configuration file]
+
+- Add configs in -> usr->local/etc/webserv/servers/
+- Default config -> usr->local/etc/webserv/webserv.conf
+- Logs will be in -> usr->local/var/log/webserv/
+- Default webroot is -> usr->local/var/www/
+- Default listen address -> http://localhost:8080
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -111,13 +118,14 @@ c++98
 ## Roadmap
 
 - [X] read doc
-- [X] CMake
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
+- [X] build project and dependance (Matthis)
+- [ ] build class server (Matthis)
+- [ ] build class data sever to store data after parsing (Matthis)
+- [X] build main.cpp to start (Matthis)
+- [X] create branch test (Matthis)
+- [X] set git action to automate pull_request master(Matthis)
+- [X] create directory like nginx
+- [ ]
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

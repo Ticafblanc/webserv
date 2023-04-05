@@ -248,7 +248,7 @@ int data_server::fd_isopen() {
 }
 
 int data_server::socket_isopen() {
-    int error = 0;
+    int error;
     socklen_t len = sizeof(error);
     int ret = getsockopt(getServerFd(), SOL_SOCKET, SO_ERROR, &error, &len);
     if (ret != 0 || error > 0) {

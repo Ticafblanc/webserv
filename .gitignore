@@ -3,4 +3,7 @@
 .cache
 build
 compile-flags.txt
-
+maintest.cpp
+.DS_store
+localtest.conf
+a.out

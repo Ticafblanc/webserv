@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
                     nfds--;
                     i--;
                 } else if (valread > 0) {
-                    // Send response
+                    // Send respons
                     send(fds[i].fd, hello, strlen(hello), 0);
                 } else {
                     perror("read failed");
