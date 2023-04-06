@@ -14,12 +14,9 @@ void Parser::openFile(void) {
 }
 
 void Parser::getBlocks(void) {
-	string buffer;
+	string buffer = readToBuffer();
 	string block;
 	int lock = 0;
-	this->openFile();
-	std::getline(this->config_file, buffer, '\0');
-	this->config_file.close();
 	while (buffer.size() != 0) {
 		if (buffer.find("server") == string::npos)
 			break ;
@@ -42,6 +39,14 @@ void Parser::parseBlocks(void) {
 	
 }
 
+std::string Parser::readToBuffer(void) {
+	string buffer;
+	this->openFile();
+	std::getline(this->config_file, buffer, '\0');
+	this->config_file.close();
+	return buffer;
+}
+
 //need to fix to detect wrong character in between server blocks
 //could make another function that checks in between server blocks. Probably the best option
 
@@ -54,12 +59,9 @@ void Parser::parseBlocks(void) {
 //will make it so there are no unwanted brackets in between server directives
 //there should be no random strings either in between server directives
 void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
-	string buffer;
+	string buffer = readToBuffer();
 	string comp("{ 	");
 	int lock = 0;
-	this->openFile();
-	std::getline(this->config_file, buffer, '\0');
-	this->config_file.close();
 	while (buffer.size() != 0) {
 		if (buffer.find("server") == string::npos)
 			break ;
@@ -71,10 +73,8 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 			if (buffer.find('{') > buffer.find('}') || buffer.find('{') == string::npos) {
 				throw InvalidConfigFile();
 			}
-			else {
-				cout << "Fail here" << endl;
+			else
 				buffer = buffer.substr(buffer.find('{'));
-			}
 			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
 				if (*it == '{')
 					lock++;

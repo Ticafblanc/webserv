@@ -100,6 +100,7 @@ private:
 	vector<data_server> servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
 	void openFile(void);
 	void getBlocks(void);
+	std::string readToBuffer(void);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
