@@ -23,9 +23,10 @@ jobs:
         run: |
           make finish
 
-      -
+      - name: Compile test
+        working-directory: build
+        run: cmake --build .
 
       - name: Run Unit test
         working-directory: build
-        run: make
         run: ctest
