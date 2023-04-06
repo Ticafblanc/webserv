@@ -107,8 +107,8 @@ void server::launcher() {
         set_sockoption();
         set_bind();
         set_listen();
-        std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-                  << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
+        // std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+        //           << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
 
         do {
             set_server_non_blocking();
@@ -121,7 +121,7 @@ void server::launcher() {
 //                perror("In accept");
 //                exit(EXIT_FAILURE);
 //            }
-            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+            // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
         } while (1);
     }
