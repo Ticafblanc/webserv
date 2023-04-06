@@ -19,7 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(10), s_data(2), pid(), addr_len(), address(){}
+data_server::data_server() : i_data(11), s_data(2), pid(), addr_len(), address(){}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())

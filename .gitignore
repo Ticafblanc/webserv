@@ -4,3 +4,6 @@ maintest.cpp
 .DS_store
 localtest.conf
 a.out
+Bin
+build
+.cache

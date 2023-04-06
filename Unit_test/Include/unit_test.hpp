@@ -11,10 +11,16 @@
 /* ************************************************************************** */
 
 #include "../../Include/webserv.hpp"
+#include "../../Include/data_server.class.hpp"
 
 #ifndef UNIT_TEST_UNIT_TEST_HPP
 # define UNIT_TEST_UNIT_TEST_HPP
 
-int construcor();
+#define TEST_FAIL -1
+#define TEST_PASS 0
 
-#endif //UNIT_TEST_HPP
+#define TEST_EQ(x, y)		\
+	if (x != y)				\
+		return (TEST_FAIL);	\
+
+#endif 
