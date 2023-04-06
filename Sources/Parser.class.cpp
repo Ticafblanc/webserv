@@ -51,6 +51,8 @@ void Parser::parseBlocks(void) {
 //not mandatory to have a server directive. Will provide a default one
 //if server_name not specified, uses empty string. If more than one server with the same server name, duplicates are ignored
 //directives within a server block need to end with ;
+//will make it so there are no unwanted brackets in between server directives
+//there should be no random strings either in between server directives
 void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
 	string buffer;
 	string comp("{ 	");
