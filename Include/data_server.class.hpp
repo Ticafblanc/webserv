@@ -1,11 +1,23 @@
 //
 // Created by Matthis DoQuocBao on 2023-03-27.
+// Hijacked by Yan. This is my class now. 2023-04-06
 //
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
-#include "header.hpp"
+#include "webserv.hpp"
 
+//listen host:port
+//empty server_name is an error. if no server_name default name is ""
+//default error pages, routes with
+//◦Define a list of accepted HTTP methods for the route.
+//◦Define a HTTP redirection.
+//◦Define a directory or a file from where the file should be searched
+//	(for example, if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is /tmp/www/pouic/toto/pouet).
+//◦Turn on or off directory listing.
+//◦Set a default file to answer if the request is a directory.
+//◦Execute CGI based on certain file extension (for example .php).
+//◦Make the route able to accept uploaded files and configure where they should be saved
 class data_server{
 /*
 *====================================================================================
@@ -24,20 +36,11 @@ public:
 */
 
 private:
-
-    enum{ id_server, port, domain, type, protocol,
-        backlog, server_fd, new_socket, level,
-        optionname, optionval,};
-
-    enum{ server_name, ip_address, };
-
-    std::vector<int> i_data;
-    std::vector<std::string> s_data;
-    pid_t pid;//follow process see if ok
-    std::size_t addr_len;
-    struct sockaddr_in address;
-    
-
+    vector<string> _server_name;
+    vector<std::pair<string, int> > _host_port;
+    vector<string> _default_error;
+    vector<Route> routes;
+    int serverId;
 /*
 *====================================================================================
 *|                                  Member Fonction                                 |
@@ -98,33 +101,22 @@ public:
 */
 
 public:
+    vector<string>& getServerName(int id); //returns server name @ id
+    void setServerName(int id, const std::string& serverName); //sets server name @ id to serverName
 
-    std::vector<int>& getIData();
-    std::vector<std::string>& getSData();
+    vector<string>& getIpAddress(int id); //return ip address @ id
+    void setIpAddress(int id, const string& ipAddress); //sets ip address @ id with ipAddress 
 
-    std::string& getServerName();
-    /*set name of server*/
-    void setServer_name(std::string &);
+    int& getIdServer(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(int id); //use with caution I guess
 
-    std::string& getIpAddress();
-    /*set Ip address */
-    void setIp_address(std::string &);
+    int& getPort(int id); //returns port # @ id
+    void setPort(int id, int port); //sets port # @ id
 
-    int& getIdServer();
-    /* number of server first server = 0 and last = (nbr server-1)*/
-    void setIdServer(int );
-
-    int& getPort();
-    /*number of port t follow*/
-    void setPort(int );
-
-    int& getDomain();
-    /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
+    int& getDomain(); //number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)
     void setDomain(int );
 
-    int& getType();
-    /*set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET
-     * for service tcp => SOCK_STREAM*/
+    int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
     void setType(int );
 
     int& getProtocol();

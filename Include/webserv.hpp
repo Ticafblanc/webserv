@@ -4,6 +4,7 @@
 #include "header.hpp"
 #include "server.class.hpp"
 #include "Parser.class.hpp"
+#include "Route.class.hpp"
 
 std::vector<server> init(std::string str);//main init .... paring to do
 

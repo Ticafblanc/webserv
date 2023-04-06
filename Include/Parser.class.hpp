@@ -18,6 +18,7 @@ private:
 	void findAmountServers(void); //Finds the amount of server blocks in the config file given as argumente
 	void getBlocks(void);
 	void parseBlocks(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
+	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
 public:
 	Parser(char **argv, int argc);
@@ -29,6 +30,9 @@ public:
 		const char* what() const throw();
 	};
 	class InvalidConfigFile: public exception {
+		const char* what() const throw();
+	};
+	class InvalidDirective: public exception {
 		const char* what() const throw();
 	};
 };

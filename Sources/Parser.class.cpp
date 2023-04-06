@@ -98,19 +98,29 @@ void Parser::getBlocks(void) {
 //◦Turn on or off directory listing.
 //◦Set a default file to answer if the request is a directory.
 //◦Execute CGI based on certain file extension (for example .php).
-//◦Make the route able to accept uploaded files and configure where they should be saved.
+//◦Make the route able to accept uploaded files and configure where they should be saved
+
+void Parser::parseSingleBlock(int blockId) {
+	string buffer = _blocks.at(blockId);
+	while (buffer.size() != 0) {
+
+	}
+}
 
 void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
 	if (_NServ == 0)
 		defineDefaultServer();
 	else {
 		data_server data;
-		
+		for (int i = 0; i < _NServ; i++) {
+			parseSingleBlock(i);
+		}
 	}
 }
 
 void Parser::defineDefaultServer(void) { //Define a single default server if _NServ == 0 
-
+	data_server data;
+	data.
 }
 
 void Parser::printBlocks(void) { //just for testing purposes
@@ -129,4 +139,8 @@ const char* Parser::OpenException::what() const throw() {
 
 const char* Parser::InvalidConfigFile::what() const throw() {
 	return "Invalid configuration file";
+}
+
+const char* Parser::InvalidDirective::what() const throw() {
+	return "Invalid directive detected";
 }

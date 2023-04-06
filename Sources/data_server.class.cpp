@@ -19,7 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(10), s_data(2), pid(), addr_len(), address(){}
+data_server::data_server() {}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
@@ -27,23 +27,11 @@ data_server::~data_server() {
 //    close(getServerFd());
 }
 
-data_server::data_server(const data_server& other) : i_data(other.i_data), s_data(other.s_data),
-                                                    pid(other.pid), address(){
-    this->addr_len = other.addr_len;
-    this->address.sin_family = other.address.sin_family;
-    this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
-    this->address.sin_port = other.address.sin_port;
+data_server::data_server(const data_server& other) {
     memcpy(getAddress().sin_zero, other.address.sin_zero, sizeof address.sin_zero);
 }
 
-data_server& data_server::operator=(const data_server& rhs){
-    this->i_data = rhs.i_data;
-    this->s_data = rhs.s_data;
-    this->pid = rhs.pid;
-    this->addr_len = rhs.addr_len;
-    this->address.sin_family = rhs.address.sin_family;
-    this->address.sin_addr.s_addr = rhs.address.sin_addr.s_addr;
-    this->address.sin_port = rhs.address.sin_port;
+data_server& data_server::operator=(const data_server& rhs) {
     memcpy(this->address.sin_zero, rhs.address.sin_zero, sizeof address.sin_zero);
     return *this;
 }
@@ -67,14 +55,6 @@ const char *  data_server::arg_exception::what() const throw(){
 *|                                  Element access                                 |
 *====================================================================================
 */
-
-std::vector<int>& data_server::getIData(){
-    return this->i_data;
-}
-
-std::vector<std::string>& data_server::getSData() {
-    return this->s_data;
-}
 
 std::string& data_server::getServerName(){
     return getSData()[server_name];
