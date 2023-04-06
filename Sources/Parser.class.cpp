@@ -58,10 +58,14 @@ std::string Parser::readToBuffer(void) {
 //directives within a server block need to end with ;
 //will make it so there are no unwanted brackets in between server directives
 //there should be no random strings either in between server directives
-void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
+
+//left to fix: server block without brackets in between valid server blocks
+//random ass brackets in between valid server blocks
+void Parser::findAmountServers(void) { //Last valid option
 	string buffer = readToBuffer();
 	string comp("{ 	\n");
 	int lock = 0;
+	bool server_lock = false;
 	while (buffer.size() != 0) {
 		if (buffer.find("server") == string::npos)
 			break ;
@@ -73,8 +77,12 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 			if (buffer.find('{') > buffer.find('}') || buffer.find('{') == string::npos) {
 				throw InvalidConfigFile();
 			}
-			else
+			else {
+				buffer = buffer.substr(6);
+				if (buffer.find("server") < buffer.find('{'))
+					throw InvalidConfigFile();
 				buffer = buffer.substr(buffer.find('{'));
+			}
 			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
 				if (*it == '{')
 					lock++;
@@ -86,6 +94,8 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 					break ;
 				}
 			}
+			if (lock != 0)
+				throw InvalidConfigFile();
 		}
 	}
 }
