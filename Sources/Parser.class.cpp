@@ -60,13 +60,13 @@ std::string Parser::readToBuffer(void) {
 //there should be no random strings either in between server directives
 void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
 	string buffer = readToBuffer();
-	string comp("{ 	");
+	string comp("{ 	\n");
 	int lock = 0;
 	while (buffer.size() != 0) {
 		if (buffer.find("server") == string::npos)
 			break ;
 		buffer = buffer.substr(buffer.find("server"));
-		if (comp.find(buffer[buffer.find("server") + 6]) == string::npos && buffer[buffer.find("server") + 6] != '\n') {
+		if (comp.find(buffer[buffer.find("server") + 6]) == string::npos) {
 			throw InvalidConfigFile();
 		}
 		else {
@@ -88,8 +88,6 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 			}
 		}
 	}
-	if (NServ == 0)
-		throw InvalidConfigFile();
 }
 
 unsigned int Parser::getNServ(void) const {
