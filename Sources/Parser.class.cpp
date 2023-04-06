@@ -1,66 +1,30 @@
 #include "../Include/Parser.class.hpp"
 
-Parser::Parser(char **argv, int argc): arg(argv[1]), argc(argc), NServ(0) { }
+Parser::Parser(char **argv, int argc): _arg(argv[1]), _argc(argc), _NServ(0) {
+	findAmountServers();
+	getBlocks();
+	parseBlocks();
+}
 
 Parser::~Parser() { }
-
-void Parser::openFile(void) {
-	if (this->argc == 2)
-		this->config_file.open(arg.c_str());
-	else
-		this->config_file.open("../config_files/default");
-	if (this->config_file.fail() || !this->config_file.is_open())
-		throw OpenException();
-}
-
-void Parser::getBlocks(void) {
-	string buffer = readToBuffer();
-	string block;
-	int lock = 0;
-	while (buffer.size() != 0) {
-		if (buffer.find("server") == string::npos)
-			break ;
-		buffer = buffer.substr(buffer.find("server") + 6);
-		buffer = buffer.substr(buffer.find('{'));
-		for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
-			if (*it == '{')
-				lock++;
-			if (*it == '}')
-				lock--;
-			if (lock == 0) {
-				
-			}
-		}
-	}
-}
-
-void Parser::parseBlocks(void) {
-	// every server block is contained within the vector of strings blocks
-	
-}
 
 std::string Parser::readToBuffer(void) {
 	string buffer;
 	this->openFile();
-	std::getline(this->config_file, buffer, '\0');
-	this->config_file.close();
+	std::getline(this->_config_file, buffer, '\0');
+	this->_config_file.close();
 	return buffer;
 }
 
-//need to fix to detect wrong character in between server blocks
-//could make another function that checks in between server blocks. Probably the best option
+void Parser::openFile(void) {
+	if (this->_argc == 2)
+		this->_config_file.open(_arg.c_str());
+	else
+		this->_config_file.open("../config_files/default");
+	if (this->_config_file.fail() || !this->_config_file.is_open())
+		throw OpenException();
+}
 
-//can't have server alone without brackets
-//can't have brackets without server before them
-//brackets must be in correct order
-//not mandatory to have a server directive. Will provide a default one
-//if server_name not specified, uses empty string. If more than one server with the same server name, duplicates are ignored
-//directives within a server block need to end with ;
-//will make it so there are no unwanted brackets in between server directives
-//there should be no random strings either in between server directives
-
-//left to fix: server block without brackets in between valid server blocks
-//random ass brackets in between valid server blocks
 void Parser::findAmountServers(void) { //Last valid option
 	string buffer = readToBuffer();
 	string comp("{ 	\n");
@@ -89,7 +53,7 @@ void Parser::findAmountServers(void) { //Last valid option
 				if (*it == '}')
 					lock--;
 				if (lock == 0) {
-					NServ++;
+					_NServ++;
 					buffer = buffer.substr((it - buffer.begin()) + 1);
 					break ;
 				}
@@ -100,8 +64,63 @@ void Parser::findAmountServers(void) { //Last valid option
 	}
 }
 
+void Parser::getBlocks(void) {
+	string buffer = readToBuffer();
+	string block;
+	int lock = 0;
+	while (buffer.size() != 0) {
+		if (buffer.find("server") == string::npos)
+			break ;
+		buffer = buffer.substr(buffer.find('{'));
+		for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+			if (*it == '{')
+				lock++;
+			if (*it == '}')
+				lock--;
+			if (lock == 0) {
+				_blocks.push_back(buffer.substr(1, (it - buffer.begin() - 1)));
+				buffer = buffer.substr((it - buffer.begin()) + 1);
+				break ;
+			}
+		}
+	}
+}
+
+/****************attributes*****************/
+
+//listen host:port
+//server_name name1 name2 ... ; empty server_name is an error
+//host, port, server_names, default error pages, routes with
+//◦Define a list of accepted HTTP methods for the route.
+//◦Define a HTTP redirection.
+//◦Define a directory or a file from where the file should be searched
+//	(for example, if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is /tmp/www/pouic/toto/pouet).
+//◦Turn on or off directory listing.
+//◦Set a default file to answer if the request is a directory.
+//◦Execute CGI based on certain file extension (for example .php).
+//◦Make the route able to accept uploaded files and configure where they should be saved.
+
+void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
+	if (_NServ == 0)
+		defineDefaultServer();
+	else {
+		data_server data;
+		
+	}
+}
+
+void Parser::defineDefaultServer(void) { //Define a single default server if _NServ == 0 
+
+}
+
+void Parser::printBlocks(void) { //just for testing purposes
+	for (int i = 0; i < _NServ; i++) {
+		cout << _blocks.at(i) << endl;
+	}
+}
+
 unsigned int Parser::getNServ(void) const {
-	return NServ;
+	return _NServ;
 }
 
 const char* Parser::OpenException::what() const throw() {
