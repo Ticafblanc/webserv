@@ -15,14 +15,17 @@ jobs:
       - name: compile project
         run: cmake -B build
 
-      - name: recompile project
+      - name: test Makefile
         run: |
-          make re
+          make
 
-      - name: Clean project
+      - name: Clean Makefile test
         run: |
           make finish
 
+      -
+
       - name: Run Unit test
         working-directory: build
+        run: make
         run: ctest
