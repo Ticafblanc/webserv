@@ -6,3 +6,4 @@ localtest.conf
 a.out
 Bin
 build
+.cache
