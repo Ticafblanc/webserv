@@ -44,6 +44,13 @@ void Parser::parseBlocks(void) {
 
 //need to fix to detect wrong character in between server blocks
 //could make another function that checks in between server blocks. Probably the best option
+
+//can't have server alone without brackets
+//can't have brackets without server before them
+//brackets must be in correct order
+//not mandatory to have a server directive. Will provide a default one
+//if server_name not specified, uses empty string. If more than one server with the same server name, duplicates are ignored
+//directives within a server block need to end with ;
 void Parser::findAmountServers(void) { //Counts the number of server blocks. Throws an error for invalid options
 	string buffer;
 	string comp("{ 	");
@@ -63,6 +70,7 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 				throw InvalidConfigFile();
 			}
 			else {
+				cout << "Fail here" << endl;
 				buffer = buffer.substr(buffer.find('{'));
 			}
 			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
@@ -78,6 +86,8 @@ void Parser::findAmountServers(void) { //Counts the number of server blocks. Thr
 			}
 		}
 	}
+	if (NServ == 0)
+		throw InvalidConfigFile();
 }
 
 unsigned int Parser::getNServ(void) const {
