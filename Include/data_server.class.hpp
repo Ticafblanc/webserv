@@ -1,13 +1,12 @@
 //
 // Created by Matthis DoQuocBao on 2023-03-27.
-// Hijacked by Yan. This is my class now. 2023-04-06
+// Hijacked by Yan on 2023-04-06. This is my class now
 //
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
 #include "webserv.hpp"
 
-//listen host:port
 //empty server_name is an error. if no server_name default name is ""
 //default error pages, routes with
 //◦Define a list of accepted HTTP methods for the route.
@@ -102,22 +101,22 @@ public:
 
 public:
     vector<string>& getServerName(int id); //returns server name @ id
-    void setServerName(int id, const std::string& serverName); //sets server name @ id to serverName
-
-    vector<string>& getIpAddress(int id); //return ip address @ id
-    void setIpAddress(int id, const string& ipAddress); //sets ip address @ id with ipAddress 
+    void setServerName(int id, const vector<string>& serverName); //sets server name @ id to serverName
 
     int& getIdServer(); //number of server first server = 0 and last = (nbr server-1)
     void setIdServer(int id); //use with caution I guess
 
-    int& getPort(int id); //returns port # @ id
-    void setPort(int id, int port); //sets port # @ id
+    vector<std::pair<string, int> >& getHostPort(int id); //return ip address @ id
+    void setHostPort(int id, const vector<std::pair<string, int> >& hostPair); //sets ip address @ id with ipAddress 
 
     int& getDomain(); //number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)
     void setDomain(int );
 
     int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
     void setType(int );
+
+    vector<Route>& getRoutes(int id); //returns vector of Route
+    void setRoutes(int id, const vector<Route>& routes);
 
     int& getProtocol();
     /*set protocol to 0*/
@@ -141,7 +140,7 @@ public:
     void setAddress(int dom, int por);
     void setAddress();
 
-    size_t& getAddrlen() ;
+    size_t& getAddrlen();
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 

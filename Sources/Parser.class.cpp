@@ -102,9 +102,23 @@ void Parser::getBlocks(void) {
 
 void Parser::parseSingleBlock(int blockId) {
 	string buffer = _blocks.at(blockId);
-	while (buffer.size() != 0) {
+	string tempBuffer;
+	bool parsingDone = false;
+	while (parsingDone == false) {
+		if (buffer.find("server_name") != string::npos) {
 
+		}
+		if (buffer.find("listen") != string::npos) {
+
+		}
+		if (buffer.find("location") != string::npos) {
+			parseRoute();
+		}
 	}
+}
+
+void Parser::parseRoute(void) {
+
 }
 
 void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
@@ -119,8 +133,16 @@ void Parser::parseBlocks(void) { // every server block is contained within the v
 }
 
 void Parser::defineDefaultServer(void) { //Define a single default server if _NServ == 0 
-	data_server data;
-	data.
+	data_server data; //new data instance
+	vector<string> serverName; //vector of string that holds the name of the server
+	vector<std::pair<string, int> > newPair; //vector of pairs that holds the host & port
+	std::pair<string, int> hostPort("", 8000); //new pair to be added into newPair
+	newPair.push_back(hostPort); //adding hostPort to newPair
+	serverName.push_back(""); //adding empty string to serverName
+	data.setServerName(0, serverName); //setting serverName into data
+	data.setHostPort(0, newPair); //setting host/port into data
+	data.setIdServer(0); //setting serverId into data
+	_servers.push_back(data); //adding data to _servers
 }
 
 void Parser::printBlocks(void) { //just for testing purposes

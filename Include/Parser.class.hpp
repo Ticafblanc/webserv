@@ -20,6 +20,7 @@ private:
 	void parseBlocks(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
+	void parseRoute(void);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
