@@ -29,8 +29,11 @@
 	if (x == y)				\
 		return (TEST_FAIL);	\
 
-#define TEST_THROW(x, y)	\
-	if (x != y)				\
-		return (TEST_FAIL)	\
-
+#define TEST_THROW(statement, exception_type) \
+{										\
+	try {								\
+		statement();					\
+	} catch (const exception_type& e) {	\
+	}									\
+}
 #endif 
