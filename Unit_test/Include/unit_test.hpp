@@ -19,8 +19,18 @@
 #define TEST_FAIL -1
 #define TEST_PASS 0
 
+#define TEST int main()
+
 #define TEST_EQ(x, y)		\
 	if (x != y)				\
 		return (TEST_FAIL);	\
+
+#define TEST_NE(x, y)		\
+	if (x == y)				\
+		return (TEST_FAIL);	\
+
+#define TEST_THROW(x, y)	\
+	if (x != y)				\
+		return (TEST_FAIL)	\
 
 #endif 
