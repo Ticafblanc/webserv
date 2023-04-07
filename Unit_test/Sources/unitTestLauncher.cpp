@@ -15,7 +15,7 @@ int unitTestLauncher()
 	return (TEST_PASS);
 }
 
-int main ()
+TEST
 {
 	TEST_EQ(unitTestLauncher(), TEST_PASS);
 	return (TEST_PASS);

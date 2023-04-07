@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "../Include/unit_test.hpp"
-#include <sys/socket.h>
 
 int unitTestInit()
 {
@@ -55,7 +54,8 @@ int unitTestGetter()
     return (TEST_PASS);
 }
 
-int main() {
+TEST
+{
     TEST_EQ(unitTestInit(), TEST_PASS);
     TEST_EQ(unitTestGetter(), TEST_PASS);
     return (TEST_PASS);
