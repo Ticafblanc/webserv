@@ -88,7 +88,7 @@ void Parser::getBlocks(void) {
 
 /****************attributes*****************/
 
-//listen host:port
+//listen host:port; if only port is provided host defaults to 0.0.0.0
 //server_name name1 name2 ... ; empty server_name is an error
 //host, port, server_names, default error pages, routes with
 //◦Define a list of accepted HTTP methods for the route.
