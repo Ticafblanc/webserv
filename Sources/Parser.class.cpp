@@ -100,13 +100,24 @@ void Parser::getBlocks(void) {
 //◦Execute CGI based on certain file extension (for example .php).
 //◦Make the route able to accept uploaded files and configure where they should be saved
 
-void Parser::parseSingleBlock(int blockId) {
+void Parser::parseSingleBlock(int blockId) { //parses a single function block and populates a new data_server instance
+	int start;
+	int stop;
+	data_server data;
+	vector<string> serverName;
+	vector<std::pair<string, int> > hostPort;
+	std::pair<string, int> newPair;
 	string buffer = _blocks.at(blockId);
-	string tempBuffer;
+	string tempBufferStart;
+	string tempBufferStop;
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
-
+			start = buffer.find("server_name");
+			stop = buffer.find(';', start);
+			tempBufferStart = buffer.substr(start, (stop - start));
+			
+			buffer = buffer.substr(0, start);
 		}
 		if (buffer.find("listen") != string::npos) {
 
@@ -135,12 +146,12 @@ void Parser::parseBlocks(void) { // every server block is contained within the v
 void Parser::defineDefaultServer(void) { //Define a single default server if _NServ == 0 
 	data_server data; //new data instance
 	vector<string> serverName; //vector of string that holds the name of the server
-	vector<std::pair<string, int> > newPair; //vector of pairs that holds the host & port
-	std::pair<string, int> hostPort("", 8000); //new pair to be added into newPair
-	newPair.push_back(hostPort); //adding hostPort to newPair
+	vector<std::pair<string, int> > hostPort; //vector of pairs that holds the host & port
+	std::pair<string, int> newPair("", 8000); //new pair to be added into newPair
+	hostPort.push_back(newPair); //adding hostPort to newPair
 	serverName.push_back(""); //adding empty string to serverName
 	data.setServerName(0, serverName); //setting serverName into data
-	data.setHostPort(0, newPair); //setting host/port into data
+	data.setHostPort(0, hostPort); //setting host/port into data
 	data.setIdServer(0); //setting serverId into data
 	_servers.push_back(data); //adding data to _servers
 }
