@@ -126,6 +126,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			buffer = buffer.append(tempBufferStop);
 			if ((toParse.find("server_name") + 11) != ' ')
 				throw InvalidDirective();
+			toParse = toParse.substr(11);
+			for (string::iterator it = toParse.begin(); it < toParse.begin(); it++) {
+				
+			}
 		}
 		if (buffer.find("listen") != string::npos) {
 
@@ -133,7 +137,19 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("location") != string::npos) {
 			parseRoute();
 		}
+		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
+			//need to check if buffer is empty. spaces or tabs are fine
+			parsingDone = true;
+		}
 	}
+	if (serverName.size() == 0) {
+		serverName.push_back("");
+	}
+	if (hostPort.size() == 0) {
+		hostPort.push_back(std::make_pair("0.0.0.0", 8000));
+	}
+	data.setServerName(blockId, serverName);
+	data.setHostPort(blockId, hostPort);
 }
 
 void Parser::parseRoute(void) {
