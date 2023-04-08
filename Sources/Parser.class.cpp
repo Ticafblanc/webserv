@@ -110,14 +110,21 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	string buffer = _blocks.at(blockId);
 	string tempBufferStart;
 	string tempBufferStop;
+	string toParse;
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
 			start = buffer.find("server_name");
 			stop = buffer.find(';', start);
-			tempBufferStart = buffer.substr(start, (stop - start));
+			if (start == string::npos || stop == string::npos)
+				throw InvalidDirective();
+			tempBufferStart = buffer.substr(0, start);
+			tempBufferStop = buffer.substr(stop);
+			toParse = buffer.substr(start, (stop - start));
+			buffer.clear();
+			buffer = buffer.append(tempBufferStart);
+			buffer = buffer.append(tempBufferStop);
 			
-			buffer = buffer.substr(0, start);
 		}
 		if (buffer.find("listen") != string::npos) {
 
