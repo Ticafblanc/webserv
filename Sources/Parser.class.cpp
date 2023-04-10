@@ -116,47 +116,64 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("server_name") != string::npos) {
 			start = buffer.find("server_name");
 			stop = buffer.find(';', start);
-			if (start == string::npos || stop == string::npos)
+			if (stop == string::npos)
 				throw InvalidDirective();
 			tempBufferStart = buffer.substr(0, start);
-			tempBufferStop = buffer.substr(stop);
-			toParse = buffer.substr(start, (stop - start));
+			tempBufferStop = buffer.substr(stop + 1);
+			toParse = buffer.substr(start, ((stop + 1) - start));
 			buffer.clear();
 			buffer = buffer.append(tempBufferStart);
 			buffer = buffer.append(tempBufferStop);
-			if ((toParse.find("server_name") + 11) != ' ')
+			if (toParse[toParse.find("server_name") + 11] != ' ')
 				throw InvalidDirective();
-			start, stop = 0;
-			while (toParse.size() != 0) {
-				for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
-					if (isalnum(*it) != 0 && start == 0)
-						start = toParse.begin() - it;
-					if ((isspace(*it) && start != 0) || *it == ';')
-						stop = toParse.begin() - it;
-					if (start != 0 && stop != 0) {
-						serverName.push_back(toParse.substr(start, (stop - start)));
-						start, stop = 0;
-					}
-					if (*it == ';')
-						break;
+			toParse = toParse.substr(toParse.find("server_name") + 11);
+			start = 0, stop = 0;
+			for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+				if (isalnum(*it) != 0 && start == 0)
+					start = it - toParse.begin();
+				if ((isspace(*it) && start != 0) || *it == ';')
+					stop = it - toParse.begin();
+				if (start != 0 && stop != 0) {
+					serverName.push_back(toParse.substr(start, (stop - start)));
+					start = 0, stop = 0;
 				}
 			}
 		}
-		parsingDone = true;
 		if (buffer.find("listen") != string::npos) {
-
+			if (buffer.find("listen") != string::npos) {
+				start = buffer.find("listen");
+				stop = buffer.find(';', start);
+				if (stop == string::npos)
+					throw InvalidDirective();
+				tempBufferStart = buffer.substr(0, start);
+				tempBufferStop = buffer.substr(stop + 1);
+				toParse = buffer.substr(start, ((stop + 1) - start));
+				buffer.clear();
+				buffer = buffer.append(tempBufferStart);
+				buffer = buffer.append(tempBufferStop);
+				if (toParse[toParse.find("listen") + 11] != ' ')
+					throw InvalidDirective();
+				toParse = toParse.substr(toParse.find("listen") + 11);
+				start = 0, stop = 0;
+				for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+					if (isalnum(*it) != 0 && start == 0)
+						start = it - toParse.begin();
+					if ((isspace(*it) && start != 0) || *it == ';')
+						stop = it - toParse.begin();
+					if (start != 0 && stop != 0) {
+						
+						start = 0, stop = 0;
+					}
+				}
+			}
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute();
 		}
 		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
-			//need to check if buffer is empty. spaces or tabs are fine
 			parsingDone = true;
 		}
 	}
-	for (int i = 0; i < 2; i++)
-		cout << serverName[i] << endl;
-	return ;
 	if (serverName.size() == 0) {
 		serverName.push_back("");
 	}
