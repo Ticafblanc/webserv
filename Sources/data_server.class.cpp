@@ -35,6 +35,24 @@ data_server::~data_server() {
 //     return *this;
 // }
 
+data_server::data_server(const data_server& other) {
+    *this = other;
+}
+
+
+data_server& data_server::operator=(const data_server& rhs) {
+    this->_server_name = rhs._server_name;
+    this->_host_port = rhs._host_port;
+    this->_default_error = rhs._default_error;
+    this->_routes = rhs._routes;
+    this->serverId = rhs.serverId;
+    this->_address = rhs._address;
+    this->_addr_len = rhs._addr_len;
+    this->_server_fd = rhs._server_fd;
+
+    return *this;
+}
+
 /*
 *====================================================================================
 *|                                  Member Exception                                 |
@@ -80,7 +98,7 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) {
 }
 
 int& data_server::getType() {
-
+    return serverId; //this will have to be changed
 }
 
 void data_server::setType(int type) {
@@ -95,52 +113,13 @@ void data_server::setRoutes(const vector<Route>& routes) {
     _routes = routes;
 }
 
-// std::string& data_server::getServerName(){
-//     return getSData()[server_name];
-// }
+int& data_server::getServerFd(void) {
+    return _server_fd;
+}
 
-// void data_server::setServer_name(std::string & name){
-//     getSData()[server_name] = name;
-// }
-
-// std::string& data_server::getIpAddress(){
-//     return getSData()[ip_address];
-// }
-
-// void data_server::setIp_address(std::string & ip){
-//     getSData()[ip_address] = ip;
-// }
-
-// int& data_server::getIdServer() {
-//     return getIData()[id_server];
-// }
-// void data_server::setIdServer(int  id){
-//     getIData()[id_server] = id;
-// }
-
-// int& data_server::getPort(){
-//     return getIData()[port];
-
-// }
-// void data_server::setPort(int p){
-//     getIData()[port] = p;
-// }
-
-// int& data_server::getDomain(){
-//     return getIData()[domain];
-// }
-
-// void data_server::setDomain(int dom){
-//     getIData()[domain] = dom;
-// }
-
-// int& data_server::getType(){
-//     return getIData()[type];
-// }
-
-// void data_server::setType(int  typ){
-//     getIData()[type] = typ;
-// }
+void data_server::setServerFd(int fd) {
+    _server_fd = fd;
+}
 
 // int& data_server::getProtocol(){
 //     return getIData()[protocol];
@@ -158,14 +137,6 @@ void data_server::setRoutes(const vector<Route>& routes) {
 //     getIData()[backlog] = log;
 // }
 
-// int& data_server::getServerFd() {
-//     return getIData()[server_fd];
-// }
-
-// void data_server::setServerFd(int  fd){
-//     getIData()[server_fd] = fd;
-// }
-
 // int& data_server::getNewSocket(){
 //     return getIData()[new_socket];
 // }
@@ -174,9 +145,9 @@ void data_server::setRoutes(const vector<Route>& routes) {
 //     getIData()[new_socket] = sok;
 // }
 
-// sockaddr_in& data_server::getAddress(){
-//     return this->address;
-// }
+sockaddr_in& data_server::getAddress(){
+    return this->_address;
+}
 
 void data_server::setAddress(int dom, const std::string& ip_addr, int por){
     if (dom != AF_INET)
@@ -206,13 +177,13 @@ void data_server::setAddress(int dom, int por){
 //     setAddrlen(sizeof(getAddress()));
 // }
 
-// std::size_t& data_server::getAddrlen() {
-//     return this->addr_len;
-// }
+std::size_t& data_server::getAddrlen() {
+    return this->_addr_len;
+}
 
-// void data_server::setAddrlen(const std::size_t & s){
-//     this->addr_len = s;
-// }
+void data_server::setAddrlen(const std::size_t & s){
+    this->_addr_len = s;
+}
 
 // int& data_server::getLevel(){
 //     return getIData()[level];

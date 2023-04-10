@@ -41,6 +41,10 @@ private:
     vector<string> _default_error;
     vector<Route> _routes;
     int serverId;
+    sockaddr_in _address;
+    std::size_t _addr_len;
+    int _server_fd;
+
 /*
 *====================================================================================
 *|                                  Member Fonction                                 |
@@ -111,9 +115,6 @@ public:
     void setHostPort(const vector<std::pair<string, int> >& hostPair); //sets ip address @ id with ipAddress 
 
     int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
-    void setType(int );
-
-    int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
     void setType(int type);
 
     vector<Route>& getRoutes(void); //returns vector of Route
@@ -129,7 +130,7 @@ public:
 
     int& getServerFd();
     /*value of socket */
-    void setServerFd(int );
+    void setServerFd(int fd);
 
     // int& getNewSocket();
     // /*set value of new socket after accpet*/
