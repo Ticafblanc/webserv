@@ -5,7 +5,8 @@
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
-#include "webserv.hpp"
+#include "header.hpp"
+#include "Route.class.hpp"
 
 //empty server_name is an error. if no server_name default name is ""
 //default error pages, routes with
@@ -38,7 +39,7 @@ private:
     vector<string> _server_name;
     vector<std::pair<string, int> > _host_port;
     vector<string> _default_error;
-    vector<Route> routes;
+    vector<Route> _routes;
     int serverId;
 /*
 *====================================================================================
@@ -100,39 +101,39 @@ public:
 */
 
 public:
-    vector<string>& getServerName(int id); //returns server name @ id
-    void setServerName(int id, const vector<string>& serverName); //sets server name @ id to serverName
+    vector<string>& getServerName(void); //returns server name @ id
+    void setServerName(const vector<string>& serverName); //sets server name @ id to serverName
 
     int& getIdServer(); //number of server first server = 0 and last = (nbr server-1)
     void setIdServer(int id); //use with caution I guess
 
-    vector<std::pair<string, int> >& getHostPort(int id); //return ip address @ id
-    void setHostPort(int id, const vector<std::pair<string, int> >& hostPair); //sets ip address @ id with ipAddress 
-
-    int& getDomain(); //number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)
-    void setDomain(int );
+    vector<std::pair<string, int> >& getHostPort(void); //return ip address @ id
+    void setHostPort(const vector<std::pair<string, int> >& hostPair); //sets ip address @ id with ipAddress 
 
     int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
     void setType(int );
 
-    vector<Route>& getRoutes(int id); //returns vector of Route
-    void setRoutes(int id, const vector<Route>& routes);
+    int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
+    void setType(int type);
+
+    vector<Route>& getRoutes(void); //returns vector of Route
+    void setRoutes(const vector<Route>& routes);
 
     int& getProtocol();
     /*set protocol to 0*/
-    void setProtocol(int );
+    void setProtocol(int protocol);
 
-    int&  getBacklog();
-    /*set time to follow socket fd set at 10 for now*/
-    void setBacklog(int );
+    // int&  getBacklog();
+    // /*set time to follow socket fd set at 10 for now*/
+    // void setBacklog(int );
 
     int& getServerFd();
     /*value of socket */
     void setServerFd(int );
 
-    int& getNewSocket();
-    /*set value of new socket after accpet*/
-    void setNewSocket(int );
+    // int& getNewSocket();
+    // /*set value of new socket after accpet*/
+    // void setNewSocket(int );
 
     sockaddr_in& getAddress();
     /*set struct sockaddr_in */
@@ -144,21 +145,21 @@ public:
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-    int& getLevel();
-    /*set level for soc option to SOL_SOCKET and  we will see */
-    void setLevel(int);
+    // int& getLevel();
+    // /*set level for soc option to SOL_SOCKET and  we will see */
+    // void setLevel(int);
 
-    int& getOptionName();
-    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
-    void setOptionName(int);
+    // int& getOptionName();
+    // /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
+    // void setOptionName(int);
 
-    int& getOptionVal();
-    /*set option_Value for soc option to 0 or 1 */
-    void setOptionVal(int);
+    // int& getOptionVal();
+    // /*set option_Value for soc option to 0 or 1 */
+    // void setOptionVal(int);
 
-    pid_t& getPid();
-    /*store pid of process*/
-    void setPid(pid_t &);
+    // pid_t& getPid();
+    // /*store pid of process*/
+    // void setPid(pid_t &);
 
     void close_server_fd();
 

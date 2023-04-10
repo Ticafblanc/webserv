@@ -12,8 +12,8 @@
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 
-#include "header.hpp"
 #include "data_server.class.hpp"
+#include "header.hpp"
 #include <poll.h>
 
 #define MAX_CLIENTS 100

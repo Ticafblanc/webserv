@@ -88,7 +88,7 @@ void Parser::getBlocks(void) {
 
 /****************attributes*****************/
 
-//listen host:port; if only port is provided host defaults to 0.0.0.0
+//listen host:port; if only port is provided host defaults to 0.0.0.0; can't have 2 listens with the same port; different port is ok, can have the same hostname
 //server_name name1 name2 ... ; empty server_name is an error
 //host, port, server_names, default error pages, routes with
 //◦Define a list of accepted HTTP methods for the route.
@@ -126,9 +126,23 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			buffer = buffer.append(tempBufferStop);
 			if ((toParse.find("server_name") + 11) != ' ')
 				throw InvalidDirective();
-			toParse = toParse.substr(11);
-			
+			start, stop = 0;
+			while (toParse.size() != 0) {
+				for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+					if (isalnum(*it) != 0 && start == 0)
+						start = toParse.begin() - it;
+					if ((isspace(*it) && start != 0) || *it == ';')
+						stop = toParse.begin() - it;
+					if (start != 0 && stop != 0) {
+						serverName.push_back(toParse.substr(start, (stop - start)));
+						start, stop = 0;
+					}
+					if (*it == ';')
+						break;
+				}
+			}
 		}
+		parsingDone = true;
 		if (buffer.find("listen") != string::npos) {
 
 		}
@@ -140,14 +154,17 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			parsingDone = true;
 		}
 	}
+	for (int i = 0; i < 2; i++)
+		cout << serverName[i] << endl;
+	return ;
 	if (serverName.size() == 0) {
 		serverName.push_back("");
 	}
 	if (hostPort.size() == 0) {
 		hostPort.push_back(std::make_pair("0.0.0.0", 8000));
 	}
-	data.setServerName(blockId, serverName);
-	data.setHostPort(blockId, hostPort);
+	data.setServerName(serverName);
+	data.setHostPort(hostPort);
 }
 
 void Parser::parseRoute(void) {
@@ -172,8 +189,8 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 	std::pair<string, int> newPair("", 8000); //new pair to be added into newPair
 	hostPort.push_back(newPair); //adding hostPort to newPair
 	serverName.push_back(""); //adding empty string to serverName
-	data.setServerName(0, serverName); //setting serverName into data
-	data.setHostPort(0, hostPort); //setting host/port into data
+	data.setServerName(serverName); //setting serverName into data
+	data.setHostPort(hostPort); //setting host/port into data
 	data.setIdServer(0); //setting serverId into data
 	_servers.push_back(data); //adding data to _servers
 }

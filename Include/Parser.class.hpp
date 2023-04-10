@@ -1,7 +1,6 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
-#include "header.hpp"
-#include "data_server.class.hpp"
+#include "webserv.hpp"
 
 class Parser
 {

@@ -9,7 +9,6 @@
 /*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "../Include/server.class.hpp"
 
 /*
@@ -107,8 +106,8 @@ void server::launcher() {
         set_sockoption();
         set_bind();
         set_listen();
-        std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-                  << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
+        // std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
+        //           << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
 
         do {
             set_server_non_blocking();
