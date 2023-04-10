@@ -127,9 +127,7 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			if ((toParse.find("server_name") + 11) != ' ')
 				throw InvalidDirective();
 			toParse = toParse.substr(11);
-			for (string::iterator it = toParse.begin(); it < toParse.begin(); it++) {
-				
-			}
+			
 		}
 		if (buffer.find("listen") != string::npos) {
 
