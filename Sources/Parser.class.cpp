@@ -150,9 +150,9 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 				buffer.clear();
 				buffer = buffer.append(tempBufferStart);
 				buffer = buffer.append(tempBufferStop);
-				if (toParse[toParse.find("listen") + 11] != ' ')
+				if (toParse[toParse.find("listen") + 6] != ' ')
 					throw InvalidDirective();
-				toParse = toParse.substr(toParse.find("listen") + 11);
+				toParse = toParse.substr(toParse.find("listen") + 6);
 				start = 0, stop = 0;
 				for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
 					if (isalnum(*it) != 0 && start == 0)
@@ -160,7 +160,9 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 					if ((isspace(*it) && start != 0) || *it == ';')
 						stop = it - toParse.begin();
 					if (start != 0 && stop != 0) {
-						
+						if (toParse.find(':') != string::npos) {
+							
+						}
 						start = 0, stop = 0;
 					}
 				}
