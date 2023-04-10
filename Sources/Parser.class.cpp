@@ -29,7 +29,6 @@ void Parser::findAmountServers(void) { //Last valid option
 	string buffer = readToBuffer();
 	string comp("{ 	\n");
 	int lock = 0;
-	bool server_lock = false;
 	while (buffer.size() != 0) {
 		if (buffer.find("server") == string::npos)
 			break ;
@@ -101,8 +100,8 @@ void Parser::getBlocks(void) {
 //◦Make the route able to accept uploaded files and configure where they should be saved
 
 void Parser::parseSingleBlock(int blockId) { //parses a single function block and populates a new data_server instance
-	int start;
-	int stop;
+	std::size_t start;
+	std::size_t stop;
 	data_server data;
 	vector<string> serverName;
 	vector<std::pair<string, int> > hostPort;
@@ -193,7 +192,7 @@ void Parser::parseBlocks(void) { // every server block is contained within the v
 		defineDefaultServer();
 	else {
 		data_server data;
-		for (int i = 0; i < _NServ; i++) {
+		for (unsigned int i = 0; i < _NServ; i++) {
 			parseSingleBlock(i);
 		}
 	}
@@ -213,7 +212,7 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 }
 
 void Parser::printBlocks(void) { //just for testing purposes
-	for (int i = 0; i < _NServ; i++) {
+	for (unsigned int i = 0; i < _NServ; i++) {
 		cout << _blocks.at(i) << endl;
 	}
 }

@@ -102,7 +102,7 @@ int& data_server::getType() {
 }
 
 void data_server::setType(int type) {
-
+    this->_server_fd = type; //will need to be changed
 }
 
 vector<Route>& data_server::getRoutes(void) {
