@@ -120,7 +120,7 @@ void server::launcher() {
 //                perror("In accept");
 //                exit(EXIT_FAILURE);
 //            }
-            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+            // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
         } while (1);
     }

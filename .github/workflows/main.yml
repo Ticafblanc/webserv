@@ -13,18 +13,20 @@ jobs:
         uses: actions/checkout@v2
 
       - name: compile project
+        run: cmake -B build
+
+      - name: test Makefile
         run: |
           make
 
-      - name: recompile project
-        run: |
-          make re
-
-      - name: Clean project
+      - name: Clean Makefile test
         run: |
           make finish
 
+      - name: Compile test
+        working-directory: build
+        run: cmake --build .
+
       - name: Run Unit test
-        working-directory: ./Unit_test
-        run: |
-          make run
+        working-directory: build
+        run: ctest
