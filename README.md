@@ -126,7 +126,7 @@ c++98
 - [X] set git action to automate pull_request master(Matthis)
 - [X] create directory like nginx
 - [x] parsing file and subdivising server blocks
-- [ ] parsing subdivised servers blocks and creating instances of data_server
+- [ ] parsing subdivised server blocks and creating instances of data_server
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
