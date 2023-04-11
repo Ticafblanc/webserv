@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 # set image release  Ubuntu 20.04 LTS
-FROM ubuntu:20.04
+FROM ubuntu:latest
 
 # set a new docker
 RUN apt-get update && apt-get install -y \
@@ -23,13 +23,13 @@ RUN apt-get update && apt-get install -y \
     libssl-dev
 
 # clone project
-RUN git clone https://github.com/Ticafblanc/webserv.git
+# RUN git clone https://github.com/Ticafblanc/webserv.git
 
 
 
 # Compilation du projet Webserv
-WORKDIR webserv
-COPY . webserv
+WORKDIR /webserv
+COPY . /webserv
 RUN make run
 
 # Exposition du port 80
