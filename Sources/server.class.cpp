@@ -11,6 +11,12 @@
 /* ************************************************************************** */
 
 #include "../Include/server.class.hpp"
+#include <cstring>
+#include <string>
+#include <strings.h>
+#include <sys/fcntl.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 /*
 *====================================================================================
@@ -114,14 +120,23 @@ void server::launcher() {
             set_server_non_blocking();
             set_pollfd();
             this->i_arg[nbr_clients]++;
-//            set_poll();
-//            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
-//                                                    (struct sockaddr *) &this->data.getAddress(),
-//                                                    (socklen_t *) &this->data.getAddrlen())) < 0) {
-//                perror("In accept");
-//                exit(EXIT_FAILURE);
-//            }
-            // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
+            set_poll();
+            std::cout << "data socket:" << " " << this->data.getServerFd() << std::endl;
+            int newSocket = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(), (socklen_t *) &this->data.getAddrlen());
+            if (newSocket < 0)
+            {
+                perror("In accept");
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                this->data.setNewSocket(newSocket);
+                char buf[4096];
+                memset(buf, 0, 4096);
+                recv(this->data.getNewSocket(), buf, 4096, 0);
+                std::cout << buf << std::endl;
+            }
+            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
         } while (1);
     }
