@@ -1,8 +1,0 @@
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/webservlib.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/webserv.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/unitTestInit.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/unitTestLauncher.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/unitTestThrow.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/test.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/jrossign/Documents/cursus-projet/webserv/cmake-build-debug/CMakeFiles/rebuild_cache.dir
