@@ -31,13 +31,13 @@ std::vector<server> init(std::string str){
         It->setLevel(SOL_SOCKET);
         It->setOptionName(SO_REUSEADDR);
         It->setOptionVal(1);
-        std::cout << i << std::endl;
+        // std::cout << i << std::endl;
     }
     std::vector<server>::iterator Vt = vec.begin();
     It = data.begin();
     for (; Vt != vec.end(); ++Vt, ++It){
         Vt->setDataServer(*It);
-        std::cout << "coucou" << std::endl;
+        // std::cout << "coucou" << std::endl;
     }
     return vec;
 }
