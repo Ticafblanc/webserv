@@ -21,7 +21,7 @@ private:
 	void defineDefaultServer(void);
 	void parseRoute(void);
 	vector<string> parseServerNameDirective(std::string& buffer);
-	void parseListenDirective(std::string& buffer);
+	vector<std::pair<string, int> > parseListenDirective(std::string& buffer);
 public:
 	Parser(char **argv, int argc);
 	~Parser();

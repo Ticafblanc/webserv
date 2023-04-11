@@ -100,26 +100,17 @@ void Parser::getBlocks(void) {
 //◦Make the route able to accept uploaded files and configure where they should be saved
 
 void Parser::parseSingleBlock(int blockId) { //parses a single function block and populates a new data_server instance
-	std::size_t start;
-	std::size_t stop;
 	data_server data;
-	unsigned int port;
-	string tempHost;
-	string tempPort;
 	vector<string> serverName;
 	vector<std::pair<string, int> > hostPort;
-	std::pair<string, int> newPair;
 	string buffer = _blocks.at(blockId);
-	string tempBufferStart;
-	string tempBufferStop;
-	string toParse;
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
-			
+			serverName = parseServerNameDirective(buffer);
 		}
 		if (buffer.find("listen") != string::npos) {
-			parseListenDirective(buffer);
+			hostPort = parseListenDirective(buffer);
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute();
@@ -169,7 +160,7 @@ vector<string> Parser::parseServerNameDirective(std::string& buffer) {
 	return serverName;
 }
 
-void Parser::parseListenDirective(std::string& buffer) {
+vector<std::pair<string, int> > Parser::parseListenDirective(std::string& buffer) {
 	vector<std::pair<string, int> > hostPort;
 	std::pair<string, int> newPair;
 	unsigned int port;
@@ -222,6 +213,7 @@ void Parser::parseListenDirective(std::string& buffer) {
 			start = 0, stop = 0;
 		}
 	}
+	return hostPort;
 }
 
 void Parser::parseRoute(void) {
