@@ -17,7 +17,7 @@ std::vector<server> init(std::string str){
     std::vector<server> vec(4);
     std::vector<data_server> data(4);
     std::vector<data_server>::iterator It = data.begin();
-    std::string ip =  "127.0.0.1";
+    std::string ip =  "10.12.4.2";
     int port = 8081;
     for (int i = 0; It != data.end(); ++It, ++i, ++port) {
         It->setIdServer(i);
