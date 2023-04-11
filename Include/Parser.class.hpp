@@ -20,8 +20,8 @@ private:
 	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
 	void parseRoute(void);
-	vector<string> parseServerNameDirective(std::string& buffer);
-	vector<std::pair<string, int> > parseListenDirective(std::string& buffer);
+	void parseServerNameDirective(std::string& buffer, vector<string>& serverName);
+	void parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort);
 public:
 	Parser(char **argv, int argc);
 	~Parser();

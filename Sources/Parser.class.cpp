@@ -103,14 +103,15 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data_server data;
 	vector<string> serverName;
 	vector<std::pair<string, int> > hostPort;
+	vector<Route> routes;
 	string buffer = _blocks.at(blockId);
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
-			serverName = parseServerNameDirective(buffer);
+			parseServerNameDirective(buffer, serverName);
 		}
 		if (buffer.find("listen") != string::npos) {
-			hostPort = parseListenDirective(buffer);
+			parseListenDirective(buffer, hostPort);
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute();
@@ -127,10 +128,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	}
 	data.setServerName(serverName);
 	data.setHostPort(hostPort);
+	this->_servers.push_back(data);
 }
 
-vector<string> Parser::parseServerNameDirective(std::string& buffer) {
-	vector<string> serverName;
+void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {
 	std::size_t start = buffer.find("server_name");
 	std::size_t stop = buffer.find(';', start);
 	if (stop == string::npos)
@@ -157,11 +158,9 @@ vector<string> Parser::parseServerNameDirective(std::string& buffer) {
 	}
 	if (serverName.size() == 0)
 		throw NotTheRightNumberOfArgs();
-	return serverName;
 }
 
-vector<std::pair<string, int> > Parser::parseListenDirective(std::string& buffer) {
-	vector<std::pair<string, int> > hostPort;
+void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort) {
 	std::pair<string, int> newPair;
 	unsigned int port;
 	string tempHost;
@@ -195,7 +194,7 @@ vector<std::pair<string, int> > Parser::parseListenDirective(std::string& buffer
 				hostPort.push_back(newPair);
 			}
 			else { //determine if host or port
-				try //not sure about that
+				try //not sure about that, seems to work fine
 				{
 					port = std::stoi(toParse.substr(start, stop - start));
 					newPair = std::make_pair<string, int>("0.0.0.0", port);
@@ -213,7 +212,6 @@ vector<std::pair<string, int> > Parser::parseListenDirective(std::string& buffer
 			start = 0, stop = 0;
 		}
 	}
-	return hostPort;
 }
 
 void Parser::parseRoute(void) {
@@ -224,7 +222,6 @@ void Parser::parseBlocks(void) { // every server block is contained within the v
 	if (_NServ == 0)
 		defineDefaultServer();
 	else {
-		data_server data;
 		for (unsigned int i = 0; i < _NServ; i++) {
 			parseSingleBlock(i);
 		}
