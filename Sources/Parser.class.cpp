@@ -4,6 +4,9 @@ Parser::Parser(char **argv, int argc): _arg(argv[1]), _argc(argc), _NServ(0) {
 	findAmountServers();
 	getBlocks();
 	parseBlocks();
+	data_server server = this->_servers[0];
+	vector<string> serverNames = server.getServerName();
+	vector<std::pair<string, int> > hostPorts = server.getHostPort();
 }
 
 Parser::~Parser() { }
@@ -162,7 +165,7 @@ void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serve
 
 void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort) {
 	std::pair<string, int> newPair;
-	unsigned int port;
+	int port;
 	string tempHost;
 	string tempPort;
 
@@ -232,7 +235,7 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 	data_server data; //new data instance
 	vector<string> serverName; //vector of string that holds the name of the server
 	vector<std::pair<string, int> > hostPort; //vector of pairs that holds the host & port
-	std::pair<string, int> newPair("", 8000); //new pair to be added into newPair
+	std::pair<string, int> newPair("0.0.0.0", 8000); //new pair to be added into newPair
 	hostPort.push_back(newPair); //adding hostPort to newPair
 	serverName.push_back(""); //adding empty string to serverName
 	data.setServerName(serverName); //setting serverName into data
