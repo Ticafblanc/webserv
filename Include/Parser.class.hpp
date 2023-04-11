@@ -20,6 +20,8 @@ private:
 	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
 	void parseRoute(void);
+	vector<string> parseServerNameDirective(std::string& buffer);
+	void parseListenDirective(std::string& buffer);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
@@ -33,6 +35,9 @@ public:
 		const char* what() const throw();
 	};
 	class InvalidDirective: public exception {
+		const char* what() const throw();
+	};
+	class NotTheRightNumberOfArgs: public exception {
 		const char* what() const throw();
 	};
 };
