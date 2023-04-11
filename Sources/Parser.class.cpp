@@ -103,6 +103,9 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	std::size_t start;
 	std::size_t stop;
 	data_server data;
+	unsigned int port;
+	string tempHost;
+	string tempPort;
 	vector<string> serverName;
 	vector<std::pair<string, int> > hostPort;
 	std::pair<string, int> newPair;
@@ -113,60 +116,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
-			start = buffer.find("server_name");
-			stop = buffer.find(';', start);
-			if (stop == string::npos)
-				throw InvalidDirective();
-			tempBufferStart = buffer.substr(0, start);
-			tempBufferStop = buffer.substr(stop + 1);
-			toParse = buffer.substr(start, ((stop + 1) - start));
-			buffer.clear();
-			buffer = buffer.append(tempBufferStart);
-			buffer = buffer.append(tempBufferStop);
-			if (toParse[toParse.find("server_name") + 11] != ' ')
-				throw InvalidDirective();
-			toParse = toParse.substr(toParse.find("server_name") + 11);
-			start = 0, stop = 0;
-			for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
-				if (isalnum(*it) != 0 && start == 0)
-					start = it - toParse.begin();
-				if ((isspace(*it) && start != 0) || *it == ';')
-					stop = it - toParse.begin();
-				if (start != 0 && stop != 0) {
-					serverName.push_back(toParse.substr(start, (stop - start)));
-					start = 0, stop = 0;
-				}
-			}
+			
 		}
 		if (buffer.find("listen") != string::npos) {
-			if (buffer.find("listen") != string::npos) {
-				start = buffer.find("listen");
-				stop = buffer.find(';', start);
-				if (stop == string::npos)
-					throw InvalidDirective();
-				tempBufferStart = buffer.substr(0, start);
-				tempBufferStop = buffer.substr(stop + 1);
-				toParse = buffer.substr(start, ((stop + 1) - start));
-				buffer.clear();
-				buffer = buffer.append(tempBufferStart);
-				buffer = buffer.append(tempBufferStop);
-				if (toParse[toParse.find("listen") + 6] != ' ')
-					throw InvalidDirective();
-				toParse = toParse.substr(toParse.find("listen") + 6);
-				start = 0, stop = 0;
-				for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
-					if (isalnum(*it) != 0 && start == 0)
-						start = it - toParse.begin();
-					if ((isspace(*it) && start != 0) || *it == ';')
-						stop = it - toParse.begin();
-					if (start != 0 && stop != 0) {
-						if (toParse.find(':') != string::npos) {
-							
-						}
-						start = 0, stop = 0;
-					}
-				}
-			}
+			parseListenDirective(buffer);
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute();
@@ -183,6 +136,92 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	}
 	data.setServerName(serverName);
 	data.setHostPort(hostPort);
+}
+
+vector<string> Parser::parseServerNameDirective(std::string& buffer) {
+	vector<string> serverName;
+	std::size_t start = buffer.find("server_name");
+	std::size_t stop = buffer.find(';', start);
+	if (stop == string::npos)
+		throw InvalidDirective();
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop + 1);
+	string toParse = buffer.substr(start, ((stop + 1) - start));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
+	if (toParse[toParse.find("server_name") + 11] != ' ')
+		throw InvalidDirective();
+	toParse = toParse.substr(toParse.find("server_name") + 11);
+	start = 0, stop = 0;
+	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+		if (isalnum(*it) != 0 && start == 0)
+			start = it - toParse.begin();
+		if ((isspace(*it) && start != 0) || *it == ';')
+			stop = it - toParse.begin();
+		if (start != 0 && stop != 0) {
+			serverName.push_back(toParse.substr(start, (stop - start)));
+			start = 0, stop = 0;
+		}
+	}
+	if (serverName.size() == 0)
+		throw NotTheRightNumberOfArgs();
+	return serverName;
+}
+
+void Parser::parseListenDirective(std::string& buffer) {
+	vector<std::pair<string, int> > hostPort;
+	std::pair<string, int> newPair;
+	unsigned int port;
+	string tempHost;
+	string tempPort;
+
+	std::size_t start = buffer.find("listen");
+	std::size_t stop = buffer.find(';', start);
+	if (stop == string::npos)
+		throw InvalidDirective();
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop + 1);
+	string toParse = buffer.substr(start, ((stop + 1) - start));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
+	if (toParse[toParse.find("listen") + 6] != ' ')
+		throw InvalidDirective();
+	toParse = toParse.substr(toParse.find("listen") + 6);
+	start = 0, stop = 0;
+	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+		if (isalnum(*it) != 0 && start == 0)
+			start = it - toParse.begin();
+		if ((isspace(*it) != 0 && start != 0) || *it == ';')
+			stop = it - toParse.begin();
+		if (start != 0 && stop != 0) {
+			if (toParse.find(':') != string::npos) {//getting both port and host
+				tempHost = toParse.substr(start, toParse.find(':') - 1);
+				tempPort = toParse.substr(toParse.find(':') + 1, (stop - toParse.find(':') - 1));
+				port = std::stoi(tempPort);
+				newPair = std::make_pair<string, int>(tempHost, port);
+				hostPort.push_back(newPair);
+			}
+			else { //determine if host or port
+				try //not sure about that
+				{
+					port = std::stoi(toParse.substr(start, stop - start));
+					newPair = std::make_pair<string, int>("0.0.0.0", port);
+					hostPort.push_back(newPair);
+				}
+				catch(const std::exception& e)
+				{
+					tempHost = toParse.substr(start, stop - start);
+					newPair = std::make_pair<string, int>(tempHost, 80);
+					hostPort.push_back(newPair);
+				}
+			}
+			if (hostPort.size() > 1)
+				throw NotTheRightNumberOfArgs();
+			start = 0, stop = 0;
+		}
+	}
 }
 
 void Parser::parseRoute(void) {
@@ -233,4 +272,8 @@ const char* Parser::InvalidConfigFile::what() const throw() {
 
 const char* Parser::InvalidDirective::what() const throw() {
 	return "Invalid directive detected";
+}
+
+const char* Parser::NotTheRightNumberOfArgs::what() const throw() {
+	return "Not the right number of arguments for directive";
 }
