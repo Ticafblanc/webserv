@@ -216,7 +216,6 @@ int& data_server::getOptionVal(){
 }
 
 void data_server::setOptionVal(int opt){
-    std::cout << "set opt: " << opt << std::endl;
     getIData()[optionval] = opt;
 }
 
