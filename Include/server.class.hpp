@@ -174,4 +174,4 @@ private:
 };
 
 
-#endif //WEBSERV_SERVER_HPP
+#endif
