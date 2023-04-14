@@ -23,7 +23,8 @@ private:
 	void parseServerNameDirective(std::string& buffer, vector<string>& serverName);
 	void parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort);
 	std::size_t findStopLocation(std::string& buffer);
-	void fillRoute(std::string& toParse, vector<Route>& routes);
+	void fillRoute(std::string& toParse, Route& loc);
+	std::string extractMatch(std::string& buffer);
 public:
 	Parser(char **argv, int argc);
 	~Parser();

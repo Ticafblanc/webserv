@@ -25,6 +25,18 @@ private:
 public:
 	Route();
 	~Route();
+	void setMatch(string& match) throw();
+	string &getMatch(void) throw();
+	void setHttpRedir(string& redir) throw();
+	string& getHttpRedir(void) throw();
+	void setDirectoryListing(bool state) throw();
+	bool getDirectoryListing(void) throw();
+	void setSearchDir(string& dir) throw();
+	string& getSearchDir(void) throw();
+	void setDefaultDirFile(string& dirFile) throw();
+	string& getDefaultDirFile(void) throw();
+	void setSavePath(string& path) throw();
+	string& getSavePath(void) throw();
 };
 
 #endif
