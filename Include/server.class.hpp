@@ -54,6 +54,8 @@ public:
 
     server& operator=(const server& rhs);
 
+    int ndfs;
+
 
 /*
 *====================================================================================
@@ -166,9 +168,13 @@ private:
     void set_server_non_blocking();
 
 /*set fds for news client for server socket*/
-    void set_pollfd();
+    void set_first_pollfd();
+
+    void set_pollfd(int fd);
+
 /*wait new event or throw exeptiom*/
     void set_poll();
+
 
 
 };
