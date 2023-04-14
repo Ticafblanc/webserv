@@ -11,9 +11,13 @@
 /* ************************************************************************** */
 
 #include "../Include/server.class.hpp"
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <strings.h>
+#include <sys/_types/_socklen_t.h>
 #include <sys/fcntl.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -24,9 +28,9 @@
 *====================================================================================
 */
 
-server::server() : data(), i_arg(1), s_arg(), fds() {}
+server::server() : data(), i_arg(1), s_arg(), fds() {this->ndfs = 1;}
 
-server::server(data_server & data) : data(data), i_arg(1), s_arg(), fds(){ }
+server::server(data_server & data) : data(data), i_arg(1), s_arg(), fds(){this->ndfs = 1;}
 
 server::~server() {
     try {
@@ -109,36 +113,49 @@ void server::setDataServer(data_server& d){
 
 void server::launcher() {
     try {
+        this->ndfs = 1;
+        std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 9\n\nReceived!";
+        int newSocket = 0;
+        char buf[4096] = {0};
         set_socket();
         set_sockoption();
         set_bind();
         set_listen();
-        // std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-        //           << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
-
-        do {
-            set_server_non_blocking();
-            set_pollfd();
-            this->i_arg[nbr_clients]++;
+        fcntl(this->data.getServerFd(), F_SETFL, O_NONBLOCK);
+        set_first_pollfd();
+        while(1)
+        {
             set_poll();
-            std::cout << "data socket:" << " " << this->data.getServerFd() << std::endl;
-            int newSocket = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(), (socklen_t *) &this->data.getAddrlen());
-            if (newSocket < 0)
+            if (fds[0].revents & POLLIN)
             {
-                perror("In accept");
-                exit(EXIT_FAILURE);
+                if ((newSocket = accept(this->data.getServerFd(), (struct sockaddr *) &this->data.getAddress(), (socklen_t *)&this->data.getAddrlen())) < 0)
+                {
+                    perror("accept failed:");
+                    exit(EXIT_FAILURE);
+                }
+                set_pollfd(newSocket);
+                std::cout << "new connection." << std::endl;
             }
-            else
+            for(int i = 1; i < this->ndfs; i++)
             {
-                this->data.setNewSocket(newSocket);
-                char buf[4096];
-                memset(buf, 0, 4096);
-                recv(this->data.getNewSocket(), buf, 4096, 0);
-                std::cout << buf << std::endl;
+                if (fds[i].revents & POLLIN)
+                {
+                    int recvLen = recv(fds[i].fd, buf, 4096, 0);
+                    if (recvLen == 0)
+                    {
+                        std::cout << buf << std::endl;
+                        close(fds[i].fd);
+                        this->ndfs--;
+                        i--;
+                        bzero(buf, 4096);
+                    }
+                    else if (recvLen > 0)
+                        send(fds[i].fd, response.c_str(), response.length(), 0);
+                    else
+                        std::cout << "not ready for data." << std::endl;
+                }
             }
-            std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
-            break;
-        } while (1);
+        }
     }
     catch (const std::exception& e){
         throw e;
@@ -193,12 +210,19 @@ void server::set_server_non_blocking(){
     fcntl(this->data.getServerFd(), F_SETFL, O_NONBLOCK);
 }
 
-void server::set_pollfd(){
-    fds[this->i_arg[nbr_clients]].fd = this->data.getServerFd();
-    fds[this->i_arg[nbr_clients]].events = POLLIN;
+void server::set_first_pollfd(){
+    fds[0].fd = this->data.getServerFd();
+    fds[0].events = POLLIN;
+}
+
+void server::set_pollfd(int fd)
+{
+    fds[this->ndfs].fd = fd;
+    fds[this->ndfs].events = POLLIN;
+    this->ndfs++;
 }
 
 void server::set_poll() {
-    if(poll(fds, this->i_arg[nbr_clients], -1) == -1)
+    if(poll(fds, this->ndfs, -1) == -1)
         throw server::poll_exception();
 }
