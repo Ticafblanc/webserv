@@ -118,7 +118,6 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute(buffer, routes);
-			exit(0);
 		}
 		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
 			parsingDone = true;
@@ -220,21 +219,28 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 
 void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 	Route loc;
-	std::size_t start = buffer.find("location");
-	std::size_t stop = this->findStopLocation(buffer); // throws if something goes wrong
-	std::string tempBufferStart = buffer.substr(0, start);
-	std::string tempBufferStop = buffer.substr(stop + 1);
-	std::string toParse = buffer.substr(start, (stop - start + 1));
+	size_t start = buffer.find("location");
+	size_t stop = this->findStopLocation(buffer); // throws if something goes wrong
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop);
+	string match = extractMatch(buffer);
+	loc.setMatch(match);
+	start = buffer.find('{') + 1;
+	string toParse = buffer.substr(start, (stop - start + 1));
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	fillRoute(toParse, routes);
+	fillRoute(toParse, loc);
+	routes.push_back(loc);
 }
 
-void Parser::fillRoute(std::string& toParse, vector<Route>& routes) {
-	std::size_t start = toParse.find("location") + 8;
-	for (string::iterator it = toParse.begin() + start; it < toParse.end(); it++) {
-		
+void Parser::fillRoute(std::string& toParse, Route& loc) {
+	std::size_t start;
+	std::size_t stop;
+	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+		if (isspace(*it) != 0) {
+			
+		}
 	}
 }
 
@@ -252,12 +258,32 @@ std::size_t Parser::findStopLocation(std::string& buffer) {
 		if (*it == '}')
 			lock--;
 		if (lock == 0) {
-			return (it - buffer.begin());
+			return (it - buffer.begin() - 1);
 		}
 	}
 	if (lock != 0)
 		throw InvalidLocationBlock();
 	return (string::npos);
+}
+
+std::string Parser::extractMatch(std::string& buffer) {
+	string match;
+	std::size_t start = buffer.find("location") + 8;
+	std::size_t stop = buffer.find("{");
+	std::size_t matchStart = string::npos;
+	std::size_t matchStop = string::npos;
+	for (string::iterator it = buffer.begin() + start; it < buffer.begin() + stop + 1; it++) {
+		if (isspace(*it) == 0 && matchStart == string::npos) {
+			matchStart = it - buffer.begin();
+		}
+		if ((isspace(*it) != 0 || *it == '{') && matchStart != string::npos) {
+			matchStop = it - buffer.begin();
+			match = buffer.substr(matchStart, (matchStop - matchStart));
+			return match;
+		}
+	}
+	throw InvalidLocationBlock();
+	return match;
 }
 
 void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
