@@ -19,9 +19,11 @@ private:
 	void parseBlocks(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
-	void parseRoute(void);
+	void parseRoute(std::string& buffer, vector<Route>& routes);
 	void parseServerNameDirective(std::string& buffer, vector<string>& serverName);
 	void parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort);
+	std::size_t findStopLocation(std::string& buffer);
+	void fillRoute(std::string& toParse, vector<Route>& routes);
 public:
 	Parser(char **argv, int argc);
 	~Parser();
@@ -38,6 +40,9 @@ public:
 		const char* what() const throw();
 	};
 	class NotTheRightNumberOfArgs: public exception {
+		const char* what() const throw();
+	};
+	class InvalidLocationBlock: public exception {
 		const char* what() const throw();
 	};
 };

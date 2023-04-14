@@ -117,7 +117,8 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			parseListenDirective(buffer, hostPort);
 		}
 		if (buffer.find("location") != string::npos) {
-			parseRoute();
+			parseRoute(buffer, routes);
+			exit(0);
 		}
 		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
 			parsingDone = true;
@@ -217,8 +218,46 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 	}
 }
 
-void Parser::parseRoute(void) {
+void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
+	Route loc;
+	std::size_t start = buffer.find("location");
+	std::size_t stop = this->findStopLocation(buffer); // throws if something goes wrong
+	std::string tempBufferStart = buffer.substr(0, start);
+	std::string tempBufferStop = buffer.substr(stop + 1);
+	std::string toParse = buffer.substr(start, (stop - start + 1));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
+	fillRoute(toParse, routes);
+}
 
+void Parser::fillRoute(std::string& toParse, vector<Route>& routes) {
+	std::size_t start = toParse.find("location") + 8;
+	for (string::iterator it = toParse.begin() + start; it < toParse.end(); it++) {
+		
+	}
+}
+
+std::size_t Parser::findStopLocation(std::string& buffer) {
+	std::size_t start = buffer.find("location");
+	if (isspace(buffer[start + 8]) == 0)
+		throw InvalidDirective();
+	start = buffer.find('{', start);
+	if (start == string::npos)
+		throw InvalidLocationBlock();
+	int lock = 0;
+	for (string::iterator it = (buffer.begin() + start); it < buffer.end(); it++) {
+		if (*it == '{')
+			lock++;
+		if (*it == '}')
+			lock--;
+		if (lock == 0) {
+			return (it - buffer.begin());
+		}
+	}
+	if (lock != 0)
+		throw InvalidLocationBlock();
+	return (string::npos);
 }
 
 void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
@@ -235,13 +274,13 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 	data_server data; //new data instance
 	vector<string> serverName; //vector of string that holds the name of the server
 	vector<std::pair<string, int> > hostPort; //vector of pairs that holds the host & port
-	std::pair<string, int> newPair("0.0.0.0", 8000); //new pair to be added into newPair
-	hostPort.push_back(newPair); //adding hostPort to newPair
+	std::pair<string, int> newPair("0.0.0.0", 8000); //new pair to be added into hostPort
+	hostPort.push_back(newPair); //adding newPair to hostPort
 	serverName.push_back(""); //adding empty string to serverName
 	data.setServerName(serverName); //setting serverName into data
 	data.setHostPort(hostPort); //setting host/port into data
 	data.setIdServer(0); //setting serverId into data
-	_servers.push_back(data); //adding data to _servers
+	this->_servers.push_back(data); //adding data to _servers
 }
 
 void Parser::printBlocks(void) { //just for testing purposes
@@ -268,4 +307,8 @@ const char* Parser::InvalidDirective::what() const throw() {
 
 const char* Parser::NotTheRightNumberOfArgs::what() const throw() {
 	return "Not the right number of arguments for directive";
+}
+
+const char* Parser::InvalidLocationBlock::what() const throw() {
+	return "Invalid location block";
 }
