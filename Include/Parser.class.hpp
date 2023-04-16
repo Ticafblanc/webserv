@@ -25,6 +25,7 @@ private:
 	std::size_t findStopLocation(std::string& buffer);
 	void fillRoute(std::string& toParse, Route& loc);
 	std::string extractMatch(std::string& buffer);
+	void parseDirectives(vector<string>& directives, Route& loc);
 public:
 	Parser(char **argv, int argc);
 	~Parser();

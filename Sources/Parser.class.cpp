@@ -235,12 +235,24 @@ void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 }
 
 void Parser::fillRoute(std::string& toParse, Route& loc) {
-	std::size_t start;
+	bool isDone = false;
+	vector<string> directives;
 	std::size_t stop;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
-		if (isspace(*it) != 0) {
-			
+		if (isspace(*it) == 0) {
+			stop = toParse.find(';', it - toParse.begin());
+			if (stop == string::npos)
+				throw InvalidLocationBlock();
+			directives.push_back(toParse.substr(it - toParse.begin(), stop - (it - toParse.begin())));
+			it += stop - (it - toParse.begin());
 		}
+	}
+	this->parseDirectives(directives, loc);
+}
+
+void Parser::parseDirectives(vector<string>& directives, Route& loc) {
+	for (std::size_t i = 0; i < directives.size(); i++) {
+		if ()
 	}
 }
 
