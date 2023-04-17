@@ -11,30 +11,35 @@
 # **************************************************************************** #
 
 # set image release  Ubuntu 20.04 LTS
-FROM ubuntu:20.04
+FROM ubuntu:latest
 
 # set a new docker
-RUN apt-get update && apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y \
     build-essential \
+    gcc\
+    g++\
+    gdb\
+    clang\
     cmake \
     git \
-    libboost-all-dev \
-    libcurl4-openssl-dev \
-    libssl-dev
+    rsync \
+    tar \
+    python3 \
+    && apt-get clean
 
-# clone project
-RUN git clone https://github.com/Ticafblanc/webserv.git
-
+#creates a user for ide to use
+RUN useradd -m user && yes password | passwd user
 
 
 # Compilation du projet Webserv
-WORKDIR webserv
-COPY . webserv
-RUN make run
+WORKDIR /webserv_container
+RUN mkdir webserv
+COPY ../* /webserv
+RUN make
 
 # Exposition du port 80
 EXPOSE 80
 
 # Commande pour démarrer le serveur
-CMD ["./webserv", "webserv.conf"]#expand shell and of command
-
+CMD ["./webserv", "webserv.conf"]

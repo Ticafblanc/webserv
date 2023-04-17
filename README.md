@@ -124,8 +124,8 @@ c++98
 - [X] build main.cpp to start (Matthis)
 - [X] create branch test (Matthis)
 - [X] set git action to automate pull_request master(Matthis)
-- [X] create directory like nginx
-- [ ]
+- [X] create directory like nginx (Matthis)
+- [ ] set container to merge project on linux (Matthis)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

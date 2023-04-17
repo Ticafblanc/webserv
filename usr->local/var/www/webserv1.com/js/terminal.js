@@ -1,6 +1,6 @@
 let page = {};
 page.console = (function(){
-    let console = document.querySelector('#terminal .main');
+    let console = document.querySelector('#terminal .write');
 
     return {
         print: function(text){
@@ -34,6 +34,6 @@ page.console = (function(){
             value = prompt(text);
             this.println(value);
             return value;
-        }
+        },
     }
 })();

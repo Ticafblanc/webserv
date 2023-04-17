@@ -6,6 +6,13 @@ html {
     box-sizing: inherit;
 }
 
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    color: white;
+}
+
 footer {
     background-color: #5e5c66;
     color: white;
@@ -13,7 +20,7 @@ footer {
     padding: 0.5em;
 }
 
-header p{
+header h1{
     background-color: #5e5c66;
     color: white;
     text-align: center;
@@ -29,18 +36,12 @@ header p{
 
 }
 
-#terminal .write {
+#console {
     display: flex;
     background-color: black;
     height: 100%;
     width: 100%;
     word-wrap: break-word;
-    /*color: #ddd;*/
-    /*height: 100%;*/
-    /*overflow-y: scroll;*/
-    /*font-family: monospace;*/
-    /*font-size: 1.1em;*/
-    /*line-height: 1.1em;*/
 }
 
 #terminal .head{
@@ -55,6 +56,7 @@ header p{
 #terminal .close{
     position: absolute;
     background-color: firebrick;
+    margin: 0.3em;
     height: 1.5em;
     width: 1.5em;
     text-align: center;
@@ -70,14 +72,9 @@ header p{
     background-color: crimson;
 }
 
-/*#terminal .header footer{*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    height: 2em;*/
-/*    padding: 0 0 0 .5em;*/
-/*}*/
 
 
+/*test*/
 
 /*nav {*/
 /*    display: flex;*/
