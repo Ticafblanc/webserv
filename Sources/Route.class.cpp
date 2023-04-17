@@ -1,6 +1,8 @@
 #include "../Include/Route.class.hpp"
 
-Route::Route() {}
+Route::Route() {
+    _autoIndex = false;
+}
 
 Route::~Route() {}
 
@@ -21,11 +23,11 @@ string& Route::getHttpRedir(void) throw() {
 }
 
 void Route::setDirectoryListing(bool state) throw() {
-    this->_directoryListing = state;
+    this->_autoIndex = state;
 }
 
 bool Route::getDirectoryListing(void) throw() {
-    return this->_directoryListing;
+    return this->_autoIndex;
 }
 
 void Route::setSearchDir(string& dir) throw() {

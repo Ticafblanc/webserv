@@ -11,6 +11,14 @@ Parser::Parser(char **argv, int argc): _arg(argv[1]), _argc(argc), _NServ(0) {
 
 Parser::~Parser() { }
 
+vector<data_server> Parser::get_data(void) {
+	return _servers;
+}
+
+void Parser::set_data(vector<data_server>& data_servers) {
+	this->_servers = data_servers;
+}
+
 std::string Parser::readToBuffer(void) {
 	string buffer;
 	this->openFile();
@@ -123,7 +131,8 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("error_page") != string::npos) {
 			parseErrorPages(buffer, error_pages);
 		}
-		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
+		if (buffer.find("listen") == string::npos && buffer.find("server_name") == string::npos \
+			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos) {
 			parsingDone = true;
 		}
 	}
@@ -308,7 +317,7 @@ void Parser::fillRoute(std::string& toParse, Route& loc) {
 			stop = toParse.find(';', it - toParse.begin());
 			if (stop == string::npos)
 				throw InvalidLocationBlock();
-			directives.push_back(toParse.substr(it - toParse.begin(), stop - (it - toParse.begin())));
+			directives.push_back(toParse.substr(it - toParse.begin(), stop - (it - toParse.begin()) + 1));
 			it += stop - (it - toParse.begin());
 		}
 	}
@@ -316,8 +325,30 @@ void Parser::fillRoute(std::string& toParse, Route& loc) {
 }
 
 void Parser::parseDirectives(vector<string>& directives, Route& loc) {
+	vector<string> comp;
 	for (std::size_t i = 0; i < directives.size(); i++) {
-		cout << directives[i] << endl;
+		comp = split(directives[i]);
+		if (comp[0] == "autoindex") {
+			if (comp[1] == "on")
+				loc.setDirectoryListing(true);
+			else if (comp[1] == "off")
+				loc.setDirectoryListing(false);
+			else
+				throw InvalidDirective();
+		}
+		else if (comp[0] == "index") {
+
+		}
+		else if (comp[0] == "root") {
+
+		}
+		else if (comp[0] == "upload_path") {
+
+		}
+		else if (comp[0] == "cgi") {
+
+		}
+
 	}
 }
 

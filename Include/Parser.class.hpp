@@ -29,11 +29,14 @@ private:
 	void parseErrorPages(string& buffer, vector<std::pair<vector<int>, string> >& error_pages);
 	vector<string> split(string toSplit); //splits a string into a vector of strings on spaces and tabs
 public:
+	//methods
 	Parser(char **argv, int argc);
 	~Parser();
 	void printBlocks(void);
 	unsigned int getNServ(void) const; //Returns the amount of server blocks given in the format file given as argument
-	//methods
+	vector<data_server> get_data(void);
+	void set_data(vector<data_server>& data_servers);
+	//exceptions
 	class OpenException: public exception {
 		const char* what() const throw();
 	};
