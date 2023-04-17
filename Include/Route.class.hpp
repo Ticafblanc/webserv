@@ -15,13 +15,14 @@
 class Route
 {
 private:
-	vector<string> _methods;
-	string _match;
-	string _httpRedir;
-	bool _directoryListing;
-	string _searchDir;
-	string _defaultDirFile;
-	string _savePath;
+	vector<string>						_methods; //list of accepted HTTP methods for the route
+	string								_match; 
+	string								_httpRedir;
+	bool 								_directoryListing;
+	string 								_searchDir;
+	string 								_defaultDirFile;
+	string 								_savePath;
+	vector<std::pair<string, string> > 	_cgi; //first element of pair is extension, second is executable
 public:
 	Route();
 	~Route();

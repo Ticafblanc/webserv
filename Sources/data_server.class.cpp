@@ -43,9 +43,9 @@ data_server::data_server(const data_server& other) {
 data_server& data_server::operator=(const data_server& rhs) {
     this->_server_name = rhs._server_name;
     this->_host_port = rhs._host_port;
-    this->_default_error = rhs._default_error;
+    this->_error_page = rhs._error_page;
     this->_routes = rhs._routes;
-    this->serverId = rhs.serverId;
+    this->_serverId = rhs._serverId;
     this->_address = rhs._address;
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
@@ -82,11 +82,11 @@ void data_server::setServerName(const vector<string>& serverName) {
 }
 
 int& data_server::getIdServer() {
-    return serverId;
+    return _serverId;
 }
 
 void data_server::setIdServer(int id) {
-    serverId = id;
+    _serverId = id;
 }
 
 vector<std::pair<string, int> >& data_server::getHostPort(void) {
@@ -98,7 +98,7 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) {
 }
 
 int& data_server::getType() {
-    return serverId; //this will have to be changed
+    return _serverId; //this will have to be changed
 }
 
 void data_server::setType(int type) {

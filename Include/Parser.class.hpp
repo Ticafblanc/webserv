@@ -26,6 +26,8 @@ private:
 	void fillRoute(std::string& toParse, Route& loc);
 	std::string extractMatch(std::string& buffer);
 	void parseDirectives(vector<string>& directives, Route& loc);
+	void parseErrorPages(string& buffer, vector<std::pair<vector<int>, string> >& error_pages);
+	vector<string> split(string toSplit); //splits a string into a vector of strings on spaces and tabs
 public:
 	Parser(char **argv, int argc);
 	~Parser();
@@ -45,6 +47,9 @@ public:
 		const char* what() const throw();
 	};
 	class InvalidLocationBlock: public exception {
+		const char* what() const throw();
+	};
+	class InvalidPort: public exception {
 		const char* what() const throw();
 	};
 };

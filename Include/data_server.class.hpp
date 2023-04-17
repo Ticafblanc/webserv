@@ -36,14 +36,14 @@ public:
 */
 
 private:
-    vector<string> _server_name;
-    vector<std::pair<string, int> > _host_port;
-    vector<string> _default_error;
-    vector<Route> _routes;
-    int serverId;
-    sockaddr_in _address;
-    std::size_t _addr_len;
-    int _server_fd;
+    vector<string>                              _server_name;
+    vector<std::pair<string, int> >             _host_port;
+    vector<std::pair<vector<int>, string> >     _error_page;
+    vector<Route>                               _routes;
+    int                                         _serverId;
+    sockaddr_in                                 _address;
+    std::size_t                                 _addr_len;
+    int                                         _server_fd;
 
 /*
 *====================================================================================

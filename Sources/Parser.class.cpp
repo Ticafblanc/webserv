@@ -107,6 +107,7 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	vector<string> serverName;
 	vector<std::pair<string, int> > hostPort;
 	vector<Route> routes;
+	vector<std::pair<vector<int>, string> > error_pages;
 	string buffer = _blocks.at(blockId);
 	bool parsingDone = false;
 	while (parsingDone == false) {
@@ -118,6 +119,9 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		}
 		if (buffer.find("location") != string::npos) {
 			parseRoute(buffer, routes);
+		}
+		if (buffer.find("error_page") != string::npos) {
+			parseErrorPages(buffer, error_pages);
 		}
 		if (buffer.find("listen") == string::npos && buffer.find("listen") == string::npos && buffer.find("location") == string::npos) {
 			parsingDone = true;
@@ -179,7 +183,7 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	if (toParse[toParse.find("listen") + 6] != ' ')
+	if (isspace(toParse[toParse.find("listen") + 6]) == 0)
 		throw InvalidDirective();
 	toParse = toParse.substr(toParse.find("listen") + 6);
 	start = 0, stop = 0;
@@ -192,14 +196,31 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 			if (toParse.find(':') != string::npos) {//getting both port and host
 				tempHost = toParse.substr(start, toParse.find(':') - 1);
 				tempPort = toParse.substr(toParse.find(':') + 1, (stop - toParse.find(':') - 1));
-				port = std::stoi(tempPort);
+				port = std::atoi(tempPort.c_str()); //had to switch and add tests because stoi is c++11
+				if (port > 65535)
+					throw InvalidPort();
+				if (port == 0) {
+					for (string::iterator it = tempPort.begin(); it < tempPort.end(); it++) {
+						if (isdigit(*it) == 0)
+							throw InvalidPort();
+					}
+				}
 				newPair = std::make_pair<string, int>(tempHost, port);
 				hostPort.push_back(newPair);
 			}
 			else { //determine if host or port
 				try //not sure about that, seems to work fine
 				{
-					port = std::stoi(toParse.substr(start, stop - start));
+					tempPort = toParse.substr(start, stop - start);
+					port = std::atoi(tempPort.c_str()); //had to switch and add tests because stoi is c++11
+					if (port > 65535)
+						throw InvalidPort();
+					if (port == 0) {
+						for (string::iterator it = tempPort.begin(); it < tempPort.end(); it++) {
+							if (isdigit(*it) == 0)
+								throw InvalidPort();
+						}
+					}
 					newPair = std::make_pair<string, int>("0.0.0.0", port);
 					hostPort.push_back(newPair);
 				}
@@ -217,6 +238,51 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 	}
 }
 
+void Parser::parseErrorPages(string& buffer, vector<std::pair<vector<int>, string> >& error_pages) {
+	std::size_t start = buffer.find("error_page");
+	std::size_t stop = buffer.find(';', start);
+	std::pair<vector<int>, string> newPair;
+	vector<int> error_codes;
+	vector<string> splitArgs;
+	if (stop == string::npos)
+		throw InvalidDirective();
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop + 1);
+	string toParse = buffer.substr(start + 10, stop - (start + 9));
+	splitArgs = this->split(toParse);
+	for (std::size_t i = 0; i < splitArgs.size() - 1; i++) {
+		int error_code = atoi(splitArgs[i].c_str());
+		if (error_code == 0) {
+			for (string::iterator it = splitArgs[i].begin(); it < splitArgs[i].end(); it++) {
+				if (isdigit(*it) == 0)
+					throw InvalidDirective();
+			}
+		}
+		else
+			error_codes.push_back(error_code);
+	}
+	newPair = std::make_pair(error_codes, splitArgs[splitArgs.size() - 1]);
+	error_pages.push_back(newPair);
+}
+
+vector<string> Parser::split(string toSplit) {
+	vector<string> splitArgs;
+	std::size_t start = string::npos;
+	std::size_t stop = string::npos;
+	for (string::iterator it = toSplit.begin(); it < toSplit.end(); it++) {
+		if (!isblank(*it) && start == string::npos)
+			start = it - toSplit.begin();
+		if ((*it == ' ' || *it == '	' || *it == ';') && start != string::npos)
+			stop = it - toSplit.begin();
+		if (start != string::npos && stop != string::npos) {
+			splitArgs.push_back(toSplit.substr(start, stop - start));
+			start = string::npos;
+			stop = string::npos;
+		}
+	}
+	return splitArgs;
+}
+
 void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 	Route loc;
 	size_t start = buffer.find("location");
@@ -230,12 +296,11 @@ void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	fillRoute(toParse, loc);
+	this->fillRoute(toParse, loc);
 	routes.push_back(loc);
 }
 
 void Parser::fillRoute(std::string& toParse, Route& loc) {
-	bool isDone = false;
 	vector<string> directives;
 	std::size_t stop;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
@@ -252,7 +317,7 @@ void Parser::fillRoute(std::string& toParse, Route& loc) {
 
 void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 	for (std::size_t i = 0; i < directives.size(); i++) {
-		if ()
+		cout << directives[i] << endl;
 	}
 }
 
@@ -349,4 +414,8 @@ const char* Parser::NotTheRightNumberOfArgs::what() const throw() {
 
 const char* Parser::InvalidLocationBlock::what() const throw() {
 	return "Invalid location block";
+}
+
+const char* Parser::InvalidPort::what() const throw() {
+	return "Invalid port";
 }
