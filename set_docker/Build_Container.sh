@@ -37,7 +37,7 @@ else
   docker pull ubuntu:latest
 fi
 
-docker build -t webserv:latest -f webserv/set_docker/Dockerfile ${REPO}
+docker build -t webserv:latest -f /webserv/set_docker/Dockerfile ${REPO}
 
 
 #docker build -t clion/remote-cpp-env:0.5 .
