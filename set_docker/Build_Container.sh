@@ -15,7 +15,7 @@
 echo "write a represetory you want to load in your container"
 read REPO
 if [ -z "${REPO}"] ; then
-  REPO="https://github.com/Ticafblanc/webserv.git ."
+  REPO="https://github.com/Ticafblanc/webserv.git"
 fi
 
 echo "name of container"
@@ -33,11 +33,11 @@ fi
 if docker images | grep -q ubuntu:latest ; then
   echo "Image already pull"
 else
-  echo "load image ubuntu:latest"
+  echo "load image ubunut:latest"
   docker pull ubuntu:latest
 fi
 
-docker build -t webserv:latest -f /set_docker/Dockerfile ${REPO}
+docker build -t webserv:latest -f /set_docker/Dockerfile ${REPO} .
 
 
 #docker build -t clion/remote-cpp-env:0.5 .
