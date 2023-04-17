@@ -15,7 +15,7 @@
 echo "write a represetory you want to load in your container"
 read REPO
 if [ -z "${REPO}"] ; then
-  REPO="https://github.com/Ticafblanc/webserv.git"
+  REPO="https://github.com/Ticafblanc/webserv.git ."
 fi
 
 echo "name of container"
