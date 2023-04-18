@@ -6,12 +6,12 @@ Route::Route() {
 
 Route::~Route() {}
 
-void Route::setMatch(string& match) throw() {
-    this->_match = match;
+void Route::setPrefix(string& prefix) throw() {
+    this->_prefix = prefix;
 }
 
-string& Route::getMatch(void) throw() {
-    return this->_match;
+string& Route::getPrefix(void) throw() {
+    return this->_prefix;
 }
 
 void Route::setHttpRedir(string& redir) throw() {

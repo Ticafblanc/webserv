@@ -11,8 +11,8 @@
 class Route
 {
 private:
-	vector<int>							_methods; //list of accepted HTTP methods for the route. corresponds to ◦Define a list of accepted HTTP methods for the route. if blank all accepted
-	string								_match; //directory given after location
+	vector<string>						_limit_except; //list of accepted HTTP methods for the route. corresponds to ◦Define a list of accepted HTTP methods for the route. if blank all accepted
+	string								_prefix; //directory given after location
 	string								_httpRedir;
 	bool 								_autoIndex; //corresponds to ◦Turn on or off directory listing.
 	string 								_searchDir;
@@ -22,8 +22,10 @@ private:
 public:
 	Route();
 	~Route();
-	void setMatch(string& match) throw();
-	string &getMatch(void) throw();
+	void setLimitExcept(vector<string>& limit_except) throw();
+	vector<string> getLimitExcept(void) throw();
+	void setPrefix(string& prefix) throw();
+	string &getPrefix(void) throw();
 	void setHttpRedir(string& redir) throw();
 	string& getHttpRedir(void) throw();
 	void setDirectoryListing(bool state) throw();
