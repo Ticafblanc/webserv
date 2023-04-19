@@ -8,8 +8,19 @@ const vector<string>& Route::getAllowedMethods(void) const throw() {
     return _allowed_methods;
 }
 
-void Route::push_method(const string& method) throw() {
+void Route::pushMethod(const string& method) throw() {
     _allowed_methods.push_back(method);
+}
+
+void Route::checkMethod(const string& method) {
+    string methods[] = {"GET", "POST", "DELETE"};
+    int opt = -1;
+    for (std::size_t i = 0; i < methods->size(); i++) {
+        if (methods[i] == method)
+            opt = i;
+    }
+    if (opt == -1)
+        throw InvalidDirective();
 }
 
 Route::Route() {
@@ -50,20 +61,24 @@ const string& Route::getSearchDir(void) const throw() {
     return this->_searchDir;
 }
 
-void Route::setDefaultDirFile(string& dirFile) throw() {
-    this->_defaultDirFile = dirFile;
+void Route::setIndex(vector<string>& index) throw() {
+    this->_index = index;
 }
 
-const string& Route::getDefaultDirFile(void) const throw() {
-    return this->_defaultDirFile;
+const vector<string>& Route::getIndex(void) const throw() {
+    return this->_index;
 }
 
-void Route::setSavePath(string& path) throw() {
-    this->_savePath = path;
+void Route::setFile(string& file) throw() {
+    _index.push_back(file);
 }
 
-const string& Route::getSavePath(void) const throw() {
-    return this->_savePath;
+void Route::setUploadDir(string& directory) throw() {
+    this->_uploadPath = directory;
+}
+
+const string& Route::getUploadDir(void) const throw() {
+    return this->_uploadPath;
 }
 
 void Route::setRoot(const string& root) {
@@ -76,6 +91,22 @@ const string& Route::getRoot(void) const throw() {
     return this->_root;
 }
 
+void Route::setCGI(const vector<std::pair<string, string> >& cgi) throw() {
+    this->_cgi = cgi;
+}
+
+const vector<std::pair<string, string> >& Route::getCGI(void) const throw() {
+    return this->_cgi;
+}
+
+void Route::pushCGI(const std::pair<string, string>& CGIPair) throw() {
+    this->_cgi.push_back(CGIPair);
+}
+
 const char* Route::DuplicateRoot::what() const throw() {
     return "Duplicate root directive";
+}
+
+const char* Route::InvalidDirective::what() const throw() {
+    return "Invalid directive detected in location block";
 }

@@ -120,21 +120,27 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	bool parsingDone = false;
 	while (parsingDone == false) {
 		if (buffer.find("server_name") != string::npos) {
-			parseServerNameDirective(buffer, serverName);
+			this->parseServerNameDirective(buffer, serverName);
 		}
 		if (buffer.find("listen") != string::npos) {
-			parseListenDirective(buffer, hostPort);
+			this->parseListenDirective(buffer, hostPort);
 		}
 		if (buffer.find("location") != string::npos) {
-			parseRoute(buffer, routes);
+			this->parseRoute(buffer, routes);
+			//cout << "new buffer" << buffer;
 		}
 		if (buffer.find("error_page") != string::npos) {
-			parseErrorPages(buffer, error_pages);
+			this->parseErrorPages(buffer, error_pages);
+		}
+		if (buffer.find("client_max_body_size") != string::npos) {
+			this->parseMaxBodySize(buffer, data);
 		}
 		if (buffer.find("listen") == string::npos && buffer.find("server_name") == string::npos \
-			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos) {
+			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos \
+			&& buffer.find("client_max_body_size") == string::npos) {
 			parsingDone = true;
 		}
+
 	}
 	if (serverName.size() == 0) {
 		serverName.push_back("");
@@ -258,6 +264,9 @@ void Parser::parseErrorPages(string& buffer, vector<std::pair<vector<int>, strin
 	string tempBufferStart = buffer.substr(0, start);
 	string tempBufferStop = buffer.substr(stop + 1);
 	string toParse = buffer.substr(start + 10, stop - (start + 9));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
 	splitArgs = this->split(toParse);
 	for (std::size_t i = 0; i < splitArgs.size() - 1; i++) {
 		int error_code = atoi(splitArgs[i].c_str());
@@ -297,7 +306,7 @@ void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 	size_t start = buffer.find("location");
 	size_t stop = this->findStopLocation(buffer); // throws if something goes wrong
 	string tempBufferStart = buffer.substr(0, start);
-	string tempBufferStop = buffer.substr(stop);
+	string tempBufferStop = buffer.substr(stop + 2);
 	string prefix = extractMatch(buffer);
 	loc.setPrefix(prefix);
 	start = buffer.find('{') + 1;
@@ -324,10 +333,14 @@ void Parser::fillRoute(std::string& toParse, Route& loc) {
 	this->parseDirectives(directives, loc);
 }
 
+// cgi left
+
 void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 	vector<string> comp;
 	for (std::size_t i = 0; i < directives.size(); i++) {
 		comp = split(directives[i]);
+		if (comp.size() < 2)
+			throw InvalidLocationBlock();
 		if (comp[0] == "autoindex") {
 			if (comp[1] == "on")
 				loc.setDirectoryListing(true);
@@ -337,23 +350,32 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				throw InvalidDirective();
 		}
 		else if (comp[0] == "index") {
-			for (std::size_t i = 0; i < comp.size(); i++) {
-				loc.
+			for (std::size_t i = 1; i < comp.size(); i++) {
+				loc.setFile(comp[i]);
 			}
 		}
 		else if (comp[0] == "root") {
+			if (comp[1].size() == 0)
+				throw InvalidDirective();
 			loc.setRoot(comp[1]);
 		}
 		else if (comp[0] == "upload_path") {
-
+			loc.setUploadDir(comp[1]);
 		}
 		else if (comp[0] == "cgi") {
-
+			if (comp.size() == 3) {
+				std::pair<string, string> newPair = std::make_pair(comp[1], comp[2]);
+				loc.pushCGI(newPair);
+			}
+			else
+				throw InvalidLocationBlock();
 		}
-		else if (comp[0] == "methods") {
-
+		else if (comp[0] == "allowed_methods") {
+			for (std::size_t i = 1; i < comp.size(); i++) {
+				loc.checkMethod(comp[i]);
+				loc.pushMethod(comp[i]);
+			}
 		}
-
 	}
 }
 
@@ -425,6 +447,35 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 void Parser::printBlocks(void) { //just for testing purposes
 	for (unsigned int i = 0; i < _NServ; i++) {
 		cout << _blocks.at(i) << endl;
+	}
+}
+
+void Parser::parseMaxBodySize(string& buffer, data_server& data) {
+	std::size_t start = buffer.find("client_max_body_size");
+	std::size_t stop = buffer.find(';', start);
+	if (stop == string::npos)
+		throw InvalidDirective();
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop + 1);
+	string toParse = buffer.substr(start, ((stop + 1) - start));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
+	if (isspace(toParse[toParse.find("client_max_body_size") + 21]) != 0)
+		throw InvalidDirective();
+	toParse = toParse.substr(toParse.find("client_max_body_size") + 21);
+	start = 0, stop = 0;
+	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+		if (isalnum(*it) != 0 && start == 0)
+			start = it - toParse.begin();
+		if ((isspace(*it) && start != 0) || *it == ';')
+			stop = it - toParse.begin();
+		if (start != 0 && stop != 0) {
+			std::size_t bodySize;
+			string 
+			data.setMaxBodySize(toParse.substr(start, (stop - start)));
+			start = 0, stop = 0;
+		}
 	}
 }
 

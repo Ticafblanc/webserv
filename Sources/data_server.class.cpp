@@ -21,6 +21,8 @@
 data_server::data_server() {}
 
 data_server::~data_server() {
+    this->_client_max_body_size = 0;
+    this->_max_body_size_def = false;
 //    if(!fd_isopen() || !socket_isopen())
 //        throw data_server::data_exception();
 //    close(getServerFd());
@@ -130,6 +132,14 @@ const string& data_server::getRoot(void) const throw() {
 
 void data_server::setRoot(const string& root) {
     _root = root;
+}
+
+void data_server::setMaxBodySize(int maxBodySize) throw() {
+    this->_client_max_body_size = maxBodySize;
+}
+
+int data_server::getMaxBodySize(void) const throw() {
+    return this->_client_max_body_size;
 }
 
 // int& data_server::getProtocol(){

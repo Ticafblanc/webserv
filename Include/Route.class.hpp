@@ -17,8 +17,8 @@ private:
 	bool 								_autoIndex; //corresponds to ◦Turn on or off directory listing.
 	string 								_searchDir;
 	string								_root;
-	string 								_defaultDirFile;
-	string 								_savePath; //corresponds to ◦Make the route able to accept uploaded files and configure where they should be saved
+	vector<string> 						_index;
+	string 								_uploadPath; //corresponds to ◦Make the route able to accept uploaded files and configure where they should be saved
 	vector<std::pair<string, string> > 	_cgi; //first element of pair is extension, second is executable. corresponds to ◦Execute CGI based on certain file extension (for example .php).
 public:
 	Route();
@@ -26,7 +26,8 @@ public:
 
 	void setAllowedMethods(vector<string>& allowed_methods) throw();
 	const vector<string>& getAllowedMethods(void) const throw();
-	void push_method(const string& method) throw();
+	void pushMethod(const string& method) throw();
+	void checkMethod(const string& method);
 
 	void setPrefix(string& prefix) throw();
 	const string &getPrefix(void) const throw();
@@ -40,18 +41,27 @@ public:
 	void setSearchDir(string& dir) throw();
 	const string& getSearchDir(void) const throw();
 
-	void setDefaultDirFile(string& dirFile) throw();
-	const string& getDefaultDirFile(void) const throw();
+	void setIndex(vector<string>& index) throw();
+	const vector<string>& getIndex(void) const throw();
+	void setFile(string& file) throw();
 
-	void setSavePath(string& path) throw();
-	const string& getSavePath(void) const throw();
+	void setUploadDir(string& path) throw();
+	const string& getUploadDir(void) const throw();
 
 	void setRoot(const string& root);
 	const string& getRoot(void) const throw();
 
+	void setCGI(const vector<std::pair<string, string> >& cgi) throw();
+	const vector<std::pair<string, string> >& getCGI(void) const throw();
+	void pushCGI(const std::pair<string, string>& CGIPair) throw();
+
 
 	class DuplicateRoot: public std::exception {
-		const char *what() const throw();
+		const char* what() const throw();
+	};
+
+	class InvalidDirective: public std::exception {
+		const char* what() const throw();
 	};
 };
 

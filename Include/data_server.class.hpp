@@ -41,6 +41,8 @@ private:
     vector<std::pair<vector<int>, string> >     _error_page;
     vector<Route>                               _routes;
     string                                      _root;
+    std::size_t                                 _client_max_body_size;
+    bool                                        _max_body_size_def;
     int                                         _serverId;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
@@ -126,11 +128,14 @@ public:
     void setProtocol(int protocol) throw();
 
     const string& getRoot(void) const throw();
-    void setRoot(const string& root) throw();
+    void setRoot(const string& root);
+
+    void setMaxBodySize(int maxBodySize) throw();
+    int getMaxBodySize(void) const throw();
 
     // int&  getBacklog();
     // /*set time to follow socket fd set at 10 for now*/
-    // void setBacklog(int );
+    // void setBacklog(int );=
 
     const int& getServerFd(void) const throw();
     /*value of socket */
