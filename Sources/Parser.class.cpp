@@ -450,7 +450,10 @@ void Parser::printBlocks(void) { //just for testing purposes
 	}
 }
 
+//default 1m, duplicate is bad, if set at 0 disables body size checking
 void Parser::parseMaxBodySize(string& buffer, data_server& data) {
+	if (data.getBodySizeStatus() == true)
+		throw DuplicateDirective();
 	std::size_t start = buffer.find("client_max_body_size");
 	std::size_t stop = buffer.find(';', start);
 	if (stop == string::npos)
@@ -471,9 +474,14 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 		if ((isspace(*it) && start != 0) || *it == ';')
 			stop = it - toParse.begin();
 		if (start != 0 && stop != 0) {
-			std::size_t bodySize;
-			string 
-			data.setMaxBodySize(toParse.substr(start, (stop - start)));
+			if (data.getBodySizeStatus() == true)
+				throw NotTheRightNumberOfArgs();
+			string		tmpBodySize = toParse.substr(start, (stop - start));
+			std::size_t bodySize = atoi(tmpBodySize.c_str());
+			if (bodySize == 0)
+				throw InvalidDirective();
+			data.setMaxBodySize(bodySize);
+			data.setBodySizeStatus(true);
 			start = 0, stop = 0;
 		}
 	}
@@ -505,4 +513,8 @@ const char* Parser::InvalidLocationBlock::what() const throw() {
 
 const char* Parser::InvalidPort::what() const throw() {
 	return "Invalid port";
+}
+
+const char* Parser::DuplicateDirective::what() const throw() {
+	return "Duplicate directive detected";
 }

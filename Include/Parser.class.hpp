@@ -56,6 +56,9 @@ public:
 	class InvalidPort: public exception {
 		const char* what() const throw();
 	};
+	class DuplicateDirective: public exception {
+		const char* what() const throw();
+	};
 };
 
 #endif

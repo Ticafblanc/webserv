@@ -133,6 +133,9 @@ public:
     void setMaxBodySize(int maxBodySize) throw();
     int getMaxBodySize(void) const throw();
 
+    void setBodySizeStatus(bool status) throw();
+    bool getBodySizeStatus(void) const throw();
+
     // int&  getBacklog();
     // /*set time to follow socket fd set at 10 for now*/
     // void setBacklog(int );=

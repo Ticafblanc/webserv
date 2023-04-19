@@ -142,6 +142,17 @@ int data_server::getMaxBodySize(void) const throw() {
     return this->_client_max_body_size;
 }
 
+    // void setBodySizeStatus(bool status) throw();
+    // bool getBodySizeStatus(void) const throw();
+
+void data_server::setBodySizeStatus(bool status) throw() {
+    this->_max_body_size_def = status;
+}
+
+bool data_server::getBodySizeStatus(void) const throw() {
+    return this->_max_body_size_def;
+}
+
 // int& data_server::getProtocol(){
 //     return getIData()[protocol];
 // }
