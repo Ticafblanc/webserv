@@ -53,3 +53,17 @@ void Route::setSavePath(string& path) throw() {
 string& Route::getSavePath(void) throw() {
     return this->_savePath;
 }
+
+void Route::setRoot(const string& root) {
+    if (this->_root.size() != 0)
+        throw DuplicateRoot();
+    this->_root = root;
+}
+
+const string& Route::getRoot(void) const throw() {
+    return this->_root;
+}
+
+const char* Route::DuplicateRoot::what() const throw() {
+    return "Duplicate root directive";
+}
