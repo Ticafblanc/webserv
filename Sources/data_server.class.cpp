@@ -73,52 +73,63 @@ const char *  data_server::arg_exception::what() const throw(){
 *====================================================================================
 */
 
-vector<string>& data_server::getServerName(void) {
+const vector<string>& data_server::getServerName(void) const throw() {
     return _server_name;
 }
 
-void data_server::setServerName(const vector<string>& serverName) {
+void data_server::setServerName(const vector<string>& serverName) throw() {
     _server_name = serverName;
 }
 
-int& data_server::getIdServer() {
+const int& data_server::getIdServer() const throw() {
     return _serverId;
 }
 
-void data_server::setIdServer(int id) {
+void data_server::setIdServer(int id) throw() {
     _serverId = id;
 }
 
-vector<std::pair<string, int> >& data_server::getHostPort(void) {
+const vector<std::pair<string, int> >& data_server::getHostPort(void) const throw() {
     return _host_port;
 }
 
-void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) {
+void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) throw() {
     _host_port = hostPair;
 }
 
-int& data_server::getType() {
+const int& data_server::getType() const throw() {
     return _serverId; //this will have to be changed
 }
 
-void data_server::setType(int type) {
+void data_server::setType(int type) throw() {
     this->_server_fd = type; //will need to be changed
 }
 
-vector<Route>& data_server::getRoutes(void) {
+const vector<Route>& data_server::getRoutes(void) const throw() {
     return _routes;
 }
 
-void data_server::setRoutes(const vector<Route>& routes) {
+void data_server::setRoutes(const vector<Route>& routes) throw() {
     _routes = routes;
 }
 
-int& data_server::getServerFd(void) {
+const int& data_server::getServerFd(void) const throw() {
     return _server_fd;
 }
 
-void data_server::setServerFd(int fd) {
+void data_server::setServerFd(int fd) throw() {
     _server_fd = fd;
+}
+
+// void setRoot(const string& root);
+// string getRoot(void);
+
+const string& data_server::getRoot(void) const throw() {
+    return _root;
+}
+
+void data_server::setRoot(const string& root) {
+    _root = root;
 }
 
 // int& data_server::getProtocol(){

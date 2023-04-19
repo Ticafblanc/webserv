@@ -40,6 +40,7 @@ private:
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
     vector<Route>                               _routes;
+    string                                      _root;
     int                                         _serverId;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
@@ -105,32 +106,35 @@ public:
 */
 
 public:
-    vector<string>& getServerName(void); //returns server name @ id
-    void setServerName(const vector<string>& serverName); //sets server name @ id to serverName
+    const vector<string>& getServerName(void) const throw(); //returns server name @ id
+    void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
-    int& getIdServer(); //number of server first server = 0 and last = (nbr server-1)
-    void setIdServer(int id); //use with caution I guess
+    const int& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(int id) throw(); //use with caution I guess
 
-    vector<std::pair<string, int> >& getHostPort(void); //return ip address @ id
-    void setHostPort(const vector<std::pair<string, int> >& hostPair); //sets ip address @ id with ipAddress 
+    const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
+    void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
 
-    int& getType(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
-    void setType(int type);
+    const int& getType() const throw(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
+    void setType(int type) throw();
 
-    vector<Route>& getRoutes(void); //returns vector of Route
-    void setRoutes(const vector<Route>& routes);
+    const vector<Route>& getRoutes(void) const throw(); //returns vector of Route
+    void setRoutes(const vector<Route>& routes) throw();
 
-    int& getProtocol();
+    const int& getProtocol() const throw();
     /*set protocol to 0*/
-    void setProtocol(int protocol);
+    void setProtocol(int protocol) throw();
+
+    const string& getRoot(void) const throw();
+    void setRoot(const string& root) throw();
 
     // int&  getBacklog();
     // /*set time to follow socket fd set at 10 for now*/
     // void setBacklog(int );
 
-    int& getServerFd();
+    const int& getServerFd(void) const throw();
     /*value of socket */
-    void setServerFd(int fd);
+    void setServerFd(int fd) throw();
 
     // int& getNewSocket();
     // /*set value of new socket after accpet*/

@@ -298,8 +298,8 @@ void Parser::parseRoute(std::string& buffer, vector<Route>& routes) {
 	size_t stop = this->findStopLocation(buffer); // throws if something goes wrong
 	string tempBufferStart = buffer.substr(0, start);
 	string tempBufferStop = buffer.substr(stop);
-	string match = extractMatch(buffer);
-	loc.setMatch(match);
+	string prefix = extractMatch(buffer);
+	loc.setPrefix(prefix);
 	start = buffer.find('{') + 1;
 	string toParse = buffer.substr(start, (stop - start + 1));
 	buffer.clear();
@@ -340,12 +340,15 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 
 		}
 		else if (comp[0] == "root") {
-
+			loc.setRoot(comp[1]);
 		}
 		else if (comp[0] == "upload_path") {
 
 		}
 		else if (comp[0] == "cgi") {
+
+		}
+		else if (comp[0] == "methods") {
 
 		}
 
