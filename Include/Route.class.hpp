@@ -11,7 +11,7 @@
 class Route
 {
 private:
-	vector<string>						_limit_except; //list of accepted HTTP methods for the route. corresponds to ◦Define a list of accepted HTTP methods for the route. if blank all accepted
+	vector<string>						_allowed_methods; //list of accepted HTTP methods for the route. corresponds to ◦Define a list of accepted HTTP methods for the route. if blank all accepted
 	string								_prefix; //directory given after location
 	string								_httpRedir;
 	bool 								_autoIndex; //corresponds to ◦Turn on or off directory listing.
@@ -23,29 +23,32 @@ private:
 public:
 	Route();
 	~Route();
-	void setLimitExcept(vector<string>& limit_except) throw();
-	vector<string> getLimitExcept(void) throw();
+
+	void setAllowedMethods(vector<string>& allowed_methods) throw();
+	const vector<string>& getAllowedMethods(void) const throw();
+	void push_method(const string& method) throw();
 
 	void setPrefix(string& prefix) throw();
-	string &getPrefix(void) throw();
+	const string &getPrefix(void) const throw();
 
 	void setHttpRedir(string& redir) throw();
-	string& getHttpRedir(void) throw();
+	const string& getHttpRedir(void) const throw();
 
 	void setDirectoryListing(bool state) throw();
-	bool getDirectoryListing(void) throw();
+	const bool getDirectoryListing(void) const throw();
 
 	void setSearchDir(string& dir) throw();
-	string& getSearchDir(void) throw();
+	const string& getSearchDir(void) const throw();
 
 	void setDefaultDirFile(string& dirFile) throw();
-	string& getDefaultDirFile(void) throw();
+	const string& getDefaultDirFile(void) const throw();
 
 	void setSavePath(string& path) throw();
-	string& getSavePath(void) throw();
+	const string& getSavePath(void) const throw();
 
-	void setRoot(const string& root) throw();
+	void setRoot(const string& root);
 	const string& getRoot(void) const throw();
+
 
 	class DuplicateRoot: public std::exception {
 		const char *what() const throw();

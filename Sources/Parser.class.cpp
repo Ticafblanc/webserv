@@ -337,7 +337,9 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				throw InvalidDirective();
 		}
 		else if (comp[0] == "index") {
-
+			for (std::size_t i = 0; i < comp.size(); i++) {
+				loc.
+			}
 		}
 		else if (comp[0] == "root") {
 			loc.setRoot(comp[1]);
