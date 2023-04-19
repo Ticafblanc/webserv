@@ -15,6 +15,6 @@
 make finish
 
 rm /usr/local/bin/webserv
-rm -rf /usr/local/bin/webserv; \
-rm -rf /usr/local/etc/webserv; \
+rm -rf /usr/local/bin/webserv;
+rm -rf /usr/local/etc/webserv;
 rm -rf/usr/local/var/www;

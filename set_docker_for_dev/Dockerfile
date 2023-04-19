@@ -15,7 +15,6 @@ FROM ubuntu:latest
 
 #set macro of repo path and path to contant web site
 ARG repo_git=https://github.com/Ticafblanc/webserv.git
-ARG path_to_config_content_sever=/config_content_server
 
 
 # set a new docker
@@ -42,27 +41,15 @@ RUN useradd -m user && yes password | passwd user
 
 #set workdir
 WORRKDIR webserv
+
 #clone repo
 RUN git clone repo_git .
-
-#set at end of project and remove the close container and add monunt volume to link local path>>>
-
-#compile project
-#cd webserv
-#RUN make
-
-#set file server
-#RUN mv /Bin/webserv /usr/local/bin/webserv; \
-#RUN mv $TEST_DIRECTORY_CONTENT/for_etc/* /usr/local/etc/; \
-#RUN mv $TEST_DIRECTORY_CONTENT/for_var/* /usr/local/var/; \
-
 
 # Exposition of port 80
 EXPOSE 80
 
 # Commande to update and launch the container
-ENTRYPOINT ["/webserv/set_docker/Check_and_launch.sh"]
+ENTRYPOINT ["/webserv/set_docker_for_dev/Check_and_launch.sh"]
 # Command to do at close
-CMD ["bash", "-c", "trap EXIT; ./webserv/set_docker/Close_Container.sh"]
+CMD ["bash", "-c", "trap EXIT; ./webserv/set_docker_for_dev/Close_Container.sh"]
 
-#<<<

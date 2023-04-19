@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Check_and_launch.sh                                    :+:      :+:    :+:    #
+#    Launch_Container.sh                                :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,18 +12,23 @@
 
 #!/bin/bash
 
-# Récupérer les dernières modifications depuis la branche distante
-git fetch origin
+while true; do
+    read -p "Enter path of local work directory : " directory
+    if [ -z "${directory}" ] ; then
+        echo "directory empty"
+    else
+        break
+    fi
+done
 
-# Fusionner les modifications locales avec les dernières modifications de la branche distante
-git merge origin/main
+if docker images | grep -q websev:latest ; then \
+  echo "Image already pull"
+else
+  echo "load image webserv:latest"
+  ./Build_Container.sh
+fi
 
-#compile project
-make
+docker container run --name webserv_dev -v ${directory}:/webserv webserv:latest
 
-#set file server
-mv /Bin/webserv /usr/local/bin/; \
-mv /for_etc/* /usr/local/etc/; \
-mv /for_var/* /usr/local/var/; \
-
-nvim
+alias webserv_start="docker container start webserv"
+alias webserv_stop="docker container stop webserv"
