@@ -30,11 +30,11 @@ fi
 
 read -p "Enter path of config content servre directory : " config
 if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
+  docker build --build-arg repo_git=${repo} \
+  -t webserv:latest .
 else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
+  docker build --build-arg repo_git=${repo} \
+    --build-arg path_to_config_content_sever=${config} \
+    -t webserv:latest .
 fi
 
