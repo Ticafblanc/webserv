@@ -12,14 +12,23 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
-    else
-        echo "Invalide repo : $repo"
-    fi
-done
+echo "write a represetory you want to load in your container"
+read REPO
+if [ -z "${REPO}" ]; then
+  REPO="https://github.com/Ticafblanc/webserv.git"
+fi
+
+echo "name of container"
+read NAME
+if [ -z "${NAME}" ] ; then
+  NAME="webserv"
+fi
+
+echo "path of work directory"
+read WORKDIR
+if [ -z "${WORKDIR}" ] ; then
+  WORKDIR=$PWD
+fi
 
 if docker images | grep -q ubuntu:latest ; then \
   echo "Image already pull"
@@ -28,13 +37,13 @@ else
   docker pull ubuntu:latest
 fi
 
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
-else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
-fi
+docker build --build-arg my_macro=mon_autre_valeur -t for_etc:latest .
 
+
+#docker build -t clion/remote-cpp-env:0.5 .
+
+# shellcheck disable=SC2139
+alias dr="docker run --init --name ${NAME} -v ${WORKDIR}:/webserv_container/webserv webserv:latest"
+# shellcheck disable=SC2139
+alias for_etc="docker exec -it ${NAME} /bin/bash"
+#docker run -it --name for_etc  for_etc:latest

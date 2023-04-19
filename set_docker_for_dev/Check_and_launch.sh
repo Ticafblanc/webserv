@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Build_Container.sh                                 :+:      :+:    :+:    #
+#    Check_and_launch.sh                                    :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,29 +12,21 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
-    else
-        echo "Invalide repo : $repo"
-    fi
-done
+# Aller dans le répertoire du code source
+cd webserv
 
-if docker images | grep -q ubuntu:latest ; then \
-  echo "Image already pull"
-else
-  echo "load image ubunut:latest"
-  docker pull ubuntu:latest
-fi
+# Récupérer les dernières modifications depuis la branche distante
+git fetch origin
 
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
-else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
-fi
+# Fusionner les modifications locales avec les dernières modifications de la branche distante
+git merge origin/main
 
+#compile project
+make
+
+#set file server
+mv /Bin/webserv /usr/local/bin/; \
+mv /for_etc/* /usr/local/etc/; \
+mv /for_var/* /usr/local/var/; \
+
+webserv
