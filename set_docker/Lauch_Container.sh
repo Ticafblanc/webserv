@@ -30,7 +30,7 @@ while true; do
     fi
 done
 
-if docker images | grep -q websev:latest ; then \
+if docker images | grep -q webserv ; then
   echo "Image already pull"
 else
   echo "load image webserv:latest"

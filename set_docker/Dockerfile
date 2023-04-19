@@ -15,7 +15,7 @@ FROM ubuntu:latest
 
 #set macro of repo path and path to contant web site
 ARG repo_git
-ARG path_to_config_content_sever=/config_content_server
+ARG path_to_config_content_sever=config_content_server
 
 
 # set a new docker
@@ -31,27 +31,25 @@ RUN apt-get update \
     rsync \
     tar \
     python3 \
-    && apt-get clean \
-
+    && apt-get clean
 
 #define wrorkdir
 WORKDIR webserv
+
 #clone repo
-RUN git clone repo_git .
+RUN git clone ${repo_git} .
 
 #compile project
-cd webserv
-RUN make
-
-#set file server
-RUN mv /Bin/webserv /usr/local/bin/webserv; \
-RUN mv $TEST_DIRECTORY_CONTENT/for_etc/* /usr/local/etc/; \
-RUN mv $TEST_DIRECTORY_CONTENT/for_var/* /usr/local/var/; \
+RUN cd /webserv \
+    && make \
+    && mv Bin/webserv /usr/local/bin/webserv \
+    && mv ${path_to_config_content_sever}/for_etc/* /usr/local/etc/ \
+    && mv ${path_to_config_content_sever}/for_var/* /usr/local/var/
 
 
 # Exposition of port 80
 EXPOSE 80
 
-# Command to do at close
+## Command to do at close
 CMD [ "webserv" ]
 

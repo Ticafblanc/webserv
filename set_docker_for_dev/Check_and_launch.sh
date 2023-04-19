@@ -16,7 +16,7 @@
 git fetch origin
 
 # Fusionner les modifications locales avec les dernières modifications de la branche distante
-git merge origin/main
+git merge origin/master
 
 #compile project
 make
