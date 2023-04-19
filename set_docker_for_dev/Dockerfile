@@ -14,8 +14,7 @@
 FROM ubuntu:latest
 
 #set macro of repo path and path to contant web site
-ARG repo_git
-ARG path_to_config_content_sever=/config_content_server
+ARG repo_git=https://github.com/Ticafblanc/webserv.git
 
 
 # set a new docker
@@ -31,27 +30,26 @@ RUN apt-get update \
     rsync \
     tar \
     python3 \
+    install neovim \
+    install zsh \
     && apt-get clean \
+    && chsh -s /usr/bin/zsh \
+    && git clone --depth 1 https://github.com/AstroNvim/AstroNvim ~/.config/nvim \
 
+#creates a user for ide to use
+RUN useradd -m user && yes password | passwd user
 
-#define wrorkdir
-WORKDIR webserv
+#set workdir
+WORRKDIR webserv
+
 #clone repo
 RUN git clone repo_git .
-
-#compile project
-cd webserv
-RUN make
-
-#set file server
-RUN mv /Bin/webserv /usr/local/bin/webserv; \
-RUN mv $TEST_DIRECTORY_CONTENT/for_etc/* /usr/local/etc/; \
-RUN mv $TEST_DIRECTORY_CONTENT/for_var/* /usr/local/var/; \
-
 
 # Exposition of port 80
 EXPOSE 80
 
+# Commande to update and launch the container
+ENTRYPOINT ["/webserv/set_docker_for_dev/Check_and_launch.sh"]
 # Command to do at close
-CMD [ "webserv" ]
+CMD ["bash", "-c", "trap EXIT; ./webserv/set_docker_for_dev/Close_Container.sh"]
 

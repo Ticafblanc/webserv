@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Build_Container.sh                                 :+:      :+:    :+:    #
+#    Close_Container.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,29 +12,9 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
-    else
-        echo "Invalide repo : $repo"
-    fi
-done
+make finish
 
-if docker images | grep -q ubuntu:latest ; then \
-  echo "Image already pull"
-else
-  echo "load image ubunut:latest"
-  docker pull ubuntu:latest
-fi
-
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
-else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
-fi
-
+rm /usr/local/bin/webserv
+rm -rf /usr/local/bin/webserv;
+rm -rf /usr/local/etc/webserv;
+rm -rf/usr/local/var/www;

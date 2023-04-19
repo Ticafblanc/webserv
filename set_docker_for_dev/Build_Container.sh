@@ -12,15 +12,6 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
-    else
-        echo "Invalide repo : $repo"
-    fi
-done
-
 if docker images | grep -q ubuntu:latest ; then \
   echo "Image already pull"
 else
@@ -28,13 +19,5 @@ else
   docker pull ubuntu:latest
 fi
 
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
-else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
-fi
+docker build -d webserv:latest .
 

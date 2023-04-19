@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Build_Container.sh                                 :+:      :+:    :+:    #
+#    Launch_Container.sh                                :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -13,28 +13,22 @@
 #!/bin/bash
 
 while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
+    read -p "Enter path of local work directory : " directory
+    if [ -z "${directory}" ] ; then
+        echo "directory empty"
     else
-        echo "Invalide repo : $repo"
+        break
     fi
 done
 
-if docker images | grep -q ubuntu:latest ; then \
+if docker images | grep -q websev:latest ; then \
   echo "Image already pull"
 else
-  echo "load image ubunut:latest"
-  docker pull ubuntu:latest
+  echo "load image webserv:latest"
+  ./Build_Container.sh
 fi
 
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=repo \
-  -d webserv:latest .
-else
-  docker build --build-arg repo_git=repo \
-    --build-arg path_to_config_content_sever=config \
-    -d webserv:latest .
-fi
+docker container run --name webserv_dev -v ${directory}:/webserv webserv:latest
 
+alias webserv_start="docker container start webserv"
+alias webserv_stop="docker container stop webserv"
