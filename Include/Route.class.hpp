@@ -36,7 +36,7 @@ public:
 	const string& getHttpRedir(void) const throw();
 
 	void setDirectoryListing(bool state) throw();
-	const bool getDirectoryListing(void) const throw();
+	bool getDirectoryListing(void) const throw();
 
 	void setSearchDir(string& dir) throw();
 	const string& getSearchDir(void) const throw();

@@ -49,7 +49,7 @@ void Route::setDirectoryListing(bool state) throw() {
     this->_autoIndex = state;
 }
 
-const bool Route::getDirectoryListing(void) const throw() {
+bool Route::getDirectoryListing(void) const throw() {
     return this->_autoIndex;
 }
 
@@ -82,8 +82,10 @@ const string& Route::getUploadDir(void) const throw() {
 }
 
 void Route::setRoot(const string& root) {
-    if (this->_root.size() != 0)
+    if (this->_root.size() != 0) {
+        cout << "problem is in location" << endl;
         throw DuplicateRoot();
+    }
     this->_root = root;
 }
 
