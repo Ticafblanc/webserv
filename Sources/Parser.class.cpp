@@ -1,6 +1,6 @@
 #include "../Include/Parser.class.hpp"
 
-Parser::Parser(char **argv, int argc): _arg(argv[1]), _argc(argc), _NServ(0) {
+Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 	findAmountServers();
 	getBlocks();
 	parseBlocks();
@@ -28,10 +28,7 @@ std::string Parser::readToBuffer(void) {
 }
 
 void Parser::openFile(void) {
-	if (this->_argc == 2)
-		this->_config_file.open(_arg.c_str());
-	else
-		this->_config_file.open("../config_files/default");
+	this->_config_file.open(_arg.c_str());
 	if (this->_config_file.fail() || !this->_config_file.is_open())
 		throw OpenException();
 }
@@ -139,7 +136,6 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			&& buffer.find("client_max_body_size") == string::npos) {
 			parsingDone = true;
 		}
-
 	}
 	if (serverName.size() == 0) {
 		serverName.push_back("");
@@ -155,20 +151,16 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {
 	std::size_t start = buffer.find("server_name");
 	std::size_t stop = buffer.find(';', start);
-	if (stop == string::npos) {
-		cout << "problem 2" << endl;
+	if (stop == string::npos)
 		throw InvalidDirective();
-	}
 	string tempBufferStart = buffer.substr(0, start);
 	string tempBufferStop = buffer.substr(stop + 1);
 	string toParse = buffer.substr(start, ((stop + 1) - start));
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	if (toParse[toParse.find("server_name") + 11] != ' ') {
-		cout << "problem 1" << endl;
+	if (toParse[toParse.find("server_name") + 11] != ' ')
 		throw InvalidDirective();
-	}
 	toParse = toParse.substr(toParse.find("server_name") + 11);
 	start = 0, stop = 0;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
@@ -193,20 +185,16 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 
 	std::size_t start = buffer.find("listen");
 	std::size_t stop = buffer.find(';', start);
-	if (stop == string::npos) {
-		cout << "problem 4" << endl;
+	if (stop == string::npos)
 		throw InvalidDirective();
-	}
 	string tempBufferStart = buffer.substr(0, start);
 	string tempBufferStop = buffer.substr(stop + 1);
 	string toParse = buffer.substr(start, ((stop + 1) - start));
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	if (isspace(toParse[toParse.find("listen") + 6]) == 0) {
-		cout << "problem 3" << endl;
+	if (isspace(toParse[toParse.find("listen") + 6]) == 0)
 		throw InvalidDirective();
-	}
 	toParse = toParse.substr(toParse.find("listen") + 6);
 	start = 0, stop = 0;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
@@ -266,10 +254,8 @@ void Parser::parseErrorPages(string& buffer, vector<std::pair<vector<int>, strin
 	std::pair<vector<int>, string> newPair;
 	vector<int> error_codes;
 	vector<string> splitArgs;
-	if (stop == string::npos) {
-		cout << "problem 6" << endl;
+	if (stop == string::npos)
 		throw InvalidDirective();
-	}
 	string tempBufferStart = buffer.substr(0, start);
 	string tempBufferStop = buffer.substr(stop + 1);
 	string toParse = buffer.substr(start + 10, stop - (start + 9));
@@ -281,10 +267,8 @@ void Parser::parseErrorPages(string& buffer, vector<std::pair<vector<int>, strin
 		int error_code = atoi(splitArgs[i].c_str());
 		if (error_code == 0) {
 			for (string::iterator it = splitArgs[i].begin(); it < splitArgs[i].end(); it++) {
-				if (isdigit(*it) == 0) {
-					cout << "problem 5" << endl;
+				if (isdigit(*it) == 0)
 					throw InvalidDirective();
-				}
 			}
 		}
 		else
@@ -357,10 +341,8 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				loc.setDirectoryListing(true);
 			else if (comp[1] == "off")
 				loc.setDirectoryListing(false);
-			else {
-				cout << "problem 7" << endl;
+			else
 				throw InvalidDirective();
-			}
 		}
 		else if (comp[0] == "index") {
 			for (std::size_t i = 1; i < comp.size(); i++) {
@@ -389,6 +371,25 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				loc.pushMethod(comp[i]);
 			}
 		}
+		else if (comp[0] == "client_max_body_size") {
+			if (comp.size() != 2 || loc.getBodyMaxStatus() == true)
+				throw InvalidDirective();
+			else {
+				std::size_t size = atoi(comp[1].c_str());
+				if (size == 0 && comp[1][0] != 48)
+					throw InvalidDirective();
+				loc.setBodyMaxSize(size);
+				loc.setBodyMaxStatus(true);
+			}
+		}
+		else if (comp[0] == "return") {
+			if (comp.size() != 3)
+				throw InvalidDirective();
+			std::pair<string, string> newPair = std::make_pair(comp[1], comp[2]);
+			loc.setHttpRedir(newPair);
+		}
+		else
+			throw UnknownDirective();
 	}
 }
 
@@ -492,7 +493,7 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 				throw NotTheRightNumberOfArgs();
 			string		tmpBodySize = toParse.substr(start - 1, (stop - start));
 			std::size_t bodySize = atoi(tmpBodySize.c_str());
-			if (bodySize == 0)
+			if (bodySize == 0 && tmpBodySize[0] != 48)
 				throw InvalidDirective();
 			data.setMaxBodySize(bodySize);
 			data.setBodySizeStatus(true);
@@ -531,4 +532,8 @@ const char* Parser::InvalidPort::what() const throw() {
 
 const char* Parser::DuplicateDirective::what() const throw() {
 	return "Duplicate directive detected";
+}
+
+const char* Parser::UnknownDirective::what() const throw() {
+	return "Unkwown directive";
 }

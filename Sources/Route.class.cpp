@@ -25,6 +25,8 @@ void Route::checkMethod(const string& method) {
 
 Route::Route() {
     _autoIndex = false;
+    _client_body_max_size = 0;
+    _client_body_max_status = false;
 }
 
 Route::~Route() {}
@@ -37,11 +39,11 @@ const string& Route::getPrefix(void) const throw() {
     return this->_prefix;
 }
 
-void Route::setHttpRedir(string& redir) throw() {
+void Route::setHttpRedir(std::pair<string, string> redir) throw() {
     this->_httpRedir = redir;
 } 
 
-const string& Route::getHttpRedir(void) const throw() {
+std::pair<string, string> Route::getHttpRedir(void) const throw() {
     return this->_httpRedir;
 }
 
@@ -103,6 +105,22 @@ const vector<std::pair<string, string> >& Route::getCGI(void) const throw() {
 
 void Route::pushCGI(const std::pair<string, string>& CGIPair) throw() {
     this->_cgi.push_back(CGIPair);
+}
+
+void Route::setBodyMaxSize(const std::size_t size) throw() {
+    this->_client_body_max_size = size;
+}
+
+std::size_t Route::getBodyMaxSize(void) const throw() {
+    return this->_client_body_max_size;
+}
+
+void Route::setBodyMaxStatus(const bool status) throw() {
+    this->_client_body_max_status = status;
+}
+
+bool Route::getBodyMaxStatus(void) const throw() {
+    return this->_client_body_max_status;
 }
 
 const char* Route::DuplicateRoot::what() const throw() {

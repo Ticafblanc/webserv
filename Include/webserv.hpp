@@ -7,6 +7,6 @@
 #include "Route.class.hpp"
 #include "data_server.class.hpp"
 
-std::vector<server> init(std::string str);//main init .... paring to do
+std::vector<server> init(vector<data_server> data);//main init .... paring to do
 
 #endif

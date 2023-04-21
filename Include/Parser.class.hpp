@@ -8,7 +8,6 @@ private:
 	Parser();
 	string _arg;
 	std::ifstream _config_file;
-	int _argc;
 	unsigned int _NServ;
 	vector<string> _blocks;
 	vector<data_server> _servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
@@ -31,7 +30,7 @@ private:
 	void parseMaxBodySize(string& buffer, data_server& data);
 public:
 	//methods
-	Parser(char **argv, int argc);
+	Parser(const char *argv);
 	~Parser();
 	void printBlocks(void);
 	unsigned int getNServ(void) const; //Returns the amount of server blocks given in the format file given as argument
@@ -57,6 +56,9 @@ public:
 		const char* what() const throw();
 	};
 	class DuplicateDirective: public exception {
+		const char* what() const throw();
+	};
+	class UnknownDirective: public exception {
 		const char* what() const throw();
 	};
 };

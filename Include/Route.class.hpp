@@ -13,7 +13,9 @@ class Route
 private:
 	vector<string>						_allowed_methods; //list of accepted HTTP methods for the route. corresponds to ◦Define a list of accepted HTTP methods for the route. if blank all accepted
 	string								_prefix; //directory given after location
-	string								_httpRedir;
+	std::pair<string, string>			_httpRedir; // first pair member is http code, second is address/path
+	std::size_t							_client_body_max_size;
+	bool								_client_body_max_status;
 	bool 								_autoIndex; //corresponds to ◦Turn on or off directory listing.
 	string 								_searchDir;
 	string								_root;
@@ -32,8 +34,8 @@ public:
 	void setPrefix(string& prefix) throw();
 	const string &getPrefix(void) const throw();
 
-	void setHttpRedir(string& redir) throw();
-	const string& getHttpRedir(void) const throw();
+	void setHttpRedir(std::pair<string, string> redir) throw();
+	std::pair<string, string> getHttpRedir(void) const throw();
 
 	void setDirectoryListing(bool state) throw();
 	bool getDirectoryListing(void) const throw();
@@ -54,6 +56,12 @@ public:
 	void setCGI(const vector<std::pair<string, string> >& cgi) throw();
 	const vector<std::pair<string, string> >& getCGI(void) const throw();
 	void pushCGI(const std::pair<string, string>& CGIPair) throw();
+
+	void setBodyMaxSize(const std::size_t size) throw();
+	std::size_t getBodyMaxSize(void) const throw();
+
+	void setBodyMaxStatus(const bool status) throw();
+	bool getBodyMaxStatus(void) const throw();
 
 
 	class DuplicateRoot: public std::exception {

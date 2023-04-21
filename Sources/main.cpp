@@ -16,10 +16,15 @@ int main(int argc, char **argv, char **envp){
     (void)envp;
     std::vector<server> vec;
     try{
-        if(argc == 2)
-            vec = init(argv[1]);//parse file
-        else
-            vec = init("usr->local/etc/webserv/webserv.conf");//parse default file
+        if(argc == 2) {
+            Parser parser(argv[1]);
+            vec = init(parser.get_data());
+        }
+        else {
+            std::string def("../user->local");
+            Parser parser(def.c_str());
+            vec = init(parser.get_data());
+        }
         std::vector<server>::iterator It = vec.begin();
         for (; It != vec.end(); ++It){
             It->launcher();
