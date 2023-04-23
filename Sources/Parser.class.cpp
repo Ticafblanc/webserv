@@ -215,7 +215,7 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 							throw InvalidPort();
 					}
 				}
-				newPair = std::make_pair<string, int>(tempHost, port);
+				newPair = std::make_pair(tempHost, port);
 				hostPort.push_back(newPair);
 			}
 			else { //determine if host or port
@@ -231,13 +231,13 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 								throw InvalidPort();
 						}
 					}
-					newPair = std::make_pair<string, int>("0.0.0.0", port);
+					newPair = std::make_pair("0.0.0.0", port);
 					hostPort.push_back(newPair);
 				}
 				catch(const std::exception& e)
 				{
 					tempHost = toParse.substr(start, stop - start);
-					newPair = std::make_pair<string, int>(tempHost, 80);
+					newPair = std::make_pair(tempHost, 80);
 					hostPort.push_back(newPair);
 				}
 			}
