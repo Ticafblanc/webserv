@@ -153,6 +153,7 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data.setHostPort(hostPort);
 	data.setIdServer(blockId);
 	data.setRoutes(routes);
+	data.setErrorPages(error_pages);
 	this->_servers.push_back(data);
 }
 

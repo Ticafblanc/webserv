@@ -48,10 +48,11 @@ void data_server::printAll(void) {
         cout << "host: " << _host_port.at(i).first << " port: " << _host_port.at(i).second << endl;
     }
     for (std::size_t i = 0; i < _error_page.size(); i++) {
+        cout << "error_codes: ";
         for (std::size_t k = 0; k < _error_page.at(i).first.size(); k++) {
-            cout << "error codes: " << _error_page.at(i).first.at(k) << " ";
+            cout << _error_page.at(i).first.at(k) << " ";
         }
-        cout << endl << "path: " << _error_page.at(i).second << endl;
+        cout << " path: " << _error_page.at(i).second << endl;
     }
     for (std::size_t i = 0; i < _routes.size(); i++) {
         _routes.at(i).printAll();
@@ -105,6 +106,14 @@ const vector<string>& data_server::getServerName(void) const throw() {
 
 void data_server::setServerName(const vector<string>& serverName) throw() {
     _server_name = serverName;
+}
+
+const vector<std::pair<vector<int>, string> >& data_server::getErrorPages(void) const throw() {
+    return _error_page;
+}
+
+void data_server::setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw() {
+    this->_error_page = errorPages;
 }
 
 const std::size_t& data_server::getIdServer() const throw() {
