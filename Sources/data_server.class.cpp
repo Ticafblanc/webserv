@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 #include "../Include/data_server.class.hpp"
+#include "../Include/colors.hpp"
 
 
 /*
@@ -39,7 +40,8 @@ data_server::~data_server() {
 // }
 
 void data_server::printAll(void) {
-    cout << "server id: " << _serverId << endl;
+    cout << GRN << "server id: " << _serverId << reset << endl;
+    cout << MAG;
     for (std::size_t i = 0; i < _server_name.size(); i++) {
         cout << "server names: " << _server_name.at(i) << " ";
     }
@@ -55,11 +57,15 @@ void data_server::printAll(void) {
         cout << " path: " << _error_page.at(i).second << endl;
     }
     for (std::size_t i = 0; i < _routes.size(); i++) {
+        cout << BLU;
         _routes.at(i).printAll();
+        cout << reset;
     }
+    cout << MAG;
     cout << "root: " << _root << endl;
     cout << "max body size: " << _client_max_body_size << endl;
-    cout << "address len: " << _addr_len << endl; 
+    cout << "address len: " << _addr_len << endl << endl;
+    cout << reset;
 }
 
 data_server::data_server(const data_server& other) {
