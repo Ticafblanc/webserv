@@ -40,7 +40,7 @@ data_server::~data_server() {
 // }
 
 void data_server::printAll(void) {
-    cout << GRN << "server id: " << _serverId << reset << endl;
+    cout << GRN << "server id: " << _serverId << reset << "\n" << endl;
     cout << MAG;
     for (std::size_t i = 0; i < _server_name.size(); i++) {
         cout << "server names: " << _server_name.at(i) << " ";

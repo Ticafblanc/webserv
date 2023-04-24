@@ -34,7 +34,7 @@ Route::~Route() {}
 void Route::printAll(void) {
     cout << "Allowed methods: ";
     if (_allowed_methods.size() == 0)
-        cout << "all" << endl;
+        cout << "all";
     else {
         for (std::size_t i = 0; i < _allowed_methods.size(); i++) {
             cout << _allowed_methods.at(i) << " ";
@@ -51,7 +51,8 @@ void Route::printAll(void) {
     for (std::size_t i = 0; i < _cgi.size(); i++) {
         cout << "extension: " << _cgi.at(i).first << " executable: " << _cgi.at(i).second << " ";
     }
-    cout << endl;
+    if (_cgi.size() != 0)
+        cout << endl << endl;
 }
 
 void Route::setPrefix(string& prefix) throw() {
