@@ -363,7 +363,6 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 			loc.setRoot(comp[1]);
 		}
 		else if (comp[0] == "upload_path") {
-			cout << "upload_path: " << comp[1] << endl;
 			loc.setUploadDir(comp[1]);
 		}
 		else if (comp[0] == "cgi") {
