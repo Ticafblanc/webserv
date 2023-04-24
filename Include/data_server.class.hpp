@@ -148,6 +148,12 @@ public:
     // /*set value of new socket after accpet*/
     // void setNewSocket(int );
 
+    /******************server functions****************/
+
+    int& getDomain();
+    /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
+    void setDomain(int );
+
     sockaddr_in& getAddress();
     /*set struct sockaddr_in */
     void setAddress(int domain, const std::string& ip_address, int port);
@@ -158,17 +164,17 @@ public:
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-    // int& getLevel();
-    // /*set level for soc option to SOL_SOCKET and  we will see */
-    // void setLevel(int);
+    int& getLevel();
+    /*set level for soc option to SOL_SOCKET and  we will see */
+    void setLevel(int);
 
-    // int& getOptionName();
-    // /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
-    // void setOptionName(int);
+    int& getOptionName();
+    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
+    void setOptionName(int);
 
-    // int& getOptionVal();
-    // /*set option_Value for soc option to 0 or 1 */
-    // void setOptionVal(int);
+    int& getOptionVal();
+    /*set option_Value for soc option to 0 or 1 */
+    void setOptionVal(int);
 
     // pid_t& getPid();
     // /*store pid of process*/
