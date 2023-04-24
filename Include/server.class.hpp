@@ -46,7 +46,7 @@ public:
 
     server();
 
-    server(data_server &);
+    server(data_server &instance);
 
     ~server();
 
