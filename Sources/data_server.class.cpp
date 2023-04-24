@@ -56,16 +56,16 @@ void data_server::printAll(void) {
         }
         cout << " path: " << _error_page.at(i).second << endl;
     }
-    for (std::size_t i = 0; i < _routes.size(); i++) {
-        cout << BLU;
-        _routes.at(i).printAll();
-        cout << reset;
-    }
     cout << MAG;
     cout << "root: " << _root << endl;
     cout << "max body size: " << _client_max_body_size << endl;
     cout << "address len: " << _addr_len << endl << endl;
     cout << reset;
+    for (std::size_t i = 0; i < _routes.size(); i++) {
+        cout << BLU;
+        _routes.at(i).printAll();
+        cout << reset;
+    }
 }
 
 data_server::data_server(const data_server& other) {
