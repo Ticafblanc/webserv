@@ -26,6 +26,8 @@ public:
 	Route();
 	~Route();
 
+	void printAll(void); //for debug and checking purposes;
+
 	void setAllowedMethods(vector<string>& allowed_methods) throw();
 	const vector<string>& getAllowedMethods(void) const throw();
 	void pushMethod(const string& method) throw();

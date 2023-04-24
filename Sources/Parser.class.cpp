@@ -15,6 +15,12 @@ vector<data_server> Parser::get_data(void) {
 	return _servers;
 }
 
+void Parser::printAll(void) {
+	for (std::size_t i = 0; i < _servers.size(); i++) {
+		_servers.at(i).printAll();
+	}
+}
+
 void Parser::set_data(vector<data_server>& data_servers) {
 	this->_servers = data_servers;
 }
@@ -145,6 +151,8 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	}
 	data.setServerName(serverName);
 	data.setHostPort(hostPort);
+	data.setIdServer(blockId);
+	data.setRoutes(routes);
 	this->_servers.push_back(data);
 }
 
@@ -355,6 +363,7 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 			loc.setRoot(comp[1]);
 		}
 		else if (comp[0] == "upload_path") {
+			cout << "upload_path: " << comp[1] << endl;
 			loc.setUploadDir(comp[1]);
 		}
 		else if (comp[0] == "cgi") {

@@ -33,6 +33,7 @@ public:
 	Parser(const char *argv);
 	~Parser();
 	void printBlocks(void);
+	void printAll(void);
 	unsigned int getNServ(void) const; //Returns the amount of server blocks given in the format file given as argument
 	vector<data_server> get_data(void);
 	void set_data(vector<data_server>& data_servers);

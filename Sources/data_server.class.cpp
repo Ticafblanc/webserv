@@ -38,6 +38,29 @@ data_server::~data_server() {
 //     return *this;
 // }
 
+void data_server::printAll(void) {
+    cout << "server id: " << _serverId << endl;
+    for (std::size_t i = 0; i < _server_name.size(); i++) {
+        cout << "server names: " << _server_name.at(i) << " ";
+    }
+    cout << endl;
+    for (std::size_t i = 0; i < _host_port.size(); i++) {
+        cout << "host: " << _host_port.at(i).first << " port: " << _host_port.at(i).second << endl;
+    }
+    for (std::size_t i = 0; i < _error_page.size(); i++) {
+        for (std::size_t k = 0; k < _error_page.at(i).first.size(); k++) {
+            cout << "error codes: " << _error_page.at(i).first.at(k) << " ";
+        }
+        cout << endl << "path: " << _error_page.at(i).second << endl;
+    }
+    for (std::size_t i = 0; i < _routes.size(); i++) {
+        _routes.at(i).printAll();
+    }
+    cout << "root: " << _root << endl;
+    cout << "max body size: " << _client_max_body_size << endl;
+    cout << "address len: " << _addr_len << endl; 
+}
+
 data_server::data_server(const data_server& other) {
     *this = other;
 }
@@ -84,11 +107,11 @@ void data_server::setServerName(const vector<string>& serverName) throw() {
     _server_name = serverName;
 }
 
-const int& data_server::getIdServer() const throw() {
+const std::size_t& data_server::getIdServer() const throw() {
     return _serverId;
 }
 
-void data_server::setIdServer(int id) throw() {
+void data_server::setIdServer(std::size_t id) throw() {
     _serverId = id;
 }
 
@@ -101,7 +124,7 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) t
 }
 
 const int& data_server::getType() const throw() {
-    return _serverId; //this will have to be changed
+    return SOCK_STREAM; //this will have to be changed
 }
 
 void data_server::setType(int type) throw() {

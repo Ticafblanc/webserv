@@ -36,6 +36,7 @@ public:
 */
 
 private:
+    std::size_t                                 _serverId;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
@@ -43,7 +44,6 @@ private:
     string                                      _root;
     std::size_t                                 _client_max_body_size;
     bool                                        _max_body_size_def;
-    int                                         _serverId;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
     int                                         _server_fd;
@@ -60,6 +60,7 @@ public:
     ~data_server();
     data_server(const data_server& other);
     data_server& operator=(const data_server& rhs);
+    void printAll(void); //for debugging and checking purposes
 
 /*
 *====================================================================================
@@ -111,8 +112,8 @@ public:
     const vector<string>& getServerName(void) const throw(); //returns server name @ id
     void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
-    const int& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
-    void setIdServer(int id) throw(); //use with caution I guess
+    const std::size_t& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(std::size_t id) throw(); //use with caution I guess
 
     const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
     void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 

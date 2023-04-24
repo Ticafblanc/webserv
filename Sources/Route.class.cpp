@@ -31,6 +31,30 @@ Route::Route() {
 
 Route::~Route() {}
 
+void Route::printAll(void) {
+    cout << "Allowed methods: ";
+    if (_allowed_methods.size() == 0)
+        cout << "all" << endl;
+    else {
+        for (std::size_t i = 0; i < _allowed_methods.size(); i++) {
+            cout << _allowed_methods.at(i) << " ";
+        }
+    }
+    cout << endl;
+    cout << "prefix: " << _prefix << endl;
+    cout << "http code: " << _httpRedir.first << " path: " << _httpRedir.second << endl;
+    cout << "max body size: " << _client_body_max_size << endl;
+    cout << "autoindex status: " << _autoIndex << endl;
+    cout << "search dir: " << _searchDir << endl;
+    cout << "root: " << _root << endl;
+    cout << "upload path: " << _uploadPath << " " << endl;
+    cout << endl;
+    for (std::size_t i = 0; i < _cgi.size(); i++) {
+        cout << "extension: " << _cgi.at(i).first << " executable: " << _cgi.at(i).second << " ";
+    }
+    cout << endl;
+}
+
 void Route::setPrefix(string& prefix) throw() {
     this->_prefix = prefix;
 }
