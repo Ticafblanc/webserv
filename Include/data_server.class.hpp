@@ -112,6 +112,9 @@ public:
     const vector<string>& getServerName(void) const throw(); //returns server name @ id
     void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
+    const vector<std::pair<vector<int>, string> >& getErrorPages(void) const throw();
+    void setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw();
+
     const std::size_t& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
     void setIdServer(std::size_t id) throw(); //use with caution I guess
 
