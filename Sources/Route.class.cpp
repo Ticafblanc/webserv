@@ -48,7 +48,6 @@ void Route::printAll(void) {
     cout << "search dir: " << _searchDir << endl;
     cout << "root: " << _root << endl;
     cout << "upload path: " << _uploadPath << " " << endl;
-    cout << endl;
     for (std::size_t i = 0; i < _cgi.size(); i++) {
         cout << "extension: " << _cgi.at(i).first << " executable: " << _cgi.at(i).second << " ";
     }
