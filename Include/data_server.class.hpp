@@ -143,6 +143,9 @@ public:
     void setBodySizeStatus(bool status) throw();
     bool getBodySizeStatus(void) const throw();
 
+    const int& getPort(void) const throw();
+    void setPort(int port) throw();
+
     // int&  getBacklog();
     // /*set time to follow socket fd set at 10 for now*/
     // void setBacklog(int );=

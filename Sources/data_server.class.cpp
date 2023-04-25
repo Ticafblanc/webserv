@@ -192,6 +192,14 @@ bool data_server::getBodySizeStatus(void) const throw() {
     return this->_max_body_size_def;
 }
 
+const int& data_server::getPort(void) const throw() {
+    return 
+}
+
+void data_server::setPort(int port) throw() {
+
+}
+
 // int& data_server::getProtocol(){
 //     return getIData()[protocol];
 // }
@@ -248,13 +256,13 @@ void data_server::setAddress(int dom, int por){
     getAddrlen() = sizeof(getAddress());
 }
 
-// void data_server::setAddress(){
-//     getAddress().sin_family = getDomain();
-//     getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
-//     getAddress().sin_port = htons(getIData()[port]);//no error
-//     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
-//     setAddrlen(sizeof(getAddress()));
-// }
+void data_server::setAddress(){
+    getAddress().sin_family = getDomain();
+    getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
+    getAddress().sin_port = htons(getIData()[port]);//no error
+    memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
+    setAddrlen(sizeof(getAddress()));
+}
 
 std::size_t& data_server::getAddrlen() {
     return this->_addr_len;
