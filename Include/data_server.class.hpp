@@ -48,6 +48,7 @@ private:
     std::size_t                                 _addr_len;
     int                                         _server_fd;
     int                                         _backlog;
+    int                                         _newSocket;
 
 /*
 *====================================================================================
@@ -183,6 +184,9 @@ public:
 
     int& getBacklog(void);
     void setBacklog(int log);
+
+    int& getNewSocket(void);
+    void setNewSocket(int sok);
 
     // pid_t& getPid();
     // /*store pid of process*/

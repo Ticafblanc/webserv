@@ -208,13 +208,13 @@ void data_server::setBacklog(int  log){
     _backlog = log;
 }
 
-// int& data_server::getNewSocket(){
-//     return getIData()[new_socket];
-// }
+int& data_server::getNewSocket(){
+    return _newSocket;
+}
 
-// void data_server::setNewSocket(int  sok){
-//     getIData()[new_socket] = sok;
-// }
+void data_server::setNewSocket(int  sok){
+    _newSocket = sok;
+}
 
 sockaddr_in& data_server::getAddress(){
     return this->_address;
