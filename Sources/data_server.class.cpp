@@ -200,13 +200,13 @@ bool data_server::getBodySizeStatus(void) const throw() {
 //     getIData()[protocol] = pro;
 // }
 
-// int&  data_server::getBacklog(){
-//     return getIData()[backlog];
-// }
+int&  data_server::getBacklog(){
+    return _backlog;
+}
 
-// void data_server::setBacklog(int  log){
-//     getIData()[backlog] = log;
-// }
+void data_server::setBacklog(int  log){
+    _backlog = log;
+}
 
 // int& data_server::getNewSocket(){
 //     return getIData()[new_socket];

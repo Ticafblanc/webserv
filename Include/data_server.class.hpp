@@ -47,6 +47,7 @@ private:
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
     int                                         _server_fd;
+    int                                         _backlog;
 
 /*
 *====================================================================================
@@ -179,6 +180,9 @@ public:
     int& getOptionVal();
     /*set option_Value for soc option to 0 or 1 */
     void setOptionVal(int);
+
+    int& getBacklog(void);
+    void setBacklog(int log);
 
     // pid_t& getPid();
     // /*store pid of process*/
