@@ -46,6 +46,7 @@ private:
     bool                                        _max_body_size_def;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
+    string                                      _ipAddress;
     int                                         _server_fd;
     int                                         _backlog;
     int                                         _newSocket;
@@ -187,6 +188,9 @@ public:
 
     int& getNewSocket(void);
     void setNewSocket(int sok);
+
+    std::string& data_server::getIpAddress();
+    void data_server::setIpAddress(std::string & ip);
 
     // pid_t& getPid();
     // /*store pid of process*/

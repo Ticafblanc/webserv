@@ -220,6 +220,14 @@ sockaddr_in& data_server::getAddress(){
     return this->_address;
 }
 
+std::string& data_server::getIpAddress(){
+    return _ipAddress;
+}
+
+void data_server::setIpAddress(std::string & ip){
+    _ipAddress = ip;
+}
+
 void data_server::setAddress(int dom, const std::string& ip_addr, int por){
     if (dom != AF_INET)
         throw data_server::arg_exception();
