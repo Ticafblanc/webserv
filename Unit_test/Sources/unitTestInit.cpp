@@ -21,12 +21,13 @@ int unitTestInit()
         cerr << e.what() << endl;
         return (TEST_FAIL);
     }
+    cerr << "Success lol?" << endl;
     return (TEST_PASS);
 }
 
 int unitTestGetter()
 {
-    std::string ip = "127.0.0.1";
+    std::string ip = "192.168.2.112";
     try {
 		int port = 8081;
 		std::vector<server> server_vec = init("../config_content_server/for_etc/webserv/nginx.conf");
@@ -34,9 +35,11 @@ int unitTestGetter()
 		for(int i = 0; server_it != server_vec.end(); server_it++, i++, port++)
 		{
             TEST_EQ(server_it->getDataServer().getIdServer(), i);
-            TEST_EQ(server_it->getDataServer().getIpAddress(), ip);
-            TEST_EQ(server_it->getDataServer().getPort(), port);
+            vector<std::pair<string, int> > vecip = server_it->getDataServer().getHostPort();
+            TEST_EQ(vecip[0].first, ip);
+            TEST_EQ(vecip[0].second, port);
             TEST_EQ(server_it->getDataServer().getDomain(), AF_INET);
+            cerr << "let's go" << endl;
             TEST_EQ(server_it->getDataServer().getType(), SOCK_STREAM);
             TEST_EQ(server_it->getDataServer().getProtocol(), 0);
             TEST_EQ(server_it->getDataServer().getBacklog(), 10);
@@ -49,9 +52,11 @@ int unitTestGetter()
 		}
     }
     catch (const std::exception & e) {
+        cerr << "Fail lol" << endl;
         cerr << e.what() << endl;
         return (TEST_FAIL);
     }
+    cerr << "Success again lol?" << endl;
     return (TEST_PASS);
 }
 

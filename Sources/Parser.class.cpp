@@ -213,7 +213,7 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 			stop = it - toParse.begin();
 		if (start != 0 && stop != 0) {
 			if (toParse.find(':') != string::npos) {//getting both port and host
-				tempHost = toParse.substr(start, toParse.find(':') - 1);
+				tempHost = toParse.substr(start, toParse.find(':') - start);
 				tempPort = toParse.substr(toParse.find(':') + 1, (stop - toParse.find(':') - 1));
 				port = std::atoi(tempPort.c_str()); //had to switch and add tests because stoi is c++11
 				if (port > 65535)

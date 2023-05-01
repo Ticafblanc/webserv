@@ -15,11 +15,10 @@
 std::vector<server> init(string str){
     Parser parser(str.c_str());
     vector<data_server> data = parser.get_data();
-    std::vector<server> vec(4);
+    std::vector<server> vec(data.size());
     std::vector<data_server>::iterator It = data.begin();
     std::vector<server>::iterator Vt = vec.begin();
-    It = data.begin();
-    for (; Vt != vec.end(); ++Vt, ++It){
+    for (; It != data.end(); Vt++, It++){
         Vt->setDataServer(*It);
         // std::cout << "coucou" << std::endl;
     }
