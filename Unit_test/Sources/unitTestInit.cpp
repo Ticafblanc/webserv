@@ -21,7 +21,6 @@ int unitTestInit()
         cerr << e.what() << endl;
         return (TEST_FAIL);
     }
-    cerr << "Success lol?" << endl;
     return (TEST_PASS);
 }
 
@@ -39,11 +38,11 @@ int unitTestGetter()
             TEST_EQ(vecip[0].first, ip);
             TEST_EQ(vecip[0].second, port);
             TEST_EQ(server_it->getDataServer().getDomain(), AF_INET);
-            cerr << "let's go" << endl;
             TEST_EQ(server_it->getDataServer().getType(), SOCK_STREAM);
             TEST_EQ(server_it->getDataServer().getProtocol(), 0);
             TEST_EQ(server_it->getDataServer().getBacklog(), 10);
             TEST_EQ(server_it->getDataServer().getAddress().sin_family, server_it->getDataServer().getDomain());
+            cerr << "let's go" << endl;
             TEST_EQ(server_it->getDataServer().getAddress().sin_addr.s_addr, inet_addr(ip.c_str()));
             TEST_EQ(server_it->getDataServer().getAddress().sin_port, htons(port));
             TEST_EQ(server_it->getDataServer().getLevel(), SOL_SOCKET);

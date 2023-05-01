@@ -19,7 +19,15 @@
 *====================================================================================
 */
 
-data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false) { }
+data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false) {
+    _iData[domain] = AF_INET;
+    _iData[type] = SOCK_STREAM;
+    _iData[protocol] = 0;
+    _iData[backlog] = 10;
+    _iData[level] = SOL_SOCKET;
+    _iData[optionname] = SO_REUSEADDR;
+    _iData[optionval] = 1;
+}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
