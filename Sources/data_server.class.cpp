@@ -40,7 +40,7 @@ data_server::~data_server() {
 // }
 
 void data_server::printAll(void) {
-    cout << GRN << "server id: " << _serverId << reset << "\n" << endl;
+    cout << GRN << "server id: " << _iData[id_server] << reset << "\n" << endl;
     cout << MAG;
     for (std::size_t i = 0; i < _server_name.size(); i++) {
         cout << "server names: " << _server_name.at(i) << " ";
@@ -78,7 +78,7 @@ data_server& data_server::operator=(const data_server& rhs) {
     this->_host_port = rhs._host_port;
     this->_error_page = rhs._error_page;
     this->_routes = rhs._routes;
-    this->_serverId = rhs._serverId;
+    this->_iData = rhs._iData;
     this->_address = rhs._address;
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
@@ -126,12 +126,12 @@ void data_server::setErrorPages(const vector<std::pair<vector<int>, string> >& e
     this->_error_page = errorPages;
 }
 
-const std::size_t& data_server::getIdServer() const throw() {
-    return _serverId;
+const int& data_server::getIdServer() throw() {
+    return getIData()[id_server];
 }
 
-void data_server::setIdServer(std::size_t id) throw() {
-    _serverId = id;
+void data_server::setIdServer(int id) throw() {
+    _iData[id_server] = id;
 }
 
 const vector<std::pair<string, int> >& data_server::getHostPort(void) const throw() {

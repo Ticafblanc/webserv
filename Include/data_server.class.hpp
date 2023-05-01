@@ -42,7 +42,6 @@ private:
         optionname, optionval};
     
     vector<int>                                 _iData;
-    std::size_t                                 _serverId;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
@@ -126,8 +125,8 @@ public:
     const vector<std::pair<vector<int>, string> >& getErrorPages(void) const throw();
     void setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw();
 
-    const std::size_t& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
-    void setIdServer(std::size_t id) throw(); //use with caution I guess
+    const int& getIdServer() throw(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(int id) throw(); //use with caution I guess
 
     const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
     void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
