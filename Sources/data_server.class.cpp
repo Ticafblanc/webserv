@@ -19,10 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server() {
-    this->_client_max_body_size = 0;
-    this->_max_body_size_def = false;
-}
+data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false) { }
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
