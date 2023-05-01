@@ -17,13 +17,10 @@ int main(int argc, char **argv, char **envp){
     std::vector<server> vec;
     try{
         if(argc == 2) {
-            Parser parser(argv[1]);
-            vec = init(parser.get_data());
+            vec = init(argv[1]);
         }
         else {
-            std::string def("../user->local");
-            Parser parser(def.c_str());
-            vec = init(parser.get_data());
+            vec = init("../../usr->local/etc/webserv/webserv.conf");
         }
         std::vector<server>::iterator It = vec.begin();
         for (; It != vec.end(); ++It){
