@@ -3,7 +3,9 @@
 int unitTestLauncher()
 {
 	try {
-		std::vector<server> server_vec = init("../../usr->local/etc/webserv/webserv.conf");
+		Parser parser("../../usr->local/etc/webserv/webserv.conf");
+        vector<data_server> vec = parser.get_data();
+		std::vector<server> server_vec = init(vec);
 		std::vector<server>::iterator server_it = server_vec.begin();
 		for(; server_it != server_vec.end(); server_it++)
 			server_it->launcher();

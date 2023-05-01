@@ -168,7 +168,7 @@ public:
 
     const int& getNewSocket() throw();
     /*set value of new socket after accpet*/
-    void setNewSocket(int sok);
+    void setNewSocket(int sok) throw();
 
     const int& getLevel() throw();
     /*set level for soc option to SOL_SOCKET and  we will see */

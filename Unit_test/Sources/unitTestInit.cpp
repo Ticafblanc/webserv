@@ -16,7 +16,9 @@
 int unitTestInit()
 {
     try {
-        init("../../usr->local/etc/webserv/webserv.conf");
+        Parser parser("../../usr->local/etc/webserv/webserv.conf");
+        vector<data_server> vec = parser.get_data();
+        init(vec);
     } catch (const std::exception & e) {
         e.what();
         return (TEST_FAIL);
@@ -29,7 +31,9 @@ int unitTestGetter()
     std::string ip = "127.0.0.1";
     try {
 		int port = 8081;
-		std::vector<server> server_vec = init("../../usr->local/etc/webserv/webserv.conf");
+        Parser parser("../../usr->local/etc/webserv/webserv.conf");
+        vector<data_server> vec = parser.get_data();
+		std::vector<server> server_vec = init(vec);
 		std::vector<server>::iterator server_it = server_vec.begin();
 		for(int i = 0; server_it != server_vec.end(); server_it++, i++, port++)
 		{
