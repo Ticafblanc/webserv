@@ -195,8 +195,8 @@ public:
     void setAddrlen(const std::size_t &);
 
 
-    std::string& data_server::getIpAddress();
-    void data_server::setIpAddress(std::string & ip);
+    std::string& getIpAddress();
+    void setIpAddress(std::string & ip);
 
     // pid_t& getPid();
     // /*store pid of process*/
