@@ -47,9 +47,10 @@ private:
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
     string                                      _ipAddress;
-    int                                         _server_fd;
+    vector<int>                                 _server_fd;
     int                                         _backlog;
     int                                         _newSocket;
+    int                                         _type;
 
 /*
 *====================================================================================

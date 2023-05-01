@@ -139,11 +139,11 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) t
 }
 
 const int& data_server::getType() const throw() {
-    return SOCK_STREAM; //this will have to be changed
+    return _type;
 }
 
 void data_server::setType(int type) throw() {
-    this->_server_fd = type; //will need to be changed
+    _type = type;
 }
 
 const vector<Route>& data_server::getRoutes(void) const throw() {
@@ -154,12 +154,12 @@ void data_server::setRoutes(const vector<Route>& routes) throw() {
     _routes = routes;
 }
 
-const int& data_server::getServerFd(void) const throw() {
-    return _server_fd;
+const int& data_server::getServerFd(void) const throw() { // Will need to be changed
+    return _server_fd[0];
 }
 
-void data_server::setServerFd(int fd) throw() {
-    _server_fd = fd;
+void data_server::setServerFd(int fd) throw() { // Will need to be changed
+    _server_fd.push_back(fd);
 }
 
 // void setRoot(const string& root);
@@ -181,9 +181,6 @@ int data_server::getMaxBodySize(void) const throw() {
     return this->_client_max_body_size;
 }
 
-    // void setBodySizeStatus(bool status) throw();
-    // bool getBodySizeStatus(void) const throw();
-
 void data_server::setBodySizeStatus(bool status) throw() {
     this->_max_body_size_def = status;
 }
@@ -192,12 +189,12 @@ bool data_server::getBodySizeStatus(void) const throw() {
     return this->_max_body_size_def;
 }
 
-const int& data_server::getPort(void) const throw() {
-    return 
+const int& data_server::getPort(void) const throw() { //Will have to be changed
+    return _host_port.at(0).second;
 }
 
-void data_server::setPort(int port) throw() {
-
+void data_server::setPort(int port) throw() { //will have to be changed
+    _host_port.at(0).second = port;
 }
 
 // int& data_server::getProtocol(){
@@ -259,7 +256,7 @@ void data_server::setAddress(int dom, int por){
 void data_server::setAddress(){
     getAddress().sin_family = getDomain();
     getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
-    getAddress().sin_port = htons(getIData()[port]);//no error
+    getAddress().sin_port = htons(getPort());//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
     setAddrlen(sizeof(getAddress()));
 }
