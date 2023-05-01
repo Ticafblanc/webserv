@@ -1,19 +1,29 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    docker-compose.yml                                 :+:      :+:    :+:    #
+#    Check_and_launch.sh                                    :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/04/02 20:08:18 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/04/02 20:08:37 by mdoquocb         ###   ########.fr        #
+#    Created: 2023/04/02 19:49:40 by mdoquocb          #+#    #+#              #
+#    Updated: 2023/04/02 19:53:26 by mdoquocb         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-version: '3'
-services:
-  build:
-    build:
-      context: .
-      dockerfile: Dockerfile
+#!/bin/bash
 
+# Récupérer les dernières modifications depuis la branche distante
+git fetch origin
+
+# Fusionner les modifications locales avec les dernières modifications de la branche distante
+git merge origin/master
+
+#compile project
+make
+
+#set file server
+mv /Bin/webserv /usr/local/bin/; \
+mv /for_etc/* /usr/local/etc/; \
+mv /for_var/* /usr/local/var/; \
+
+nvim

@@ -1,4 +1,4 @@
-# Install script for directory: /Users/matthisdoquocbao/CLionProjects/webserv/Doc/learn/mini_sever
+# Install script for directory: /Users/matthisdoquocbao/CLionProjects/for_etc/Doc/learn/mini_sever
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

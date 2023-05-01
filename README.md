@@ -127,6 +127,8 @@ c++98
 - [X] create directory like nginx
 - [x] parsing file and subdivising server blocks
 - [ ] parsing subdivised server blocks and creating instances of data_server
+- [X] create directory like nginx (Matthis)
+- [ ] set container to merge project on linux (Matthis)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
