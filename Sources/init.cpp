@@ -12,7 +12,9 @@
 
 #include "../Include/webserv.hpp"
 
-std::vector<server> init(vector<data_server> data){
+std::vector<server> init(string str){
+    Parser parser(str.c_str());
+    vector<data_server> data = parser.get_data();
     std::vector<server> vec(4);
     std::vector<data_server>::iterator It = data.begin();
     std::vector<server>::iterator Vt = vec.begin();
