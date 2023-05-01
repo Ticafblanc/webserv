@@ -36,7 +36,12 @@ public:
 */
 
 private:
-    std::size_t                                 _serverId;
+
+    enum{ id_server, domain, type, protocol,
+        backlog, new_socket, level,
+        optionname, optionval};
+    
+    vector<int>                                 _iData;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
@@ -48,9 +53,6 @@ private:
     std::size_t                                 _addr_len;
     string                                      _ipAddress;
     vector<int>                                 _server_fd;
-    int                                         _backlog;
-    int                                         _newSocket;
-    int                                         _type;
 
 /*
 *====================================================================================
@@ -113,27 +115,20 @@ public:
 */
 
 public:
+    std::vector<int>& getIData();
+
     const vector<string>& getServerName(void) const throw(); //returns server name @ id
     void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
     const vector<std::pair<vector<int>, string> >& getErrorPages(void) const throw();
     void setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw();
 
-    const std::size_t& getIdServer() const throw(); //number of server first server = 0 and last = (nbr server-1)
-    void setIdServer(std::size_t id) throw(); //use with caution I guess
-
     const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
     void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
 
-    const int& getType() const throw(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
-    void setType(int type) throw();
 
     const vector<Route>& getRoutes(void) const throw(); //returns vector of Route
     void setRoutes(const vector<Route>& routes) throw();
-
-    const int& getProtocol() const throw();
-    /*set protocol to 0*/
-    void setProtocol(int protocol) throw();
 
     const string& getRoot(void) const throw();
     void setRoot(const string& root);
@@ -147,23 +142,47 @@ public:
     const int& getPort(void) const throw();
     void setPort(int port) throw();
 
-    // int&  getBacklog();
-    // /*set time to follow socket fd set at 10 for now*/
-    // void setBacklog(int );=
-
     const int& getServerFd(void) const throw();
-    /*value of socket */
     void setServerFd(int fd) throw();
 
-    // int& getNewSocket();
-    // /*set value of new socket after accpet*/
-    // void setNewSocket(int );
+    /*************** iData methods ******************/
+
+    const int& getIdServer() throw(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(int id) throw(); //use with caution I guess
+
+    const int& getDomain() throw();
+    /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
+    void setDomain(int ) throw();
+
+    const int& getType() throw();
+    /*set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM */
+    void setType(int type) throw();
+
+    const int& getProtocol() throw();
+    /*set protocol to 0*/
+    void setProtocol(int protocol) throw();
+
+    const int&  getBacklog() throw();
+    /*set time to follow socket fd set at 10 for now*/
+    void setBacklog(int bl) throw();
+
+    const int& getNewSocket() throw();
+    /*set value of new socket after accpet*/
+    void setNewSocket(int sok);
+
+    const int& getLevel() throw();
+    /*set level for soc option to SOL_SOCKET and  we will see */
+    void setLevel(int lvl) throw();
+
+    const int& getOptionName() throw();
+    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
+    void setOptionName(int opt) throw();
+
+    const int& getOptionVal() throw();
+    /*set option_Value for soc option to 0 or 1 */
+    void setOptionVal(int val) throw();
 
     /******************server functions****************/
-
-    int& getDomain();
-    /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
-    void setDomain(int );
 
     sockaddr_in& getAddress();
     /*set struct sockaddr_in */
@@ -175,23 +194,6 @@ public:
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-    int& getLevel();
-    /*set level for soc option to SOL_SOCKET and  we will see */
-    void setLevel(int);
-
-    int& getOptionName();
-    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
-    void setOptionName(int);
-
-    int& getOptionVal();
-    /*set option_Value for soc option to 0 or 1 */
-    void setOptionVal(int);
-
-    int& getBacklog(void);
-    void setBacklog(int log);
-
-    int& getNewSocket(void);
-    void setNewSocket(int sok);
 
     std::string& data_server::getIpAddress();
     void data_server::setIpAddress(std::string & ip);

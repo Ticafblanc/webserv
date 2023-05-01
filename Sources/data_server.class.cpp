@@ -40,7 +40,7 @@ data_server::~data_server() {
 // }
 
 void data_server::printAll(void) {
-    cout << GRN << "server id: " << _serverId << reset << "\n" << endl;
+    cout << GRN << "server id: " << _iData[id_server] << reset << "\n" << endl;
     cout << MAG;
     for (std::size_t i = 0; i < _server_name.size(); i++) {
         cout << "server names: " << _server_name.at(i) << " ";
@@ -78,7 +78,7 @@ data_server& data_server::operator=(const data_server& rhs) {
     this->_host_port = rhs._host_port;
     this->_error_page = rhs._error_page;
     this->_routes = rhs._routes;
-    this->_serverId = rhs._serverId;
+    this->_iData = rhs._iData;
     this->_address = rhs._address;
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
@@ -106,6 +106,10 @@ const char *  data_server::arg_exception::what() const throw(){
 *====================================================================================
 */
 
+std::vector<int>& data_server::getIData() {
+    return _iData;
+}
+
 const vector<string>& data_server::getServerName(void) const throw() {
     return _server_name;
 }
@@ -122,28 +126,12 @@ void data_server::setErrorPages(const vector<std::pair<vector<int>, string> >& e
     this->_error_page = errorPages;
 }
 
-const std::size_t& data_server::getIdServer() const throw() {
-    return _serverId;
-}
-
-void data_server::setIdServer(std::size_t id) throw() {
-    _serverId = id;
-}
-
 const vector<std::pair<string, int> >& data_server::getHostPort(void) const throw() {
     return _host_port;
 }
 
 void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) throw() {
     _host_port = hostPair;
-}
-
-const int& data_server::getType() const throw() {
-    return _type;
-}
-
-void data_server::setType(int type) throw() {
-    _type = type;
 }
 
 const vector<Route>& data_server::getRoutes(void) const throw() {
@@ -161,9 +149,6 @@ const int& data_server::getServerFd(void) const throw() { // Will need to be cha
 void data_server::setServerFd(int fd) throw() { // Will need to be changed
     _server_fd.push_back(fd);
 }
-
-// void setRoot(const string& root);
-// string getRoot(void);
 
 const string& data_server::getRoot(void) const throw() {
     return _root;
@@ -197,28 +182,78 @@ void data_server::setPort(int port) throw() { //will have to be changed
     _host_port.at(0).second = port;
 }
 
-// int& data_server::getProtocol(){
-//     return getIData()[protocol];
-// }
+/************* iData methods ***************/
 
-// void data_server::setProtocol(int  pro){
-//     getIData()[protocol] = pro;
-// }
-
-int&  data_server::getBacklog(){
-    return _backlog;
+const int& data_server::getIdServer() throw() {
+    return getIData()[id_server];
 }
 
-void data_server::setBacklog(int  log){
-    _backlog = log;
+void data_server::setIdServer(int id) throw() {
+    _iData[id_server] = id;
 }
 
-int& data_server::getNewSocket(){
-    return _newSocket;
+const int& data_server::getDomain() throw() {
+    return getIData()[domain];
 }
 
-void data_server::setNewSocket(int  sok){
-    _newSocket = sok;
+void data_server::setDomain(int dom) throw() {
+    _iData[domain] = dom;
+}
+
+const int& data_server::getType() throw() {
+    return getIData()[type];
+}
+
+void data_server::setType(int type) throw() {
+    this->_iData[this->type] = type;
+}
+
+const int& data_server::getProtocol() throw() {
+    return getIData()[protocol];
+}
+
+void data_server::setProtocol(int  pro) throw() {
+    getIData()[protocol] = pro;
+}
+
+const int&  data_server::getBacklog() throw() {
+    return getIData()[backlog];
+}
+
+void data_server::setBacklog(int  log) throw() {
+    _iData[backlog] = log;
+}
+
+const int& data_server::getNewSocket() throw() {
+    return getIData()[new_socket];
+}
+
+void data_server::setNewSocket(int  sok) throw() {
+    _iData[new_socket] = sok;
+}
+
+const int& data_server::getLevel() throw() {
+    return getIData()[level];
+}
+
+void data_server::setLevel(int lvl) throw() {
+    this->_iData[level] = lvl;
+}
+
+const int& data_server::getOptionName() throw() {
+    return getIData()[optionname];
+}
+
+void data_server::setOptionName(int opt) throw() {
+    _iData[optionname] = opt;
+}
+
+const int& data_server::getOptionVal() throw() {
+    return getIData()[optionval];
+}
+
+void data_server::setOptionVal(int val) throw() {
+    _iData[optionval] = val;
 }
 
 sockaddr_in& data_server::getAddress(){
@@ -269,29 +304,6 @@ void data_server::setAddrlen(const std::size_t & s){
     this->_addr_len = s;
 }
 
-// int& data_server::getLevel(){
-//     return getIData()[level];
-// }
-
-// void data_server::setLevel(int lev){
-//     getIData()[level] = lev;
-// }
-
-// int& data_server::getOptionName(){
-//     return getIData()[optionname];
-// }
-
-// void data_server::setOptionName(int opt){
-//     getIData()[optionname] = opt;
-// }
-
-// int& data_server::getOptionVal(){
-//     return getIData()[optionval];
-// }
-
-// void data_server::setOptionVal(int opt){
-//     getIData()[optionval] = opt;
-// }
 
 // pid_t& data_server::getPid() {
 //     return this->pid;
