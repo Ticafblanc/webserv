@@ -36,6 +36,12 @@ public:
 */
 
 private:
+
+    enum{ id_server, domain, type, protocol,
+        backlog, server_fd, new_socket, level,
+        optionname, optionval};
+    
+    vector<int>                                 _iData;
     std::size_t                                 _serverId;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
@@ -50,7 +56,6 @@ private:
     vector<int>                                 _server_fd;
     int                                         _backlog;
     int                                         _newSocket;
-    int                                         _type;
 
 /*
 *====================================================================================
