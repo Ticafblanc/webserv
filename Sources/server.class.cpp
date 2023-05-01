@@ -114,9 +114,10 @@ void server::launcher() {
             set_pollfd();
             this->i_arg[nbr_clients]++;
             set_poll();
-            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
+            this->data.setNewSocket(accept(this->data.getServerFd(),
                 (struct sockaddr *) &this->data.getAddress(),
-                (socklen_t *) &this->data.getAddrlen())) < 0) {
+                (socklen_t *) &this->data.getAddrlen()));
+            if ((this->data.getNewSocket()) < 0) {
                     perror("In accept");
                     exit(EXIT_FAILURE);
             }
