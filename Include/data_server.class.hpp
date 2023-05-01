@@ -118,6 +118,8 @@ public:
 */
 
 public:
+    std::vector<int>& getIData();
+
     const vector<string>& getServerName(void) const throw(); //returns server name @ id
     void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
@@ -130,7 +132,7 @@ public:
     const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
     void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
 
-    const int& getType() const throw(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
+    const int& getType() throw(); //set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM
     void setType(int type) throw();
 
     const vector<Route>& getRoutes(void) const throw(); //returns vector of Route

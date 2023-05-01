@@ -106,6 +106,10 @@ const char *  data_server::arg_exception::what() const throw(){
 *====================================================================================
 */
 
+std::vector<int>& data_server::getIData() {
+    return _iData;
+}
+
 const vector<string>& data_server::getServerName(void) const throw() {
     return _server_name;
 }
@@ -138,12 +142,12 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) t
     _host_port = hostPair;
 }
 
-const int& data_server::getType() const throw() {
-    return _type;
+const int& data_server::getType() throw() {
+    return getIData()[type];
 }
 
 void data_server::setType(int type) throw() {
-    _type = type;
+    this->_iData[this->type] = type;
 }
 
 const vector<Route>& data_server::getRoutes(void) const throw() {
