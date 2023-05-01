@@ -16,12 +16,10 @@ int main(int argc, char **argv, char **envp){
     (void)envp;
     std::vector<server> vec;
     try{
-        if(argc == 2) {
+        if(argc == 2)
             vec = init(argv[1]);
-        }
-        else {
+        else
             vec = init("../../usr->local/etc/webserv/webserv.conf");
-        }
         std::vector<server>::iterator It = vec.begin();
         for (; It != vec.end(); ++It){
             It->launcher();
