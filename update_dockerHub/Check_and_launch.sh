@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Launch_Container.sh                                :+:      :+:    :+:    #
+#    Check_and_launch.sh                                    :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,35 +12,18 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter name of container : " name
-    if [ -z "${name}" ] ; then
-        echo "name empty"
-    else
-        break
-    fi
-done
+# Récupérer les dernières modifications depuis la branche distante
+git fetch origin
 
-while true; do
-    read -p "Enter path of local work directory : " directory
-    if [ -z "${directory}" ] ; then
-        echo "directory empty"
-    else
-        break
-    fi
-done
+# Fusionner les modifications locales avec les dernières modifications de la branche distante
+git merge origin/master
 
-if docker images | grep -q webserv ; then
-  echo "Image already pull"
-else
-  echo "load image webserv:latest"
-  ./Build_Container.sh
-fi
+#compile project
+make
 
-docker container run --name ${name} -v ${directory}:/webserv webserv:latest
+#set file server
+mv /Bin/webserv /usr/local/bin/; \
+mv /for_etc/* /usr/local/etc/; \
+mv /for_var/* /usr/local/var/; \
 
-#alias a revoir ne fonctionne pas
-# shellcheck disable=SC2139
-#alias dr="docker run ${name}"
-# shellcheck disable=SC2139
-#alias webserv_prompt="docker exec -it ${NAME} /bin/bash"
+nvim
