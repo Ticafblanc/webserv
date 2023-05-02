@@ -37,7 +37,7 @@ else
   ./Build_Container.sh
 fi
 
-docker container run --name ${name} -v ${directory}:/webserv webserv:latest
+docker container run --name ${name} -v ${directory}:/usr/local webserv:latest
 
 #alias a revoir ne fonctionne pas
 # shellcheck disable=SC2139

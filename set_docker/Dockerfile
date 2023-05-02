@@ -46,9 +46,11 @@ RUN cd /webserv \
     && mv ${path_to_config_content_sever}/for_etc/* /usr/local/etc/ \
     && mv ${path_to_config_content_sever}/for_var/* /usr/local/var/
 
+RUN rm -rf /webserv
 
 # Exposition of port 80
 EXPOSE 80
 
-## Command to do at close
+## Command to do at start
 CMD [ "bash" ]
+#see at the end if need to share content
