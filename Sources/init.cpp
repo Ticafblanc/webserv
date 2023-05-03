@@ -19,6 +19,14 @@ std::vector<server> init(string str){
     std::vector<data_server>::iterator It = data.begin();
     std::vector<server>::iterator Vt = vec.begin();
     for (; It != data.end(); Vt++, It++){
+        It->setDomain(AF_INET);
+        It->setType(SOCK_STREAM);
+        It->setProtocol(0);
+        It->setBacklog(10);
+        It->setAddress();
+        It->setLevel(SOL_SOCKET);
+        It->setOptionName(SO_REUSEADDR);
+        It->setOptionVal(1);
         Vt->setDataServer(*It);
         // std::cout << "coucou" << std::endl;
     }
