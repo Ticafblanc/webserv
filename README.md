@@ -125,7 +125,7 @@ c++98
 - [X] create branch test (Matthis)
 - [X] set git action to automate pull_request master(Matthis)
 - [X] create directory like nginx (Matthis)
-- [ ] set container to merge project on linux (Matthis)
+- [X] set container to merge project on linux (Matthis)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
