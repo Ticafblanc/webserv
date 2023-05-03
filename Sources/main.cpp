@@ -19,7 +19,7 @@ int main(int argc, char **argv, char **envp){
         if(argc == 2)
             vec = init(argv[1]);
         else
-            vec = init("config_content_server/etc/for_etc/for_etc.conf");//parse default file
+            vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
         std::vector<server>::iterator It = vec.begin();
         for (; It != vec.end(); ++It){
             It->launcher();

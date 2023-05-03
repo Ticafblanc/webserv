@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Dockerfile                                         :+:      :+:    :+:    #
+#    Dockerfile.webserv_env_dev                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,14 +12,6 @@
 
 # set image release  Ubuntu 20.04 LTS
 FROM ubuntu:latest
-<<<<<<< HEAD:Dockerfile
-=======
-
-#set macro of repo path and path to contant web site
-ARG repo_git
-ARG path_to_config_content_sever=config_content_server
-
->>>>>>> master:set_docker/Dockerfile
 
 # set a new docker
 RUN apt-get update \
@@ -30,41 +22,23 @@ RUN apt-get update \
     gdb\
     clang\
     cmake \
-    git \
     rsync \
     tar \
     python3 \
     && apt-get clean
 
-<<<<<<< HEAD:Dockerfile
-# clone project
-# RUN git clone https://github.com/Ticafblanc/webserv.git
-
-
-
-# Compilation du projet Webserv
-WORKDIR /webserv
-COPY . /webserv
-RUN make run
-=======
 #define wrorkdir
-WORKDIR webserv
->>>>>>> master:set_docker/Dockerfile
+WORKDIR /webserv
 
-#clone repo
-RUN git clone ${repo_git} .
+#copy repo
+COPY ../ /webserv/
 
 #compile project
-RUN cd /webserv \
-    && make \
-    && mv Bin/webserv /usr/local/bin/webserv \
-    && mv ${path_to_config_content_sever}/for_etc/* /usr/local/etc/ \
-    && mv ${path_to_config_content_sever}/for_var/* /usr/local/var/
+RUN cmake -S . -B build \
+    && cmake --build build
 
 
-# Exposition of port 80
-EXPOSE 80
+#launch test
+CMD ["sh", "-c", "cd build && ctest"]
 
-## Command to do at close
-CMD [ "webserv" ]
 

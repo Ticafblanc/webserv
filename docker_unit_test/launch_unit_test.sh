@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Build_Container.sh                                 :+:      :+:    :+:    #
+#    lanch_unit_test.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,15 +12,7 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter your repo : " repo
-    if git ls-remote "$repo" &> /dev/null; then
-        break
-    else
-        echo "Invalide repo : $repo"
-    fi
-done
-
+#Check if the Ubuntu image exist
 if docker images | grep -q ubuntu:latest ; then \
   echo "Image already pull"
 else
@@ -28,13 +20,16 @@ else
   docker pull ubuntu:latest
 fi
 
-read -p "Enter path of config content servre directory : " config
-if [ -z "${config}" ] ; then
-  docker build --build-arg repo_git=${repo} \
-  -t webserv:latest .
-else
-  docker build --build-arg repo_git=${repo} \
-    --build-arg path_to_config_content_sever=${config} \
-    -t webserv:latest .
-fi
+#find path of dockerfile
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
+SOURCE_CODE_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
+
+#build image
+docker build -t webserv_unit_test -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}
+
+#run write error and remove container
+docker run --rm -it webserv_unit_test
+
+#remove image after test
+docker rmi webserv_unit_test
