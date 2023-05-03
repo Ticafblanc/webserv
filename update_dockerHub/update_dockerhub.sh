@@ -15,9 +15,25 @@
 if docker images | grep -q ubuntu:latest ; then \
   echo "Image already pull"
 else
-  echo "load image ubunut:latest"
-  docker pull ubuntu:latest
+  echo "load image webserv:latest"
+  docker pull ticafblanc/webserv:latest
 fi
 
-docker build -d webserv:latest .
+while true; do
+    read -p "Enter number of old version : " version
+    if [ -z "${version}" ] ; then
+        echo " need old version "
+    else
+        docker tag ticafblanc/webserv:latest ticafblanc/webserv:${version}
+        docker push ticafblanc/webserv:${version}
+        break
+    fi
+done
 
+docker build -t ticafblanc/webserv:latest .
+
+# update docker hub
+#docker tag ticafblanc/webserv:update ticafblanc/webserv:latest
+docker push ticafblanc/webserv:latest
+
+docker rmi ticafblanc/webserv:${version}

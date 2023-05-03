@@ -52,5 +52,5 @@ RUN rm -rf /webserv
 EXPOSE 80
 
 ## Command to do at start
-CMD [ "bash" ]
+CMD [ "webserv" ]
 #see at the end if need to share content
