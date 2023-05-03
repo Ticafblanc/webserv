@@ -17,7 +17,7 @@ int main(int argc, char **argv, char **envp){
     std::vector<server> vec;
     try{
         if(argc == 2)
-            vec = init(argv[1]);//parse file
+            vec = init(argv[1]);
         else
             vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
         std::vector<server>::iterator It = vec.begin();

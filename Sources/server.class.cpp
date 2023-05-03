@@ -9,7 +9,6 @@
 /*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "../Include/server.class.hpp"
 
 /*
@@ -114,13 +113,14 @@ void server::launcher() {
             set_server_non_blocking();
             set_pollfd();
             this->i_arg[nbr_clients]++;
-//            set_poll();
-//            if ((this->data.getNewSocket() = accept(this->data.getServerFd(),
-//                                                    (struct sockaddr *) &this->data.getAddress(),
-//                                                    (socklen_t *) &this->data.getAddrlen())) < 0) {
-//                perror("In accept");
-//                exit(EXIT_FAILURE);
-//            }
+            set_poll();
+            this->data.setNewSocket(accept(this->data.getServerFd(),
+                (struct sockaddr *) &this->data.getAddress(),
+                (socklen_t *) &this->data.getAddrlen()));
+            if ((this->data.getNewSocket()) < 0) {
+                    perror("In accept");
+                    exit(EXIT_FAILURE);
+            }
             // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
         } while (1);
