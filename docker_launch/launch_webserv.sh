@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Launch_Container.sh                                :+:      :+:    :+:    #
+#    lanch_unit_test.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,35 +12,24 @@
 
 #!/bin/bash
 
-while true; do
-    read -p "Enter name of container : " name
-    if [ -z "${name}" ] ; then
-        echo "name empty"
-    else
-        break
-    fi
-done
-
-while true; do
-    read -p "Enter path of local work directory : " directory
-    if [ -z "${directory}" ] ; then
-        echo "directory empty"
-    else
-        break
-    fi
-done
-
-if docker images | grep -q webserv ; then
+#Check if the Ubuntu image exist
+if docker images | grep -q ubuntu:latest ; then \
   echo "Image already pull"
 else
-  echo "load image webserv:latest"
-  ./Build_Container.sh
+  echo "load image ubunut:latest"
+  docker pull ubuntu:latest
 fi
 
-docker container run --name ${name} -v ${directory}:/usr/local webserv:latest
+#find path of dockerfile
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-#alias a revoir ne fonctionne pas
-# shellcheck disable=SC2139
-#alias dr="docker run ${name}"
-# shellcheck disable=SC2139
-#alias webserv_prompt="docker exec -it ${NAME} /bin/bash"
+SOURCE_CODE_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
+
+#build image
+docker build -t webserv:local -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}
+
+#run write error and remove container
+docker run --rm -it webserv:local /bin/bash
+
+#remove image after test
+docker rmi webserv:local
