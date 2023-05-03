@@ -35,9 +35,10 @@ COPY ../ /webserv/
 
 #compile project
 RUN cmake -S . -B build \
-    && cmake --build build  \
-    && cd build  \
-    && ctest --output-on-failure
+    && cmake --build build
 
+
+#launch test
+CMD ["sh", "-c", "cd build && ctest"]
 
 

@@ -43,7 +43,7 @@ RUN cd /webserv \
     && cmake -S . -B build \
     && cmake --build build  \
     && cd build  \
-    && ctest --output-on-failure
+    && ctest
 
 # Exposition of port 80
 EXPOSE 80
