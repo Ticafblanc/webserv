@@ -161,7 +161,32 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 }
 
 void Parser::parseRoot(string& buffer, data_server& data) {
-	
+	std::size_t start = buffer.find("root");
+	std::size_t stop = buffer.find(';', start);
+	if (stop == string::npos)
+		throw InvalidDirective();
+	string tempBufferStart = buffer.substr(0, start);
+	string tempBufferStop = buffer.substr(stop + 1);
+	string toParse = buffer.substr(start, ((stop + 1) - start));
+	buffer.clear();
+	buffer = buffer.append(tempBufferStart);
+	buffer = buffer.append(tempBufferStop);
+	if (toParse[toParse.find("root") + 11] != ' ')
+		throw InvalidDirective();
+	toParse = toParse.substr(toParse.find("server_name") + 11);
+	start = 0, stop = 0;
+	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
+		if (isalnum(*it) != 0 && start == 0)
+			start = it - toParse.begin();
+		if ((isspace(*it) && start != 0) || *it == ';')
+			stop = it - toParse.begin();
+		if (start != 0 && stop != 0) {
+			data.setRoot(toParse.substr(start, (stop - start)));
+			start = 0, stop = 0;
+		}
+	}
+	if (serverName.size() == 0)
+		throw NotTheRightNumberOfArgs();
 }
 
 void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {
