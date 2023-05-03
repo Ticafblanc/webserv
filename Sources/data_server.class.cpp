@@ -62,7 +62,7 @@ void data_server::printAll(void) {
         cout << " path: " << _error_page.at(i).second << endl;
     }
     cout << MAG;
-    cout << "root: " << _root << endl;
+    cout << "root: " << this->getRoot() << endl;
     cout << "max body size: " << _client_max_body_size << endl;
     cout << "address len: " << _addr_len << endl << endl;
     cout << reset;
@@ -159,14 +159,17 @@ void data_server::setServerFd(int fd) throw() { // Will need to be changed
     _server_fd.push_back(fd);
 }
 
-const string& data_server::getRoot(void) const throw() {
+const string data_server::getRoot(void) const throw() {
     return _root;
 }
 
-void data_server::setRoot(const string& root) {
-    if (_root.size() != 0)
+void data_server::setRoot(const string root) {
+    if (_root.size() != 0) {
         throw DuplicateDirective();
-    _root = root;
+    }
+    cout << "In setRoot, value of root " << root << endl;
+    this->_root = root;
+    cout << "In setRoot, value of _root " << _root << endl;
 }
 
 void data_server::setMaxBodySize(int maxBodySize) throw() {

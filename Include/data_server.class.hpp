@@ -41,12 +41,12 @@ private:
         backlog, new_socket, level,
         optionname, optionval};
     
+    string                                      _root;
     vector<int>                                 _iData;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
     vector<Route>                               _routes;
-    string                                      _root;
     std::size_t                                 _client_max_body_size;
     bool                                        _max_body_size_def;
     sockaddr_in                                 _address;
@@ -135,8 +135,8 @@ public:
     const vector<Route>& getRoutes(void) const throw(); //returns vector of Route
     void setRoutes(const vector<Route>& routes) throw();
 
-    const string& getRoot(void) const throw();
-    void setRoot(const string& root);
+    const string getRoot(void) const throw();
+    void setRoot(const string root);
 
     void setMaxBodySize(int maxBodySize) throw();
     int getMaxBodySize(void) const throw();

@@ -32,6 +32,7 @@ Route::Route() {
 Route::~Route() {}
 
 void Route::printAll(void) {
+    cout << "prefix: " << _prefix << endl;
     cout << "Allowed methods: ";
     if (_allowed_methods.size() == 0)
         cout << "all";
@@ -41,7 +42,11 @@ void Route::printAll(void) {
         }
     }
     cout << endl;
-    cout << "prefix: " << _prefix << endl;
+    cout << "indexes: ";
+    for (size_t i = 0; i < _index.size(); i++) {
+        cout << _index[i] << " ";
+    }
+    cout << endl;
     cout << "http code: " << _httpRedir.first << " path: " << _httpRedir.second << endl;
     cout << "max body size: " << _client_body_max_size << endl;
     cout << "autoindex status: " << _autoIndex << endl;
@@ -52,7 +57,8 @@ void Route::printAll(void) {
         cout << "extension: " << _cgi.at(i).first << " executable: " << _cgi.at(i).second << " ";
     }
     if (_cgi.size() != 0)
-        cout << endl << endl;
+        cout << endl;
+    cout << endl;
 }
 
 void Route::setPrefix(string& prefix) throw() {
@@ -109,7 +115,6 @@ const string& Route::getUploadDir(void) const throw() {
 
 void Route::setRoot(const string& root) {
     if (this->_root.size() != 0) {
-        cout << "problem is in location" << endl;
         throw DuplicateRoot();
     }
     this->_root = root;

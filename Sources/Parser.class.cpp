@@ -4,9 +4,7 @@ Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 	findAmountServers();
 	getBlocks();
 	parseBlocks();
-	data_server server = this->_servers[0];
-	vector<string> serverNames = server.getServerName();
-	vector<std::pair<string, int> > hostPorts = server.getHostPort();
+	cout << "Root after parseBlocks: " << _servers[0].getRoot() << endl;
 }
 
 Parser::~Parser() { }
@@ -137,14 +135,15 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("client_max_body_size") != string::npos) {
 			this->parseMaxBodySize(buffer, data);
 		}
-		if (buffer.find("root") != string::npos) {
-			this->parseRoot(buffer, data);
-		}
 		if (buffer.find("listen") == string::npos && buffer.find("server_name") == string::npos \
 			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos \
-			&& buffer.find("client_max_body_size") == string::npos && buffer.find("root") == string::npos) {
+			&& buffer.find("client_max_body_size") == string::npos) {
 			parsingDone = true;
 		}
+	}
+	while (buffer.find("root") != string::npos) {
+		cout << "Address of data before parseRoot: " << &data << endl;
+		this->parseRoot(buffer, data);
 	}
 	if (serverName.size() == 0) {
 		serverName.push_back("");
@@ -157,10 +156,16 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data.setIdServer(blockId);
 	data.setRoutes(routes);
 	data.setErrorPages(error_pages);
+	cout << "Root from data " << data.getRoot() << endl;
+	cout << "client max body size before push_back: " << data.getMaxBodySize() << endl;
 	this->_servers.push_back(data);
+	cout << "client max body size after push_back: " << data.getMaxBodySize() << endl;
+	cout << "Root after push_back: " << _servers[0].getRoot() << endl;
+	cout << "Random ass bullshit from data after pushBack: " << _servers[0].getServerName()[0] << endl; 
 }
 
 void Parser::parseRoot(string& buffer, data_server& data) {
+	cout << "Address of data inside parseRoot: " << &data << endl;
 	std::size_t start = buffer.find("root");
 	std::size_t stop = buffer.find(';', start);
 	if (stop == string::npos)
@@ -171,22 +176,16 @@ void Parser::parseRoot(string& buffer, data_server& data) {
 	buffer.clear();
 	buffer = buffer.append(tempBufferStart);
 	buffer = buffer.append(tempBufferStop);
-	if (toParse[toParse.find("root") + 11] != ' ')
+	vector<string> args = split(toParse);
+	if (args.size() != 2 || args[0] != "root")
 		throw InvalidDirective();
-	toParse = toParse.substr(toParse.find("server_name") + 11);
-	start = 0, stop = 0;
-	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
-		if (isalnum(*it) != 0 && start == 0)
-			start = it - toParse.begin();
-		if ((isspace(*it) && start != 0) || *it == ';')
-			stop = it - toParse.begin();
-		if (start != 0 && stop != 0) {
-			data.setRoot(toParse.substr(start, (stop - start)));
-			start = 0, stop = 0;
-		}
+	else {
+		string root = args[1];
+		cout << "Root in parseRoot: " << root << endl;
+		data.setRoot(root);
+		cout << "Root in parseRoot after setRoot: " << data.getRoot() << endl;
 	}
-	if (serverName.size() == 0)
-		throw NotTheRightNumberOfArgs();
+	//args.clear();
 }
 
 void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {
@@ -393,7 +392,10 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 		else if (comp[0] == "root") {
 			if (comp[1].size() == 0)
 				throw InvalidDirective();
-			loc.setRoot(comp[1]);
+			else if (comp.size() != 2)
+				throw NotTheRightNumberOfArgs();
+			else
+				loc.setRoot(comp[1]);
 		}
 		else if (comp[0] == "upload_path") {
 			loc.setUploadDir(comp[1]);
