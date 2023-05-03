@@ -105,6 +105,10 @@ const char *  data_server::arg_exception::what() const throw(){
     return ("argument invalid");
 }
 
+const char* data_server::DuplicateDirective::what() const throw() {
+    return "Duplicate directive";
+}
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
@@ -160,6 +164,8 @@ const string& data_server::getRoot(void) const throw() {
 }
 
 void data_server::setRoot(const string& root) {
+    if (_root.size() != 0)
+        throw DuplicateDirective();
     _root = root;
 }
 

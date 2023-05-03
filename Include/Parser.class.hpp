@@ -28,6 +28,7 @@ private:
 	void parseErrorPages(string& buffer, vector<std::pair<vector<int>, string> >& error_pages);
 	vector<string> split(string toSplit); //splits a string into a vector of strings on spaces and tabs
 	void parseMaxBodySize(string& buffer, data_server& data);
+	void parseRoot(string& buffer, data_server& data);
 public:
 	//methods
 	Parser(const char *argv);

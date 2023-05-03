@@ -137,9 +137,12 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("client_max_body_size") != string::npos) {
 			this->parseMaxBodySize(buffer, data);
 		}
+		if (buffer.find("root") != string::npos) {
+			this->parseRoot(buffer, data);
+		}
 		if (buffer.find("listen") == string::npos && buffer.find("server_name") == string::npos \
 			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos \
-			&& buffer.find("client_max_body_size") == string::npos) {
+			&& buffer.find("client_max_body_size") == string::npos && buffer.find("root") == string::npos) {
 			parsingDone = true;
 		}
 	}
@@ -155,6 +158,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data.setRoutes(routes);
 	data.setErrorPages(error_pages);
 	this->_servers.push_back(data);
+}
+
+void Parser::parseRoot(string& buffer, data_server& data) {
+	
 }
 
 void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {

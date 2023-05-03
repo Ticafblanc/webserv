@@ -88,6 +88,11 @@ public:
         const char * what() const throw();
     };
 
+    class DuplicateDirective: public std::exception
+    {
+        const char* what() const throw();
+    };
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
