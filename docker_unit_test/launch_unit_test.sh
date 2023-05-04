@@ -23,7 +23,7 @@ fi
 #find path of dockerfile
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
-SOURCE_CODE_DIR="$(dirname "$(dirname "$(readlink -f "$0")")")"
+SOURCE_CODE_DIR="$(dirname "${SCRIPT_DIR}")"
 
 #build image
 docker build -t webserv_unit_test -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}

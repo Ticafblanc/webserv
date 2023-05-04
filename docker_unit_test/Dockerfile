@@ -40,5 +40,6 @@ RUN cmake -S . -B build \
 
 #launch test
 CMD ["sh", "-c", "cd build && ctest"]
+#CMD ["bash"]
 
 
