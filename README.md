@@ -172,5 +172,4 @@ Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafbl
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/matthis-doquocbao-a4a381192?
 [linkedin-url-yan]: https://www.linkedin.com/in/yannick-st-laurent-3ab2b3224/
-lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_viewBase_contact_details%3Bqur1a8wNS0OuvMWTRXIihA%3D%3D
 <!--[product-screenshot]: Images/cpp_logo.png-->
