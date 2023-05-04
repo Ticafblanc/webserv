@@ -12,17 +12,13 @@
 
 #include "../Include/webserv.hpp"
 
-std::vector<server> init(std::string str){
-    (void)str;
-    std::vector<server> vec(4);
-    std::vector<data_server> data(4);
+std::vector<server> init(string str){
+    Parser parser(str.c_str());
+    vector<data_server> data = parser.get_data();
+    std::vector<server> vec(data.size());
     std::vector<data_server>::iterator It = data.begin();
-    std::string ip =  "10.12.4.2";
-    int port = 8081;
-    for (int i = 0; It != data.end(); ++It, ++i, ++port) {
-        It->setIdServer(i);
-        It->setIp_address(ip);
-        It->setPort(port);
+    std::vector<server>::iterator Vt = vec.begin();
+    for (; It != data.end(); Vt++, It++){
         It->setDomain(AF_INET);
         It->setType(SOCK_STREAM);
         It->setProtocol(0);
@@ -31,13 +27,9 @@ std::vector<server> init(std::string str){
         It->setLevel(SOL_SOCKET);
         It->setOptionName(SO_REUSEADDR);
         It->setOptionVal(1);
-        // std::cout << i << std::endl;
-    }
-    std::vector<server>::iterator Vt = vec.begin();
-    It = data.begin();
-    for (; Vt != vec.end(); ++Vt, ++It){
         Vt->setDataServer(*It);
-        // std::cout << "coucou" << std::endl;
     }
     return vec;
+
+
 }

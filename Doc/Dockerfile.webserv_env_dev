@@ -1,19 +1,28 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    docker-compose.yml                                 :+:      :+:    :+:    #
+#    Dockerfile                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/04/02 20:08:18 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/04/02 20:08:37 by mdoquocb         ###   ########.fr        #
+#    Created: 2023/04/02 19:43:18 by mdoquocb          #+#    #+#              #
+#    Updated: 2023/04/02 20:08:04 by mdoquocb         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-version: '3'
-services:
-  build:
-    build:
-      context: .
-      dockerfile: Dockerfile
+# set image release  Ubuntu 20.04 LTS
+FROM ubuntu:latest
 
+# set a new docker
+RUN apt-get update \
+    && apt-get install -y \
+    build-essential \
+    gcc\
+    g++\
+    gdb\
+    clang\
+    cmake \
+    rsync \
+    tar \
+    python3 \
+    && apt-get clean

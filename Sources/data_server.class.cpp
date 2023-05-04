@@ -9,8 +9,8 @@
 /*   Updated: 2023/03/29 14:27:05 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "../Include/data_server.class.hpp"
+#include "../Include/colors.hpp"
 
 
 /*
@@ -19,7 +19,15 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(11), s_data(2), pid(), addr_len(), address(){}
+data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false) {
+    _iData[domain] = AF_INET;
+    _iData[type] = SOCK_STREAM;
+    _iData[protocol] = 0;
+    _iData[backlog] = 10;
+    _iData[level] = SOL_SOCKET;
+    _iData[optionname] = SO_REUSEADDR;
+    _iData[optionval] = 1;
+}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
@@ -27,24 +35,59 @@ data_server::~data_server() {
 //    close(getServerFd());
 }
 
-data_server::data_server(const data_server& other) : i_data(other.i_data), s_data(other.s_data),
-                                                    pid(other.pid), address(){
-    this->addr_len = other.addr_len;
-    this->address.sin_family = other.address.sin_family;
-    this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
-    this->address.sin_port = other.address.sin_port;
-    memcpy(getAddress().sin_zero, other.address.sin_zero, sizeof address.sin_zero);
+// data_server::data_server(const data_server& other) {
+//     memcpy(getAddress().sin_zero, other.address.sin_zero, sizeof address.sin_zero);
+// }
+
+// data_server& data_server::operator=(const data_server& rhs) {
+//     memcpy(this->address.sin_zero, rhs.address.sin_zero, sizeof address.sin_zero);
+//     return *this;
+// }
+
+void data_server::printAll(void) {
+    cout << GRN << "server id: " << _iData[id_server] << reset << "\n" << endl;
+    cout << MAG;
+    for (std::size_t i = 0; i < _server_name.size(); i++) {
+        cout << "server names: " << _server_name.at(i) << " ";
+    }
+    cout << endl;
+    for (std::size_t i = 0; i < _host_port.size(); i++) {
+        cout << "host: " << _host_port.at(i).first << " port: " << _host_port.at(i).second << endl;
+    }
+    for (std::size_t i = 0; i < _error_page.size(); i++) {
+        cout << "error_codes: ";
+        for (std::size_t k = 0; k < _error_page.at(i).first.size(); k++) {
+            cout << _error_page.at(i).first.at(k) << " ";
+        }
+        cout << " path: " << _error_page.at(i).second << endl;
+    }
+    cout << MAG;
+    cout << "root: " << this->getRoot() << endl;
+    cout << "max body size: " << _client_max_body_size << endl;
+    cout << "address len: " << _addr_len << endl << endl;
+    cout << reset;
+    for (std::size_t i = 0; i < _routes.size(); i++) {
+        cout << BLU;
+        _routes.at(i).printAll();
+        cout << reset;
+    }
 }
 
-data_server& data_server::operator=(const data_server& rhs){
-    this->i_data = rhs.i_data;
-    this->s_data = rhs.s_data;
-    this->pid = rhs.pid;
-    this->addr_len = rhs.addr_len;
-    this->address.sin_family = rhs.address.sin_family;
-    this->address.sin_addr.s_addr = rhs.address.sin_addr.s_addr;
-    this->address.sin_port = rhs.address.sin_port;
-    memcpy(this->address.sin_zero, rhs.address.sin_zero, sizeof address.sin_zero);
+data_server::data_server(const data_server& other) {
+    *this = other;
+}
+
+
+data_server& data_server::operator=(const data_server& rhs) {
+    this->_server_name = rhs._server_name;
+    this->_host_port = rhs._host_port;
+    this->_error_page = rhs._error_page;
+    this->_routes = rhs._routes;
+    this->_iData = rhs._iData;
+    this->_address = rhs._address;
+    this->_addr_len = rhs._addr_len;
+    this->_server_fd = rhs._server_fd;
+
     return *this;
 }
 
@@ -62,101 +105,181 @@ const char *  data_server::arg_exception::what() const throw(){
     return ("argument invalid");
 }
 
+const char* data_server::DuplicateDirective::what() const throw() {
+    return "Duplicate directive";
+}
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
 *====================================================================================
 */
 
-std::vector<int>& data_server::getIData(){
-    return this->i_data;
+std::vector<int>& data_server::getIData() {
+    return _iData;
 }
 
-std::vector<std::string>& data_server::getSData() {
-    return this->s_data;
+const vector<string>& data_server::getServerName(void) const throw() {
+    return _server_name;
 }
 
-std::string& data_server::getServerName(){
-    return getSData()[server_name];
+void data_server::setServerName(const vector<string>& serverName) throw() {
+    _server_name = serverName;
 }
 
-void data_server::setServer_name(std::string & name){
-    getSData()[server_name] = name;
+const vector<std::pair<vector<int>, string> >& data_server::getErrorPages(void) const throw() {
+    return _error_page;
 }
 
-std::string& data_server::getIpAddress(){
-    return getSData()[ip_address];
+void data_server::setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw() {
+    this->_error_page = errorPages;
 }
 
-void data_server::setIp_address(std::string & ip){
-    getSData()[ip_address] = ip;
+const vector<std::pair<string, int> >& data_server::getHostPort(void) const throw() {
+    return _host_port;
 }
 
-int& data_server::getIdServer() {
+void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) throw() {
+    _host_port = hostPair;
+}
+
+const vector<Route>& data_server::getRoutes(void) const throw() {
+    return _routes;
+}
+
+void data_server::setRoutes(const vector<Route>& routes) throw() {
+    _routes = routes;
+}
+
+const int& data_server::getServerFd(void) const throw() { // Will need to be changed
+    return _server_fd[0];
+}
+
+void data_server::setServerFd(int fd) throw() { // Will need to be changed
+    _server_fd.push_back(fd);
+}
+
+const string data_server::getRoot(void) const throw() {
+    return _root;
+}
+
+void data_server::setRoot(const string root) {
+    if (_root.size() != 0) {
+        throw DuplicateDirective();
+    }
+    cout << "In setRoot, value of root " << root << endl;
+    this->_root = root;
+    cout << "In setRoot, value of _root " << _root << endl;
+}
+
+void data_server::setMaxBodySize(int maxBodySize) throw() {
+    this->_client_max_body_size = maxBodySize;
+}
+
+int data_server::getMaxBodySize(void) const throw() {
+    return this->_client_max_body_size;
+}
+
+void data_server::setBodySizeStatus(bool status) throw() {
+    this->_max_body_size_def = status;
+}
+
+bool data_server::getBodySizeStatus(void) const throw() {
+    return this->_max_body_size_def;
+}
+
+const int& data_server::getPort(void) const throw() { //Will have to be changed
+    return _host_port.at(0).second;
+}
+
+void data_server::setPort(int port) throw() { //will have to be changed
+    _host_port.at(0).second = port;
+}
+
+/************* iData methods ***************/
+
+const int& data_server::getIdServer() throw() {
     return getIData()[id_server];
 }
-void data_server::setIdServer(int  id){
-    getIData()[id_server] = id;
+
+void data_server::setIdServer(int id) throw() {
+    _iData[id_server] = id;
 }
 
-int& data_server::getPort(){
-    return getIData()[port];
-
-}
-void data_server::setPort(int p){
-    getIData()[port] = p;
-}
-
-int& data_server::getDomain(){
+const int& data_server::getDomain() throw() {
     return getIData()[domain];
 }
 
-void data_server::setDomain(int dom){
-    getIData()[domain] = dom;
+void data_server::setDomain(int dom) throw() {
+    _iData[domain] = dom;
 }
 
-int& data_server::getType(){
+const int& data_server::getType() throw() {
     return getIData()[type];
 }
 
-void data_server::setType(int  typ){
-    getIData()[type] = typ;
+void data_server::setType(int type) throw() {
+    this->_iData[this->type] = type;
 }
 
-int& data_server::getProtocol(){
+const int& data_server::getProtocol() throw() {
     return getIData()[protocol];
 }
 
-void data_server::setProtocol(int  pro){
+void data_server::setProtocol(int  pro) throw() {
     getIData()[protocol] = pro;
 }
 
-int&  data_server::getBacklog(){
+const int&  data_server::getBacklog() throw() {
     return getIData()[backlog];
 }
 
-void data_server::setBacklog(int  log){
-    getIData()[backlog] = log;
+void data_server::setBacklog(int  log) throw() {
+    _iData[backlog] = log;
 }
 
-int& data_server::getServerFd() {
-    return getIData()[server_fd];
-}
-
-void data_server::setServerFd(int  fd){
-    getIData()[server_fd] = fd;
-}
-
-int& data_server::getNewSocket(){
+const int& data_server::getNewSocket() throw() {
     return getIData()[new_socket];
 }
 
-void data_server::setNewSocket(int  sok){
-    getIData()[new_socket] = sok;
+void data_server::setNewSocket(int  sok) throw() {
+    _iData[new_socket] = sok;
+}
+
+const int& data_server::getLevel() throw() {
+    return getIData()[level];
+}
+
+void data_server::setLevel(int lvl) throw() {
+    this->_iData[level] = lvl;
+}
+
+const int& data_server::getOptionName() throw() {
+    return getIData()[optionname];
+}
+
+void data_server::setOptionName(int opt) throw() {
+    _iData[optionname] = opt;
+}
+
+const int& data_server::getOptionVal() throw() {
+    return getIData()[optionval];
+}
+
+void data_server::setOptionVal(int val) throw() {
+    _iData[optionval] = val;
 }
 
 sockaddr_in& data_server::getAddress(){
-    return this->address;
+    return this->_address;
+}
+
+std::string& data_server::getIpAddress(){
+    return _ipAddress;
+}
+
+void data_server::setIpAddress(std::string & ip){
+    _ipAddress = ip;
 }
 
 void data_server::setAddress(int dom, const std::string& ip_addr, int por){
@@ -182,50 +305,27 @@ void data_server::setAddress(int dom, int por){
 void data_server::setAddress(){
     getAddress().sin_family = getDomain();
     getAddress().sin_addr.s_addr = inet_addr(getIpAddress().c_str());//check format ip address during the parsing no ERROR
-    getAddress().sin_port = htons(getIData()[port]);//no error
+    getAddress().sin_port = htons(getPort());//no error
     memset(getAddress().sin_zero, '\0', sizeof getAddress().sin_zero);//a delete
     setAddrlen(sizeof(getAddress()));
 }
 
 std::size_t& data_server::getAddrlen() {
-    return this->addr_len;
+    return this->_addr_len;
 }
 
 void data_server::setAddrlen(const std::size_t & s){
-    this->addr_len = s;
+    this->_addr_len = s;
 }
 
-int& data_server::getLevel(){
-    return getIData()[level];
-}
 
-void data_server::setLevel(int lev){
-    getIData()[level] = lev;
-}
+// pid_t& data_server::getPid() {
+//     return this->pid;
+// }
 
-int& data_server::getOptionName(){
-    return getIData()[optionname];
-}
-
-void data_server::setOptionName(int opt){
-    getIData()[optionname] = opt;
-}
-
-int& data_server::getOptionVal(){
-    return getIData()[optionval];
-}
-
-void data_server::setOptionVal(int opt){
-    getIData()[optionval] = opt;
-}
-
-pid_t& data_server::getPid() {
-    return this->pid;
-}
-
-void data_server::setPid(pid_t & p){
-    this->pid = p;
-}
+// void data_server::setPid(pid_t & p){
+//     this->pid = p;
+// }
 
 void data_server::close_server_fd(){
 //    if(!fd_isopen() || !socket_isopen())

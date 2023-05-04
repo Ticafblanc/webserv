@@ -1,11 +1,23 @@
 //
 // Created by Matthis DoQuocBao on 2023-03-27.
+// Hijacked by Yan on 2023-04-06. This is my class now
 //
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
 #include "header.hpp"
+#include "Route.class.hpp"
 
+//empty server_name is an error. if no server_name default name is ""
+//default error pages, routes with
+//◦Define a list of accepted HTTP methods for the route.
+//◦Define a HTTP redirection.
+//◦Define a directory or a file from where the file should be searched
+//	(for example, if url /kapouet is rooted to /tmp/www, url /kapouet/pouic/toto/pouet is /tmp/www/pouic/toto/pouet).
+//◦Turn on or off directory listing.
+//◦Set a default file to answer if the request is a directory.
+//◦Execute CGI based on certain file extension (for example .php).
+//◦Make the route able to accept uploaded files and configure where they should be saved
 class data_server{
 /*
 *====================================================================================
@@ -25,18 +37,22 @@ public:
 
 private:
 
-    enum{ id_server, port, domain, type, protocol,
-        backlog, server_fd, new_socket, level,
-        optionname, optionval,};
-
-    enum{ server_name, ip_address, };
-
-    std::vector<int> i_data;
-    std::vector<std::string> s_data;
-    pid_t pid;//follow process see if ok
-    std::size_t addr_len;
-    struct sockaddr_in address;
+    enum{ id_server, domain, type, protocol,
+        backlog, new_socket, level,
+        optionname, optionval};
     
+    string                                      _root;
+    vector<int>                                 _iData;
+    vector<string>                              _server_name;
+    vector<std::pair<string, int> >             _host_port;
+    vector<std::pair<vector<int>, string> >     _error_page;
+    vector<Route>                               _routes;
+    std::size_t                                 _client_max_body_size;
+    bool                                        _max_body_size_def;
+    sockaddr_in                                 _address;
+    std::size_t                                 _addr_len;
+    string                                      _ipAddress;
+    vector<int>                                 _server_fd;
 
 /*
 *====================================================================================
@@ -50,6 +66,7 @@ public:
     ~data_server();
     data_server(const data_server& other);
     data_server& operator=(const data_server& rhs);
+    void printAll(void); //for debugging and checking purposes
 
 /*
 *====================================================================================
@@ -69,6 +86,11 @@ public:
     {
     public:
         const char * what() const throw();
+    };
+
+    class DuplicateDirective: public std::exception
+    {
+        const char* what() const throw();
     };
 
 /*
@@ -98,50 +120,74 @@ public:
 */
 
 public:
-
     std::vector<int>& getIData();
-    std::vector<std::string>& getSData();
 
-    std::string& getServerName();
-    /*set name of server*/
-    void setServer_name(std::string &);
+    const vector<string>& getServerName(void) const throw(); //returns server name @ id
+    void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
-    std::string& getIpAddress();
-    /*set Ip address */
-    void setIp_address(std::string &);
+    const vector<std::pair<vector<int>, string> >& getErrorPages(void) const throw();
+    void setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw();
 
-    int& getIdServer();
-    /* number of server first server = 0 and last = (nbr server-1)*/
-    void setIdServer(int );
+    const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
+    void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
 
-    int& getPort();
-    /*number of port t follow*/
-    void setPort(int );
 
-    int& getDomain();
+    const vector<Route>& getRoutes(void) const throw(); //returns vector of Route
+    void setRoutes(const vector<Route>& routes) throw();
+
+    const string getRoot(void) const throw();
+    void setRoot(const string root);
+
+    void setMaxBodySize(int maxBodySize) throw();
+    int getMaxBodySize(void) const throw();
+
+    void setBodySizeStatus(bool status) throw();
+    bool getBodySizeStatus(void) const throw();
+
+    const int& getPort(void) const throw();
+    void setPort(int port) throw();
+
+    const int& getServerFd(void) const throw();
+    void setServerFd(int fd) throw();
+
+    /*************** iData methods ******************/
+
+    const int& getIdServer() throw(); //number of server first server = 0 and last = (nbr server-1)
+    void setIdServer(int id) throw(); //use with caution I guess
+
+    const int& getDomain() throw();
     /* number of Domain always AF_INET when TCP or User Datagram Protocol (UDP)*/
-    void setDomain(int );
+    void setDomain(int ) throw();
 
-    int& getType();
-    /*set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET
-     * for service tcp => SOCK_STREAM*/
-    void setType(int );
+    const int& getType() throw();
+    /*set type SOCK_STREAM, SOCK_DGRAM, SOCK_SEQPACKET, SOCK_RAW, SOCK_RDM, SOCK_PACKET * for service tcp => SOCK_STREAM */
+    void setType(int type) throw();
 
-    int& getProtocol();
+    const int& getProtocol() throw();
     /*set protocol to 0*/
-    void setProtocol(int );
+    void setProtocol(int protocol) throw();
 
-    int&  getBacklog();
+    const int&  getBacklog() throw();
     /*set time to follow socket fd set at 10 for now*/
-    void setBacklog(int );
+    void setBacklog(int bl) throw();
 
-    int& getServerFd();
-    /*value of socket */
-    void setServerFd(int );
-
-    int& getNewSocket();
+    const int& getNewSocket() throw();
     /*set value of new socket after accpet*/
-    void setNewSocket(int );
+    void setNewSocket(int sok) throw();
+
+    const int& getLevel() throw();
+    /*set level for soc option to SOL_SOCKET and  we will see */
+    void setLevel(int lvl) throw();
+
+    const int& getOptionName() throw();
+    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
+    void setOptionName(int opt) throw();
+
+    const int& getOptionVal() throw();
+    /*set option_Value for soc option to 0 or 1 */
+    void setOptionVal(int val) throw();
+
+    /******************server functions****************/
 
     sockaddr_in& getAddress();
     /*set struct sockaddr_in */
@@ -149,25 +195,17 @@ public:
     void setAddress(int dom, int por);
     void setAddress();
 
-    size_t& getAddrlen() ;
+    size_t& getAddrlen();
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-    int& getLevel();
-    /*set level for soc option to SOL_SOCKET and  we will see */
-    void setLevel(int);
 
-    int& getOptionName();
-    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
-    void setOptionName(int);
+    std::string& getIpAddress();
+    void setIpAddress(std::string & ip);
 
-    int& getOptionVal();
-    /*set option_Value for soc option to 0 or 1 */
-    void setOptionVal(int);
-
-    pid_t& getPid();
-    /*store pid of process*/
-    void setPid(pid_t &);
+    // pid_t& getPid();
+    // /*store pid of process*/
+    // void setPid(pid_t &);
 
     void close_server_fd();
 

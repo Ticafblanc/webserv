@@ -125,7 +125,10 @@ c++98
 - [X] create branch test (Matthis)
 - [X] set git action to automate pull_request master(Matthis)
 - [X] create directory like nginx
-- [ ]
+- [x] parsing file and subdivising server blocks
+- [ ] parsing subdivised server blocks and creating instances of data_server
+- [X] create directory like nginx (Matthis)
+- [X] set container to merge project on linux (Matthis)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Dockerfile                                         :+:      :+:    :+:    #
+#    Dockerfile.webserv_env_dev                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -11,30 +11,29 @@
 # **************************************************************************** #
 
 # set image release  Ubuntu 20.04 LTS
-FROM ubuntu:20.04
+FROM ticafblanc/webserv:latest
 
-# set a new docker
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    libboost-all-dev \
-    libcurl4-openssl-dev \
-    libssl-dev
+#set macro of repo path and path to contant web site
+ARG repo_git=https://github.com/Ticafblanc/webserv.git
+ARG path_to_config_content_sever=config_content_server
 
-# clone project
-RUN git clone https://github.com/Ticafblanc/webserv.git
+#clone repo
+RUN git clone ${repo_git} /webserv
 
+#compile project
+RUN cd /webserv \
+    && make \
+    && mv Bin/webserv /usr/local/bin/webserv \
+    && rm -rf /usr/local/etc/webserv \
+    && rm -rf /usr/local/var/www \
+    && mv ${path_to_config_content_sever}/for_etc/* /usr/local/etc/ \
+    && mv ${path_to_config_content_sever}/for_var/* /usr/local/var/
 
+RUN rm -rf /webserv
 
-# Compilation du projet Webserv
-WORKDIR webserv
-COPY . webserv
-RUN make run
-
-# Exposition du port 80
+# Exposition of port 80
 EXPOSE 80
 
-# Commande pour démarrer le serveur
-CMD ["./webserv", "webserv.conf"]#expand shell and of command
+## Command to do at close
+CMD [ "webserv" ]
 

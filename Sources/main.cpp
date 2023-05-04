@@ -17,9 +17,9 @@ int main(int argc, char **argv, char **envp){
     std::vector<server> vec;
     try{
         if(argc == 2)
-            vec = init(argv[1]);//parse file
+            vec = init(argv[1]);
         else
-            vec = init("usr->local/etc/webserv/webserv.conf");//parse default file
+            vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
         std::vector<server>::iterator It = vec.begin();
         for (; It != vec.end(); ++It){
             It->launcher();
@@ -30,6 +30,8 @@ int main(int argc, char **argv, char **envp){
         std::cout <<"end failure"<< std::endl;
         exit(EXIT_FAILURE);
     }
+    while(1)
+        ;
     /*see if try catch to do*/
     std::cout <<"end succes"<< std::endl;
     exit(EXIT_SUCCESS);

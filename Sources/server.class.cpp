@@ -9,7 +9,6 @@
 /*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "../Include/server.class.hpp"
 #include <algorithm>
 #include <cstdio>
