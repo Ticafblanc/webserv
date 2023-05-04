@@ -129,6 +129,9 @@ c++98
 - [ ] parsing subdivised server blocks and creating instances of data_server
 - [X] create directory like nginx (Matthis)
 - [X] set container to merge project on linux (Matthis)
+- [X] set testing library for testing
+- [X] make basic test for ctest
+- [ ] make test for the parsing functions
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
