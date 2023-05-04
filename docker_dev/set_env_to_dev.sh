@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    update_dockerhub.sh                                 :+:      :+:    :+:    #
+#    lanch_unit_test.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,11 +12,12 @@
 
 #!/bin/bash
 
-if docker images | grep -q ticafblanc/webserv:latest ; then \
+#Check if the Ubuntu image exist
+if docker images | grep -q ticafblanc/webserv-env-dev:latest ; then \
   echo "Image already pull"
 else
-  echo "load image webserv:latest"
-  docker pull ticafblanc/webserv:latest
+  echo "load image ticafblanc/webserv-env-dev:latest"
+  docker pull ticafblanc/webserv-env-dev:latest
 fi
 
 while true; do
@@ -24,15 +25,23 @@ while true; do
     if [ -z "${version}" ] ; then
         echo " need old version "
     else
-        docker tag ticafblanc/webserv:latest ticafblanc/webserv:${version}
-        docker push ticafblanc/webserv:${version}
+        docker tag ticafblanc/webserv-env-dev:latest ticafblanc/webserv-env-dev:${version}
+        docker push ticafblanc/webserv-env-dev:${version}
         break
     fi
 done
 
-docker build -t ticafblanc/webserv:latest .
+#find path of dockerfile
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+
+SOURCE_CODE_DIR="$(dirname "${SCRIPT_DIR}")"
+
+#build image update the number for each update
+docker build -t ticafblanc/webserv-env-dev:latest -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}
 
 # update docker hub
-docker push ticafblanc/webserv:latest
+docker push ticafblanc/webserv-env-dev:latest
 
-docker rmi ticafblanc/webserv:${version}
+docker rmi ticafblanc/webserv-env-dev:${version}
+
+
