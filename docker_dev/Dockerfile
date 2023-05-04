@@ -25,6 +25,9 @@ RUN apt-get update \
     rsync \
     tar \
     python3 \
+    valgrind \
     && apt-get clean
 
-#docker build -t clion/ubuntu/webserv-env:1.0 -f Dockerfile.webserv_env_dev .
+#set the webserv config content
+COPY ../config_content_server/for_etc/ /usr/local/etc/
+COPY ../config_content_server/for_var/ /usr/local/var/

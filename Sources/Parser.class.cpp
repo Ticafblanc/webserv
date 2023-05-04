@@ -8,11 +8,11 @@ Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 
 Parser::~Parser() { }
 
-vector<data_server> Parser::get_data(void) {
+vector<data_server> Parser::get_data() {
 	return _servers;
 }
 
-void Parser::printAll(void) {
+void Parser::printAll() {
 	for (std::size_t i = 0; i < _servers.size(); i++) {
 		_servers.at(i).printAll();
 	}
@@ -22,7 +22,7 @@ void Parser::set_data(vector<data_server>& data_servers) {
 	this->_servers = data_servers;
 }
 
-std::string Parser::readToBuffer(void) {
+std::string Parser::readToBuffer() {
 	string buffer;
 	this->openFile();
 	std::getline(this->_config_file, buffer, '\0');
@@ -30,17 +30,17 @@ std::string Parser::readToBuffer(void) {
 	return buffer;
 }
 
-void Parser::openFile(void) {
+void Parser::openFile() {
 	this->_config_file.open(_arg.c_str());
 	if (this->_config_file.fail() || !this->_config_file.is_open())
 		throw OpenException();
 }
 
-void Parser::findAmountServers(void) { //Last valid option
+void Parser::findAmountServers() { //Last valid option
 	string buffer = readToBuffer();
 	string comp("{ 	\n");
 	int lock = 0;
-	while (buffer.size() != 0) {
+	while (!buffer.empty()) {
 		if (buffer.find("server") == string::npos)
 			break ;
 		buffer = buffer.substr(buffer.find("server"));
@@ -57,7 +57,7 @@ void Parser::findAmountServers(void) { //Last valid option
 					throw InvalidConfigFile();
 				buffer = buffer.substr(buffer.find('{'));
 			}
-			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+			for (string::iterator it = buffer.begin(); it < buffer.end(); ++it) {
 				if (*it == '{')
 					lock++;
 				if (*it == '}')
@@ -74,15 +74,15 @@ void Parser::findAmountServers(void) { //Last valid option
 	}
 }
 
-void Parser::getBlocks(void) {
+void Parser::getBlocks() {
 	string buffer = readToBuffer();
 	string block;
 	int lock = 0;
-	while (buffer.size() != 0) {
+	while (!buffer.empty()) {
 		if (buffer.find("server") == string::npos)
 			break ;
 		buffer = buffer.substr(buffer.find('{'));
-		for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+		for (string::iterator it = buffer.begin(); it < buffer.end(); ++it) {
 			if (*it == '{')
 				lock++;
 			if (*it == '}')

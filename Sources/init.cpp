@@ -28,7 +28,6 @@ std::vector<server> init(string str){
         It->setOptionName(SO_REUSEADDR);
         It->setOptionVal(1);
         Vt->setDataServer(*It);
-        // std::cout << "coucou" << std::endl;
     }
     return vec;
 

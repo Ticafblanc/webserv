@@ -30,8 +30,6 @@ int main(int argc, char **argv, char **envp){
         std::cout <<"end failure"<< std::endl;
         exit(EXIT_FAILURE);
     }
-    while(1)
-        ;
     /*see if try catch to do*/
     std::cout <<"end succes"<< std::endl;
     exit(EXIT_SUCCESS);
