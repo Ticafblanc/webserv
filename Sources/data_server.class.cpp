@@ -171,9 +171,7 @@ void data_server::setRoot(const string root) {
     if (_root.size() != 0) {
         throw DuplicateDirective();
     }
-    cout << "In setRoot, value of root " << root << endl;
     this->_root = root;
-    cout << "In setRoot, value of _root " << _root << endl;
 }
 
 void data_server::setMaxBodySize(int maxBodySize) throw() {
