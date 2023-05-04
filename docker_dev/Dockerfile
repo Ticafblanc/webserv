@@ -25,6 +25,7 @@ RUN apt-get update \
     rsync \
     tar \
     python3 \
+    valgrind \
     && apt-get clean
 
 #set the webserv config content
