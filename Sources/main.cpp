@@ -10,30 +10,54 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+//#include "../Include/webserv.hpp"
+//
+//int main(int argc, char **argv, char **envp){
+//    (void)envp;
+//    std::vector<server> vec;
+//    try{
+//        if(argc == 2)
+//            vec = init(argv[1]);
+//        else
+//            vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
+//        std::vector<server>::iterator It = vec.begin();
+//        for (; It != vec.end(); ++It){
+//            It->launcher();
+//        }
+//    }
+//    catch(const std::exception& e){
+//        std::cout << e.what() << std::endl;
+//        std::cout <<"end failure"<< std::endl;
+//        exit(EXIT_FAILURE);
+//    }
+//    while(1)
+//        ;
+//    /*see if try catch to do*/
+//    std::cout <<"end succes"<< std::endl;
+//    exit(EXIT_SUCCESS);
+//}
+
 #include "../Include/webserv.hpp"
+#include <time.h>
 
-int main(int argc, char **argv, char **envp){
-    (void)envp;
-    std::vector<server> vec;
-    try{
-        if(argc == 2)
-            vec = init(argv[1]);
-        else
-            vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
-        std::vector<server>::iterator It = vec.begin();
-        for (; It != vec.end(); ++It){
-            It->launcher();
+int main(int argc, char **argv) {
+    (void)argv;
+    (void)argc;
+//    if (argc == 2) {
+        try
+        {
+            std::size_t start = clock();
+            Parser parser("../config_content_server/for_etc/webserv/webserv.conf");
+            //parser.printAll();
+            std::size_t end = clock();
+            cout << "it took " << end - start << " ticks to finish" << endl;
         }
-    }
-    catch(const std::exception& e){
-        std::cout << e.what() << std::endl;
-        std::cout <<"end failure"<< std::endl;
-        exit(EXIT_FAILURE);
-    }
-    while(1)
-        ;
-    /*see if try catch to do*/
-    std::cout <<"end succes"<< std::endl;
-    exit(EXIT_SUCCESS);
+        catch(const std::exception& e)
+        {
+            std::cerr << e.what() << '\n';
+        }
+//    }
+//    else
+//        cout << "gtfo" << endl;
+    return 0;
 }
-
