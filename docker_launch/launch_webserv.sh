@@ -20,8 +20,8 @@ else
   docker pull ubuntu:latest
 fi
 
-#find path of dockerfile
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+#find path of dockerfile install coreutils => brew install coreutils
+SCRIPT_DIR="$(dirname "$(greadlink -f "$0")")"
 
 SOURCE_CODE_DIR="$(dirname "${SCRIPT_DIR}")"
 
