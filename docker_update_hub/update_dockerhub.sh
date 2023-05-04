@@ -1,7 +1,7 @@
 # **************************************************************************** #
 #                                                                              #
 #                                                         :::      ::::::::    #
-#    Check_and_launch.sh                                    :+:      :+:    :+:    #
+#    update_dockerhub.sh                                 :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
 #    By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
@@ -12,18 +12,27 @@
 
 #!/bin/bash
 
-# Récupérer les dernières modifications depuis la branche distante
-git fetch origin
+if docker images | grep -q ubuntu:latest ; then \
+  echo "Image already pull"
+else
+  echo "load image webserv:latest"
+  docker pull ticafblanc/webserv:latest
+fi
 
-# Fusionner les modifications locales avec les dernières modifications de la branche distante
-git merge origin/master
+while true; do
+    read -p "Enter number of old version : " version
+    if [ -z "${version}" ] ; then
+        echo " need old version "
+    else
+        docker tag ticafblanc/webserv:latest ticafblanc/webserv:${version}
+        docker push ticafblanc/webserv:${version}
+        break
+    fi
+done
 
-#compile project
-make
+docker build -t ticafblanc/webserv:latest .
 
-#set file server
-mv /Bin/webserv /usr/local/bin/; \
-mv /for_etc/* /usr/local/etc/; \
-mv /for_var/* /usr/local/var/; \
+# update docker hub
+docker push ticafblanc/webserv:latest
 
-nvim
+docker rmi ticafblanc/webserv:${version}

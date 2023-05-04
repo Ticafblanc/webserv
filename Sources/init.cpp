@@ -31,4 +31,6 @@ std::vector<server> init(string str){
         // std::cout << "coucou" << std::endl;
     }
     return vec;
+
+
 }

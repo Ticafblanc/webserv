@@ -87,6 +87,7 @@ data_server& data_server::operator=(const data_server& rhs) {
     this->_address = rhs._address;
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
+    this->_root = rhs._root;
 
     return *this;
 }
