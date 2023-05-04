@@ -88,6 +88,9 @@ data_server& data_server::operator=(const data_server& rhs) {
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
     this->_root = rhs._root;
+    this->_client_max_body_size = rhs._client_max_body_size;
+    this->_max_body_size_def = rhs._max_body_size_def;
+    this->_ipAddress = rhs._ipAddress;
 
     return *this;
 }
