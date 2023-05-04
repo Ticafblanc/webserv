@@ -8,11 +8,11 @@ Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 
 Parser::~Parser() { }
 
-vector<data_server> Parser::get_data(void) {
+vector<data_server> Parser::get_data() {
 	return _servers;
 }
 
-void Parser::printAll(void) {
+void Parser::printAll() {
 	for (std::size_t i = 0; i < _servers.size(); i++) {
 		_servers.at(i).printAll();
 	}
@@ -22,7 +22,7 @@ void Parser::set_data(vector<data_server>& data_servers) {
 	this->_servers = data_servers;
 }
 
-std::string Parser::readToBuffer(void) {
+std::string Parser::readToBuffer() {
 	string buffer;
 	this->openFile();
 	std::getline(this->_config_file, buffer, '\0');
@@ -30,17 +30,17 @@ std::string Parser::readToBuffer(void) {
 	return buffer;
 }
 
-void Parser::openFile(void) {
+void Parser::openFile() {
 	this->_config_file.open(_arg.c_str());
 	if (this->_config_file.fail() || !this->_config_file.is_open())
 		throw OpenException();
 }
 
-void Parser::findAmountServers(void) { //Last valid option
+void Parser::findAmountServers() { //Last valid option
 	string buffer = readToBuffer();
 	string comp("{ 	\n");
 	int lock = 0;
-	while (buffer.size() != 0) {
+	while (!buffer.empty()) {
 		if (buffer.find("server") == string::npos)
 			break ;
 		buffer = buffer.substr(buffer.find("server"));
@@ -57,7 +57,7 @@ void Parser::findAmountServers(void) { //Last valid option
 					throw InvalidConfigFile();
 				buffer = buffer.substr(buffer.find('{'));
 			}
-			for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+			for (string::iterator it = buffer.begin(); it < buffer.end(); ++it) {
 				if (*it == '{')
 					lock++;
 				if (*it == '}')
@@ -74,15 +74,15 @@ void Parser::findAmountServers(void) { //Last valid option
 	}
 }
 
-void Parser::getBlocks(void) {
+void Parser::getBlocks() {
 	string buffer = readToBuffer();
 	string block;
 	int lock = 0;
-	while (buffer.size() != 0) {
+	while (!buffer.empty()) {
 		if (buffer.find("server") == string::npos)
 			break ;
 		buffer = buffer.substr(buffer.find('{'));
-		for (string::iterator it = buffer.begin(); it < buffer.end(); it++) {
+		for (string::iterator it = buffer.begin(); it < buffer.end(); ++it) {
 			if (*it == '{')
 				lock++;
 			if (*it == '}')
@@ -118,7 +118,7 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	vector<std::pair<vector<int>, string> > error_pages;
 	string buffer = _blocks.at(blockId);
 	bool parsingDone = false;
-	while (parsingDone == false) {
+	while (!parsingDone) {
 		if (buffer.find("server_name") != string::npos) {
 			this->parseServerNameDirective(buffer, serverName);
 		}
@@ -142,10 +142,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	}
 	while (buffer.find("root") != string::npos)
 		this->parseRoot(buffer, data);
-	if (serverName.size() == 0) {
+	if (serverName.empty()) {
 		serverName.push_back("");
 	}
-	if (hostPort.size() == 0) {
+	if (hostPort.empty()) {
 		hostPort.push_back(std::make_pair("0.0.0.0", 8000));
 	}
 	data.setServerName(serverName);
@@ -199,7 +199,7 @@ void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serve
 			start = 0, stop = 0;
 		}
 	}
-	if (serverName.size() == 0)
+	if (serverName.empty())
 		throw NotTheRightNumberOfArgs();
 }
 
@@ -236,8 +236,8 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 				if (port > 65535)
 					throw InvalidPort();
 				if (port == 0) {
-					for (string::iterator it = tempPort.begin(); it < tempPort.end(); it++) {
-						if (isdigit(*it) == 0)
+					for (string::iterator it2 = tempPort.begin(); it2 < tempPort.end(); it2++) {
+						if (isdigit(*it2) == 0)
 							throw InvalidPort();
 					}
 				}
@@ -252,8 +252,8 @@ void Parser::parseListenDirective(std::string& buffer, vector<std::pair<string, 
 					if (port > 65535)
 						throw InvalidPort();
 					if (port == 0) {
-						for (string::iterator it = tempPort.begin(); it < tempPort.end(); it++) {
-							if (isdigit(*it) == 0)
+						for (string::iterator it2 = tempPort.begin(); it2 < tempPort.end(); it2++) {
+							if (isdigit(*it2) == 0)
 								throw InvalidPort();
 						}
 					}
@@ -371,12 +371,12 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				throw InvalidDirective();
 		}
 		else if (comp[0] == "index") {
-			for (std::size_t i = 1; i < comp.size(); i++) {
-				loc.setFile(comp[i]);
+			for (std::size_t i2 = 1; i2 < comp.size(); ++i2) {
+				loc.setFile(comp[i2]);
 			}
 		}
 		else if (comp[0] == "root") {
-			if (comp[1].size() == 0)
+			if (comp[1].empty())
 				throw InvalidDirective();
 			else if (comp.size() != 2)
 				throw NotTheRightNumberOfArgs();
@@ -395,13 +395,13 @@ void Parser::parseDirectives(vector<string>& directives, Route& loc) {
 				throw InvalidLocationBlock();
 		}
 		else if (comp[0] == "allowed_methods") {
-			for (std::size_t i = 1; i < comp.size(); i++) {
-				loc.checkMethod(comp[i]);
-				loc.pushMethod(comp[i]);
+			for (std::size_t i2 = 1; i2 < comp.size(); ++i2) {
+				loc.checkMethod(comp[i2]);
+				loc.pushMethod(comp[i2]);
 			}
 		}
 		else if (comp[0] == "client_max_body_size") {
-			if (comp.size() != 2 || loc.getBodyMaxStatus() == true)
+			if (comp.size() != 2 || loc.getBodyMaxStatus())
 				throw InvalidDirective();
 			else {
 				std::size_t size = atoi(comp[1].c_str());
@@ -430,7 +430,7 @@ std::size_t Parser::findStopLocation(std::string& buffer) {
 	if (start == string::npos)
 		throw InvalidLocationBlock();
 	int lock = 0;
-	for (string::iterator it = (buffer.begin() + start); it < buffer.end(); it++) {
+	for (string::iterator it = (buffer.begin() + start); it < buffer.end(); ++it) {
 		if (*it == '{')
 			lock++;
 		if (*it == '}')
@@ -450,7 +450,7 @@ std::string Parser::extractMatch(std::string& buffer) {
 	std::size_t stop = buffer.find("{");
 	std::size_t matchStart = string::npos;
 	std::size_t matchStop = string::npos;
-	for (string::iterator it = buffer.begin() + start; it < buffer.begin() + stop + 1; it++) {
+	for (string::iterator it = buffer.begin() + start; it < buffer.begin() + stop + 1; ++it) {
 		if (isspace(*it) == 0 && matchStart == string::npos) {
 			matchStart = it - buffer.begin();
 		}
@@ -464,17 +464,17 @@ std::string Parser::extractMatch(std::string& buffer) {
 	return match;
 }
 
-void Parser::parseBlocks(void) { // every server block is contained within the vector blocks in string form
+void Parser::parseBlocks() { // every server block is contained within the vector blocks in string form
 	if (_NServ == 0)
 		defineDefaultServer();
 	else {
-		for (unsigned int i = 0; i < _NServ; i++) {
+		for (unsigned int i = 0; i < _NServ; ++i) {
 			parseSingleBlock(i);
 		}
 	}
 }
 
-void Parser::defineDefaultServer(void) { //Define a single default server if _NServ == 0 
+void Parser::defineDefaultServer() { //Define a single default server if _NServ == 0
 	data_server data; //new data instance
 	vector<string> serverName; //vector of string that holds the name of the server
 	vector<std::pair<string, int> > hostPort; //vector of pairs that holds the host & port
@@ -487,7 +487,7 @@ void Parser::defineDefaultServer(void) { //Define a single default server if _NS
 	this->_servers.push_back(data); //adding data to _servers
 }
 
-void Parser::printBlocks(void) { //just for testing purposes
+void Parser::printBlocks() { //just for testing purposes
 	for (unsigned int i = 0; i < _NServ; i++) {
 		cout << _blocks.at(i) << endl;
 	}
@@ -495,7 +495,7 @@ void Parser::printBlocks(void) { //just for testing purposes
 
 //default 1m, duplicate is bad, if set at 0 disables body size checking
 void Parser::parseMaxBodySize(string& buffer, data_server& data) {
-	if (data.getBodySizeStatus() == true) {
+	if (data.getBodySizeStatus()) {
 		throw DuplicateDirective();
 	}
 	std::size_t start = buffer.find("client_max_body_size");
@@ -518,7 +518,7 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 		if ((isspace(*it) && start != 0) || *it == ';')
 			stop = it - toParse.begin();
 		if (start != 0 && stop != 0) {
-			if (data.getBodySizeStatus() == true)
+			if (data.getBodySizeStatus())
 				throw NotTheRightNumberOfArgs();
 			string		tmpBodySize = toParse.substr(start - 1, (stop - start));
 			std::size_t bodySize = atoi(tmpBodySize.c_str());
@@ -531,7 +531,7 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 	}
 }
 
-unsigned int Parser::getNServ(void) const {
+unsigned int Parser::getNServ() const {
 	return _NServ;
 }
 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(websrever)
+project(webserver)
 
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -g")

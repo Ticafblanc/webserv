@@ -12,7 +12,7 @@
 
 #!/bin/bash
 
-if docker images | grep -q ubuntu:latest ; then \
+if docker images | grep -q ticafblanc/webserv:latest ; then \
   echo "Image already pull"
 else
   echo "load image webserv:latest"

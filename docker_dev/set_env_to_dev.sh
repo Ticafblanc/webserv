@@ -13,23 +13,35 @@
 #!/bin/bash
 
 #Check if the Ubuntu image exist
-if docker images | grep -q ubuntu:latest ; then \
+if docker images | grep -q ticafblanc/webserv-env-dev:latest ; then \
   echo "Image already pull"
 else
-  echo "load image ubunut:latest"
-  docker pull ubuntu:latest
+  echo "load image ticafblanc/webserv-env-dev:latest"
+  docker pull ticafblanc/webserv-env-dev:latest
 fi
 
+while true; do
+    read -p "Enter number of old version : " version
+    if [ -z "${version}" ] ; then
+        echo " need old version "
+    else
+        docker tag ticafblanc/webserv-env-dev:latest ticafblanc/webserv-env-dev:${version}
+        docker push ticafblanc/webserv-env-dev:${version}
+        break
+    fi
+done
+
 #find path of dockerfile install coreutils => brew install coreutils
-SCRIPT_DIR="$(dirname "$(greadlink -f  "$0")")"
+SCRIPT_DIR="$(dirname "$(greadlink -f "$0")")"
 
 SOURCE_CODE_DIR="$(dirname "${SCRIPT_DIR}")"
 
-#build image
-docker build -t webserv_unit_test -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}
+#build image update the number for each update
+docker build -t ticafblanc/webserv-env-dev:latest -f ${SCRIPT_DIR}/Dockerfile ${SOURCE_CODE_DIR}
 
-#run write error and remove container
-docker run --rm -it webserv_unit_test
+# update docker hub
+docker push ticafblanc/webserv-env-dev:latest
 
-#remove image after test
-docker rmi webserv_unit_test
+docker rmi ticafblanc/webserv-env-dev:${version}
+
+

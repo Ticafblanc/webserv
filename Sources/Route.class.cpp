@@ -4,7 +4,7 @@ void Route::setAllowedMethods(vector<string>& allowed_methods) throw() {
     this->_allowed_methods = allowed_methods;
 }
 
-const vector<string>& Route::getAllowedMethods(void) const throw() {
+const vector<string>& Route::getAllowedMethods() const throw() {
     return _allowed_methods;
 }
 
@@ -31,10 +31,10 @@ Route::Route() {
 
 Route::~Route() {}
 
-void Route::printAll(void) {
+void Route::printAll() {
     cout << "prefix: " << _prefix << endl;
     cout << "Allowed methods: ";
-    if (_allowed_methods.size() == 0)
+    if (_allowed_methods.empty())
         cout << "all";
     else {
         for (std::size_t i = 0; i < _allowed_methods.size(); i++) {
@@ -65,7 +65,7 @@ void Route::setPrefix(string& prefix) throw() {
     this->_prefix = prefix;
 }
 
-const string& Route::getPrefix(void) const throw() {
+const string& Route::getPrefix() const throw() {
     return this->_prefix;
 }
 
@@ -73,7 +73,7 @@ void Route::setHttpRedir(std::pair<string, string> redir) throw() {
     this->_httpRedir = redir;
 } 
 
-std::pair<string, string> Route::getHttpRedir(void) const throw() {
+std::pair<string, string> Route::getHttpRedir() const throw() {
     return this->_httpRedir;
 }
 
@@ -81,7 +81,7 @@ void Route::setDirectoryListing(bool state) throw() {
     this->_autoIndex = state;
 }
 
-bool Route::getDirectoryListing(void) const throw() {
+bool Route::getDirectoryListing() const throw() {
     return this->_autoIndex;
 }
 
@@ -89,7 +89,7 @@ void Route::setSearchDir(string& dir) throw() {
     this->_searchDir = dir;
 }
 
-const string& Route::getSearchDir(void) const throw() {
+const string& Route::getSearchDir() const throw() {
     return this->_searchDir;
 }
 
@@ -97,7 +97,7 @@ void Route::setIndex(vector<string>& index) throw() {
     this->_index = index;
 }
 
-const vector<string>& Route::getIndex(void) const throw() {
+const vector<string>& Route::getIndex() const throw() {
     return this->_index;
 }
 
@@ -109,18 +109,18 @@ void Route::setUploadDir(string& directory) throw() {
     this->_uploadPath = directory;
 }
 
-const string& Route::getUploadDir(void) const throw() {
+const string& Route::getUploadDir() const throw() {
     return this->_uploadPath;
 }
 
 void Route::setRoot(const string& root) {
-    if (this->_root.size() != 0) {
+    if (!this->_root.empty()) {
         throw DuplicateRoot();
     }
     this->_root = root;
 }
 
-const string& Route::getRoot(void) const throw() {
+const string& Route::getRoot() const throw() {
     return this->_root;
 }
 
@@ -128,7 +128,7 @@ void Route::setCGI(const vector<std::pair<string, string> >& cgi) throw() {
     this->_cgi = cgi;
 }
 
-const vector<std::pair<string, string> >& Route::getCGI(void) const throw() {
+const vector<std::pair<string, string> >& Route::getCGI() const throw() {
     return this->_cgi;
 }
 
@@ -140,7 +140,7 @@ void Route::setBodyMaxSize(const std::size_t size) throw() {
     this->_client_body_max_size = size;
 }
 
-std::size_t Route::getBodyMaxSize(void) const throw() {
+std::size_t Route::getBodyMaxSize() const throw() {
     return this->_client_body_max_size;
 }
 
@@ -148,7 +148,7 @@ void Route::setBodyMaxStatus(const bool status) throw() {
     this->_client_body_max_status = status;
 }
 
-bool Route::getBodyMaxStatus(void) const throw() {
+bool Route::getBodyMaxStatus() const throw() {
     return this->_client_body_max_status;
 }
 
