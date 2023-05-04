@@ -4,7 +4,6 @@ Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 	findAmountServers();
 	getBlocks();
 	parseBlocks();
-	cout << "Root after parseBlocks: " << _servers[0].getRoot() << endl;
 }
 
 Parser::~Parser() { }
@@ -141,10 +140,8 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 			parsingDone = true;
 		}
 	}
-	while (buffer.find("root") != string::npos) {
-		cout << "Address of data before parseRoot: " << &data << endl;
+	while (buffer.find("root") != string::npos)
 		this->parseRoot(buffer, data);
-	}
 	if (serverName.size() == 0) {
 		serverName.push_back("");
 	}
@@ -156,19 +153,10 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data.setIdServer(blockId);
 	data.setRoutes(routes);
 	data.setErrorPages(error_pages);
-//	cout << "Root from data " << data.getRoot() << endl;
-//	cout << "client max body size before push_back: " << data.getMaxBodySize() << endl;
-//	this->_servers.push_back(data);
-//	cout << "client max body size after push_back: " << data.getMaxBodySize() << endl;
-//	cout << "Root after push_back: " << _servers[0].getRoot() << endl;
-//	cout << "Random ass bullshit from data after pushBack: " << _servers[0].getServerName()[0] << endl;
-    data.printAll();
-    this->_servers.push_back(data);
-    _servers[0].printAll();
+	this->_servers.push_back(data);
 }
 
 void Parser::parseRoot(string& buffer, data_server& data) {
-	cout << "Address of data inside parseRoot: " << &data << endl;
 	std::size_t start = buffer.find("root");
 	std::size_t stop = buffer.find(';', start);
 	if (stop == string::npos)
@@ -182,13 +170,8 @@ void Parser::parseRoot(string& buffer, data_server& data) {
 	vector<string> args = split(toParse);
 	if (args.size() != 2 || args[0] != "root")
 		throw InvalidDirective();
-	else {
-		string root = args[1];
-		cout << "Root in parseRoot: " << root << endl;
-		data.setRoot(root);
-		cout << "Root in parseRoot after setRoot: " << data.getRoot() << endl;
-	}
-	//args.clear();
+	else
+		data.setRoot(args[1]);
 }
 
 void Parser::parseServerNameDirective(std::string& buffer, vector<string>& serverName) {
