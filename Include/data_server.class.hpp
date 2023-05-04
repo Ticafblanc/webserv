@@ -41,18 +41,18 @@ private:
         backlog, new_socket, level,
         optionname, optionval};
     
-    string                                      _root;
-    vector<int>                                 _iData;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
     vector<Route>                               _routes;
-    std::size_t                                 _client_max_body_size;
-    bool                                        _max_body_size_def;
+    vector<int>                                 _iData;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
-    string                                      _ipAddress;
     vector<int>                                 _server_fd;
+    string                                      _root;
+    std::size_t                                 _client_max_body_size;
+    bool                                        _max_body_size_def;
+    string                                      _ipAddress;
 
 /*
 *====================================================================================
