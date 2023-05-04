@@ -156,12 +156,15 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 	data.setIdServer(blockId);
 	data.setRoutes(routes);
 	data.setErrorPages(error_pages);
-	cout << "Root from data " << data.getRoot() << endl;
-	cout << "client max body size before push_back: " << data.getMaxBodySize() << endl;
-	this->_servers.push_back(data);
-	cout << "client max body size after push_back: " << data.getMaxBodySize() << endl;
-	cout << "Root after push_back: " << _servers[0].getRoot() << endl;
-	cout << "Random ass bullshit from data after pushBack: " << _servers[0].getServerName()[0] << endl; 
+//	cout << "Root from data " << data.getRoot() << endl;
+//	cout << "client max body size before push_back: " << data.getMaxBodySize() << endl;
+//	this->_servers.push_back(data);
+//	cout << "client max body size after push_back: " << data.getMaxBodySize() << endl;
+//	cout << "Root after push_back: " << _servers[0].getRoot() << endl;
+//	cout << "Random ass bullshit from data after pushBack: " << _servers[0].getServerName()[0] << endl;
+    data.printAll();
+    this->_servers.push_back(data);
+    _servers[0].printAll();
 }
 
 void Parser::parseRoot(string& buffer, data_server& data) {
