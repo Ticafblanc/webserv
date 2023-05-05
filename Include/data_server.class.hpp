@@ -19,6 +19,7 @@
 //◦Execute CGI based on certain file extension (for example .php).
 //◦Make the route able to accept uploaded files and configure where they should be saved
 class data_server{
+    
 /*
 *====================================================================================
 *|                                     Public Member                                |
@@ -48,7 +49,7 @@ private:
     vector<int>                                 _iData;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
-    vector<int>                                 _server_fd;
+    vector<int>                                 _server_fd;//why this value in vector?
     string                                      _root;
     std::size_t                                 _client_max_body_size;
     bool                                        _max_body_size_def;

@@ -20,6 +20,8 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
+
 
 using std::string;
 using std::vector;

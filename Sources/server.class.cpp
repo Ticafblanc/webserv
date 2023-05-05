@@ -17,9 +17,9 @@
 *====================================================================================
 */
 
-server::server() : data(), i_arg(1), s_arg(), fds() {}
+server::server() : data(), i_arg(2), s_arg(), ev(), events() {}
 
-server::server(data_server & data) : data(data), i_arg(1), s_arg(), fds(){ }
+server::server(data_server & data) : data(data), i_arg(2), s_arg(), ev(), events(), { }
 
 server::~server() {
     try {
@@ -29,9 +29,9 @@ server::~server() {
         throw e;
     }
 }
-server::server(const server& other) : data(other.data), i_arg(other.i_arg), s_arg(other.s_arg), fds() {
+server::server(const server& other) : data(other.data), i_arg(other.i_arg), s_arg(other.s_arg), ev(other.ev), events() {
     for (int i = 0; i < other.i_arg[nbr_clients]; ++i) {
-        fds[i] = other.fds[i];
+        events[i] = other.events[i];
     }
 }
 
@@ -40,7 +40,7 @@ server& server::operator=(const server& rhs){
     this->i_arg = rhs.i_arg;
     this->s_arg = rhs.s_arg;
     for (int i = 0; i < rhs.i_arg[nbr_clients]; ++i) {
-        this->fds[i] = rhs.fds[i];
+        this->events[i] = rhs.events[i];
     }
     return *this;
 }
@@ -77,8 +77,8 @@ const char * server::launch_exception::what() const throw(){
     return ("launch error");
 }
 
-const char * server::poll_exception::what() const throw(){
-    return ("poll error");
+const char * server::epoll_exception::what() const throw(){
+    return ("epoll error");
 }
 
 /*
@@ -106,9 +106,10 @@ void server::launcher() {
         set_sockoption();
         set_bind();
         set_listen();
-        // std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-        //           << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
-
+        set_server_non_blocking();
+        create_epoll();
+        set_epoll_socket();
+        set_epoll_ctl();//standars tyo other fonction in while loop
         do {
             set_server_non_blocking();
             set_pollfd();
@@ -123,7 +124,7 @@ void server::launcher() {
             }
             // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
-        } while (1);
+        } while (true);
     }
     catch (const std::exception& e){
         throw e;
@@ -150,40 +151,52 @@ void server::launcher() {
 */
 
 void server::set_socket() {
-    this->data.setServerFd(socket(this->data.getDomain(), this->data.getType(), this->data.getProtocol()));
+    i_arg[server_fd] = (socket(this->data.getDomain(), this->data.getType(), this->data.getProtocol()));
     if (this->data.getServerFd() == 0)
         throw server::socket_exception();
 }
 
 void server::set_sockoption(){
-    if (setsockopt(this->data.getServerFd(), this->data.getLevel(), this->data.getOptionName(),
+    if (setsockopt(i_arg[server_fd], this->data.getLevel(), this->data.getOptionName(),
                    &this->data.getOptionVal(), (socklen_t)sizeof(this->data.getOptionVal()))) {
         throw server::socketopt_exception();
     }
 }
 
 void server::set_bind() {
-    if (bind(this->data.getServerFd(), reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
+    if (bind(i_arg[server_fd], reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
         close(this->data.getServerFd());
         throw server::bind_exception();
     }
 }
 
 void server::set_listen() {
-    if (listen(this->data.getServerFd(), this->data.getBacklog()) < 0)
+    if (listen(i_arg[server_fd], this->data.getBacklog()) < 0)
         throw server::listen_exception();
 }
 
 void server::set_server_non_blocking(){
-    fcntl(this->data.getServerFd(), F_SETFL, O_NONBLOCK);
+    fcntl(i_arg[server_fd], F_SETFL, O_NONBLOCK);
+}
+void server::create_epoll() {
+    i_arg[epoll_fd] = epoll_create(1);
+    if (i_arg[epoll_fd] == -1) {
+        throw server::epoll_exception();//possible to add message to differ each epoll exeption
+    }
 }
 
-void server::set_pollfd(){
-    fds[this->i_arg[nbr_clients]].fd = this->data.getServerFd();
-    fds[this->i_arg[nbr_clients]].events = POLLIN;
+void server::set_epoll_socket(){
+    event.data.fd = i_arg[server_fd];
+    event.events = POLLIN;
 }
 
-void server::set_poll() {
-    if(poll(fds, this->i_arg[nbr_clients], -1) == -1)
-        throw server::poll_exception();
+void server::set_epoll_ctl() {
+    if(epoll_ctl( i_arg[epoll_fd], EPOLL_CTL_ADD, i_arg[server_fd], &event) == -1)
+        throw server::epoll_exception();//possible to add message to differ each epoll exeption
+}
+
+void server::set_epoll_wait() {
+    i_arg[nbr_clients] = epoll_wait( i_arg[epoll_fd], events, MAX_EVENTS, -1) == -1;
+    if (i_arg[nbr_clients] == -1)
+        throw server::epoll_exception();//possible to add message to differ each epoll exeption
 }

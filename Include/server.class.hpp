@@ -16,7 +16,7 @@
 #include "header.hpp"
 #include <poll.h>
 
-#define MAX_CLIENTS 100
+#define MAX_EVENTS 100
 
 class server{
 
@@ -27,12 +27,12 @@ class server{
 */
 private:// see if to switch const
 
-    enum { nbr_clients,};
+    enum { nbr_clients, server_fd, epoll_fd};
 
     data_server data;
     std::vector<int> i_arg;
     std::vector<std::string> s_arg;
-    struct pollfd fds[MAX_CLIENTS];
+    struct epoll_event event, events[MAX_EVENTS];
 
 
 
@@ -99,7 +99,7 @@ public:
         const char * what() const throw();
     };
 
-    class poll_exception: public std::exception
+    class epoll_exception: public std::exception
     {
     public:
         const char * what() const throw();
@@ -164,13 +164,17 @@ private:
 
 /*set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)*/
     void set_server_non_blocking();
+/*create an instance of epoll*/
+    void create_epoll();
 
 /*set fds for news client for server socket*/
-    void set_pollfd();
-/*wait new event or throw exeptiom*/
-    void set_poll();
+    void set_epoll_socket();
 
+/*registe  or throw exeptiom*/
+    void set_epoll_ctl();
 
+/*wait un event in request connect or sockert already open or throw exeptiom*/
+    void set_epoll_wait();
 };
 
 
