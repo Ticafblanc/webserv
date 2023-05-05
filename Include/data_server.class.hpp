@@ -41,18 +41,18 @@ private:
         backlog, new_socket, level,
         optionname, optionval};
     
-    string                                      _root;
-    vector<int>                                 _iData;
     vector<string>                              _server_name;
     vector<std::pair<string, int> >             _host_port;
     vector<std::pair<vector<int>, string> >     _error_page;
     vector<Route>                               _routes;
-    std::size_t                                 _client_max_body_size;
-    bool                                        _max_body_size_def;
+    vector<int>                                 _iData;
     sockaddr_in                                 _address;
     std::size_t                                 _addr_len;
-    string                                      _ipAddress;
     vector<int>                                 _server_fd;
+    string                                      _root;
+    std::size_t                                 _client_max_body_size;
+    bool                                        _max_body_size_def;
+    string                                      _ipAddress;
 
 /*
 *====================================================================================
@@ -122,32 +122,32 @@ public:
 public:
     std::vector<int>& getIData();
 
-    const vector<string>& getServerName(void) const throw(); //returns server name @ id
+    const vector<string>& getServerName() const throw(); //returns server name @ id
     void setServerName(const vector<string>& serverName) throw(); //sets server name @ id to serverName
 
-    const vector<std::pair<vector<int>, string> >& getErrorPages(void) const throw();
+    const vector<std::pair<vector<int>, string> >& getErrorPages() const throw();
     void setErrorPages(const vector<std::pair<vector<int>, string> >& errorPages) throw();
 
-    const vector<std::pair<string, int> >& getHostPort(void) const throw(); //return ip address @ id
+    const vector<std::pair<string, int> >& getHostPort() const throw(); //return ip address @ id
     void setHostPort(const vector<std::pair<string, int> >& hostPair) throw(); //sets ip address @ id with ipAddress 
 
 
-    const vector<Route>& getRoutes(void) const throw(); //returns vector of Route
+    const vector<Route>& getRoutes() const throw(); //returns vector of Route
     void setRoutes(const vector<Route>& routes) throw();
 
-    const string getRoot(void) const throw();
-    void setRoot(const string root);
+    const string& getRoot() const throw();
+    void setRoot(const string& root);
 
     void setMaxBodySize(int maxBodySize) throw();
-    int getMaxBodySize(void) const throw();
+    std::size_t getMaxBodySize() const throw();
 
     void setBodySizeStatus(bool status) throw();
-    bool getBodySizeStatus(void) const throw();
+    bool getBodySizeStatus() const throw();
 
-    const int& getPort(void) const throw();
+    const int& getPort() const throw();
     void setPort(int port) throw();
 
-    const int& getServerFd(void) const throw();
+    const int& getServerFd() const throw();
     void setServerFd(int fd) throw();
 
     /*************** iData methods ******************/

@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../Include/webserv.hpp"
+#include "sys/epoll.h"
 
 int main(int argc, char **argv, char **envp){
     (void)envp;

@@ -31,7 +31,7 @@ public:
 	void setAllowedMethods(vector<string>& allowed_methods) throw();
 	const vector<string>& getAllowedMethods(void) const throw();
 	void pushMethod(const string& method) throw();
-	static void checkMethod(const string& method);
+	void checkMethod(const string& method);
 
 	void setPrefix(string& prefix) throw();
 	const string &getPrefix(void) const throw();

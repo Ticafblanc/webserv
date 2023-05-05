@@ -57,7 +57,7 @@ void Parser::findAmountServers() { //Last valid option
 					throw InvalidConfigFile();
 				buffer = buffer.substr(buffer.find('{'));
 			}
-			for (string::iterator it = buffer.begin(); it < buffer.end(); ++it) {
+			for (string::iterator it = buffer.begin(); it != buffer.end(); ++it) {
 				if (*it == '{')
 					lock++;
 				if (*it == '}')
@@ -131,17 +131,16 @@ void Parser::parseSingleBlock(int blockId) { //parses a single function block an
 		if (buffer.find("error_page") != string::npos) {
 			this->parseErrorPages(buffer, error_pages);
 		}
-		if (buffer.find("client_max_body_size") != string::npos) {
-			this->parseMaxBodySize(buffer, data);
-		}
 		if (buffer.find("listen") == string::npos && buffer.find("server_name") == string::npos \
-			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos \
-			&& buffer.find("client_max_body_size") == string::npos) {
+			&& buffer.find("location") == string::npos && buffer.find("error_page") == string::npos) {
 			parsingDone = true;
 		}
 	}
 	while (buffer.find("root") != string::npos)
 		this->parseRoot(buffer, data);
+    while (buffer.find("client_max_body_size") != string::npos) {
+        this->parseMaxBodySize(buffer, data);
+    }
 	if (serverName.empty()) {
 		serverName.push_back("");
 	}
@@ -510,7 +509,7 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 	buffer = buffer.append(tempBufferStop);
 	if (isspace(toParse[toParse.find("client_max_body_size") + 22]) != 0)
 		throw InvalidDirective();
-	toParse = toParse.substr(toParse.find("client_max_body_size") + 22);
+	toParse = toParse.substr(toParse.find("client_max_body_size") + 21);
 	start = 0, stop = 0;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
 		if (isalnum(*it) != 0 && start == 0)

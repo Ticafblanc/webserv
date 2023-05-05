@@ -19,7 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false), _address(), _addr_len() {
+data_server::data_server(): _iData(9), _address(), _addr_len(), _client_max_body_size(0), _max_body_size_def(false) {
     _iData[domain] = AF_INET;
     _iData[type] = SOCK_STREAM;
     _iData[protocol] = 0;
@@ -73,7 +73,7 @@ void data_server::printAll() {
     }
 }
 
-data_server::data_server(const data_server& other) : _client_max_body_size(), _max_body_size_def(), _address(), _addr_len() {
+data_server::data_server(const data_server& other) {
     *this = other;
 }
 
@@ -88,6 +88,9 @@ data_server& data_server::operator=(const data_server& rhs) {
     this->_addr_len = rhs._addr_len;
     this->_server_fd = rhs._server_fd;
     this->_root = rhs._root;
+    this->_client_max_body_size = rhs._client_max_body_size;
+    this->_max_body_size_def = rhs._max_body_size_def;
+    this->_ipAddress = rhs._ipAddress;
 
     return *this;
 }
@@ -160,24 +163,22 @@ void data_server::setServerFd(int fd) throw() { // Will need to be changed
     _server_fd.push_back(fd);
 }
 
-const string data_server::getRoot() const throw() {
+const string& data_server::getRoot() const throw() {
     return _root;
 }
 
-void data_server::setRoot(const string root) {
+void data_server::setRoot(const string& root) {
     if (!_root.empty()) {
         throw DuplicateDirective();
     }
-    cout << "In setRoot, value of root " << root << endl;
     this->_root = root;
-    cout << "In setRoot, value of _root " << _root << endl;
 }
 
 void data_server::setMaxBodySize(int maxBodySize) throw() {
     this->_client_max_body_size = maxBodySize;
 }
 
-int data_server::getMaxBodySize() const throw() {
+std::size_t data_server::getMaxBodySize() const throw() {
     return this->_client_max_body_size;
 }
 
@@ -185,11 +186,11 @@ void data_server::setBodySizeStatus(bool status) throw() {
     this->_max_body_size_def = status;
 }
 
-bool data_server::getBodySizeStatus(void) const throw() {
+bool data_server::getBodySizeStatus() const throw() {
     return this->_max_body_size_def;
 }
 
-const int& data_server::getPort(void) const throw() { //Will have to be changed
+const int& data_server::getPort() const throw() { //Will have to be changed
     return _host_port.at(0).second;
 }
 
