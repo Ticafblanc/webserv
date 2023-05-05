@@ -19,15 +19,15 @@ private:
 	void parseSingleBlock(int blockId);
 	void defineDefaultServer(void);
 	void parseRoute(std::string& buffer, vector<Route>& routes);
-	static void parseServerNameDirective(std::string& buffer, vector<string>& serverName);
-	static void parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort);
-	static std::size_t findStopLocation(std::string& buffer);
+	void parseServerNameDirective(std::string& buffer, vector<string>& serverName);
+	void parseListenDirective(std::string& buffer, vector<std::pair<string, int> >& hostPort);
+	std::size_t findStopLocation(std::string& buffer);
 	void fillRoute(std::string& toParse, Route& loc);
-	static std::string extractMatch(std::string& buffer);
-	static void parseDirectives(vector<string>& directives, Route& loc);
+	std::string extractMatch(std::string& buffer);
+	void parseDirectives(vector<string>& directives, Route& loc);
 	void parseErrorPages(string& buffer, vector<std::pair<vector<int>, string> >& error_pages);
-	static vector<string> split(string toSplit); //splits a string into a vector of strings on spaces and tabs
-	static void parseMaxBodySize(string& buffer, data_server& data);
+	vector<string> split(string toSplit); //splits a string into a vector of strings on spaces and tabs
+	void parseMaxBodySize(string& buffer, data_server& data);
 	void parseRoot(string& buffer, data_server& data);
 public:
 	//methods
