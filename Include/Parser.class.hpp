@@ -10,10 +10,10 @@ private:
 	std::ifstream _config_file;
 	unsigned int _NServ;
 	vector<string> _blocks;
-	vector<data_server> _servers; //Will hold informations for a parsed server block. Might want to use a container to store multiple server blocks
+	vector<data_server> _servers; //Will hold information for a parsed server block. Might want to use a container to store multiple server blocks
 	std::string readToBuffer(void);
 	void openFile(void);
-	void findAmountServers(void); //Finds the amount of server blocks in the config file given as argumente
+	void findAmountServers(void); //Finds the amount of server blocks in the config file given as argument
 	void getBlocks(void);
 	void parseBlocks(void); //main method that takes name of the config file as argument and stores the result into an instance of the Config class
 	void parseSingleBlock(int blockId);

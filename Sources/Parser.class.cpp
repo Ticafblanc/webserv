@@ -509,7 +509,7 @@ void Parser::parseMaxBodySize(string& buffer, data_server& data) {
 	buffer = buffer.append(tempBufferStop);
 	if (isspace(toParse[toParse.find("client_max_body_size") + 22]) != 0)
 		throw InvalidDirective();
-	toParse = toParse.substr(toParse.find("client_max_body_size") + 22);
+	toParse = toParse.substr(toParse.find("client_max_body_size") + 21);
 	start = 0, stop = 0;
 	for (string::iterator it = toParse.begin(); it < toParse.end(); it++) {
 		if (isalnum(*it) != 0 && start == 0)

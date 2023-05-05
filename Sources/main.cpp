@@ -16,8 +16,6 @@
 int main(int argc, char **argv, char **envp){
     (void)envp;
     std::vector<server> vec;
-    epoll_data edata;
-    epoll_data();
     try{
         if(argc == 2)
             vec = init(argv[1]);
