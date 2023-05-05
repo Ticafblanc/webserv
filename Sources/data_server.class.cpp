@@ -19,7 +19,7 @@
 *====================================================================================
 */
 
-data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false) {
+data_server::data_server(): _iData(9), _client_max_body_size(0), _max_body_size_def(false), _address(), _addr_len() {
     _iData[domain] = AF_INET;
     _iData[type] = SOCK_STREAM;
     _iData[protocol] = 0;
@@ -44,7 +44,7 @@ data_server::~data_server() {
 //     return *this;
 // }
 
-void data_server::printAll(void) {
+void data_server::printAll() {
     cout << GRN << "server id: " << _iData[id_server] << reset << "\n" << endl;
     cout << MAG;
     for (std::size_t i = 0; i < _server_name.size(); i++) {
@@ -73,7 +73,7 @@ void data_server::printAll(void) {
     }
 }
 
-data_server::data_server(const data_server& other) {
+data_server::data_server(const data_server& other) : _client_max_body_size(), _max_body_size_def(), _address(), _addr_len() {
     *this = other;
 }
 
@@ -120,7 +120,7 @@ std::vector<int>& data_server::getIData() {
     return _iData;
 }
 
-const vector<string>& data_server::getServerName(void) const throw() {
+const vector<string>& data_server::getServerName() const throw() {
     return _server_name;
 }
 
@@ -128,7 +128,7 @@ void data_server::setServerName(const vector<string>& serverName) throw() {
     _server_name = serverName;
 }
 
-const vector<std::pair<vector<int>, string> >& data_server::getErrorPages(void) const throw() {
+const vector<std::pair<vector<int>, string> >& data_server::getErrorPages() const throw() {
     return _error_page;
 }
 
@@ -136,7 +136,7 @@ void data_server::setErrorPages(const vector<std::pair<vector<int>, string> >& e
     this->_error_page = errorPages;
 }
 
-const vector<std::pair<string, int> >& data_server::getHostPort(void) const throw() {
+const vector<std::pair<string, int> >& data_server::getHostPort() const throw() {
     return _host_port;
 }
 
@@ -144,7 +144,7 @@ void data_server::setHostPort(const vector<std::pair<string, int> >& hostPair) t
     _host_port = hostPair;
 }
 
-const vector<Route>& data_server::getRoutes(void) const throw() {
+const vector<Route>& data_server::getRoutes() const throw() {
     return _routes;
 }
 
@@ -152,7 +152,7 @@ void data_server::setRoutes(const vector<Route>& routes) throw() {
     _routes = routes;
 }
 
-const int& data_server::getServerFd(void) const throw() { // Will need to be changed
+const int& data_server::getServerFd() const throw() { // Will need to be changed
     return _server_fd[0];
 }
 
@@ -160,12 +160,12 @@ void data_server::setServerFd(int fd) throw() { // Will need to be changed
     _server_fd.push_back(fd);
 }
 
-const string data_server::getRoot(void) const throw() {
+const string data_server::getRoot() const throw() {
     return _root;
 }
 
 void data_server::setRoot(const string root) {
-    if (_root.size() != 0) {
+    if (!_root.empty()) {
         throw DuplicateDirective();
     }
     cout << "In setRoot, value of root " << root << endl;
@@ -177,7 +177,7 @@ void data_server::setMaxBodySize(int maxBodySize) throw() {
     this->_client_max_body_size = maxBodySize;
 }
 
-int data_server::getMaxBodySize(void) const throw() {
+int data_server::getMaxBodySize() const throw() {
     return this->_client_max_body_size;
 }
 
