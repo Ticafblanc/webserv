@@ -16,7 +16,7 @@
 int unitTestInit()
 {
     try {
-        init("../config_content_server/for_etc/webserv/nginx.conf");
+        init("../config_content_server/for_etc/webserv/webserv.conf");
     } catch (const std::exception & e) {
         cerr << e.what() << endl;
         return (TEST_FAIL);
@@ -26,10 +26,10 @@ int unitTestInit()
 
 int unitTestGetter()
 {
-    std::string ip = "192.168.2.112";
+    std::string ip = "127.0.0.1";
     try {
 		int port = 8081;
-		std::vector<server> server_vec = init("../config_content_server/for_etc/webserv/nginx.conf");
+		std::vector<server> server_vec = init("../config_content_server/for_etc/webserv/webserv.conf");
 		std::vector<server>::iterator server_it = server_vec.begin();
 		for(int i = 0; server_it != server_vec.end(); server_it++, i++, port++)
 		{
