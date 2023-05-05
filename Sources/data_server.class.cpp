@@ -73,7 +73,7 @@ void data_server::printAll() {
     }
 }
 
-data_server::data_server(const data_server& other) : _client_max_body_size(), _max_body_size_def(), _address(), _addr_len() {
+data_server::data_server(const data_server& other) {
     *this = other;
 }
 
