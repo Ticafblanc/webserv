@@ -51,8 +51,8 @@ public:
  *
  * sever();
  *
- * @param void
- * @throw none
+ * @param   void
+ * @throw   none
  **/
     server();
 
@@ -61,17 +61,17 @@ public:
  *
  * sever(data_server &);
  *
- * @param data_server instance to build the server
- * @throw none
+ * @param   data_server instance to build the server
+ * @throw   none
  **/
-    server(data_server &);
+    server(const data_server &);
 
 /**
  * Destructor of sever class
  *
  * ~sever();
  *
- * @throw none
+ * @throw   none
  **/
     ~server();
 
@@ -80,70 +80,560 @@ public:
  *
  * sever(server &);
  *
- * @param server instance to build the server
- * @throw none
+ * @param   server instance to build the server
+ * @throw   none
  **/
-    server(const server&);
+    server(const server &);
 
 /**
  * Operator overload= of sever class
  *
  * operator=(const server&);
  *
- * @param server instance const to copy the server
- * @throw none
+ * @param   server instance const to copy the server
+ * @throw   none
  **/
-    server& operator=(const server& rhs);
+    server& operator=(const server &);
 
 
 /*
 *====================================================================================
-*|                                  Member Exception                                 |
+*|                                  Class Exception                                 |
 *====================================================================================
 */
 
-public:
+private:
 
+/**
+ * Class exception of sever class
+ *
+ * class socket_exception;
+ *
+ * @inherit std::exception
+ **/
     class socket_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of socket_exception class
+         *
+         * socket_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        socket_exception();
+
+        /**
+         * Constructor of socket_exception class
+         *
+         * socket_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        socket_exception(const char *);
+
+        /**
+         * Copy constructor of socket_exception class
+         *
+         * socket_exception(socket_exception &);
+         *
+         * @param   socket_exception instance to build the socket_exception
+         * @throw   none
+         **/
+        socket_exception(const socket_exception &);
+
+        /**
+         * Operator overload= of socket_exception class
+         *
+         * operator=(const socket_exception&);
+         *
+         * @param   socket_exception instance const to copy the socket_exception
+         * @throw   none
+         **/
+        socket_exception& operator=(const socket_exception &);
+
+        /**
+        * Destructor of socket_exception class
+        *
+        * virtual ~socket_exception() throw();
+        *
+        * @throw   none
+        **/
+        virtual ~socket_exception() throw();
+
+        /**
+         * Methode of socket_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "socket error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
+/**
+* Class exception of sever class
+*
+* class socketopt_exception;
+*
+* @inherit std::exception
+**/
     class socketopt_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of socketopt_exception class
+         *
+         * socketopt_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        socketopt_exception();
+
+        /**
+         * Constructor of socketopt_exception class
+         *
+         * socketopt_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        socketopt_exception(const char *);
+
+        /**
+        * Copy constructor of socketopt_exception class
+        *
+        * socketopt_exception(const socketopt_exception &);
+        *
+        * @param   socketopt_exception instance to build the socketopt_exception
+        * @throw   none
+        **/
+        socketopt_exception(const socketopt_exception &);
+
+        /**
+         * Operator overload= of socketopt_exception class
+         *
+         * operator=(const socketopt_exception&);
+         *
+         * @param   socketopt_exception instance const to copy the socketopt_exception
+         * @throw   none
+         **/
+        socketopt_exception& operator=(const socketopt_exception &);
+
+        /**
+         * Destructor of socketopt_exception class
+         *
+         * virtual ~socketopt_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~socketopt_exception() throw();
+
+        /**
+         * Methode of socketopt_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "socketopt error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
+/**
+* Class exception of sever class
+*
+* class bind_exception;
+*
+* @inherit std::exception
+**/
     class bind_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of bind_exception class
+         *
+         * bind_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        bind_exception();
+
+        /**
+         * Constructor of bind_exception class
+         *
+         * bind_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        bind_exception(const char *);
+
+        /**
+        * Copy constructor of bind_exception class
+        *
+        * bind_exception(const bind_exception &);
+        *
+        * @param   bind_exception instance to build the bind_exception
+        * @throw   none
+        **/
+        bind_exception(const bind_exception &);
+
+        /**
+         * Operator overload= of bind_exception class
+         *
+         * operator=(const bind_exception&);
+         *
+         * @param   bind_exception instance const to copy the bind_exception
+         * @throw   none
+         **/
+        bind_exception& operator=(const bind_exception &);
+
+        /**
+         * Destructor of bind_exception class
+         *
+         * virtual ~bind_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~bind_exception() throw();
+
+        /**
+         * Methode of bind_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "bind error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
+/**
+* Class exception of sever class
+*
+* class listen_exception;
+*
+* @inherit std::exception
+**/
     class listen_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of listen_exception class
+         *
+         * listen_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        listen_exception();
+
+        /**
+         * Constructor of listen_exception class
+         *
+         * listen_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        listen_exception(const char *);
+
+        /**
+         * Copy constructor of listen_exception class
+         *
+         * listen_exception(listen_exception &);
+         *
+         * @param   listen_exception instance to build the listen_exception
+         * @throw   none
+         **/
+        listen_exception(const listen_exception &);
+
+        /**
+         * Operator overload= of listen_exception class
+         *
+         * operator=(const listen_exception&);
+         *
+         * @param   listen_exception instance const to copy the listen_exception
+         * @throw   none
+         **/
+        listen_exception& operator=(const listen_exception &);
+
+        /**
+         * Destructor of listen_exception class
+         *
+         * virtual ~listen_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~listen_exception() throw();
+
+        /**
+         * Methode of launch_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "listen error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
+/**
+* Class exception of sever class
+*
+* class accept_exception;
+*
+* @inherit std::exception
+**/
     class accept_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of accept_exception class
+         *
+         * accept_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        accept_exception();
+
+        /**
+         * Constructor of accept_exception class
+         *
+         * accept_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        accept_exception(const char *);
+
+        /**
+         * Copy constructor of accept_exception class
+         *
+         * accept_exception(accept_exception &);
+         *
+         * @param   accept_exception instance to build the accept_exception
+         * @throw   none
+         **/
+        accept_exception(const accept_exception &);
+
+        /**
+         * Operator overload= of accept_exception class
+         *
+         * operator=(const accept_exception&);
+         *
+         * @param   accept_exception instance const to copy the accept_exception
+         * @throw   none
+         **/
+        accept_exception& operator=(const accept_exception &);
+
+        /**
+         * Destructor of accept_exception class
+         *
+         * virtual ~accept_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~accept_exception() throw();
+
+        /**
+         * Methode of launch_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "accept error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
-    class launch_exception: public std::exception
-    {
-    public:
-        const char * what() const throw();
-    };
-
+/**
+* Class exception of sever class
+*
+* class epoll_exception;
+*
+* @inherit std::exception
+**/
     class epoll_exception: public std::exception
     {
     public:
-        const char * what() const throw();
+
+        /**
+         * Constructor of epoll_exception class
+         *
+         * epoll_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        epoll_exception();
+
+        /**
+         * Constructor of epoll_exception class
+         *
+         * epoll_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        epoll_exception(const char *);
+
+        /**
+         * Copy constructor of epoll_exception class
+         *
+         * epoll_exception(epoll_exception &);
+         *
+         * @param   epoll_exception instance to build the epoll_exception
+         * @throw   none
+         **/
+        epoll_exception(const epoll_exception &);
+
+        /**
+         * Operator overload= of epoll_exception class
+         *
+         * operator=(const epoll_exception&);
+         *
+         * @param   epoll_exception instance const to copy the epoll_exception
+         * @throw   none
+         **/
+        epoll_exception& operator=(const epoll_exception &);
+
+        /**
+         * Destructor of epoll_exception class
+         *
+         * virtual ~epoll_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~epoll_exception() throw();
+
+        /**
+         * Methode of launch_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "epoll error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
+    };
+
+/**
+* Class exception of sever class
+*
+* class launch_exception;
+*
+* @inherit std::exception
+**/
+    class launch_exception: public std::exception
+    {
+    public:
+
+        /**
+         * Constructor of launch_exception class
+         *
+         * launch_exception();
+         *
+         * @param   void
+         * @throw   none
+         **/
+        launch_exception();
+
+        /**
+         * Constructor of launch_exception class
+         *
+         * launch_exception(const char*);
+         *
+         * @param   exception message to store const char*
+         * @throw   none
+         **/
+        launch_exception(const char *);
+
+        /**
+         * Copy constructor of launch_exception class
+         *
+         * launch_exception(launch_exception &);
+         *
+         * @param   launch_exception instance to build the launch_exception
+         * @throw   none
+         **/
+        launch_exception(const launch_exception &);
+
+        /**
+         * Operator overload= of launch_exception class
+         *
+         * operator=(const launch_exception&);
+         *
+         * @param   launch_exception instance const to copy the launch_exception
+         * @throw   none
+         **/
+        launch_exception& operator=(const launch_exception &);
+
+        /**
+         * Destructor of launch_exception class
+         *
+         * virtual ~launch_exception() throw();
+         *
+         * @throw   none
+         **/
+        virtual ~launch_exception() throw();
+
+        /**
+         * Methode of launch_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @return  const char * store in private std::string _message
+         *          at the construction defaut constructor "launch error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string _message;
     };
 
 /*

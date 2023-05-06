@@ -19,7 +19,7 @@
 
 server::server() : data(), i_arg(2), s_arg(), event(), events() {}
 
-server::server(data_server & data) : data(data), i_arg(2), s_arg(), event(), events() { }
+server::server(const data_server & data) : data(data), i_arg(2), s_arg(), event(), events() { }
 
 server::~server() {
     try {
@@ -51,34 +51,109 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
-const char *  server::socket_exception::what() const throw(){
-    std::cout <<"errno = "<< errno << std::endl;
-    return ("socket error");
+server::socket_exception::socket_exception() : std::exception(), _message("socket error"){}
+
+server::socket_exception::socket_exception(const char * message) : std::exception(), _message(message) {}
+
+server::socket_exception::~socket_exception() throw() {}
+
+const char * server::socket_exception::what() const throw() { return _message.c_str(); }
+
+server::socket_exception::socket_exception(const socket_exception & other) : std::exception(), _message(other._message) {}
+
+server::socket_exception &server::socket_exception::operator=(const socket_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char *  server::socketopt_exception::what() const throw(){
-    std::cout <<"errno = "<< errno << std::endl;
-    return ("socketopt error");
+server::socketopt_exception::socketopt_exception() : std::exception(), _message("socketopt error"){}
+
+server::socketopt_exception::socketopt_exception(const char * message) : std::exception(), _message(message) {}
+
+server::socketopt_exception::~socketopt_exception() throw() {}
+
+const char * server::socketopt_exception::what() const throw() { return _message.c_str(); }
+
+server::socketopt_exception::socketopt_exception(const socketopt_exception & other) : std::exception(), _message(other._message) {}
+
+server::socketopt_exception &server::socketopt_exception::operator=(const socketopt_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char *  server::bind_exception::what() const throw(){
-    return ("bind error");
+server::bind_exception::bind_exception() : std::exception(), _message("bind error"){}
+
+server::bind_exception::bind_exception(const char * message) : std::exception(), _message(message) {}
+
+server::bind_exception::~bind_exception() throw() {}
+
+const char * server::bind_exception::what() const throw() { return _message.c_str(); }
+
+server::bind_exception::bind_exception(const bind_exception & other) : std::exception(), _message(other._message) {}
+
+server::bind_exception &server::bind_exception::operator=(const bind_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char *  server::listen_exception::what() const throw(){
-    return ("listen error");
+server::listen_exception::listen_exception() : std::exception(), _message("listen error"){}
+
+server::listen_exception::listen_exception(const char * message) : std::exception(), _message(message) {}
+
+server::listen_exception::~listen_exception() throw() {}
+
+const char * server::listen_exception::what() const throw() { return _message.c_str(); }
+
+server::listen_exception::listen_exception(const listen_exception & other) : std::exception(), _message(other._message) {}
+
+server::listen_exception &server::listen_exception::operator=(const listen_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char * server::accept_exception::what() const throw() {
-    return ("accept error");
+server::accept_exception::accept_exception() : std::exception(), _message("accept error"){}
+
+server::accept_exception::accept_exception(const char * message) : std::exception(), _message(message) {}
+
+server::accept_exception::~accept_exception() throw() {}
+
+const char * server::accept_exception::what() const throw() { return _message.c_str(); }
+
+server::accept_exception::accept_exception(const accept_exception & other) : std::exception(), _message(other._message) {}
+
+server::accept_exception &server::accept_exception::operator=(const accept_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char * server::launch_exception::what() const throw(){
-    return ("launch error");
+server::epoll_exception::epoll_exception() : std::exception(), _message("epoll error"){}
+
+server::epoll_exception::epoll_exception(const char * message) : std::exception(), _message(message) {}
+
+server::epoll_exception::~epoll_exception() throw() {}
+
+const char * server::epoll_exception::what() const throw() { return _message.c_str(); }
+
+server::epoll_exception::epoll_exception(const epoll_exception & other) : std::exception(), _message(other._message) {}
+
+server::epoll_exception &server::epoll_exception::operator=(const epoll_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
-const char * server::epoll_exception::what() const throw(){
-    return ("epoll error");
+server::launch_exception::launch_exception() : std::exception(), _message("launch error"){}
+
+server::launch_exception::launch_exception(const char * message) : std::exception(), _message(message) {}
+
+server::launch_exception::~launch_exception() throw() {}
+
+const char * server::launch_exception::what() const throw() { return _message.c_str(); }
+
+server::launch_exception::launch_exception(const launch_exception & other) : std::exception(), _message(other._message) {}
+
+server::launch_exception &server::launch_exception::operator=(const launch_exception &rhs) {
+    _message = rhs._message;
+    return *this;
 }
 
 /*
