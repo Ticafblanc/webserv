@@ -66,33 +66,44 @@ server::socket_exception &server::socket_exception::operator=(const socket_excep
     return *this;
 }
 
-server::socketopt_exception::socketopt_exception() : std::exception(), _message("socketopt error"){}
+server::socketopt_exception::socketopt_exception(const int server_socket) :
+                        std::exception(), _message("socketopt error"), _server_socket(server_socket) {}
 
-server::socketopt_exception::socketopt_exception(const char * message) : std::exception(), _message(message) {}
+server::socketopt_exception::socketopt_exception(const int server_socket, const char * message) :
+                        std::exception(), _message(message), _server_socket(server_socket) {}
 
 server::socketopt_exception::~socketopt_exception() throw() {}
 
 const char * server::socketopt_exception::what() const throw() { return _message.c_str(); }
 
-server::socketopt_exception::socketopt_exception(const socketopt_exception & other) : std::exception(), _message(other._message) {}
+server::socketopt_exception::socketopt_exception(const socketopt_exception & other) :
+                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
 
 server::socketopt_exception &server::socketopt_exception::operator=(const socketopt_exception &rhs) {
     _message = rhs._message;
+    _server_socket = rhs._server_socket;
     return *this;
 }
 
-server::bind_exception::bind_exception() : std::exception(), _message("bind error"){}
+server::bind_exception::bind_exception(const int server_socket) :
+                        std::exception(), _message("bind error"), _server_socket(server_socket){}
 
-server::bind_exception::bind_exception(const char * message) : std::exception(), _message(message) {}
+server::bind_exception::bind_exception(const int server_socket, const char * message) :
+                        std::exception(), _message(message), _server_socket(server_socket){}
 
-server::bind_exception::~bind_exception() throw() {}
+server::bind_exception::~bind_exception() throw() {
+    if(_server_socket != 0 && _server_socket != 1 && _server_socket != 2)
+        close(_server_socket);
+}
 
 const char * server::bind_exception::what() const throw() { return _message.c_str(); }
 
-server::bind_exception::bind_exception(const bind_exception & other) : std::exception(), _message(other._message) {}
+server::bind_exception::bind_exception(const bind_exception & other) :
+                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
 
 server::bind_exception &server::bind_exception::operator=(const bind_exception &rhs) {
     _message = rhs._message;
+    _server_socket = rhs._server_socket;
     return *this;
 }
 
@@ -178,7 +189,7 @@ void server::setDataServer(data_server& d){
 void server::launcher() {
     try {
         set_socket();//create a new socket new socket with the data sever specification
-        set_sockoption();
+        set_sockoption();//set option of sever socket
         set_bind();
         set_listen();
         accessor_server(F_SETFL, O_NONBLOCK);//init the socket non blocking
@@ -227,7 +238,7 @@ void server::launcher() {
 
 int server::set_socket() {
     i_arg[server_socket] = (socket(data.getDomain(), data.getType(), data.getProtocol()));
-    if (data.getServerFd() == 0)
+    if (i_arg[server_socket] == 0)
         throw server::socket_exception();
     return i_arg[server_socket];
 }
@@ -235,15 +246,13 @@ int server::set_socket() {
 void server::set_sockoption(){
     if (setsockopt(i_arg[server_socket], data.getLevel(), data.getOptionName(),
                    &data.getOptionVal(), (socklen_t)sizeof(data.getOptionVal()))) {
-        throw server::socketopt_exception();
+        throw server::socketopt_exception(i_arg[server_socket]);
     }
 }
 
 void server::set_bind() {
     if (bind(i_arg[server_socket], reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
-        close(this->data.getServerFd());
-        throw server::bind_exception();
-    }
+        throw server::bind_exception(i_arg[server_socket]);
 }
 
 void server::set_listen() {

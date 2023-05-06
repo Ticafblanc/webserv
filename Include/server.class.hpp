@@ -122,6 +122,10 @@ private:
          *
          * @param   void
          * @throw   none
+         *
+         * @todo merge if its possible at the end socket_exception,socketopt_exception and bind_exception
+         * @todo wach if we build method to close file desciptor or close with destructor
+         *
          **/
         socket_exception();
 
@@ -165,11 +169,11 @@ private:
         virtual ~socket_exception() throw();
 
         /**
-         * Methode of socket_exception
+         * Public methode of socket_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "socket error"
          * @param   void
          * @throw   none
@@ -198,8 +202,9 @@ private:
          *
          * @param   void
          * @throw   none
+         *
          **/
-        socketopt_exception();
+        socketopt_exception(const int);
 
         /**
          * Constructor of socketopt_exception class
@@ -209,7 +214,7 @@ private:
          * @param   exception message to store const char*
          * @throw   none
          **/
-        socketopt_exception(const char *);
+        socketopt_exception(const int, const char *);
 
         /**
         * Copy constructor of socketopt_exception class
@@ -237,15 +242,17 @@ private:
          * virtual ~socketopt_exception() throw();
          *
          * @throw   none
+         *
+         * @todo wach if we build method to close file desciptor or close with destructor
          **/
         virtual ~socketopt_exception() throw();
 
         /**
-         * Methode of socketopt_exception
+         * Public methode of socketopt_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "socketopt error"
          * @param   void
          * @throw   none
@@ -254,6 +261,7 @@ private:
 
     private:
         std::string _message;
+        int _server_socket;
     };
 
 /**
@@ -275,7 +283,7 @@ private:
          * @param   void
          * @throw   none
          **/
-        bind_exception();
+        bind_exception(const int);
 
         /**
          * Constructor of bind_exception class
@@ -285,7 +293,7 @@ private:
          * @param   exception message to store const char*
          * @throw   none
          **/
-        bind_exception(const char *);
+        bind_exception(const int, const char *);
 
         /**
         * Copy constructor of bind_exception class
@@ -313,11 +321,13 @@ private:
          * virtual ~bind_exception() throw();
          *
          * @throw   none
+         * @todo wach if we build method to close file desciptor or close with destructor
+         *
          **/
         virtual ~bind_exception() throw();
 
         /**
-         * Methode of bind_exception
+         * Public methode of bind_exception
          *
          * virtual const char * what() const throw();
          *
@@ -330,6 +340,7 @@ private:
 
     private:
         std::string _message;
+        int         _server_socket;
     };
 
 /**
@@ -393,11 +404,11 @@ private:
         virtual ~listen_exception() throw();
 
         /**
-         * Methode of launch_exception
+         * Public methode of launch_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "listen error"
          * @param   void
          * @throw   none
@@ -469,11 +480,11 @@ private:
         virtual ~accept_exception() throw();
 
         /**
-         * Methode of launch_exception
+         * Public methode of launch_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "accept error"
          * @param   void
          * @throw   none
@@ -545,11 +556,11 @@ private:
         virtual ~epoll_exception() throw();
 
         /**
-         * Methode of launch_exception
+         * Public methode of launch_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "epoll error"
          * @param   void
          * @throw   none
@@ -621,11 +632,11 @@ private:
         virtual ~launch_exception() throw();
 
         /**
-         * Methode of launch_exception
+         * Public methode of launch_exception
          *
          * virtual const char * what() const throw();
          *
-         * @return  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "launch error"
          * @param   void
          * @throw   none
@@ -649,18 +660,18 @@ public:
  *
  * data_server getDataServer() const;
  *
- * @return data_server instance
+ * @returns data_server instance
  * @param void
  * @throw none
  **/
     data_server getDataServer() const;
 
-/**
+i/**
  * Accessor of sever class
  *
  * void setDataServer(data_server& d);
  *
- * @return void
+ * @returns void
  * @param data_server instance to set the data server
  * @throw none
  **/
@@ -668,14 +679,22 @@ public:
 
 /*
 *====================================================================================
-*|                                      Launcher                                    |
+*|                                  public methode                                  |
 *====================================================================================
 */
 
 public:
 
 /**
- * https://man7.org/linux/man-pages/man2/accept.2.html
+ * Public methode of sever class
+ *
+ * void launcher();
+ *
+ * @returns void
+ * @param void
+ * @throw none
+ *
+ * @see https://man7.org/linux/man-pages/man2/accept.2.html
  *
  */
     void launcher();
@@ -687,48 +706,83 @@ public:
 */
 
 private:
-
-    void handle(int sig);
+/**
+ * Private methode of sever class
+ *
+ * void handle(int sig);
+ *
+ * @returns void
+ * @param int signal catch by foction call
+ * @throw none
+ */
+    void handle(int);
 
 /*
 *====================================================================================
-*|                                  private fonction utils                          |
+*|                                  private methode utils                           |
 *====================================================================================
 */
 
 private:
 
 /**
- * Methode of server class
- *
- * int set_socket();
- *
- * @return file descriptor (int) server socket created
- * @param void
- * @throw server::socket_exception
+ * Private methode of server class
  *
  * create a new socket with fonction socket
+ * @see https://man7.org/linux/man-pages/man2/socket.2.html
  * int socket(int domain, int type, int protocol);
- * if process fail throw server::socket_exception();
- * https://man7.org/linux/man-pages/man2/socket.2.html
  * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
+ *
+ * int set_socket();
+ *
+ * @returns file descriptor (int) server socket created
+ * @param   void
+ * @throws  server::socket_exception
+ *
+ * @Todo    watch if necessery to define the option in data server
+ * @todo    add specific message
  **/
     int set_socket();
 
 /**
- * https://linux.die.net/man/3/setsockopt
+ * Private methode of server class
+ *
+ * set the option of server socket already created
+ *
+ * void set_sockoption();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::socketopt_exception
+ *
+ * @see https://linux.die.net/man/3/setsockopt
+ *
+ * @Todo    watch if necessery to define the option in data server
+ * @todo    add specific message
  * */
     void set_sockoption();
 
 /**
- * https://man7.org/linux/man-pages/man2/bind.2.html
+ * Private methode of server class
+ *
+ * associate an IP address and a port number with a socket already created
+ *
+ * void set_bind();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::bind_exception
+ *
+ * @see https://man7.org/linux/man-pages/man2/bind.2.html
+ *
+ * @todo    add specific message
  * */
     void set_bind();
 
 /**
- * https://man7.org/linux/man-pages/man2/listen.2.html
+ * @see https://man7.org/linux/man-pages/man2/listen.2.html
  * */
     void set_listen();
 
