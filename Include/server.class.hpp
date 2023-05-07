@@ -125,7 +125,7 @@ private:
          *
          * @todo merge if its possible at the end socket_exception,socketopt_exception and bind_exception
          * @todo wach if we build method to close file desciptor or close with destructor
-         *
+         * @todo i think we can use the erno variable to throw a specific message we dont have "Checking the value of errno is strictly forbidden after a read or a write operation."
          **/
         socket_exception();
 
@@ -755,10 +755,12 @@ private:
  *          IPPROTO_TCP for TCP
  *          IPPROTO_UDP for UDP
  *          IPPROTO_ICMP for ICMP
+ *          0 for let de systeme define the option by it self
  *          for AF_INET6 (IPv6) :
  *          IPPROTO_TCP for TCP
  *          IPPROTO_UDP for UDP
  *          IPPROTO_ICMPV6 for ICMPv6
+ *          0 for let de systeme define the option by it self
  *          for AF_UNIX (locale host) :
  *          0 for default.
  * @throws  server::socket_exception
@@ -834,22 +836,34 @@ private:
     void set_listen(int);
 
 /**
- * Command  (cmd) for accessor server :
- * F_SETFD      Set the file descriptor flags to arg.
- * F_GETFL      Get descriptor status flags, as described below (arg is ignored).
+ * Private methode of server class
  *
- * Flag for accessor server :
- * O_NONBLOCK   Non-blocking I/O; if no data is available to a read(2)
- *              call, or if a write(2) operation would block, the read
- *              or write call returns -1 with the error EAGAIN
- * O_APPEND     Force each write to append at the end of file;
- *              corresponds to the O_APPEND flag of open(2).
- * O_ASYNC      Enable the SIGIO signal to be sent to the process
- *              group when I/O is possible, e.g., upon availability of
- *              data to be read.
+ * associate an IP address and a port number with a socket already created
  * set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)
+ * don't show the actual flag in socket and force to change it
+ *
+ * void accessor_server(int cmd, int flag);
+ *
+ * @returns void
+ * @param   Command  (cmd) for accessor server :
+ *          F_SETFD      Set the file descriptor flags to arg.
+ *          F_GETFL      Get descriptor status flags, as described below (arg is ignored).
+ *
+ *          Flag for accessor server :
+ *          O_NONBLOCK   Non-blocking I/O; if no data is available to a read(2)
+ *          call, or if a write(2) operation would block, the read
+ *          or write call returns -1 with the error EAGAIN
+ *          O_APPEND     Force each write to append at the end of file;
+ *          corresponds to the O_APPEND flag of open(2).
+ *          O_ASYNC      Enable the SIGIO signal to be sent to the process
+ *          group when I/O is possible, e.g., upon availability of
+ *          data to be read.
+ *
+ * @throws  none
+ *
+ * @todo add an exception to mange crash of fcntl fonction dont build for now wait at the and to buil juste one exception for lanch methode
  * */
-    void accessor_server(int cmd, int flag);
+    void accessor_server(int, int);
 
 /**
  * create an instance of epoll

@@ -268,8 +268,8 @@ void server::set_listen(int backlog) {
         throw server::listen_exception(i_arg[server_socket]);
 }
 
-void server::accessor_server(int cmd, int flag){
-    fcntl(i_arg[server_socket], cmd, flag);
+void server::accessor_server(int command, int flag){
+    fcntl(i_arg[server_socket], command, flag);
 }
 void server::create_epoll() {
     i_arg[epoll_fd] = epoll_create(1);
