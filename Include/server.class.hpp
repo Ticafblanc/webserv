@@ -742,16 +742,31 @@ private:
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
  *
- * int set_socket();
+ * int set_socket(int domain, int type, int protocol);
  *
  * @returns file descriptor (int) server socket created
- * @param   void
+ * @param   domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
+ *
+ *          type is an int define the transmission mode SOCK_STREAM for tcp
+ *          SOCK_DGRAM for udp SOCK_RAW for row
+ *
+ *          protocol in an int define the protocol to use fonction the domaine and type of domaine
+ *          for AF_INET (IPv4) :
+ *          IPPROTO_TCP for TCP
+ *          IPPROTO_UDP for UDP
+ *          IPPROTO_ICMP for ICMP
+ *          for AF_INET6 (IPv6) :
+ *          IPPROTO_TCP for TCP
+ *          IPPROTO_UDP for UDP
+ *          IPPROTO_ICMPV6 for ICMPv6
+ *          for AF_UNIX (locale host) :
+ *          0 for default.
  * @throws  server::socket_exception
  *
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  **/
-    int set_socket();
+    int set_socket(int, int, int);
 
 /**
  * Private methode of server class
@@ -804,10 +819,11 @@ private:
  *
  * associate an IP address and a port number with a socket already created
  *
- * void set_listen();
+ * void set_listen(int backlog);
  *
  * @returns void
- * @param   void
+ * @param   backlog is an int to define the maximum number of pending connections
+ *          that can be queued before the server starts refusing new incoming connections.
  * @throws  server::listen_exception
  *
  * @see https://man7.org/linux/man-pages/man2/listen.2.html
@@ -815,7 +831,7 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_listen(int backlog);
+    void set_listen(int);
 
 /**
  * Command  (cmd) for accessor server :

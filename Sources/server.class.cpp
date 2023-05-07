@@ -195,7 +195,7 @@ void server::setDataServer(data_server& d){
 
 void server::launcher() {
     try {
-        set_socket();//create a new socket new socket with the data sever specification
+        set_socket(data.getDomain(), data.getType(), data.getProtocol());//create a new socket new socket with the data sever specification
         set_sockoption(data.getLevel(), data.getOptionName(), data.getOptionVal());//set option of sever socket
         set_bind();
         set_listen(data.getBacklog());
@@ -243,8 +243,8 @@ void server::launcher() {
 *====================================================================================
 */
 
-int server::set_socket() {
-    i_arg[server_socket] = (socket(data.getDomain(), data.getType(), data.getProtocol()));
+int server::set_socket(int domain, int type, int protocol) {
+    i_arg[server_socket] = (socket(domain, type, protocol));
     if (i_arg[server_socket] == 0)
         throw server::socket_exception();
     return i_arg[server_socket];
