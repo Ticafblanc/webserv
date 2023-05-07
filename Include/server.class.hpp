@@ -27,16 +27,9 @@ class server{
 *====================================================================================
 */
 
-private:// see if to switch const
+private:
 
-    enum { nbr_clients, server_socket, epoll_fd};
-
-    data_server data;
-    std::vector<int> i_arg;
-    std::vector<std::string> s_arg;
-    struct epoll_event event, events[MAX_EVENTS];
-
-
+    data_server data;// see if to switch const
 
 /*
 *====================================================================================
@@ -768,17 +761,19 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  **/
-    int set_socket(int, int, int);
+    static int set_socket(int, int, int);
 
 /**
  * Private methode of server class
  *
  * set the option of server socket already created
  *
- * void set_sockoption(int level, int option_name, int option_val);
+ * void set_sockoption(int server_socket, int level, int option_name, int option_val);
  *
  * @returns void
- * @param   level is an int to define the level option :
+ * @param   server_socket is an int file descriptor already created
+ *
+ *          level is an int to define the level option :
  *          SOL_SOCKET : pour les options générales du socket.
  *          IPPROTO_IP : pour les options du protocole IP (Internet Protocol).
  *          IPPROTO_TCP : pour les options du protocole TCP (Transmission Control Protocol).
@@ -797,34 +792,36 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_sockoption(int , int , int);
+    static void set_sockoption(int, int , int , int);
 
 /**
  * Private methode of server class
  *
  * associate an IP address and a port number with a socket already created
  *
- * void set_bind();
+ * void set_bind(int server_socket);
  *
  * @returns void
- * @param   void
+ * @param   server_socket is an int file descriptor already created
  * @throws  server::bind_exception
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
  *
  * @todo    add specific message
  * */
-    void set_bind();
+    void set_bind(int);
 
 /**
  * Private methode of server class
  *
- * associate an IP address and a port number with a socket already created
+ * set the listen option so the number of possible connexion
  *
- * void set_listen(int backlog);
+ * void set_listen(int server_socket, int backlog);
  *
  * @returns void
- * @param   backlog is an int to define the maximum number of pending connections
+ * @param   server_socket is an int file descriptor already created
+ *
+ *          backlog is an int to define the maximum number of pending connections
  *          that can be queued before the server starts refusing new incoming connections.
  * @throws  server::listen_exception
  *
@@ -833,14 +830,14 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_listen(int);
+    void set_listen(int, int);
 
 /**
  * Private methode of server class
  *
- * associate an IP address and a port number with a socket already created
+ * accessor of socket to get or set the flag option
  * set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)
- * don't show the actual flag in socket and force to change it
+ * don't show the actual flag in socket and force to change it to non blocking
  *
  * void accessor_server(int cmd, int flag);
  *
@@ -859,21 +856,37 @@ private:
  *          group when I/O is possible, e.g., upon availability of
  *          data to be read.
  *
- * @throws  none
+ * @throws  none but to do
  *
  * @todo add an exception to mange crash of fcntl fonction dont build for now wait at the and to buil juste one exception for lanch methode
  * */
-    void accessor_server(int, int);
+    int accessor_socket_flag(int server_socket, int, int);
 
 /**
+ * Private methode of server class
+ *
  * create an instance of epoll
+ *
+ * int create_epoll();
+ *
+ * @returns an file descriptor (int) for the new instance
+ * @param   void
+ * @throws  server::epoll_exception
  * */
-    void create_epoll();
+    static int create_epoll();
 
 /**
- * set fds for news client for server socket
+ * Private methode of server class
+ *
+ * set fd for news client for server socket
+ *
+ * int create_epoll();
+ *
+ * @returns an file descriptor (int) for the new instance
+ * @param   void
+ * @throws  server::epoll_exception
  * */
-    void set_epoll_socket();
+    struct epoll_event set_epoll_socket();
 
 /**
  * registe socket to follow

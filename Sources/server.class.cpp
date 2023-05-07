@@ -17,31 +17,16 @@
 *====================================================================================
 */
 
-server::server() : data(), i_arg(2), s_arg(), event(), events() {}
+server::server() : data() {}
 
-server::server(const data_server & data) : data(data), i_arg(2), s_arg(), event(), events() { }
+server::server(const data_server & data) : data(data) {}
 
-server::~server() {
-    try {
-//        this->data.close_server_fd();
-    }
-    catch (const std::exception& e){
-        throw e;
-    }
-}
-server::server(const server& other) : data(other.data), i_arg(other.i_arg), s_arg(other.s_arg), event(other.event), events() {
-    for (int i = 0; i < other.i_arg[nbr_clients]; ++i) {
-        events[i] = other.events[i];
-    }
-}
+server::~server() {}
+
+server::server(const server& other) : data(other.data) {}
 
 server& server::operator=(const server& rhs){
     this->data = rhs.data;
-    this->i_arg = rhs.i_arg;
-    this->s_arg = rhs.s_arg;
-    for (int i = 0; i < rhs.i_arg[nbr_clients]; ++i) {
-        this->events[i] = rhs.events[i];
-    }
     return *this;
 }
 
@@ -194,12 +179,14 @@ void server::setDataServer(data_server& d){
 */
 
 void server::launcher() {
+    struct epoll_event event = {}, events[MAX_EVENTS];
+    int server_socket;
     try {
-        set_socket(data.getDomain(), data.getType(), data.getProtocol());//create a new socket new socket with the data sever specification
-        set_sockoption(data.getLevel(), data.getOptionName(), data.getOptionVal());//set option of sever socket
-        set_bind();
-        set_listen(data.getBacklog());
-        accessor_server(F_SETFL, O_NONBLOCK);//init the socket non blocking
+        server_socket = set_socket(data.getDomain(), data.getType(), data.getProtocol());//create a new socket new socket with the data sever specification
+        set_sockoption(server_socket, data.getLevel(), data.getOptionName(), data.getOptionVal());//set option of sever socket
+        set_bind(server_socket);
+        set_listen(server_socket, data.getBacklog());
+        accessor_socket_flag(F_SETFL, O_NONBLOCK);//init the socket non blocking force flag to respect subject
         create_epoll();
         set_epoll_socket();
         set_epoll_ctl();//standars tyo other fonction in while loop
@@ -219,12 +206,12 @@ void server::launcher() {
             break;
         } while (true);
     }
-    catch (const std::exception& e){
+    catch (const std::exception& e){//if necessary to save the socket in process
         throw e;
     }
 
 }
-
+/*@todo move all set to static fonction*/
 /*
 *====================================================================================
 *|                                      signal                                      |
@@ -239,48 +226,52 @@ void server::launcher() {
 
 /*
 *====================================================================================
-*|                                 private utils membre function                    |
+*|                                 private utils function to launch                 |
 *====================================================================================
 */
 
 int server::set_socket(int domain, int type, int protocol) {
-    i_arg[server_socket] = (socket(domain, type, protocol));
-    if (i_arg[server_socket] == 0)
+    int server_socket = (socket(domain, type, protocol));
+    if (server_socket == 0)
         throw server::socket_exception();
-    return i_arg[server_socket];
+    return server_socket;
 }
 
-void server::set_sockoption(int level, int option_name, int option_val){
-    if (setsockopt(i_arg[server_socket], level, option_name,
-                   &option_val, (socklen_t)sizeof(option_val))) {
-        throw server::socketopt_exception(i_arg[server_socket]);
-    }
+void server::set_sockoption(int server_socket, int level, int option_name, int option_val){
+    if (setsockopt(server_socket, level, option_name,
+                   &option_val, (socklen_t)sizeof(option_val)))
+        throw server::socketopt_exception(server_socket);
+
 }
 
-void server::set_bind() {
-    if (bind(i_arg[server_socket], reinterpret_cast<struct sockaddr *>(&this->data.getAddress()),
+void server::set_bind(int server_socket) {
+    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&this->data.getAddress()),
             sizeof this->data.getAddress()) < 0)
-        throw server::bind_exception(i_arg[server_socket]);
+    throw server::bind_exception(server_socket);
 }
 
-void server::set_listen(int backlog) {
-    if (listen(i_arg[server_socket], backlog) < 0)
-        throw server::listen_exception(i_arg[server_socket]);
+void server::set_listen(int server_socket, int backlog) {
+    if (listen(server_socket, backlog) < 0)
+        throw server::listen_exception(server_socket);
 }
 
-void server::accessor_server(int command, int flag){
-    fcntl(i_arg[server_socket], command, flag);
+int server::accessor_socket_flag(int server_socket, int command, int flag){
+    int return_flag = fcntl(server_socket, command, flag);
+    if (return_flag < 0)
+        //throw an error
+    return return_flag;
 }
-void server::create_epoll() {
-    i_arg[epoll_fd] = epoll_create(1);
-    if (i_arg[epoll_fd] == -1) {
+int server::create_epoll() {
+    int epoll_fd = epoll_create(1);//if its necessary to save the epollfd in class
+    if (epoll_fd == -1)
         throw server::epoll_exception();//possible to add message to differ each epoll exeption
-    }
+    return epoll_fd;
 }
 
-void server::set_epoll_socket(){
+struct epoll_event server::set_epoll_socket(int server_socket, struct epoll_event event){
     event.data.fd = i_arg[server_socket];
     event.events = POLLIN;
+    return event;//show if its necessary to store in class
 }
 
 void server::set_epoll_ctl(int option) {
