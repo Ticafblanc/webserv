@@ -107,18 +107,25 @@ server::bind_exception &server::bind_exception::operator=(const bind_exception &
     return *this;
 }
 
-server::listen_exception::listen_exception() : std::exception(), _message("listen error"){}
+server::listen_exception::listen_exception(const int server_socket) :
+                        std::exception(), _message("listen error"), _server_socket(server_socket){}
 
-server::listen_exception::listen_exception(const char * message) : std::exception(), _message(message) {}
+server::listen_exception::listen_exception(const int server_socket, const char * message) :
+                        std::exception(), _message(message), _server_socket(server_socket) {}
 
-server::listen_exception::~listen_exception() throw() {}
+server::listen_exception::~listen_exception() throw() {
+    if(_server_socket != 0 && _server_socket != 1 && _server_socket != 2)
+        close(_server_socket);
+}
 
 const char * server::listen_exception::what() const throw() { return _message.c_str(); }
 
-server::listen_exception::listen_exception(const listen_exception & other) : std::exception(), _message(other._message) {}
+server::listen_exception::listen_exception(const listen_exception & other) :
+                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
 
 server::listen_exception &server::listen_exception::operator=(const listen_exception &rhs) {
     _message = rhs._message;
+    _server_socket = rhs._server_socket;
     return *this;
 }
 
@@ -189,9 +196,9 @@ void server::setDataServer(data_server& d){
 void server::launcher() {
     try {
         set_socket();//create a new socket new socket with the data sever specification
-        set_sockoption();//set option of sever socket
+        set_sockoption(data.getLevel(), data.getOptionName(), data.getOptionVal());//set option of sever socket
         set_bind();
-        set_listen();
+        set_listen(data.getBacklog());
         accessor_server(F_SETFL, O_NONBLOCK);//init the socket non blocking
         create_epoll();
         set_epoll_socket();
@@ -243,21 +250,22 @@ int server::set_socket() {
     return i_arg[server_socket];
 }
 
-void server::set_sockoption(){
-    if (setsockopt(i_arg[server_socket], data.getLevel(), data.getOptionName(),
-                   &data.getOptionVal(), (socklen_t)sizeof(data.getOptionVal()))) {
+void server::set_sockoption(int level, int option_name, int option_val){
+    if (setsockopt(i_arg[server_socket], level, option_name,
+                   &option_val, (socklen_t)sizeof(option_val))) {
         throw server::socketopt_exception(i_arg[server_socket]);
     }
 }
 
 void server::set_bind() {
-    if (bind(i_arg[server_socket], reinterpret_cast<struct sockaddr *>(&this->data.getAddress()), sizeof this->data.getAddress()) < 0) {
+    if (bind(i_arg[server_socket], reinterpret_cast<struct sockaddr *>(&this->data.getAddress()),
+            sizeof this->data.getAddress()) < 0)
         throw server::bind_exception(i_arg[server_socket]);
 }
 
-void server::set_listen() {
-    if (listen(i_arg[server_socket], this->data.getBacklog()) < 0)
-        throw server::listen_exception();
+void server::set_listen(int backlog) {
+    if (listen(i_arg[server_socket], backlog) < 0)
+        throw server::listen_exception(i_arg[server_socket]);
 }
 
 void server::accessor_server(int cmd, int flag){

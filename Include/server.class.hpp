@@ -362,7 +362,7 @@ private:
          * @param   void
          * @throw   none
          **/
-        listen_exception();
+        listen_exception(const int);
 
         /**
          * Constructor of listen_exception class
@@ -372,7 +372,7 @@ private:
          * @param   exception message to store const char*
          * @throw   none
          **/
-        listen_exception(const char *);
+        listen_exception(const int, const char *);
 
         /**
          * Copy constructor of listen_exception class
@@ -400,6 +400,9 @@ private:
          * virtual ~listen_exception() throw();
          *
          * @throw   none
+         *
+         * @todo wach if we build method to close file desciptor or close with destructor
+         *
          **/
         virtual ~listen_exception() throw();
 
@@ -417,6 +420,7 @@ private:
 
     private:
         std::string _message;
+        int _server_socket;
     };
 
 /**
@@ -666,7 +670,7 @@ public:
  **/
     data_server getDataServer() const;
 
-i/**
+/**
  * Accessor of sever class
  *
  * void setDataServer(data_server& d);
@@ -729,8 +733,11 @@ private:
  * Private methode of server class
  *
  * create a new socket with fonction socket
+ *
  * @see https://man7.org/linux/man-pages/man2/socket.2.html
+ *
  * int socket(int domain, int type, int protocol);
+ *
  * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
@@ -751,10 +758,21 @@ private:
  *
  * set the option of server socket already created
  *
- * void set_sockoption();
+ * void set_sockoption(int level, int option_name, int option_val);
  *
  * @returns void
- * @param   void
+ * @param   level is an int to define the level option :
+ *          SOL_SOCKET : pour les options générales du socket.
+ *          IPPROTO_IP : pour les options du protocole IP (Internet Protocol).
+ *          IPPROTO_TCP : pour les options du protocole TCP (Transmission Control Protocol).
+ *          IPPROTO_UDP : pour les options du protocole UDP (User Datagram Protocol).
+ *
+ *          option_name is an int to define de option name by macro for SOL_SOCKET
+ *          you can define SO_REUSEADDR to use the ip addresse juste after you close de socket
+ *
+ *          option_val to define de value of option_name for exemple for SO_REUSEADDR you can define
+ *          0 to desable option or 1 to enble option
+ *
  * @throws  server::socketopt_exception
  *
  * @see https://linux.die.net/man/3/setsockopt
@@ -762,7 +780,7 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_sockoption();
+    void set_sockoption(int , int , int);
 
 /**
  * Private methode of server class
@@ -782,9 +800,22 @@ private:
     void set_bind();
 
 /**
+ * Private methode of server class
+ *
+ * associate an IP address and a port number with a socket already created
+ *
+ * void set_listen();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::listen_exception
+ *
  * @see https://man7.org/linux/man-pages/man2/listen.2.html
+ *
+ * @Todo    watch if necessery to define the option in data server
+ * @todo    add specific message
  * */
-    void set_listen();
+    void set_listen(int backlog);
 
 /**
  * Command  (cmd) for accessor server :
