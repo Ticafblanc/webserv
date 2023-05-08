@@ -896,8 +896,7 @@ private:
  *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
  *          EPOLLET edge triggering mode
  *          EPOLLONESHOT single trigger mode
-
-Translated with www.DeepL.com/Translator (free version)
+ *
  * @throws  none
  * */
     struct epoll_event set_epoll_socket(int, int);
@@ -955,10 +954,10 @@ Translated with www.DeepL.com/Translator (free version)
  * void manage_event(int socket);
  *
  * @returns void
- * @param   void
+ * @param   socket is an int to manage the recev and send answer
  * @throws  server::epoll_exception
  * */
-    void manage_event(int socket);
+    void manage_event(int);
 };
 
 

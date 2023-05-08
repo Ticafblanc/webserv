@@ -313,25 +313,18 @@ void server::accept_connection() {
 }
 
 void server::manage_event(int socket){
+    //@todo juste simple recv and send to test
     char buffer[1024];//watch if buffer is define by nginx.conf
     ssize_t bytes_received;
     ssize_t bytes_send;
-    bytes_received = recv(socket, buffer, sizeof(buffer), 0);
-    if (bytes_received == -1){
-        std::cerr << "fail to read" << std::endl;
-        close(socket);
-        return;
-    }
-
-    std::cout << "\nRECEV\n" << buffer << std::endl;
-
-    std::string reponse = "i can't answer you for now";
-    std::cout << reponse << std::endl;
-    bytes_send = send(socket, reponse.c_str() , reponse.length(), 0);
-    if (bytes_send == -1) {
-        std::cerr << "fail to send" << std::endl;
-        close(socket);
-        return;
+    std::string response;
+    while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
+        response.append("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nHello, World!");
+        bytes_send = send(socket, response.c_str(), response.length(), 0);
+        if (bytes_send == -1 || bytes_received == -1) {
+            std::cerr << "error" << std::endl;
+            break;
+        }
     }
     close(socket);
 
