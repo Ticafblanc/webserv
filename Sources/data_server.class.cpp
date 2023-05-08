@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/data_server.class.hpp"
+#include <Include/data_server.class.hpp>
 
 
 /*
@@ -19,7 +19,8 @@
 *====================================================================================
 */
 
-data_server::data_server() : i_data(11), s_data(2), pid(), addr_len(), address(){}
+data_server::data_server() :    _int_data(), _string_data(), _event(),
+                                _events(), _server_address(), _client_address(){}
 
 data_server::~data_server() {
 //    if(!fd_isopen() || !socket_isopen())
@@ -27,13 +28,9 @@ data_server::~data_server() {
 //    close(getServerFd());
 }
 
-data_server::data_server(const data_server& other) : i_data(other.i_data), s_data(other.s_data),
-                                                     pid(other.pid), address(){
-    this->addr_len = other.addr_len;
-    this->address.sin_family = other.address.sin_family;
-    this->address.sin_addr.s_addr = other.address.sin_addr.s_addr;
-    this->address.sin_port = other.address.sin_port;
-    memcpy(getAddress().sin_zero, other.address.sin_zero, sizeof address.sin_zero);
+data_server::data_server(const data_server& other) :
+    _int_data(other._int_data), _string_data(other._string_data), _event(other._event), _events(other._events),
+    _server_address(other._server_address), _client_address(other._client_address){
 }
 
 data_server& data_server::operator=(const data_server& rhs){

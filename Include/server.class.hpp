@@ -13,9 +13,10 @@
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 
-#include "data_server.class.hpp"
-#include "header.hpp"
-#include <poll.h>
+#include <Include/data_server.class.hpp>
+#include <Include/header.hpp>
+
+extern bool stat_of_server;
 
 #define MAX_EVENTS 10//add to parser information
 
@@ -29,14 +30,7 @@ class server{
 
 private:
 
-    data_server _data;// see if to switch const
-    struct epoll_event _event, _events[MAX_EVENTS];
-    int _server_socket;
-    int _client_socket;
-    int _epoll_fd;
-    int _number_triggered_events;
-    sockaddr_in _client_address;
-    socklen_t _client_address_len ;
+    data_server _data;
 
 /*
 *====================================================================================
@@ -719,7 +713,7 @@ private:
  * @param int signal catch by foction call
  * @throw none
  */
-    void handle(int);
+    static void handle(int);
 
 /*
 *====================================================================================
@@ -883,7 +877,7 @@ private:
  *
  * set file descriptor (socket) in epoll event instance and define events
  *
- * struct epoll_event set_epoll_socket(int socket, int event);
+ * void set_epoll_socket(int socket, int event);
  *
  * @returns event fixed
  * @param   socket to set in _event epoll instance
@@ -899,7 +893,7 @@ private:
  *
  * @throws  none
  * */
-    struct epoll_event set_epoll_socket(int, int);
+    void set_epoll_socket(int, int);
 
 /**
  * Private methode of server class

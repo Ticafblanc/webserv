@@ -8,6 +8,4 @@
 #include "data_server.class.hpp"
 #include "colors.hpp"
 
-
-
 #endif

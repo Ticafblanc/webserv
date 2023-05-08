@@ -4,7 +4,7 @@
 #ifndef WEBSERV_DATA_SERVER_HPP
 #define WEBSERV_DATA_SERVER_HPP
 
-#include "header.hpp"
+#include <Include/header.hpp>
 
 class data_server{
 /*
@@ -25,17 +25,18 @@ public:
 
 private:
 
-    enum{ id_server, port, domain, type, protocol,
+    enum{port, domain, type, protocol,
         backlog, server_fd, new_socket, level,
-        optionname, optionval,};
+        option_name, option_val, server_socket,
+        client_socket, epoll_instance, number_triggered_events,
+        max_events};
 
     enum{ server_name, ip_address, };
 
-    std::vector<int> i_data;
-    std::vector<std::string> s_data;
-    pid_t pid;//follow process see if ok
-    std::size_t addr_len;
-    struct sockaddr_in address;
+    std::vector<int> _int_data;
+    std::vector<std::string> _string_data;
+    struct epoll_event _event, * _events;
+    struct sockaddr _server_address, _client_address;
 
 
 /*

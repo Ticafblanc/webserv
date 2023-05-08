@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/webserv.hpp"
+#include <Include/webserv.hpp>
 
 //static const char * select_path(int argc, char **argv){
 //    if(argc == 2)

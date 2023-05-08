@@ -9,7 +9,10 @@
 /*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "../Include/server.class.hpp"
+
+#include <Include/server.class.hpp>
+
+bool stat_of_server = true;
 
 /*
 *====================================================================================
@@ -193,12 +196,26 @@ void server::setDataServer(data_server& d){
 
 /*
 *====================================================================================
+*|                                      Signal                                      |
+*====================================================================================
+*/
+
+//@todo implement handle fonction to quitte de fonction
+void server::handle(int sig) {
+    (void) sig;
+    stat_of_server = false;
+}
+
+/*
+*====================================================================================
 *|                                      Launcher                                    |
 *====================================================================================
 */
 
 void server::launcher() {
     try {
+        signal(SIGINT, handle);
+        signal(SIGKILL, handle);
         set_socket(_data.getDomain(), _data.getType(), _data.getProtocol());//create a new socket new socket with the data sever specification
         set_socket_option(_data.getLevel(), _data.getOptionName(), _data.getOptionVal());//set option of sever socket
         set_bind();
@@ -207,7 +224,7 @@ void server::launcher() {
         create_epoll();
         set_epoll_socket(_server_socket, EPOLLIN);
         set_epoll_ctl(EPOLL_CTL_ADD, _server_socket, &_event);
-        while(true) {
+        while(stat_of_server) {
             set_epoll_wait();
             std::cout << "number of trigg = " << _number_triggered_events << std::endl;
             for (int i = 0; i < _number_triggered_events; ++i) {
@@ -222,18 +239,6 @@ void server::launcher() {
         throw e;
     }
 }
-/*@todo move all set to static fonction*/
-/*
-*====================================================================================
-*|                                      signal                                      |
-*====================================================================================
-*/
-
-//void server::handle(int sig) {
-//     close(_server_socket);
-//    close(_epoll_fd);
-//    exit(this->id_server);
-//}
 
 /*
 *====================================================================================
@@ -273,48 +278,41 @@ int server::accessor_socket_flag(int server_socket, int command, int flag){
     return return_flag;
 }
 int server::create_epoll() {
-    _epoll_fd = epoll_create(1);//if its necessary to save the epollfd in class
+    _epoll_fd = epoll_create(1);
     if (_epoll_fd == -1)
-        throw server::epoll_exception();//possible to add message to differ each epoll exeption
+        throw server::epoll_exception();
     return _epoll_fd;
 }
 
-struct epoll_event server::set_epoll_socket(int socket, int events){
+void server::set_epoll_socket(int socket, int events){
     _event.data.fd = socket;
     _event.events = events;
-    return _event;//show if its necessary to store in class
 }
 
 void server::set_epoll_ctl(int option, int socket, struct epoll_event *event) {
     if(epoll_ctl( _epoll_fd, option, socket, event) == -1)
-        throw server::epoll_exception();//possible to add message to differ each epoll exeption
+        throw server::epoll_exception();
 }
 
 void server::set_epoll_wait() {
-//    std::cout << "wait"<<std::endl;
     _number_triggered_events = epoll_wait(_epoll_fd, _events, MAX_EVENTS, -1);//@todo switch maxevent
-//    std::cout << "connect request"<<std::endl;
-    //@todo modifiy time out at the and to respect the subject
     if (_number_triggered_events == -1)
         throw server::epoll_exception();//possible to add message to differ each epoll exeption
 }
 
 void server::accept_connection() {
-//    std::cout << "try to accept"<<std::endl;
     _client_socket = accept(_server_socket, (struct sockaddr *)&_client_address, &_client_address_len);
     if (_client_socket == -1)
         throw server::accept_exception();
-//    int flags = accessor_socket_flag(_client_socket, F_GETFL, 0) | O_NONBLOCK; comment to respect the subject
-    accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);// add flag
+    accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);
     set_epoll_socket(_client_socket, EPOLLIN | EPOLLET);
     set_epoll_ctl(EPOLL_CTL_ADD, _client_socket, &_event);
-//    std::cout << "your are connected "<< std::endl;
 
 }
 
 void server::manage_event(int socket){
     //@todo juste simple recv and send to test
-    char buffer[1024];//watch if buffer is define by nginx.conf
+    char buffer[1024];
     ssize_t bytes_received;
     ssize_t bytes_send;
     std::string response;
