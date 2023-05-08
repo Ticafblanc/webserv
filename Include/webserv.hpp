@@ -8,6 +8,6 @@
 #include "data_server.class.hpp"
 #include "colors.hpp"
 
-std::vector<server> init(std::string str);//main init .... paring to do
+
 
 #endif

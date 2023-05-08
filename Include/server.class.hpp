@@ -17,7 +17,7 @@
 #include "header.hpp"
 #include <poll.h>
 
-#define MAX_EVENTS 100
+#define MAX_EVENTS 10//add to parser information
 
 class server{
 
@@ -29,7 +29,14 @@ class server{
 
 private:
 
-    data_server data;// see if to switch const
+    data_server _data;// see if to switch const
+    struct epoll_event _event, _events[MAX_EVENTS];
+    int _server_socket;
+    int _client_socket;
+    int _epoll_fd;
+    int _number_triggered_events;
+    sockaddr_in _client_address;
+    socklen_t _client_address_len ;
 
 /*
 *====================================================================================
@@ -761,19 +768,17 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  **/
-    static int set_socket(int, int, int);
+    int set_socket(int, int, int);
 
 /**
  * Private methode of server class
  *
  * set the option of server socket already created
  *
- * void set_sockoption(int server_socket, int level, int option_name, int option_val);
+ * void set_sockoption(int level, int option_name, int option_val);
  *
  * @returns void
- * @param   server_socket is an int file descriptor already created
- *
- *          level is an int to define the level option :
+ * @param   level is an int to define the level option :
  *          SOL_SOCKET : pour les options générales du socket.
  *          IPPROTO_IP : pour les options du protocole IP (Internet Protocol).
  *          IPPROTO_TCP : pour les options du protocole TCP (Transmission Control Protocol).
@@ -792,7 +797,7 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    static void set_sockoption(int, int , int , int);
+    void set_socket_option(int , int , int);
 
 /**
  * Private methode of server class
@@ -809,7 +814,7 @@ private:
  *
  * @todo    add specific message
  * */
-    void set_bind(int);
+    void set_bind();
 
 /**
  * Private methode of server class
@@ -819,9 +824,7 @@ private:
  * void set_listen(int server_socket, int backlog);
  *
  * @returns void
- * @param   server_socket is an int file descriptor already created
- *
- *          backlog is an int to define the maximum number of pending connections
+ * @param   backlog is an int to define the maximum number of pending connections
  *          that can be queued before the server starts refusing new incoming connections.
  * @throws  server::listen_exception
  *
@@ -830,7 +833,7 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_listen(int, int);
+    void set_listen(int);
 
 /**
  * Private methode of server class
@@ -873,31 +876,89 @@ private:
  * @param   void
  * @throws  server::epoll_exception
  * */
-    static int create_epoll();
+    int create_epoll();
 
 /**
  * Private methode of server class
  *
- * set fd for news client for server socket
+ * set file descriptor (socket) in epoll event instance and define events
  *
- * int create_epoll();
+ * struct epoll_event set_epoll_socket(int socket, int event);
  *
- * @returns an file descriptor (int) for the new instance
+ * @returns event fixed
+ * @param   socket to set in _event epoll instance
+ *
+ *          events is int to set events of socket
+ *          EPOLLIN the event occurs when data can be read from the file descriptor
+ *          EPOLLOUT the event occurs when data can be written to the file descriptor
+ *          EPOLLERR the event occurs when there is an error on the file descriptor
+ *          EPOLLRDHUP the event occurs when the connection is closed by the remote peer
+ *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
+ *          EPOLLET edge triggering mode
+ *          EPOLLONESHOT single trigger mode
+
+Translated with www.DeepL.com/Translator (free version)
+ * @throws  none
+ * */
+    struct epoll_event set_epoll_socket(int, int);
+
+/**
+ * Private methode of server class
+ *
+ * set _event instance with socket to add remove or modify
+ *
+ * void set_epoll_ctl(int option, int socket);
+ *
+ * @returns void
+ * @param   option is an int action to do:
+ *          EPOLL_CTL_ADD to add a new descriptor to be monitored
+ *          EPOLL_CTL_MOD to modify the monitoring of an already monitored descriptor
+ *          EPOLL_CTL_DEL to delete a monitored descriptor.
+ *
+ *          socket to set in _event epoll instance
+ * @throws  server::epoll_exception
+ * */
+    void set_epoll_ctl(int, int, struct epoll_event *);
+
+/**
+ * Private methode of server class
+ *
+ * wait un event in request connect or new event in socket already open
+ *
+ * void set_epoll_wait();
+ *
+ * @returns void
  * @param   void
  * @throws  server::epoll_exception
  * */
-    struct epoll_event set_epoll_socket();
-
-/**
- * registe socket to follow
- * EPOLL_CTL_ADD, EPOLL_CTL_MOD or EPOLL_CTL_DEL
- * */
-    void set_epoll_ctl(int);
-
-/**
- * wait un event in request connect or sockert already open or throw exeptiom
- * */
     void set_epoll_wait();
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void accept_connection();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::epoll_exception
+ * */
+    void accept_connection();
+
+/**
+ * Private methode of server class
+ *
+ * manage event like receive data
+ *
+ * void manage_event(int socket);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::epoll_exception
+ * */
+    void manage_event(int socket);
 };
 
 

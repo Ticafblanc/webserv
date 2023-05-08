@@ -26,7 +26,10 @@ RUN apt-get update \
     tar \
     python3 \
     valgrind \
+    net-tools \
     && apt-get clean
+
+EXPOSE 8081
 
 #set the webserv config content
 COPY ../config_content_server/for_etc/ /usr/local/etc/

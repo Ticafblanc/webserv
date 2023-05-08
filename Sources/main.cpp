@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   0-main.cpp                                         :+:      :+:    :+:   */
+/*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,18 +12,36 @@
 
 #include "../Include/webserv.hpp"
 
+//static const char * select_path(int argc, char **argv){
+//    if(argc == 2)
+//        return argv[1];
+//    else
+//        return "/usr/local/etc/webserv/webserv.conf";
+//}
+
 int main(int argc, char **argv, char **envp){
     (void)envp;
-    std::vector<server> vec;
+    (void)argc;
+    (void)argv;
+    //@todo manage number of try before crash
     try{
-        if(argc == 2)
-            vec = init(argv[1]);
-        else
-            vec = init("/usr/local/etc/webserv/webserv.conf");//parse default file
-        std::vector<server>::iterator It = vec.begin();
-        for (; It != vec.end(); ++It){
-            It->launcher();
-        }
+//        Parser parsing(select_path(argc, argv));
+//        data_server data = parsing.parsefile;
+        data_server data;
+        std::string ip =  "127.0.0.1";
+        int port = 8081;
+        data.setIp_address(ip);
+        data.setPort(port);
+        data.setDomain(AF_INET);
+        data.setType(SOCK_STREAM);
+        data.setProtocol(0);
+        data.setBacklog(10);
+        data.setAddress(AF_INET, 8081);
+        data.setLevel(SOL_SOCKET);
+        data.setOptionName(SO_REUSEADDR);
+        data.setOptionVal(1);
+        server serv(data);
+        serv.launcher();
     }
     catch(const std::exception& e){
         std::cout << e.what() << std::endl;
@@ -34,3 +52,4 @@ int main(int argc, char **argv, char **envp){
     std::cout <<"end succes"<< std::endl;
     exit(EXIT_SUCCESS);
 }
+

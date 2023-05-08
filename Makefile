@@ -95,6 +95,9 @@ $(BIN): title directory $(OBJ)
 run: all
 		@./$(BIN)
 
+HTTP = http://127.0.0.1:8081/
+curl: curl -v -H "test" $(HTTP)
+
 
 title: 
 		@echo $(GREEN)******************$(PROJECT)******************
