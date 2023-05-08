@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   0-main.cpp                                         :+:      :+:    :+:   */
+/*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*   By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 18:57:53 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/02 18:57:57 by mdoquocb         ###   ########.fr       */
+/*   Updated: 2023/05/08 14:36:31 by jrossign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Include/webserv.hpp"
-#include "sys/epoll.h"
 
 int main(int argc, char **argv, char **envp){
     (void)envp;
