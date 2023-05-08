@@ -3,7 +3,7 @@
 
 int	unitTestThrow()
 {
-	throw (std::out_of_range("test"));
+	throw (std::invalid_argument("test"));
 }
 
 int main () {
