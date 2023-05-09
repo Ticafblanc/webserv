@@ -45,16 +45,20 @@ void Parser::findAmountServers() { //Last valid option
 			break ;
 		buffer = buffer.substr(buffer.find("server"));
 		if (comp.find(buffer[buffer.find("server") + 6]) == string::npos) {
+			std::cout << "no server find." << std::endl;
 			throw InvalidConfigFile();
 		}
 		else {
 			if (buffer.find('{') > buffer.find('}') || buffer.find('{') == string::npos) {
+				std::cout << "no {} find." << std::endl;
 				throw InvalidConfigFile();
 			}
 			else {
 				buffer = buffer.substr(6);
-				if (buffer.find("server") < buffer.find('{'))
+				if (buffer.find("server") < buffer.find('{')){
+					std::cout << "no server 2 find." << std::endl;
 					throw InvalidConfigFile();
+				}
 				buffer = buffer.substr(buffer.find('{'));
 			}
 			for (string::iterator it = buffer.begin(); it != buffer.end(); ++it) {
