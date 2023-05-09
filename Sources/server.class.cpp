@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   server.class.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*   By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/29 14:27:31 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/31 21:54:51 by mdoquocb         ###   ########.ca       */
+/*   Updated: 2023/05/09 12:11:25 by jrossign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 #include "../Include/server.class.hpp"
@@ -106,9 +106,6 @@ void server::launcher() {
         set_sockoption();
         set_bind();
         set_listen();
-        // std::cout << "server = " << data.getIdServer() << " is open on fd = " << data.getServerFd()
-        //           << " a l'adresse = " << this->data.getIpAddress() << ":" << this->data.getPort() << std::endl;
-
         do {
             set_server_non_blocking();
             set_pollfd();
@@ -121,7 +118,6 @@ void server::launcher() {
                     perror("In accept");
                     exit(EXIT_FAILURE);
             }
-            // std::cout << "server = " << data.getIdServer() << " is close " << std::endl;
             break;
         } while (1);
     }

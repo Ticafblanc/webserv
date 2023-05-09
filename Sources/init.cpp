@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   1-init.cpp                                         :+:      :+:    :+:   */
+/*   init.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*   By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/03 15:11:48 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/03 15:11:50 by mdoquocb         ###   ########.fr       */
+/*   Updated: 2023/05/09 12:10:55 by jrossign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,4 @@ std::vector<server> init(string str){
         Vt->setDataServer(*It);
     }
     return vec;
-
-
 }
