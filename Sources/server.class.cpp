@@ -246,8 +246,8 @@ void server::launcher() {
 *====================================================================================
 */
 
-int server::set_socket(int domain, int type, int protocol) {
-    _server_socket = (socket(domain, type, protocol));
+int server::set_socket(int domain, int protocol) {
+    _server_socket = (socket(domain, SOCK_STREAM, protocol));
     if (_server_socket == 0)
         throw server::socket_exception();
     return _server_socket;

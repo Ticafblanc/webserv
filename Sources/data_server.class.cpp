@@ -201,28 +201,22 @@ void data_server::setLevel(int lev){
 }
 
 int& data_server::getOptionName(){
-    return getIData()[optionname];
+    return getIData()[option_name];
 }
 
 void data_server::setOptionName(int opt){
-    getIData()[optionname] = opt;
+    getIData()[option_name] = opt;
 }
 
 int& data_server::getOptionVal(){
-    return getIData()[optionval];
+    return getIData()[option_val];
 }
 
 void data_server::setOptionVal(int opt){
-    getIData()[optionval] = opt;
+    getIData()[option_val] = opt;
 }
 
-pid_t& data_server::getPid() {
-    return this->pid;
-}
 
-void data_server::setPid(pid_t & p){
-    this->pid = p;
-}
 
 void data_server::close_server_fd(){
 //    if(!fd_isopen() || !socket_isopen())

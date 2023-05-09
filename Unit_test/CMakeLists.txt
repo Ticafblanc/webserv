@@ -8,4 +8,4 @@ include_directories(SYSTEM ./)
 add_executable(Unit_test    Sources/UTmain.cpp
                             Sources/0-constructor.cpp
                             ../Sources/server.class.cpp
-                            ../Sources/data_server.class.cpp)
+        ../Sources/data_server.class.cpp)

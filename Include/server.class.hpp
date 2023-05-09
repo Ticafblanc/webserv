@@ -16,9 +16,6 @@
 #include <Include/data_server.class.hpp>
 #include <Include/header.hpp>
 
-extern bool stat_of_server;
-
-#define MAX_EVENTS 10//add to parser information
 
 class server{
 
@@ -30,7 +27,8 @@ class server{
 
 private:
 
-    data_server _data;
+    data_server_base _data;
+    static bool stat_of_server;
 
 /*
 *====================================================================================
@@ -730,30 +728,25 @@ private:
  *
  * @see https://man7.org/linux/man-pages/man2/socket.2.html
  *
- * int socket(int domain, int type, int protocol);
+ * int socket(int domain, int protocol);
  *
  * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
  * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
  * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
+ *
+ * nginx work only on tcp protocol !!
  *
  * int set_socket(int domain, int type, int protocol);
  *
  * @returns file descriptor (int) server socket created
  * @param   domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
  *
- *          type is an int define the transmission mode SOCK_STREAM for tcp
- *          SOCK_DGRAM for udp SOCK_RAW for row
- *
  *          protocol in an int define the protocol to use fonction the domaine and type of domaine
  *          for AF_INET (IPv4) :
  *          IPPROTO_TCP for TCP
- *          IPPROTO_UDP for UDP
- *          IPPROTO_ICMP for ICMP
  *          0 for let de systeme define the option by it self
  *          for AF_INET6 (IPv6) :
  *          IPPROTO_TCP for TCP
- *          IPPROTO_UDP for UDP
- *          IPPROTO_ICMPV6 for ICMPv6
  *          0 for let de systeme define the option by it self
  *          for AF_UNIX (locale host) :
  *          0 for default.
@@ -762,7 +755,7 @@ private:
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  **/
-    int set_socket(int, int, int);
+    int set_socket(int, int);
 
 /**
  * Private methode of server class
