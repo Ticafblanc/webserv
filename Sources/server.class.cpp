@@ -58,126 +58,19 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
-server::socket_exception::socket_exception() : std::exception(), _message("socket error"){}
-
-server::socket_exception::socket_exception(const char * message) : std::exception(), _message(message) {}
-
-server::socket_exception::~socket_exception() throw() {}
-
-const char * server::socket_exception::what() const throw() { return _message.c_str(); }
-
-server::socket_exception::socket_exception(const socket_exception & other) : std::exception(), _message(other._message) {}
-
-server::socket_exception &server::socket_exception::operator=(const socket_exception &rhs) {
-    _message = rhs._message;
-    return *this;
-}
-
-server::socketopt_exception::socketopt_exception(const int server_socket) :
-                        std::exception(), _message("socketopt error"), _server_socket(server_socket) {}
-
-server::socketopt_exception::socketopt_exception(const int server_socket, const char * message) :
+server::server_exception::server_exception(const int server_socket, const char * message) :
                         std::exception(), _message(message), _server_socket(server_socket) {}
 
-server::socketopt_exception::~socketopt_exception() throw() {}
+server::server_exception::~server_exception() throw() {}
 
-const char * server::socketopt_exception::what() const throw() { return _message.c_str(); }
+const char * server::server_exception::what() const throw() { return _message.c_str(); }
 
-server::socketopt_exception::socketopt_exception(const socketopt_exception & other) :
+server::server_exception::server_exception(const server_exception & other) :
                         std::exception(), _message(other._message), _server_socket(other._server_socket) {}
 
-server::socketopt_exception &server::socketopt_exception::operator=(const socketopt_exception &rhs) {
+server::server_exception &server::server_exception::operator=(const server_exception &rhs) {
     _message = rhs._message;
     _server_socket = rhs._server_socket;
-    return *this;
-}
-
-server::bind_exception::bind_exception(const int server_socket) :
-                        std::exception(), _message("bind error"), _server_socket(server_socket){}
-
-server::bind_exception::bind_exception(const int server_socket, const char * message) :
-                        std::exception(), _message(message), _server_socket(server_socket){}
-
-server::bind_exception::~bind_exception() throw() {
-    if(_server_socket != 0 && _server_socket != 1 && _server_socket != 2)
-        close(_server_socket);
-}
-
-const char * server::bind_exception::what() const throw() { return _message.c_str(); }
-
-server::bind_exception::bind_exception(const bind_exception & other) :
-                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
-
-server::bind_exception &server::bind_exception::operator=(const bind_exception &rhs) {
-    _message = rhs._message;
-    _server_socket = rhs._server_socket;
-    return *this;
-}
-
-server::listen_exception::listen_exception(const int server_socket) :
-                        std::exception(), _message("listen error"), _server_socket(server_socket){}
-
-server::listen_exception::listen_exception(const int server_socket, const char * message) :
-                        std::exception(), _message(message), _server_socket(server_socket) {}
-
-server::listen_exception::~listen_exception() throw() {
-    if(_server_socket != 0 && _server_socket != 1 && _server_socket != 2)
-        close(_server_socket);
-}
-
-const char * server::listen_exception::what() const throw() { return _message.c_str(); }
-
-server::listen_exception::listen_exception(const listen_exception & other) :
-                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
-
-server::listen_exception &server::listen_exception::operator=(const listen_exception &rhs) {
-    _message = rhs._message;
-    _server_socket = rhs._server_socket;
-    return *this;
-}
-
-server::accept_exception::accept_exception() : std::exception(), _message("accept error"){}
-
-server::accept_exception::accept_exception(const char * message) : std::exception(), _message(message) {}
-
-server::accept_exception::~accept_exception() throw() {}
-
-const char * server::accept_exception::what() const throw() { return _message.c_str(); }
-
-server::accept_exception::accept_exception(const accept_exception & other) : std::exception(), _message(other._message) {}
-
-server::accept_exception &server::accept_exception::operator=(const accept_exception &rhs) {
-    _message = rhs._message;
-    return *this;
-}
-
-server::epoll_exception::epoll_exception() : std::exception(), _message("epoll error"){}
-
-server::epoll_exception::epoll_exception(const char * message) : std::exception(), _message(message) {}
-
-server::epoll_exception::~epoll_exception() throw() {}
-
-const char * server::epoll_exception::what() const throw() { return _message.c_str(); }
-
-server::epoll_exception::epoll_exception(const epoll_exception & other) : std::exception(), _message(other._message) {}
-
-server::epoll_exception &server::epoll_exception::operator=(const epoll_exception &rhs) {
-    _message = rhs._message;
-    return *this;
-}
-
-server::launch_exception::launch_exception() : std::exception(), _message("launch error"){}
-
-server::launch_exception::launch_exception(const char * message) : std::exception(), _message(message) {}
-
-server::launch_exception::~launch_exception() throw() {}
-
-const char * server::launch_exception::what() const throw() { return _message.c_str(); }
-
-server::launch_exception::launch_exception(const launch_exception & other) : std::exception(), _message(other._message) {}
-
-server::launch_exception &server::launch_exception::operator=(const launch_exception &rhs) {
-    _message = rhs._message;
     return *this;
 }
 
@@ -203,7 +96,7 @@ void server::setDataServer(data_server& d){
 //@todo implement handle fonction to quitte de fonction
 void server::handle(int sig) {
     (void) sig;
-    stat_of_server = false;
+    _stat_of_server = false;
 }
 
 /*
@@ -213,6 +106,7 @@ void server::handle(int sig) {
 */
 
 void server::launcher() {
+    //@todo add auto increment _number of servr socket
     try {
         signal(SIGINT, handle);
         signal(SIGKILL, handle);
@@ -224,7 +118,7 @@ void server::launcher() {
         create_epoll();
         set_epoll_socket(_server_socket, EPOLLIN);
         set_epoll_ctl(EPOLL_CTL_ADD, _server_socket, &_event);
-        while(stat_of_server) {
+        while(_stat_of_server) {
             set_epoll_wait();
             std::cout << "number of trigg = " << _number_triggered_events << std::endl;
             for (int i = 0; i < _number_triggered_events; ++i) {
@@ -246,41 +140,40 @@ void server::launcher() {
 *====================================================================================
 */
 
-int server::set_socket(int domain, int protocol) {
-    _server_socket = (socket(domain, SOCK_STREAM, protocol));
-    if (_server_socket == 0)
-        throw server::socket_exception();
-    return _server_socket;
+void server::set_socket(int domain) {
+    _server_socket[_number_of_socket] = (socket(domain, SOCK_STREAM, IPPROTO_TCP));
+    if (_server_socket[_number_of_socket] == 0)
+        throw server::server_exception(strerror(errno));
 }
 
-void server::set_socket_option(int level, int option_name, int option_val){
-    if (setsockopt(_server_socket, level, option_name,
+void server::set_socket_option(){
+    int option_val = 1;
+    if (setsockopt(_server_socket[_number_of_socket], IPPROTO_TCP, SO_REUSEADDR,
                    &option_val, (socklen_t)sizeof(option_val)))
-        throw server::socketopt_exception(_server_socket);
-
+        throw server::server_exception(_server_socket);
 }
 
-void server::set_bind() {
+void server::set_bind(struct sockaddr * sock_address) {
     if (bind(_server_socket, reinterpret_cast<struct sockaddr *>(&_data.getAddress()),
             sizeof _data.getAddress()) < 0)
-        throw server::bind_exception(_server_socket);
+        throw server::server_exception(_server_socket);
 }
 
 void server::set_listen(int backlog) {
     if (listen(_server_socket, backlog) < 0)
-        throw server::listen_exception(_server_socket);
+        throw server::server_exception(_server_socket);
 }
 
 int server::accessor_socket_flag(int server_socket, int command, int flag){
     int return_flag = fcntl(server_socket, command, flag);
     if (return_flag < 0)
-        throw server::bind_exception(_server_socket);
+        throw server::server_exception(_server_socket);
     return return_flag;
 }
 int server::create_epoll() {
     _epoll_fd = epoll_create(1);
     if (_epoll_fd == -1)
-        throw server::epoll_exception();
+        throw server::server_exception();
     return _epoll_fd;
 }
 
@@ -291,19 +184,19 @@ void server::set_epoll_socket(int socket, int events){
 
 void server::set_epoll_ctl(int option, int socket, struct epoll_event *event) {
     if(epoll_ctl( _epoll_fd, option, socket, event) == -1)
-        throw server::epoll_exception();
+        throw server::server_exception();
 }
 
 void server::set_epoll_wait() {
     _number_triggered_events = epoll_wait(_epoll_fd, _events, MAX_EVENTS, -1);//@todo switch maxevent
     if (_number_triggered_events == -1)
-        throw server::epoll_exception();//possible to add message to differ each epoll exeption
+        throw server::server_exception();//possible to add message to differ each epoll exeption
 }
 
 void server::accept_connection() {
     _client_socket = accept(_server_socket, (struct sockaddr *)&_client_address, &_client_address_len);
     if (_client_socket == -1)
-        throw server::accept_exception();
+        throw server::server_exception();
     accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);
     set_epoll_socket(_client_socket, EPOLLIN | EPOLLET);
     set_epoll_ctl(EPOLL_CTL_ADD, _client_socket, &_event);

@@ -27,8 +27,10 @@ class server{
 
 private:
 
-    data_server_base _data;
-    static bool stat_of_server;
+    data_server _data;
+    int*        _server_socket;
+    int         _number_of_socket;
+    static bool _stat_of_server;
 
 /*
 *====================================================================================
@@ -99,69 +101,66 @@ private:
 /**
  * Class exception of sever class
  *
- * class socket_exception;
+ * class server_exception;
  *
  * @inherit std::exception
  **/
-    class socket_exception: public std::exception
+    class server_exception: public std::exception
     {
     public:
 
         /**
-         * Constructor of socket_exception class
+         * Constructor of server_exception class
          *
-         * socket_exception();
-         *
-         * @param   void
-         * @throw   none
-         *
-         * @todo merge if its possible at the end socket_exception,socketopt_exception and bind_exception
-         * @todo wach if we build method to close file desciptor or close with destructor
-         * @todo i think we can use the erno variable to throw a specific message we dont have "Checking the value of errno is strictly forbidden after a read or a write operation."
-         **/
-        socket_exception();
-
-        /**
-         * Constructor of socket_exception class
-         *
-         * socket_exception(const char*);
+         * server_exception(const char*);
          *
          * @param   exception message to store const char*
          * @throw   none
          **/
-        socket_exception(const char *);
+        server_exception(const char *);
 
         /**
-         * Copy constructor of socket_exception class
+         * Constructor of server_exception class
          *
-         * socket_exception(socket_exception &);
+         * server_exception(const char*);
          *
-         * @param   socket_exception instance to build the socket_exception
+         * @param   exception message to store const char*
          * @throw   none
          **/
-        socket_exception(const socket_exception &);
+        server_exception(const int server_socket, const char *);
 
         /**
-         * Operator overload= of socket_exception class
+         * Copy constructor of server_exception class
          *
-         * operator=(const socket_exception&);
+         * server_exception(server_exception &);
          *
-         * @param   socket_exception instance const to copy the socket_exception
+         * @param   server_exception instance to build the server_exception
+         *          server_socket in an int to close
          * @throw   none
          **/
-        socket_exception& operator=(const socket_exception &);
+        server_exception(const server_exception &);
 
         /**
-        * Destructor of socket_exception class
+         * Operator overload= of server_exception class
+         *
+         * operator=(const server_exception&);
+         *
+         * @param   server_exception instance const to copy the server_exception
+         * @throw   none
+         **/
+        server_exception& operator=(const server_exception &);
+
+        /**
+        * Destructor of server_exception class
         *
-        * virtual ~socket_exception() throw();
+        * virtual ~server_exception() throw();
         *
         * @throw   none
         **/
-        virtual ~socket_exception() throw();
+        virtual ~server_exception() throw();
 
         /**
-         * Public methode of socket_exception
+         * Public methode of server_exception
          *
          * virtual const char * what() const throw();
          *
@@ -173,474 +172,8 @@ private:
         virtual const char * what() const throw();
 
     private:
-        std::string _message;
-    };
-
-/**
-* Class exception of sever class
-*
-* class socketopt_exception;
-*
-* @inherit std::exception
-**/
-    class socketopt_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of socketopt_exception class
-         *
-         * socketopt_exception();
-         *
-         * @param   void
-         * @throw   none
-         *
-         **/
-        socketopt_exception(const int);
-
-        /**
-         * Constructor of socketopt_exception class
-         *
-         * socketopt_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        socketopt_exception(const int, const char *);
-
-        /**
-        * Copy constructor of socketopt_exception class
-        *
-        * socketopt_exception(const socketopt_exception &);
-        *
-        * @param   socketopt_exception instance to build the socketopt_exception
-        * @throw   none
-        **/
-        socketopt_exception(const socketopt_exception &);
-
-        /**
-         * Operator overload= of socketopt_exception class
-         *
-         * operator=(const socketopt_exception&);
-         *
-         * @param   socketopt_exception instance const to copy the socketopt_exception
-         * @throw   none
-         **/
-        socketopt_exception& operator=(const socketopt_exception &);
-
-        /**
-         * Destructor of socketopt_exception class
-         *
-         * virtual ~socketopt_exception() throw();
-         *
-         * @throw   none
-         *
-         * @todo wach if we build method to close file desciptor or close with destructor
-         **/
-        virtual ~socketopt_exception() throw();
-
-        /**
-         * Public methode of socketopt_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "socketopt error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
-        int _server_socket;
-    };
-
-/**
-* Class exception of sever class
-*
-* class bind_exception;
-*
-* @inherit std::exception
-**/
-    class bind_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of bind_exception class
-         *
-         * bind_exception();
-         *
-         * @param   void
-         * @throw   none
-         **/
-        bind_exception(const int);
-
-        /**
-         * Constructor of bind_exception class
-         *
-         * bind_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        bind_exception(const int, const char *);
-
-        /**
-        * Copy constructor of bind_exception class
-        *
-        * bind_exception(const bind_exception &);
-        *
-        * @param   bind_exception instance to build the bind_exception
-        * @throw   none
-        **/
-        bind_exception(const bind_exception &);
-
-        /**
-         * Operator overload= of bind_exception class
-         *
-         * operator=(const bind_exception&);
-         *
-         * @param   bind_exception instance const to copy the bind_exception
-         * @throw   none
-         **/
-        bind_exception& operator=(const bind_exception &);
-
-        /**
-         * Destructor of bind_exception class
-         *
-         * virtual ~bind_exception() throw();
-         *
-         * @throw   none
-         * @todo wach if we build method to close file desciptor or close with destructor
-         *
-         **/
-        virtual ~bind_exception() throw();
-
-        /**
-         * Public methode of bind_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @return  const char * store in private std::string _message
-         *          at the construction defaut constructor "bind error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
-        int         _server_socket;
-    };
-
-/**
-* Class exception of sever class
-*
-* class listen_exception;
-*
-* @inherit std::exception
-**/
-    class listen_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of listen_exception class
-         *
-         * listen_exception();
-         *
-         * @param   void
-         * @throw   none
-         **/
-        listen_exception(const int);
-
-        /**
-         * Constructor of listen_exception class
-         *
-         * listen_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        listen_exception(const int, const char *);
-
-        /**
-         * Copy constructor of listen_exception class
-         *
-         * listen_exception(listen_exception &);
-         *
-         * @param   listen_exception instance to build the listen_exception
-         * @throw   none
-         **/
-        listen_exception(const listen_exception &);
-
-        /**
-         * Operator overload= of listen_exception class
-         *
-         * operator=(const listen_exception&);
-         *
-         * @param   listen_exception instance const to copy the listen_exception
-         * @throw   none
-         **/
-        listen_exception& operator=(const listen_exception &);
-
-        /**
-         * Destructor of listen_exception class
-         *
-         * virtual ~listen_exception() throw();
-         *
-         * @throw   none
-         *
-         * @todo wach if we build method to close file desciptor or close with destructor
-         *
-         **/
-        virtual ~listen_exception() throw();
-
-        /**
-         * Public methode of launch_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "listen error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
-        int _server_socket;
-    };
-
-/**
-* Class exception of sever class
-*
-* class accept_exception;
-*
-* @inherit std::exception
-**/
-    class accept_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of accept_exception class
-         *
-         * accept_exception();
-         *
-         * @param   void
-         * @throw   none
-         **/
-        accept_exception();
-
-        /**
-         * Constructor of accept_exception class
-         *
-         * accept_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        accept_exception(const char *);
-
-        /**
-         * Copy constructor of accept_exception class
-         *
-         * accept_exception(accept_exception &);
-         *
-         * @param   accept_exception instance to build the accept_exception
-         * @throw   none
-         **/
-        accept_exception(const accept_exception &);
-
-        /**
-         * Operator overload= of accept_exception class
-         *
-         * operator=(const accept_exception&);
-         *
-         * @param   accept_exception instance const to copy the accept_exception
-         * @throw   none
-         **/
-        accept_exception& operator=(const accept_exception &);
-
-        /**
-         * Destructor of accept_exception class
-         *
-         * virtual ~accept_exception() throw();
-         *
-         * @throw   none
-         **/
-        virtual ~accept_exception() throw();
-
-        /**
-         * Public methode of launch_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "accept error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
-    };
-
-/**
-* Class exception of sever class
-*
-* class epoll_exception;
-*
-* @inherit std::exception
-**/
-    class epoll_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of epoll_exception class
-         *
-         * epoll_exception();
-         *
-         * @param   void
-         * @throw   none
-         **/
-        epoll_exception();
-
-        /**
-         * Constructor of epoll_exception class
-         *
-         * epoll_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        epoll_exception(const char *);
-
-        /**
-         * Copy constructor of epoll_exception class
-         *
-         * epoll_exception(epoll_exception &);
-         *
-         * @param   epoll_exception instance to build the epoll_exception
-         * @throw   none
-         **/
-        epoll_exception(const epoll_exception &);
-
-        /**
-         * Operator overload= of epoll_exception class
-         *
-         * operator=(const epoll_exception&);
-         *
-         * @param   epoll_exception instance const to copy the epoll_exception
-         * @throw   none
-         **/
-        epoll_exception& operator=(const epoll_exception &);
-
-        /**
-         * Destructor of epoll_exception class
-         *
-         * virtual ~epoll_exception() throw();
-         *
-         * @throw   none
-         **/
-        virtual ~epoll_exception() throw();
-
-        /**
-         * Public methode of launch_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "epoll error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
-    };
-
-/**
-* Class exception of sever class
-*
-* class launch_exception;
-*
-* @inherit std::exception
-**/
-    class launch_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of launch_exception class
-         *
-         * launch_exception();
-         *
-         * @param   void
-         * @throw   none
-         **/
-        launch_exception();
-
-        /**
-         * Constructor of launch_exception class
-         *
-         * launch_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        launch_exception(const char *);
-
-        /**
-         * Copy constructor of launch_exception class
-         *
-         * launch_exception(launch_exception &);
-         *
-         * @param   launch_exception instance to build the launch_exception
-         * @throw   none
-         **/
-        launch_exception(const launch_exception &);
-
-        /**
-         * Operator overload= of launch_exception class
-         *
-         * operator=(const launch_exception&);
-         *
-         * @param   launch_exception instance const to copy the launch_exception
-         * @throw   none
-         **/
-        launch_exception& operator=(const launch_exception &);
-
-        /**
-         * Destructor of launch_exception class
-         *
-         * virtual ~launch_exception() throw();
-         *
-         * @throw   none
-         **/
-        virtual ~launch_exception() throw();
-
-        /**
-         * Public methode of launch_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "launch error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string _message;
+        std::string   _message;
+        int           _server_socket;
     };
 
 /*
@@ -736,55 +269,33 @@ private:
  *
  * nginx work only on tcp protocol !!
  *
- * int set_socket(int domain, int type, int protocol);
+ * void set_socket(int domain);
  *
  * @returns file descriptor (int) server socket created
  * @param   domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
- *
- *          protocol in an int define the protocol to use fonction the domaine and type of domaine
- *          for AF_INET (IPv4) :
- *          IPPROTO_TCP for TCP
- *          0 for let de systeme define the option by it self
- *          for AF_INET6 (IPv6) :
- *          IPPROTO_TCP for TCP
- *          0 for let de systeme define the option by it self
- *          for AF_UNIX (locale host) :
- *          0 for default.
- * @throws  server::socket_exception
+ * @throws  server::server_exception
  *
  * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  **/
-    int set_socket(int, int);
+    void set_socket(int);
 
 /**
  * Private methode of server class
  *
  * set the option of server socket already created
  *
- * void set_sockoption(int level, int option_name, int option_val);
+ * void set_sockoption();
  *
  * @returns void
- * @param   level is an int to define the level option :
- *          SOL_SOCKET : pour les options générales du socket.
- *          IPPROTO_IP : pour les options du protocole IP (Internet Protocol).
- *          IPPROTO_TCP : pour les options du protocole TCP (Transmission Control Protocol).
- *          IPPROTO_UDP : pour les options du protocole UDP (User Datagram Protocol).
- *
- *          option_name is an int to define de option name by macro for SOL_SOCKET
- *          you can define SO_REUSEADDR to use the ip addresse juste after you close de socket
- *
- *          option_val to define de value of option_name for exemple for SO_REUSEADDR you can define
- *          0 to desable option or 1 to enble option
- *
- * @throws  server::socketopt_exception
+ * @param   void
+ * @throws  server::server_exception
  *
  * @see https://linux.die.net/man/3/setsockopt
  *
- * @Todo    watch if necessery to define the option in data server
  * @todo    add specific message
  * */
-    void set_socket_option(int , int , int);
+    void set_socket_option();
 
 /**
  * Private methode of server class
@@ -795,7 +306,7 @@ private:
  *
  * @returns void
  * @param   server_socket is an int file descriptor already created
- * @throws  server::bind_exception
+ * @throws  server::server_exception
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
  *
