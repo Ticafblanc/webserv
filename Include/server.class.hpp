@@ -29,17 +29,15 @@ public:
 *====================================================================================
 */
 
-server(){}
-
 /**
  * Constructor of sever class
  *
- * sever(data_server &);
+ * sever(data_server *);
  *
  * @param   config_webserv instance to build the server
  * @throw   none
  **/
-    server(const config_webserv &);
+    server(config_webserv *);
 
 /**
  * Destructor of sever class
@@ -182,7 +180,7 @@ server(){}
  * @throw none
  *
  * @see https://man7.org/linux/man-pages/man2/accept.2.html
- *
+ * @todo overload fonction to run launcher and launcher(flag);
  */
     void launcher();
 
@@ -427,6 +425,16 @@ private:
  * */
     void manage_event(int);
 
+/*check if file descriptor is open
+ * if process fail throw server::socket_exception();
+ */
+//    int fd_isopen();
+
+/*check if socket  is open
+ * if process fail throw server::socket_exception();
+ */
+//    int socket_isopen();
+
 /*
 *====================================================================================
 *|                                       Member                                     |
@@ -434,12 +442,10 @@ private:
 */
 
 
-    const config_webserv        _config;
-    int*                        _server_socket;//@todo add to server config
-    int                         _number_of_socket;
+    config_webserv              *_config;
+    static bool                 _stat_of_server;
     int                         _epoll_instance;
     int                         _number_triggered_events;
-    static bool                 _stat_of_server;
     struct epoll_event          *_events;
     int                         _client_socket;
     struct epoll_event          _client_event;

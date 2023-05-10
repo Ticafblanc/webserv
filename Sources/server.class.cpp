@@ -12,40 +12,35 @@
 
 #include <Include/server.class.hpp>
 
-bool stat_of_server = true;
-
 /*
 *====================================================================================
 *|                                  Member Fonction                                 |
 *====================================================================================
 */
 
-server::server(const config_webserv & config) : _config(config), _event(), _events(), _server_socket(),
-                                            _client_socket(), _epoll_fd(), _number_triggered_events(), _client_address(), _client_address_len(sizeof(_client_address)) {}
+server::server(config_webserv * config) : _config(config), _epoll_instance(), _number_triggered_events(),
+                                                _events(), _client_socket(), _client_event(), _client_address(),
+                                                _client_address_len(sizeof(_client_address)) {
+    _stat_of_server = false;
+}
 
 server::~server() {}
 
-server::server(const server& other) :   _config(other._config), _event(other._event), _events(), _server_socket(other._server_socket),
-                                            _client_socket(), _epoll_fd(other._epoll_fd), _number_triggered_events(), _client_address(), _client_address_len() {
-    //@todo change maxevent macro to data server variable
-    for (int i = 0; i < MAX_EVENTS; ++i) {
-        this->_events[i] = other._events[i];
-    }
-}
+server::server(const server& other) :   _config(other._config), _epoll_instance(other._epoll_instance),
+                                        _number_triggered_events(other._number_triggered_events),
+                                        _events(other._events), _client_socket(other._client_socket),
+                                        _client_event(other._client_event), _client_address(other._client_address),
+                                        _client_address_len(other._client_address_len){}
 
 server& server::operator=(const server& rhs){
     this->_config = rhs._config;
-    this->_event = rhs._event;
-    this->_server_socket = rhs._server_socket;
-    this->_client_socket = rhs._client_socket;
-    this->_epoll_fd = rhs._epoll_fd;
+    this->_epoll_instance = rhs._epoll_instance;
     this->_number_triggered_events = rhs._number_triggered_events;
+    this->_events = rhs._events;
+    this->_client_socket = rhs._client_socket;
+    this->_client_event = rhs._client_event;
     this->_client_address = rhs._client_address;
     this->_client_address_len = rhs._client_address_len;
-    //@todo change maxevent macro to data server variable
-    for (int i = 0; i < MAX_EVENTS; ++i) {
-        _events[i] = rhs._events[i];
-    }
     return *this;
 }
 
@@ -55,19 +50,19 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
-server::server_exception::server_exception(const int server_socket, const char * message) :
-                        std::exception(), _message(message), _server_socket(server_socket) {}
+server::server_exception::server_exception(server & server, const char * message) :
+                        std::exception(), _message(message), _server(server) {}
 
 server::server_exception::~server_exception() throw() {}
 
 const char * server::server_exception::what() const throw() { return _message.c_str(); }
 
 server::server_exception::server_exception(const server_exception & other) :
-                        std::exception(), _message(other._message), _server_socket(other._server_socket) {}
+                        std::exception(), _message(other._message), _server(other._server) {}
 
 server::server_exception &server::server_exception::operator=(const server_exception &rhs) {
     _message = rhs._message;
-    _server_socket = rhs._server_socket;
+    _server = rhs._server;
     return *this;
 }
 
@@ -77,11 +72,8 @@ server::server_exception &server::server_exception::operator=(const server_excep
 *====================================================================================
 */
 
-data_server server::getDataServer() const{
-    return _config;
-}
-void server::setDataServer(data_server& d){
-    this->_config = d;
+config_webserv server::get_config_webserv() const {
+    return *_config;
 }
 
 /*
@@ -105,6 +97,7 @@ void server::handle(int sig) {
 void server::launcher() {
     signal(SIGINT, handle);
     signal(SIGKILL, handle);
+    _stat_of_server = true;
     try {
         set_socket(_config);//create a new socket new socket with the data sever specification
         set_socket_option();//set option of sever socket
@@ -216,12 +209,23 @@ void server::manage_event(int socket){
 //    set_epoll_ctl(EPOLL_CTL_DEL, socket, NULL); for close socket unlonk
 }
 
-/*check if file descriptor is open
- * if process fail throw server::socket_exception();
- */
-int fd_isopen();
 
-/*check if socket  is open
- * if process fail throw server::socket_exception();
- */
-int socket_isopen();
+
+//int data_server::fd_isopen() {
+//    int ret = fcntl(getServerFd(), F_GETFL);
+//    if (ret == -1) {
+//        throw data_server::data_exception();
+//    }
+//    return 1;
+//}
+//
+//int data_server::socket_isopen() {
+//    int error;
+//    socklen_t len = sizeof(error);
+//    int ret = getsockopt(getServerFd(), SOL_SOCKET, SO_ERROR, &error, &len);
+//    if (ret != 0 || error > 0) {i
+//        throw data_server::data_exception();
+//    }
+//    return 1;
+//}
+

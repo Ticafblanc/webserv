@@ -24,6 +24,7 @@ int main(int argc, char **argv, char **envp){
     (void)argc;
     (void)argv;
     //@todo manage number of try before crash
+    const config_webserv config(argv[1]);
     try{
 //        Parser parsing(select_path(argc, argv));
 //        data_server data = parsing.parsefile;

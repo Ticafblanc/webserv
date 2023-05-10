@@ -5,6 +5,7 @@
 #ifndef WEBSERVER_CONFIG_SERVER_CLASS_HPP
 #define WEBSERVER_CONFIG_SERVER_CLASS_HPP
 
+#include <Include/config_address.class.hpp>
 
 class config_server {
 /*>********************************public section**********************************/
