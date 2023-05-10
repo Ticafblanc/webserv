@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   data_server.hpp                                    :+:      :+:    :+:   */
+/*   config_webserv.class.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -9,12 +9,12 @@
 /*   Updated: 2023/03/17 14:47:10 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
-#ifndef WEBSERV_DATA_SERVER_HPP
-#define WEBSERV_DATA_SERVER_HPP
+#ifndef WEBSERV_CONFIG_WEBSERV_HPP
+#define WEBSERV_CONFIG_WEBSERV_HPP
 
 #include <Include/header.hpp>
 
-class data_address{
+class config_address{
 
 /*>********************************public section**********************************/
 
@@ -27,44 +27,44 @@ public:
 */
 
 /**
- * Constructor of data_address class
+ * Constructor of config_address class
  *
- * data_address();
+ * config_address();
  *
  * @param   void
  * @throw   none
  **/
-    data_address(const std::string ip_address, const int port);
+    config_address(const std::string ip_address, const int port);
 
 /**
-* Destructor of data_address class
+* Destructor of config_address class
 *
-* ~data_address();
+* ~config_address();
 *
 * @throw   none
 **/
-    ~data_address();
+    ~config_address();
 
 /**
-* Constructor of data_address class
+* Constructor of config_address class
 *
-* data_address(const data_address& other);
+* config_address(const config_address& other);
 *
 * @param   void
 * @throw   none
 **/
-    data_address(const data_address& other);
+    config_address(const config_address& other);
 
 /**
- * Constructor of data_address class
+ * Constructor of config_address class
  *
- * data_address& operator=(const data_address& rhs);
+ * config_address& operator=(const config_address& rhs);
  *
- * @returns     data_address&
- * @param       const data_address&
+ * @returns     config_address&
+ * @param       const config_address&
  * @throw       none
  */
-    data_address& operator=(const data_address& rhs);
+    config_address& operator=(const config_address& rhs);
 
 /*
 *====================================================================================
@@ -73,20 +73,20 @@ public:
 */
 
 /**
- * Public methode of data_address class
+ * Public methode of config_address class
  *
  * std::string& get_ip_address(int position);
  *
  * @returns     string& contain ip address of server
  * @param       position int is a position of variable in vector<std::string> table,
  *              represente the one of ip address of server
- * @throw       data_address_exception out of range
+ * @throw       config_address_exception out of range
  */
 
     std::string &get_ip_address(int);
 
 /**
- * Public methode of data_address class
+ * Public methode of config_address class
  *
  * std::string& get_sock_address(int position);
  *
@@ -110,6 +110,8 @@ private:
     const int               _port;
     const int               _protocol;
     const struct sockaddr   _sock_address;
+    int                     _server_socket;
+    struct epoll_event      _event;
 };
 
 class config_server {
@@ -252,12 +254,12 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::vector<data_address>       _vector_sock_address;
+    std::vector<config_address>       _vector_sock_address;
     std::vector<std::string>        _vector_server_name;
     int                             _backlog;//SOMAXCONN
 };
 
-class data_server{
+struct config_webserv{
 
 /*>*******************************public section*********************************/
 
@@ -277,7 +279,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    data_server();
+    config_webserv();
 
 /**
 * Destructor of data_sever_base class
@@ -286,26 +288,26 @@ public:
 *
 * @throw   none
 **/
-    ~data_server();
+    ~config_webserv();
 
 /**
 * Constructor of data_sever_base class
 *
-* data_sever_base(const data_server& other);
+* data_sever_base(const config_webserv& other);
 *
 * @param   void
 * @throw   none
 **/
-    data_server(const data_server& other);
+    config_webserv(const config_webserv& other);
 
 /**
 * Constructor of data_sever_base class
 *
-* data_server& operator=(const data_server& rhs);
+* config_webserv& operator=(const config_webserv& rhs);
 *
 * @throw   none
 **/
-    data_server& operator=(const data_server& rhs);
+    config_webserv& operator=(const config_webserv& rhs);
 
 
 /*
@@ -315,7 +317,7 @@ public:
 */
 
 /**
- * Class exception of data_server class
+ * Class exception of config_webserv class
  *
  * class data_exception;
  *
@@ -397,7 +399,7 @@ public:
 */
 
 /**
- * Protected methode of data_server class
+ * Protected methode of config_webserv class
  *
  * int& get_int_data(int position);
  *
@@ -410,7 +412,7 @@ public:
 
 
 /**
- * Protected methode of data_server class
+ * Protected methode of config_webserv class
  *
  * std::string& get_ip_address(int sever_number, int position);
  *
@@ -425,7 +427,7 @@ public:
     std::string& get_ip_address(int, int);
 
 /**
- * Protected methode of data_server class
+ * Protected methode of config_webserv class
  *
  * void set_ip_address(int server_number, std::string & ip_address);
  *
@@ -439,7 +441,7 @@ public:
     void add_ip_address(int, std::string &);
 
 /**
- * Protected methode of data_server class
+ * Protected methode of config_webserv class
  *
  * int& get_Port(int sever_number, int position);
  *
@@ -454,7 +456,7 @@ public:
     int& get_Port(int, int);
 
 /**
- * Protected methode of data_server class
+ * Protected methode of config_webserv class
  *
  * void add_Port(int server_number, int port);
  *
@@ -493,23 +495,18 @@ public:
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-
-/*>*******************************private section**********************************/
-
-private:
-
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
 
-    enum{number_of_servers, type, protocol, port,
-        backlog,max_events};
+//    type, protocol, port,
+//        backlog
 
-    std::vector<int>            _vector_int_data;
-    std::vector<config_server>  _vector_config_servers;
-    int                         _max_events;
+    std::vector<config_server>  vector_config_servers;
+    int                         max_events;
+    int                         number_of_server;
 
 /*
 *====================================================================================
@@ -520,4 +517,4 @@ private:
 };
 
 
-#endif //WEBSERV_DATA_SERVER_HPP
+#endif //WEBSERV_CONFIG_WEBSERV_HPP

@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../Include/webserv.hpp"
-#include "../../Include/data_server.class.hpp"
+#include "../../Include/config_webserv.class.hpp"
 
 #ifndef UNIT_TEST_UNIT_TEST_HPP
 # define UNIT_TEST_UNIT_TEST_HPP

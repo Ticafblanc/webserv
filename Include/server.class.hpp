@@ -13,58 +13,33 @@
 #ifndef WEBSERV_SERVER_HPP
 # define WEBSERV_SERVER_HPP
 
-#include <Include/data_server.class.hpp>
+#include <Include/config_webserv.class.hpp>
 #include <Include/header.hpp>
 
 
 class server{
 
-/*
-*====================================================================================
-*|                                     Private Member                               |
-*====================================================================================
-*/
-
-private:
-
-    data_server _data;
-    int*        _server_socket;
-    int         _number_of_socket;
-    int         _client_socket;
-    int         _epoll_instance;
-    int         _number_triggered_events;
-    static bool _stat_of_server;
-    struct epoll_event _event, *_events;
-    struct sockaddr_storage _client_address;
-
-
-/*
-*====================================================================================
-*|                                  Member Fonction                                 |
-*====================================================================================
-*/
+/*>********************************public section**********************************/
 
 public:
 
-/**
- * Constructor of sever class
- *
- * sever();
- *
- * @param   void
- * @throw   none
- **/
-    server();
+/*
+*====================================================================================
+*|                                      Fonction                                    |
+*====================================================================================
+*/
+
+server(){}
 
 /**
  * Constructor of sever class
  *
  * sever(data_server &);
  *
- * @param   data_server instance to build the server
+ * @param   config_webserv instance to build the server
  * @throw   none
  **/
-    server(const data_server &);
+    server(const config_webserv &);
 
 /**
  * Destructor of sever class
@@ -102,7 +77,6 @@ public:
 *====================================================================================
 */
 
-private:
 
 /**
  * Class exception of sever class
@@ -118,22 +92,14 @@ private:
         /**
          * Constructor of server_exception class
          *
-         * server_exception(const char*);
+         * server_exception(server & server , const char * message);
          *
-         * @param   exception message to store const char*
+         * @param   server is a server reference to set the private _server
+         *          to manage the close of server class
+         *          message to store const char*
          * @throw   none
          **/
-        server_exception(const char *);
-
-        /**
-         * Constructor of server_exception class
-         *
-         * server_exception(const char*);
-         *
-         * @param   exception message to store const char*
-         * @throw   none
-         **/
-        server_exception(const int server_socket, const char *);
+        server_exception(server & server, const char * message);
 
         /**
          * Copy constructor of server_exception class
@@ -178,13 +144,13 @@ private:
         virtual const char * what() const throw();
 
     private:
-        std::string   _message;
-        int           _server_socket;
+        std::string     _message;
+        server         &_server;
     };
 
 /*
 *====================================================================================
-*|                                  Element access                                 |
+*|                                        Accessor                                  |
 *====================================================================================
 */
 
@@ -199,26 +165,14 @@ public:
  * @param void
  * @throw none
  **/
-    data_server getDataServer() const;
-
-/**
- * Accessor of sever class
- *
- * void setDataServer(data_server& d);
- *
- * @returns void
- * @param data_server instance to set the data server
- * @throw none
- **/
-    void setDataServer(data_server&);
+    config_webserv get_config_webserv() const;
 
 /*
 *====================================================================================
-*|                                  public methode                                  |
+*|                                      Methode                                     |
 *====================================================================================
 */
 
-public:
 
 /**
  * Public methode of sever class
@@ -233,6 +187,10 @@ public:
  *
  */
     void launcher();
+
+/*>*******************************private section**********************************/
+
+private:
 
 /*
 *====================================================================================
@@ -254,7 +212,7 @@ private:
 
 /*
 *====================================================================================
-*|                                  private methode utils                           |
+*|                                       Methode                                    |
 *====================================================================================
 */
 
@@ -275,66 +233,68 @@ private:
  *
  * nginx work only on tcp protocol !!
  *
- * void set_socket(int domain);
+ * void set_socket(int & server_socket, int domain);
  *
  * @returns file descriptor (int) server socket created
- * @param   domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to create
+ *
+ *          domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
+ *          define in config_webserv->config_server->config_adress->_sock_address.sin_family
  * @throws  server::server_exception
  **/
-    void set_socket(int);
+    void set_socket(int &, int);
 
 /**
  * Private methode of server class
  *
  * set the option of server socket already created
  *
- * void set_sockoption();
+ * void set_socket_option(int & server_socket);
  *
  * @returns void
- * @param   void
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to set option
  * @throws  server::server_exception
  *
  * @see https://linux.die.net/man/3/setsockopt
- *
- * @todo    add specific message
  * */
-    void set_socket_option();
+    void set_socket_option(int & server_socket);
 
 /**
  * Private methode of server class
  *
  * associate an IP address and a port number with a socket already created
  *
- * void set_bind(int server_socket);
+ * void set_bind(int & server_socket, struct sockaddr * sock_address);
  *
  * @returns void
- * @param   server_socket is an int file descriptor already created
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to bind()
  * @throws  server::server_exception
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
- *
- * @todo    add specific message
  * */
-    void set_bind();
+    void set_bind(int & server_socket, struct sockaddr * sock_address);
 
 /**
  * Private methode of server class
  *
  * set the listen option so the number of possible connexion
  *
- * void set_listen(int server_socket, int backlog);
+ * void set_listen(int & server_socket, int backlog);
  *
  * @returns void
- * @param   backlog is an int to define the maximum number of pending connections
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to bind()
+ *
+ *          backlog is an int to define the maximum number of pending connections
  *          that can be queued before the server starts refusing new incoming connections.
- * @throws  server::listen_exception
+ * @throws  server::server_exception
  *
  * @see https://man7.org/linux/man-pages/man2/listen.2.html
- *
- * @Todo    watch if necessery to define the option in data server
- * @todo    add specific message
  * */
-    void set_listen(int);
+    void set_listen(int&, int);
 
 /**
  * Private methode of server class
@@ -343,10 +303,13 @@ private:
  * set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)
  * don't show the actual flag in socket and force to change it to non blocking
  *
- * void accessor_server(int cmd, int flag);
+ * void accessor_server(int& server_socket, int command, int flag);
  *
- * @returns void
- * @param   Command  (cmd) for accessor server :
+ * @returns return the flag set in server_socket
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to set or get flag option
+ *
+ *          Command  (cmd) for accessor server :
  *          F_SETFD      Set the file descriptor flags to arg.
  *          F_GETFL      Get descriptor status flags, as described below (arg is ignored).
  *
@@ -360,36 +323,40 @@ private:
  *          group when I/O is possible, e.g., upon availability of
  *          data to be read.
  *
- * @throws  none but to do
- *
- * @todo add an exception to mange crash of fcntl fonction dont build for now wait at the and to buil juste one exception for lanch methode
+ * @throws  server::server_exception
  * */
-    int accessor_socket_flag(int server_socket, int, int);
+    int accessor_socket_flag(int&, int, int);
 
 /**
  * Private methode of server class
  *
- * create an instance of epoll
+ * create an instance of epoll in _epoll_instance and
+ * return a file descriptor to new instance of epoll
  *
- * int create_epoll();
+ * void create_epoll();
  *
- * @returns an file descriptor (int) for the new instance
+ * @returns void
  * @param   void
- * @throws  server::epoll_exception
+ * @throws  server::server_exception
  * */
-    int create_epoll();
+    void create_epoll();
 
 /**
  * Private methode of server class
  *
- * set file descriptor (socket) in epoll event instance and define events
+ * set epoll_event instance with socket and type of event to follow
+ * before to add a epoll_event to epoll
  *
- * void set_epoll_socket(int socket, int event);
+ * void set_epoll_socket(int & server_socket, struct epoll_event & event, int events);
  *
  * @returns event fixed
- * @param   socket to set in _event epoll instance
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to add to the instance
  *
- *          events is int to set events of socket
+ *          event is a struct epoll_event & who refer to
+ *          config_webserv->config_server->config_address->_event to set
+ *
+ *          events is int to add to the event
  *          EPOLLIN the event occurs when data can be read from the file descriptor
  *          EPOLLOUT the event occurs when data can be written to the file descriptor
  *          EPOLLERR the event occurs when there is an error on the file descriptor
@@ -400,25 +367,29 @@ private:
  *
  * @throws  none
  * */
-    void set_epoll_socket(int, int);
+    void set_epoll_event(int&, struct epoll_event &, int);
 
 /**
  * Private methode of server class
  *
  * set _event instance with socket to add remove or modify
  *
- * void set_epoll_ctl(int option, int socket);
+ * void set_epoll_ctl(int option, int & server_socket, struct epoll_event * event);
  *
  * @returns void
- * @param   option is an int action to do:
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server->config_address->server_socket to add to the instance
+ *
+ *          event is a struct epoll_event * who point to
+ *          config_webserv->config_server->config_address->_event to set
+ *
+ *          option is an int action to do:
  *          EPOLL_CTL_ADD to add a new descriptor to be monitored
  *          EPOLL_CTL_MOD to modify the monitoring of an already monitored descriptor
  *          EPOLL_CTL_DEL to delete a monitored descriptor.
- *
- *          socket to set in _event epoll instance
- * @throws  server::epoll_exception
+ * @throws  server::server_exception
  * */
-    void set_epoll_ctl(int, int, struct epoll_event *);
+    void set_epoll_ctl(int, int&, struct epoll_event *);
 
 /**
  * Private methode of server class
@@ -429,7 +400,7 @@ private:
  *
  * @returns void
  * @param   void
- * @throws  server::epoll_exception
+ * @throws  server::server_exception
  * */
     void set_epoll_wait();
 
@@ -439,13 +410,14 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void accept_connection();
+ * void accept_connection(int & server_socket);
  *
  * @returns void
- * @param   void
- * @throws  server::epoll_exception
+ * @param   server_socket is an int & who refer to
+ *          socket who recev a request connection
+ * @throws  server::server_exception
  * */
-    void accept_connection();
+    void accept_connection(int &);
 
 /**
  * Private methode of server class
@@ -456,9 +428,28 @@ private:
  *
  * @returns void
  * @param   socket is an int to manage the recev and send answer
- * @throws  server::epoll_exception
+ * @throws  server::server_exception
  * */
     void manage_event(int);
+
+/*
+*====================================================================================
+*|                                       Member                                     |
+*====================================================================================
+*/
+
+
+    const config_webserv        _config;
+    int*                        _server_socket;//@todo add to server config
+    int                         _number_of_socket;
+    int                         _epoll_instance;
+    int                         _number_triggered_events;
+    static bool                 _stat_of_server;
+    struct epoll_event          *_events;
+    int                         _client_socket;
+    struct epoll_event          _client_event;
+    struct sockaddr_storage     _client_address;
+    socklen_t                   _client_address_len;
 };
 
 

@@ -5,7 +5,7 @@
 #include "server.class.hpp"
 #include "Parser.class.hpp"
 #include "Route.class.hpp"
-#include "data_server.class.hpp"
+#include "config_webserv.class.hpp"
 #include "colors.hpp"
 
 #endif
