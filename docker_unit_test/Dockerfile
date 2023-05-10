@@ -6,7 +6,7 @@
 #    By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/04/02 19:43:18 by mdoquocb          #+#    #+#              #
-#    Updated: 2023/05/09 12:00:20 by jrossign         ###   ########.fr        #
+#    Updated: 2023/05/09 12:50:48 by jrossign         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -39,7 +39,7 @@ RUN cmake -S . -B build \
 
 
 #launch test
-CMD ["sh", "-c", "cd build && ctest --verbose"]
+CMD ["sh", "-c", "cd build && ctest --verbose --timeout 10"]
 #CMD ["bash"]
 
 
