@@ -8,6 +8,6 @@ int	unitTestThrow()
 
 int main () {
 	
-	EXPECT_THROW(unitTestThrow(), std::invalid_argument);
+	EXPECT_THROW(unitTestThrow(), std::out_of_range);
 	return 0;
 }
