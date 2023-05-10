@@ -3,13 +3,13 @@
 int unitTestLauncher()
 {
 	try {
-		// std::vector<server> server_vec = init("../config_content_server/for_etc/webserv/nginx.conf");
-		// std::vector<server>::iterator server_it = server_vec.begin();
-		// for(; server_it != server_vec.end(); server_it++)
-		// 	server_it->launcher();
+		std::vector<server> server_vec = init("../config_content_server/for_etc/webserv/webserv.conf");
+		std::vector<server>::iterator server_it = server_vec.begin();
+		for(; server_it != server_vec.end(); server_it++)
+			server_it->launcher();
 	}
 	catch (const std::exception & e) {
-		cerr << e.what() << endl;
+		cerr << "Error in launcher: " << e.what() << endl;
 		return (TEST_FAIL);
 	}
 	return (TEST_PASS);
