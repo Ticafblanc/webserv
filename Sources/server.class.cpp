@@ -20,8 +20,8 @@ bool stat_of_server = true;
 *====================================================================================
 */
 
-server::server() : _data(), _event(), _events(), _server_socket(), _client_socket(),
-                    _epoll_fd(), _number_triggered_events(), _client_address(), _client_address_len(sizeof(_client_address)) {}
+server::server() :  _data(), _server_socket(), _client_socket(), _epoll_instance(),
+                    _number_triggered_events(), _event(), _events(), _client_address(){}
 
 server::server(const data_server & data) : _data(data), _event(), _events(), _server_socket(),
                                             _client_socket(), _epoll_fd(), _number_triggered_events(), _client_address(), _client_address_len(sizeof(_client_address)) {}
@@ -81,7 +81,7 @@ server::server_exception &server::server_exception::operator=(const server_excep
 */
 
 data_server server::getDataServer() const{
-    return this->_data;
+    return _data;
 }
 void server::setDataServer(data_server& d){
     this->_data = d;
@@ -110,8 +110,8 @@ void server::launcher() {
     try {
         signal(SIGINT, handle);
         signal(SIGKILL, handle);
-        set_socket(_data.getDomain(), _data.getType(), _data.getProtocol());//create a new socket new socket with the data sever specification
-        set_socket_option(_data.getLevel(), _data.getOptionName(), _data.getOptionVal());//set option of sever socket
+        set_socket(_data.getDomain());//create a new socket new socket with the data sever specification
+        set_socket_option();//set option of sever socket
         set_bind();
         set_listen(_data.getBacklog());
         accessor_socket_flag(_server_socket, F_SETFL, O_NONBLOCK);//init the socket non blocking force flag to respect subject
@@ -221,3 +221,13 @@ void server::manage_event(int socket){
 
 //    set_epoll_ctl(EPOLL_CTL_DEL, socket, NULL); for close socket unlonk
 }
+
+/*check if file descriptor is open
+ * if process fail throw server::socket_exception();
+ */
+int fd_isopen();
+
+/*check if socket  is open
+ * if process fail throw server::socket_exception();
+ */
+int socket_isopen();

@@ -254,13 +254,14 @@ private:
 */
     std::vector<data_address>       _vector_sock_address;
     std::vector<std::string>        _vector_server_name;
+    int                             _backlog;//SOMAXCONN
 };
 
 class data_server{
 
-/*>*******************************protected section*********************************/
+/*>*******************************public section*********************************/
 
-protected:
+public:
 
 /*
 *====================================================================================
@@ -492,24 +493,6 @@ protected:
     /*store size of struct sockaddr_in*/
     void setAddrlen(const std::size_t &);
 
-    int& getLevel();
-    /*set level for soc option to SOL_SOCKET and  we will see */
-    void setLevel(int);
-
-    int& getOptionName();
-    /*set option_name for soc option to SO_REUSEADDR on mac and  SO_REUSEADDR|SO_REUSEPORT on linux */
-    void setOptionName(int);
-
-    int& getOptionVal();
-    /*set option_Value for soc option to 0 or 1 */
-    void setOptionVal(int);
-
-    pid_t& getPid();
-    /*store pid of process*/
-    void setPid(pid_t &);
-
-    void close_server_fd();
-
 
 /*>*******************************private section**********************************/
 
@@ -521,17 +504,12 @@ private:
 *====================================================================================
 */
 
-    enum{number_of_servers, domain, type, protocol, port,
-        backlog, server_fd, new_socket, level,
-        option_name, option_val, server_socket,
-        client_socket, epoll_instance, number_triggered_events,
-        max_events};
+    enum{number_of_servers, type, protocol, port,
+        backlog,max_events};
 
     std::vector<int>            _vector_int_data;
     std::vector<config_server>  _vector_config_servers;
-
-    struct epoll_event _event, * _events;
-    struct sockaddr_storage _server_address, _client_address;
+    int                         _max_events;
 
 /*
 *====================================================================================
@@ -539,16 +517,6 @@ private:
 *====================================================================================
 */
 
-
-/*check if file descriptor is open
- * if process fail throw server::socket_exception();
- */
-    int fd_isopen();
-
-/*check if socket  is open
- * if process fail throw server::socket_exception();
- */
-    int socket_isopen();
 };
 
 

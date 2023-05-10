@@ -30,7 +30,13 @@ private:
     data_server _data;
     int*        _server_socket;
     int         _number_of_socket;
+    int         _client_socket;
+    int         _epoll_instance;
+    int         _number_triggered_events;
     static bool _stat_of_server;
+    struct epoll_event _event, *_events;
+    struct sockaddr_storage _client_address;
+
 
 /*
 *====================================================================================
@@ -274,9 +280,6 @@ private:
  * @returns file descriptor (int) server socket created
  * @param   domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
  * @throws  server::server_exception
- *
- * @Todo    watch if necessery to define the option in data server
- * @todo    add specific message
  **/
     void set_socket(int);
 
