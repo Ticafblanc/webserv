@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_SERVER_HPP
-# define WEBSERV_SERVER_HPP
+#ifndef WEBSERV_SERVER_CLASS_HPP
+# define WEBSERV_SERVER_CLASS_HPP
 
 #include <Include/config_webserv.class.hpp>
 #include <Include/header.hpp>
@@ -154,8 +154,6 @@ server(){}
 *====================================================================================
 */
 
-public:
-
 /**
  * Accessor of sever class
  *
@@ -198,7 +196,6 @@ private:
 *====================================================================================
 */
 
-private:
 /**
  * Private methode of sever class
  *
@@ -215,8 +212,6 @@ private:
 *|                                       Methode                                    |
 *====================================================================================
 */
-
-private:
 
 /**
  * Private methode of server class
@@ -237,10 +232,10 @@ private:
  *
  * @returns file descriptor (int) server socket created
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to create
+ *          config_webserv->config_server.class->config_address.class->server_socket to create
  *
  *          domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
- *          define in config_webserv->config_server->config_adress->_sock_address.sin_family
+ *          define in config_webserv->config_server.class->config_adress->_sock_address.sin_family
  * @throws  server::server_exception
  **/
     void set_socket(int &, int);
@@ -254,7 +249,7 @@ private:
  *
  * @returns void
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to set option
+ *          config_webserv->config_server.class->config_address.class->server_socket to set option
  * @throws  server::server_exception
  *
  * @see https://linux.die.net/man/3/setsockopt
@@ -270,7 +265,7 @@ private:
  *
  * @returns void
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to bind()
+ *          config_webserv->config_server.class->config_address.class->server_socket to bind()
  * @throws  server::server_exception
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
@@ -286,7 +281,7 @@ private:
  *
  * @returns void
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to bind()
+ *          config_webserv->config_server.class->config_address.class->server_socket to bind()
  *
  *          backlog is an int to define the maximum number of pending connections
  *          that can be queued before the server starts refusing new incoming connections.
@@ -307,7 +302,7 @@ private:
  *
  * @returns return the flag set in server_socket
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to set or get flag option
+ *          config_webserv->config_server.class->config_address.class->server_socket to set or get flag option
  *
  *          Command  (cmd) for accessor server :
  *          F_SETFD      Set the file descriptor flags to arg.
@@ -351,10 +346,10 @@ private:
  *
  * @returns event fixed
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to add to the instance
+ *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
  *
  *          event is a struct epoll_event & who refer to
- *          config_webserv->config_server->config_address->_event to set
+ *          config_webserv->config_server.class->config_address.class->_event to set
  *
  *          events is int to add to the event
  *          EPOLLIN the event occurs when data can be read from the file descriptor
@@ -378,10 +373,10 @@ private:
  *
  * @returns void
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server->config_address->server_socket to add to the instance
+ *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
  *
  *          event is a struct epoll_event * who point to
- *          config_webserv->config_server->config_address->_event to set
+ *          config_webserv->config_server.class->config_address.class->_event to set
  *
  *          option is an int action to do:
  *          EPOLL_CTL_ADD to add a new descriptor to be monitored
@@ -453,4 +448,4 @@ private:
 };
 
 
-#endif //WEBSERV_SERVER_HPP
+#endif //WEBSERV_SERVER_CLASS_HPP

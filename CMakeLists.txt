@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -g")
 include_directories(SYSTEM ./)
 
 set(WEBSERV Sources/main.cpp Sources/server.class.cpp Sources/config_webserv.class.cpp)
-set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp)
+set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp Sources/config_server.class.cpp Include/config_server.class.hpp Sources/config_address.class.cpp Include/config_address.class.hpp)
 set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)
 
 add_library(webservlib ${WEBSERV})
