@@ -1,4 +1,201 @@
-//#include "../Include/Parser.class.hpp"
+#include <Include/parse_config_file.class.hpp>
+
+/*
+*==========================================================================================================
+*|                                                    t_bloc                                              |
+*==========================================================================================================
+*/
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+s_bloc::s_bloc() : info_line(), info_bloc() {}
+
+s_bloc::~s_bloc() {}
+
+s_bloc::s_bloc(const s_bloc &other)  : info_line(other.info_line), info_bloc(other.info_bloc) {}
+
+s_bloc &s_bloc::operator=(const s_bloc &rhs) {
+    this->info_bloc = rhs.info_bloc;
+    this->info_line = rhs.info_line;
+    return *this;
+}
+
+
+/*
+*==========================================================================================================
+*|                                                  parse_config_file                                     |
+*==========================================================================================================
+*/
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+parse_config_file::parse_config_file(std::string path_config_file) : _bloc_config_file(), _webserv_config_file(){
+    std::ifstream   file(path_config_file.c_str());
+    std::string     line;
+
+    if (!file.is_open())
+        throw parse_config_file::syntax_exception(this, strerror(errno));
+    while (std::getline(file, line)) {
+        std::istringstream lineStream(line);
+        std::string key, value;
+        lineStream >> key >> std::ws;
+        std::getline(lineStream, value);
+
+        if (key.empty() || value.empty()) {
+            continue;
+        }
+
+        if (value == "{") {
+            onfig block;
+            if (parseBlock(file, block)) {
+                config.blocks[key].push_back(block);
+            }
+        } else {
+            config.keyValue[key] = value;
+        }
+    }
+
+    file.close();
+    return true;
+
+}
+
+parse_config_file::~parse_config_file() {}
+
+parse_config_file::parse_config_file(const parse_config_file &other) :
+                _bloc_config_file(other._bloc_config_file), _webserv_config_file(){}
+
+parse_config_file &parse_config_file::operator=(const parse_config_file &rhs) {
+    this->_bloc_config_file = rhs._bloc_config_file;
+    return *this;
+}
+
+/*
+*====================================================================================
+*|                                  Member Exception                                 |
+*====================================================================================
+*/
+
+parse_config_file::syntax_exception::syntax_exception(parse_config_file & config, const char * message) :
+                _message(message), _config(config){}
+
+parse_config_file::syntax_exception::syntax_exception(const parse_config_file::syntax_exception & other) :
+                _message(other._message), _config(other._config){}
+
+parse_config_file::syntax_exception &
+parse_config_file::syntax_exception::operator=(const parse_config_file::syntax_exception &rhs) {
+    this->_config = rhs._config;
+    this->_message =rhs._message;
+    return *this;
+}
+
+parse_config_file::syntax_exception::~syntax_exception() throw() {
+
+}
+
+const char *parse_config_file::syntax_exception::what() const throw() { return _message.c_str(); }
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+t_bloc &parse_config_file::get_vector_server_name() { return _bloc_config_file; }
+
+/*
+*====================================================================================
+*|                                  private fonction utils                          |
+*====================================================================================
+*/
+
+t_bloc parse_config_file::parse_bloc() {
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.find('#') != std::string::npos) {
+            line = line.substr(0, line.find('#'));
+        }
+
+        std::istringstream lineStream(line);
+        std::string key, value;
+        lineStream >> key >> std::ws;
+        std::getline(lineStream, value);
+
+        if (key.empty()) {
+            continue;
+        }
+
+        if (key == "}") {
+            return true;
+        } else if (value == "{") {
+            config nestedBlock;
+            if (parseBlock(file, nestedBlock)) {
+                block.blocks[key].push_back(nestedBlock);
+            }
+        } else {
+            block.keyValue[key] = value;
+        }
+    }
+
+    return false;
+    return t_bloc();
+}
+
+std::pair<std::string, std::vector<std::string> > parse_config_file::parse_info(std::string & line) {
+    std::string                 key;
+    std::vector<std::string>    info;
+
+
+    return std::make_pair(key, info);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 //Parser::Parser(const char *argv): _arg(argv), _NServ(0) {
 //	findAmountServers();
@@ -565,3 +762,8 @@
 //const char* Parser::UnknownDirective::what() const throw() {
 //	return "Unkwown directive";
 //}
+
+
+
+
+
