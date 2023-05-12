@@ -24,7 +24,6 @@ s_bloc &s_bloc::operator=(const s_bloc &rhs) {
     return *this;
 }
 
-
 /*
 *==========================================================================================================
 *|                                                  parse_config_file                                     |
@@ -37,35 +36,15 @@ s_bloc &s_bloc::operator=(const s_bloc &rhs) {
 *====================================================================================
 */
 
-parse_config_file::parse_config_file(std::string path_config_file) : _bloc_config_file(), _webserv_config_file(){
-    std::ifstream   file(path_config_file.c_str());
+parse_config_file::parse_config_file(std::string path_config_file) :
+                _bloc_config_file(), _webserv_config_file(path_config_file.c_str()){
     std::string     line;
-
-    if (!file.is_open())
-        throw parse_config_file::syntax_exception(this, strerror(errno));
-    while (std::getline(file, line)) {
-        std::istringstream lineStream(line);
-        std::string key, value;
-        lineStream >> key >> std::ws;
-        std::getline(lineStream, value);
-
-        if (key.empty() || value.empty()) {
-            continue;
-        }
-
-        if (value == "{") {
-            onfig block;
-            if (parseBlock(file, block)) {
-                config.blocks[key].push_back(block);
-            }
-        } else {
-            config.keyValue[key] = value;
-        }
+    if (!_webserv_config_file.is_open())
+        throw parse_config_file::syntax_exception(*this, strerror(errno));
+    while (get_next_line(line)){
+        parse_info(_bloc_config_file, line);
     }
-
-    file.close();
-    return true;
-
+    _webserv_config_file.close();
 }
 
 parse_config_file::~parse_config_file() {}
@@ -117,44 +96,71 @@ t_bloc &parse_config_file::get_vector_server_name() { return _bloc_config_file; 
 *====================================================================================
 */
 
-t_bloc parse_config_file::parse_bloc() {
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line.find('#') != std::string::npos) {
-            line = line.substr(0, line.find('#'));
-        }
-
-        std::istringstream lineStream(line);
-        std::string key, value;
-        lineStream >> key >> std::ws;
-        std::getline(lineStream, value);
-
-        if (key.empty()) {
-            continue;
-        }
-
-        if (key == "}") {
-            return true;
-        } else if (value == "{") {
-            config nestedBlock;
-            if (parseBlock(file, nestedBlock)) {
-                block.blocks[key].push_back(nestedBlock);
-            }
-        } else {
-            block.keyValue[key] = value;
-        }
+bool parse_config_file::check_token(std::string & line, std::string token){
+    if(line == token){
+        line.clear();
+        return true;
     }
-
-    return false;
-    return t_bloc();
+    throw parse_config_file::syntax_exception(*this, "'{' syntax error");
 }
 
-std::pair<std::string, std::vector<std::string> > parse_config_file::parse_info(std::string & line) {
-    std::string                 key;
+std::string parse_config_file::check_semicolon(std::string & tmp, std::string & line){
+    if(*(tmp.end() - 1) == ';' && line.empty()) {
+        tmp.erase(tmp.end() - 1);
+        return std::string(tmp);
+    }
+    throw parse_config_file::syntax_exception(*this, "';' syntax error");
+}
+
+bool parse_config_file::check_is_empty(std::string & line){
+    std::istringstream string_stream(line);
+    std::getline(string_stream >> std::ws, line);
+    return line.empty();
+}
+
+void parse_config_file::delete_comments(std::string & line){
+    if (line.find('#') != std::string::npos) {
+        line = line.substr(0, line.find('#'));
+    }
+}
+
+bool parse_config_file::get_next_line(std::string & line){
+    while (line.empty() && std::getline(_webserv_config_file, line)){
+        delete_comments(line);
+        check_is_empty(line);
+    }
+    return line.empty();
+}
+
+bool parse_config_file::parse_bloc(t_bloc & bloc, std::string & line) {
+    while (get_next_line(line)){
+        if (line.find('}') != std::string::npos) {
+            check_token(line, "}");
+            return true;
+        }
+        parse_info(bloc, line);
+    }
+    return false;
+}
+
+void parse_config_file::parse_info(t_bloc & bloc, std::string & line) {
+    std::string                 key, tmp;
     std::vector<std::string>    info;
 
-
-    return std::make_pair(key, info);
+    std::istringstream string_stream(line);
+    string_stream >> key >> std::ws;
+    string_stream >> tmp >> std::ws;
+    while (!tmp.empty() && tmp.find(';') == std::string::npos){
+        if((tmp.find('{') != std::string::npos) && check_token(tmp, "{")) {
+            parse_bloc(bloc, line);
+            return;
+        }
+        info.push_back(tmp);
+        string_stream >> tmp >> std::ws;
+    }
+    string_stream >> line >> std::ws;
+    info.push_back(check_semicolon(tmp, line));
+    bloc.info_line.insert(std::make_pair(key, info));
 }
 
 

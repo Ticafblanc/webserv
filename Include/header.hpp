@@ -23,6 +23,7 @@
 #include <sys/epoll.h>
 #include <csignal>
 #include <map>
+#include <sstream>
 
 
 using std::string;

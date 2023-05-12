@@ -50,11 +50,11 @@ typedef struct s_bloc {
 * @param    info is std::multimap<std::string, std::vector<std::string> >
  *          contain a list of information associated with their key
  *
- *          bloc is std::multimap<std::string, s_bloc>
- *          contain a list of bloc associated with their key
+ *          bloc is std::multimap<std::multimap<std::string, std::vector<std::string> >, s_bloc>
+ *          contain a list of bloc associated with their key who is a info line
 **/
-    std::multimap<std::string, std::vector<std::string> >   info_line;
-    std::multimap<std::string, s_bloc>                      info_bloc;
+    std::multimap<std::string, std::vector<std::string> >                     info_line;
+    std::multimap<std::pair<std::string, std::vector<std::string> >, s_bloc>  info_bloc;
 
 } t_bloc;
 
@@ -181,7 +181,7 @@ public:
         virtual const char * what() const throw();
 
     private:
-        std::string     _message;
+        std::string         _message;
         parse_config_file & _config;
     };
 
@@ -216,13 +216,82 @@ private:
 /**
  * Public methode of parse_config_file.class
  *
- * t_bloc parse_bloc();
+ *  bool check_bracket(std::string & line, std::string  token);
  *
- * @returns      a t_bloc instance
+ * @returns     bool true if there is a bracket an is alone
+ * @param       line is string to check if it's ok
+ * @throw       syntaxe_exception
+ */
+    bool check_token(std::string&, std::string);
+
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  std::string check_semicolon(std::string & tmp, std::string & line);
+ *
+ * @returns     std::string to save i a last info
+ * @param       tmp is string to remove ';'
+ *              line is string to check if is empty
+ * @throw       syntaxe_exception
+ */
+    std::string check_semicolon(std::string&, std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  bool check_isempty(std::string & line);
+ *
+ * @returns     bool if it's empty
+ * @param       line is string to check if is empty
+ * @throw       syntaxe_exception
+ */
+    bool check_is_empty(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * void delete_comments(std::string & line);
+ *
+ * @returns     void
+ * @param       line is string to remove comment
+ * @throw       syntaxe_exception
+ */
+    void delete_comments(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * bool get_next_line(std::string & line);
+ *
+ * @returns     bool true if he find new line or false is not
  * @param       void
  * @throw       syntaxe_exception
  */
-    t_bloc parse_bloc();
+    bool get_next_line(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * bool parse_bloc(t_bloc&, std::string&);
+ *
+ * @returns     bool true if block is close else false
+ * @param       void
+ * @throw       syntaxe_exception
+ */
+    bool parse_bloc(t_bloc&, std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * void parse_info(t_bloc & bloc, std::string line);
+ *
+ * @returns     void
+ * @param       bloc is a bloc where are this info
+ *              line is line info to parse
+ * @throw       syntaxe_exception
+ */
+    void parse_info(t_bloc &, std::string & line);
 
 /**
  * Public methode of parse_config_file.class
@@ -233,15 +302,15 @@ private:
  * @param       line is an std::string contain an info line
  * @throw       syntaxe_exception
  */
-    std::pair<std::string, std::vector<std::string> > parse_info(std::string&);
+//    (std::string&);
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    t_bloc          _bloc_config_file;
-    std::ifstream   _webserv_config_file;
+    t_bloc              _bloc_config_file;
+    std::ifstream       _webserv_config_file;
 };
 
 #endif//end of WEBSERV_PARSE_CONFIG_FILE
