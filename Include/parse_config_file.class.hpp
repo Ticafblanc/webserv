@@ -201,7 +201,7 @@ public:
  * @param       void
  * @throw       none
  */
-    t_bloc &get_vector_server_name() ;
+    t_bloc &get_bloc_config_file() ;
 
 /*>*******************************private section**********************************/
 
@@ -273,13 +273,13 @@ private:
 /**
  * Public methode of parse_config_file.class
  *
- * bool parse_bloc(t_bloc&, std::string&);
+ * bool parse_bloc(t_bloc&, std::string&, std::pair<std::string, std::vector<std::string> >& info_line);
  *
  * @returns     bool true if block is close else false
  * @param       void
  * @throw       syntaxe_exception
  */
-    bool parse_bloc(t_bloc&, std::string&);
+    bool parse_bloc(t_bloc&, std::string&, std::pair<std::string, std::vector<std::string> >);
 
 /**
  * Public methode of parse_config_file.class
