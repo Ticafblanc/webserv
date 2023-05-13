@@ -1,5 +1,5 @@
-#ifndef HEADER_HPP
-#define HEADER_HPP
+#ifndef WEBSERV_HEADER_HPP
+#define WEBSERV_HEADER_HPP
 
 #include <unistd.h>
 #include <stdio.h>
@@ -25,7 +25,14 @@
 #include <map>
 #include <sstream>
 #include <utility>
+#include <cstdlib>
+#include <algorithm>
 
+
+
+//__FILE_NAME__
+// __LINE__
+//__PRETTY_FUNCTION__
 
 using std::string;
 using std::vector;

@@ -130,14 +130,14 @@ public:
         /**
          * Constructor of syntax_exception class
          *
-         * syntax_exception(parse_config_file & config, const char* message);
+         * syntax_exception(parse_config_file & config, const char* message, int line);
          *
          * @param   parse_config_file is a parse_syntax_file reference to set the private _config
          *          to manage the close of parse_syntax_file class
          *          message to store const char*
          * @throw   none
          **/
-        syntax_exception(parse_config_file&, const char *);
+        syntax_exception(parse_config_file&, const char *, int);
 
         /**
          * Copy constructor of syntax_exception class
@@ -183,6 +183,7 @@ public:
     private:
         std::string         _message;
         parse_config_file & _config;
+        int                 _line;
     };
 
 
@@ -216,37 +217,13 @@ private:
 /**
  * Public methode of parse_config_file.class
  *
- *  bool check_bracket(std::string & line, std::string  token);
- *
- * @returns     bool true if there is a bracket an is alone
- * @param       line is string to check if it's ok
- * @throw       syntaxe_exception
- */
-    bool check_token(std::string&, std::string);
-
-
-/**
- * Public methode of parse_config_file.class
- *
- *  std::string check_semicolon(std::string & tmp, std::string & line);
- *
- * @returns     std::string to save i a last info
- * @param       tmp is string to remove ';'
- *              line is string to check if is empty
- * @throw       syntaxe_exception
- */
-    std::string check_semicolon(std::string&, std::string&);
-
-/**
- * Public methode of parse_config_file.class
- *
  *  bool check_isempty(std::string & line);
  *
  * @returns     bool if it's empty
  * @param       line is string to check if is empty
  * @throw       syntaxe_exception
  */
-    bool check_is_empty(std::string&);
+    bool check_is_empty();
 
 /**
  * Public methode of parse_config_file.class
@@ -257,60 +234,130 @@ private:
  * @param       line is string to remove comment
  * @throw       syntaxe_exception
  */
-    void delete_comments(std::string&);
+    void delete_comments();
 
 /**
  * Public methode of parse_config_file.class
  *
- * bool get_next_line(std::string & line);
+ * bool get_next_line();
  *
  * @returns     bool true if he find new line or false is not
  * @param       void
  * @throw       syntaxe_exception
  */
-    bool get_next_line(std::string&);
+    bool get_next_line();
 
 /**
  * Public methode of parse_config_file.class
  *
- * bool parse_bloc(t_bloc&, std::string&, std::pair<std::string, std::vector<std::string> >& info_line);
- *
- * @returns     bool true if block is close else false
- * @param       void
- * @throw       syntaxe_exception
- */
-    bool parse_bloc(t_bloc&, std::string&, std::pair<std::string, std::vector<std::string> >);
-
-/**
- * Public methode of parse_config_file.class
- *
- * void parse_info(t_bloc & bloc, std::string line);
+ * void parse_bloc(t_bloc&, std::string&, std::pair<std::string, std::vector<std::string> >& info_line);
  *
  * @returns     void
+ * @param       bloc is refer to parent
+ *              infoline is a token of bloc
+ * @throw       syntax_exception
+ */
+    void parse_bloc(t_bloc&, std::pair<std::string, std::vector<std::string> >);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  bool is_token(std::string&);
+ *
+ * @returns     void
+ * @param       token is a token to identify
+ * @throw       none
+ */
+    bool is_token(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  int identify_token(char);
+ *
+ * @returns     void
+ * @param       token is a token to identify
+ * @throw       none
+ */
+    int identify_token(char);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  bool identify_flag_token(char&);
+ *
+ * @returns     true if _flag_token is equal to token
+ * @param       token is a token to check
+ * @throw       none
+ */
+    bool identify_flag_token(char);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  void set_flag_token(char&);
+ *
+ * @returns     void
+ * @param       token is a token to set
+ * @throw       none
+ */
+    void set_flag_token(char);
+/**
+ * Public methode of parse_config_file.class
+ *
+ *  bool find_bracket(std::string&);
+ *
+ * @returns     int position of token
+ * @param       word is string to find token
+ * @throw       none
+ */
+    void find_token(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * bool find_next_word(std::string & word);
+ *
+ * @returns     bool true if he find new word or false is not
+ * @param       word is string to store nex word
+ * @throw       syntaxe_exception
+ */
+    bool find_next_word(std::string&);
+
+/**
+ * Public methode of parse_config_file.class
+ *
+ * bool parse_info(t_bloc & bloc);
+ *
+ * @returns     bool return true else false if }
  * @param       bloc is a bloc where are this info
- *              line is line info to parse
  * @throw       syntaxe_exception
  */
-    void parse_info(t_bloc &, std::string & line);
+    bool parse_info(t_bloc &);
 
 /**
  * Public methode of parse_config_file.class
  *
- * t_bloc parse_info(std::string &line);
+ * void log_error();
  *
  * @returns     void
- * @param       line is an std::string contain an info line
- * @throw       syntaxe_exception
+ * @param       void
+ * @throw       none
  */
-//    (std::string&);
+    void log_error(std::string&, std::vector<std::string>&);
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
+    enum {open_bracket, close_bracket, semicolon, white_space};
     t_bloc              _bloc_config_file;
     std::ifstream       _webserv_config_file;
+    std::string         _buffer_line;
+    std::string         _token_list;
+    int                 _flag_token;
+    std::string         _indente_log;
 };
 
 #endif//end of WEBSERV_PARSE_CONFIG_FILE
