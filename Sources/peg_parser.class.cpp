@@ -1,4 +1,4 @@
-#include <Include/parse_config_file.class.hpp>
+#include <Include/peg_parser.class.hpp>
 
 /*
 *==========================================================================================================
@@ -37,19 +37,20 @@ s_bloc &s_bloc::operator=(const s_bloc &rhs) {
 */
 
 parse_config_file::parse_config_file(std::string path_config_file) :
-                _bloc_config_file(), _webserv_config_file(path_config_file.c_str()),
-                _buffer_line(), _token_list("{}; "), _flag_token(){
-    if (!_webserv_config_file.is_open())
+                _bloc_config_file(), _string_stream(), _token_list(), _flag_token(){
+    std::ifstream       webserv_config_file(path_config_file.c_str());
+    if (!webserv_config_file.is_open())
         throw parse_config_file::syntax_exception(*this, strerror(errno), __LINE__ );
-    get_next_line();
+    std::copy(std::istreambuf_iterator<char>(webserv_config_file),
+            std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
     parse_bloc(_bloc_config_file, std::make_pair(std::string(), std::vector<std::string>()));
-    _webserv_config_file.close();
+    webserv_config_file.close();
 }
 
 parse_config_file::~parse_config_file() {}
 
 parse_config_file::parse_config_file(const parse_config_file &other) :
-                _bloc_config_file(other._bloc_config_file), _webserv_config_file(),
+                _bloc_config_file(other._bloc_config_file)
                 _token_list(other._token_list), _flag_token(other._flag_token){}
 
 parse_config_file &parse_config_file::operator=(const parse_config_file &rhs) {
@@ -103,22 +104,24 @@ t_bloc &parse_config_file::get_bloc_config_file() { return _bloc_config_file; }
 *====================================================================================
 */
 
-bool parse_config_file::check_is_empty(){
-    std::istringstream string_stream(_buffer_line);
-    std::getline(string_stream >> std::ws, _buffer_line);
-    return _buffer_line.empty();
+bool parse_config_file::check_is_empty(std::string & buffer_line){
+    _string_stream.str(buffer_line);
+    std::getline(_string_stream >> std::ws, buffer_line);
+    return buffer_line.empty();
 }
 
-void parse_config_file::delete_comments(){
-    if (_buffer_line.find('#') != std::string::npos)
-        _buffer_line = _buffer_line.substr(0, _buffer_line.find('#'));
+void parse_config_file::delete_comments(std::string & buffer_line){
+    if (buffer_line.find('#') != std::string::npos)
+        buffer_line = buffer_line.substr(0, buffer_line.find('#'));
 }
 
 bool parse_config_file::get_next_line(){
-    _buffer_line.clear();
-    while (check_is_empty() && std::getline(_webserv_config_file, _buffer_line))
-        delete_comments();
-    return !_buffer_line.empty();
+    std::string         buffer_line;
+
+    while (check_is_empty(buffer_line) && std::getline(_webserv_config_file, buffer_line))
+        delete_comments(buffer_line);
+
+    return !buffer_line.empty();
 }
 
 void parse_config_file::parse_bloc(t_bloc & bloc, std::pair<std::string, std::vector<std::string> > info_line) {
@@ -182,6 +185,8 @@ void parse_config_file::find_token(std::string & word){
 
 bool parse_config_file::find_next_word(std::string & word){
     word.clear();
+    if (static_cast<unsigned long>(_string_stream.tellg()) == _string_stream.str().size())
+        get_next_line();
     std::istringstream string_stream(_buffer_line);
     string_stream >> word >> std::ws;
     size_t number_of_whit_space = string_stream.str().size();

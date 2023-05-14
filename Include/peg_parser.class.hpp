@@ -217,29 +217,29 @@ private:
 /**
  * Public methode of parse_config_file.class
  *
- *  bool check_isempty(std::string & line);
+ *  bool check_isempty(std::string & buffer_line);
  *
  * @returns     bool if it's empty
- * @param       line is string to check if is empty
+ * @param       buffer_line is string to check if is empty
  * @throw       syntaxe_exception
  */
-    bool check_is_empty();
+    bool check_is_empty(std::string&);
 
 /**
  * Public methode of parse_config_file.class
  *
- * void delete_comments(std::string & line);
+ * void delete_comments(std::string & buffer_line);
  *
  * @returns     void
- * @param       line is string to remove comment
+ * @param       buffer_line is a string to remove comment
  * @throw       syntaxe_exception
  */
-    void delete_comments();
+    void delete_comments(std::string&);
 
 /**
  * Public methode of parse_config_file.class
  *
- * bool get_next_line();
+ * bool get_next_line(std::string & buffer_line);
  *
  * @returns     bool true if he find new line or false is not
  * @param       void
@@ -352,13 +352,14 @@ private:
 *====================================================================================
 */
     enum {open_bracket, close_bracket, semicolon, white_space};
-    t_bloc              _bloc_config_file;
-    std::ifstream       _webserv_config_file;
-    std::string         _buffer_line;
-    std::string         _token_list;
-    int                 _flag_token;
-    std::string         _indente_log;
+    t_bloc                      _bloc_config_file;
+    std::stringstream           _string_stream;
+    std::map<std::string, >     _token_list;
+    int                         _flag_token;
+    std::string                 _indente_log;
 };
+
+//@todo set like peg parser specify stringstream to parse and std::map<token(std::string), (std::string)*f(arg)>
 
 #endif//end of WEBSERV_PARSE_CONFIG_FILE
 

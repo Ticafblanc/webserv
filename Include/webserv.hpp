@@ -3,7 +3,7 @@
 
 #include "header.hpp"
 #include "server.class.hpp"
-#include "parse_config_file.class.hpp"
+#include "peg_parser.class.hpp"
 #include "Route.class.hpp"
 #include "config_webserv.class.hpp"
 #include "colors.hpp"
