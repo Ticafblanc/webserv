@@ -26,11 +26,11 @@ peg_parser::~peg_parser() { }
 *====================================================================================
 */
 
-bool peg_parser::parse(std::map<std::string, std::string (*)(std::stringstream &)> & map_token_list_action) {
+bool peg_parser::parse(std::map<std::string, std::string (*)(peg_parser &)> & map_token_list_action) {
     (void)map_token_list_action;
     std::cout << _string_stream.str() << std::endl;
-    map_token_list_action.find("events")->second(_string_stream);
-    map_token_list_action.find("http")->second(_string_stream);
+    map_token_list_action.find("events")->second(*this);
+    map_token_list_action.find("http")->second(*this);
 
     return false;
 }
@@ -199,6 +199,52 @@ void peg_parser::log_error(std::string & key, std::vector<std::string> & info){
         std::cout << *it << " ";
     std::cout<<std::endl;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

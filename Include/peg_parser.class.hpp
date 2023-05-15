@@ -61,7 +61,7 @@ public:
  * @param       map_token_list_action is a std::map key = token (string), data = action to do (std::string (*)(std::stringstream&))
  * @throw       syntaxe_exception
  */
-    bool parse( std::map<std::string , std::string (*)(std::stringstream &)>&);
+    bool parse( std::map<std::string , std::string (*)(peg_parser &)>&);
 
 
 /*

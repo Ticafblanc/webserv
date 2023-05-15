@@ -150,7 +150,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_server(std::stringstream & webserv_config_file);
+    bloc_server();
 
 /**
 * Destructor of bloc_server.class class
@@ -176,7 +176,7 @@ public:
  * @param       void
  * @throw       none
  */
-    std::vector<std::string> &get_vector_server_name() const;
+    std::string parse_bloc_server(peg_parser & peg);
 
 
 /**
@@ -259,7 +259,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_http(std::stringstream & webserv_config_file);
+    bloc_http();
 
 /**
 * Destructor of bloc_http.class class
@@ -285,22 +285,18 @@ public:
  * @param       void
  * @throw       none
  */
-    void set_vector_bloc_server();
+    std::string parse_bloc_http(peg_parser&);
 
 /**
  * Public methode of bloc_http.class class
  *
- * std::vector<bloc_server> & get_vector_bloc_server()const;
+ * void set_vector_bloc_server();
  *
- * @returns     std::vector<bloc_server> contain tble of bloc_sevr class
+ * @returns     void
  * @param       void
  * @throw       none
  */
-    std::vector<bloc_server> & get_vector_bloc_server() const;
-
-/*>*******************************private section**********************************/
-
-private:
+    friend std::string add_vector_bloc_server(peg_parser&);
 
 /*
 *====================================================================================
@@ -309,7 +305,7 @@ private:
 */
     std::vector<bloc_server>        _vector_bloc_server;//no default value
 };
-
+std::string add_vector_bloc_server(peg_parser&);
 
 /*
 *==========================================================================================================
@@ -318,8 +314,6 @@ private:
 */
 
 struct bloc_events {
-
-/*>********************************public section**********************************/
 
 public:
 
@@ -337,7 +331,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_events(std::stringstream & webserv_config_fgile);
+    bloc_events();
 
 /**
 * Destructor of bloc_events.class class
@@ -357,29 +351,24 @@ public:
 /**
  * Public methode of bloc_events.class class
  *
- * std::string set_work_connection(int work_connection) ;
+ * std::string set_work_connection(std::stringstream & string_stream) ;
  *
  * @returns     string contain error message
  * @param       work_connection is number of pending connections avaible
  * @throw       none
  */
-    std::string set_work_connection(int work_connection) ;
+    std::string parse_bloc_events(peg_parser&) ;
 
 /**
  * Public methode of bloc_events.class class
  *
- * int &get_work_connection() const;
+ * std::string set_work_connection(std::stringstream & string_stream) ;
  *
- * @returns     int with the maximum number of pending connections
- * @param       void
+ * @returns     string contain error message
+ * @param       work_connection is number of pending connections avaible
  * @throw       none
  */
-    int &get_work_connection() const;
-
-
-/*>*******************************private section**********************************/
-
-private:
+    friend std::string set_work_connection(peg_parser&) ;
 
 /*
 *====================================================================================
@@ -388,6 +377,8 @@ private:
 */
     int _work_connection;//if not define default 10 else accept >o and < 11
 };
+
+std::string set_work_connection(peg_parser&) ;
 
 
 
@@ -399,7 +390,7 @@ private:
 
 
 
-struct config_webserv : public peg_parser{
+struct config_webserv {
 
 /*
 *====================================================================================
@@ -441,7 +432,7 @@ struct config_webserv : public peg_parser{
  * @returns     void
  * @param       void
  */
-    friend std::string set_bloc_event(std::stringstream&);
+    friend std::string set_bloc_event(config_webserv&, peg_parser &);
 
 /**
  * Protected methode of config_webserv class
@@ -451,7 +442,7 @@ struct config_webserv : public peg_parser{
  * @returns     void
  * @param       void
  */
-    friend std::string set_bloc_http(std::stringstream&);
+    friend std::string set_bloc_http(peg_parser &);
 
 /*
 *====================================================================================
@@ -459,13 +450,12 @@ struct config_webserv : public peg_parser{
 *====================================================================================
 */
     peg_parser          _peg_parser;
-
-//    const bloc_events   _bloc_events;//required
-//    const bloc_http     _bloc_http;//if not set as default
+    bloc_events         _bloc_events;//required
+    bloc_http           _bloc_http;//if not set as default
 };
 
-std::string set_bloc_event(std::stringstream&);
-std::string set_bloc_http(std::stringstream&);
+std::string set_bloc_event(peg_parser &);
+std::string set_bloc_http(peg_parser &);
 
 
 

@@ -12,6 +12,93 @@
 
 #include <Include/config_webserv.class.hpp>
 
+/*
+*==========================================================================================================
+*|                                                  Bloc server                                             |
+*==========================================================================================================
+*/
+
+
+bloc_server::bloc_server() {}
+
+bloc_server::~bloc_server() {}
+
+std::string bloc_server::parse_bloc_server(peg_parser & peg) {
+    (void)peg;
+    std::cout << "in parse server" << std::endl;
+    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
+    map_token_list_action.insert(std::make_pair(std::string("server"), &add_vector_bloc_server));
+    peg.parse(map_token_list_action);
+
+    return std::string("");
+}
+
+//std::string add_vector_bloc_server(peg_parser & peg) {
+//    (void)peg;
+//    std::cout << "in parse bloc server" << std::endl;
+//
+//    return std::string("");
+//}
+
+
+/*
+*==========================================================================================================
+*|                                                  Bloc http                                             |
+*==========================================================================================================
+*/
+
+
+bloc_http::bloc_http() : _vector_bloc_server() {}
+
+bloc_http::~bloc_http() {}
+
+std::string parse_bloc_http(peg_parser & peg) {
+    (void)peg;
+    std::cout << "in parse http" << std::endl;
+    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
+    map_token_list_action.insert(std::make_pair(std::string("server"), &add_vector_bloc_server));
+    peg.parse(map_token_list_action);
+
+    return std::string("");
+}
+
+std::string add_vector_bloc_server(peg_parser & peg) {
+    (void)peg;
+    std::cout << "in parse bloc server" << std::endl;
+    this->
+    _veparse_bloc_server(peg);
+    return std::string("");
+}
+
+
+/*
+*==========================================================================================================
+*|                                                  Bloc events                                           |
+*==========================================================================================================
+*/
+
+
+bloc_events::bloc_events() : _work_connection(){}
+
+bloc_events::~bloc_events() {}
+
+std::string parse_bloc_events(peg_parser & peg) {
+    (void)peg;
+    std::cout << "in parse events" << std::endl;
+    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
+    map_token_list_action.insert(std::make_pair(std::string("work_connection"), &set_work_connection));
+    peg.parse(map_token_list_action);
+
+    return std::string("");
+}
+
+std::string set_work_connection(peg_parser & peg) {
+    (void)peg;
+    std::cout << "in parse work connection" << std::endl;
+
+
+    return std::string("");
+}
 
 
 /*
@@ -21,15 +108,9 @@
 */
 
 
-
-/*
-*====================================================================================
-*|                                  Member Fonction                                 |
-*====================================================================================
-*/
-
-config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file) {
-    std::map<std::string, string (*)(std::stringstream &)>  map_token_list_action;
+config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file),
+                                    _bloc_events(), _bloc_http() {
+    std::map<std::string, string (*)(peg_parser&)>  map_token_list_action;
     map_token_list_action.insert(std::make_pair(std::string("events"), &set_bloc_event));
     map_token_list_action.insert(std::make_pair(std::string("http"), &set_bloc_http));
     _peg_parser.parse(map_token_list_action);
@@ -37,30 +118,61 @@ config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path
 
 config_webserv::~config_webserv() {}
 
-
-
-/*
-*====================================================================================
-*|                                  Element access                                 |
-*====================================================================================
-*/
-
-std::string set_bloc_event(std::stringstream & string_stream) {
-    (void)string_stream;
+std::string set_bloc_event(config_webserv& webserv, peg_parser & peg) {
+    (void)peg;
     std::cout << "in parse events" << std::endl;
-
-    std::cout << string_stream.str() << std::endl;
-
+    parse_bloc_events(peg);
+    (void)webserv._peg_parser;
     return std::string("");
 }
 
-std::string set_bloc_http(std::stringstream& string_stream) {
-    (void)string_stream;
+std::string set_bloc_http(config_webserv& webserv, peg_parser & peg) {
+    (void)peg;
     std::cout << "in parse http" << std::endl;
-    std::cout << string_stream.str() << std::endl;
-
+    (void)webserv;
+    parse_bloc_http(peg);
     return std::string("");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //
