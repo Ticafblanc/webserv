@@ -416,7 +416,7 @@ public:
  *          specified at start of webserv
  * @throw   config_webserv::config_exception
  **/
-    config_webserv(std::string path_config_file);
+    config_webserv(std::string & path_config_file);
 
 /**
 * Destructor of config_webserv class
