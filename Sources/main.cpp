@@ -19,6 +19,14 @@ void handle_exit(int sig) {
     exit(EXIT_SUCCESS);
 }
 
+void handle_reload(int sig) {
+    (void) sig;
+    //@todo manage the reload by signal
+    std::cout << "reload by signal" << std::endl;
+    exit(EXIT_SUCCESS);
+}
+
+
 const char * select_path(char **argv, int position_path_file_config){
     if(position_path_file_config == 0)
         return "/usr/local/etc/webserv/webserv.conf";
@@ -27,7 +35,7 @@ const char * select_path(char **argv, int position_path_file_config){
 }
 
 static void check_file(int argc, char **argv){
-    int position_path_file_config = (argc == 2) ? 1 : 2;
+    int position_path_file_config = (argc == 2) ? 0 : 2;
     std::string path_config_file(select_path(argv, position_path_file_config));
 
     try {
@@ -36,7 +44,7 @@ static void check_file(int argc, char **argv){
     catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
         std::cout << "webserv: configuration file " << path_config_file << " test failed" << std::endl;
-        exit(EXIT_SUCCESS);
+        exit(EXIT_FAILURE);
     }
     std::cout << "webserv: configuration file " << path_config_file << " test is successful" << std::endl;
     exit(EXIT_SUCCESS);
@@ -59,7 +67,7 @@ static int check_option(int argc, char **argv){
             std::cerr << "invalid option -" << argv[1][1] << std::endl;
             return -1;
         }
-        return 0;
+        return 1;
     }
     return 0;
 }
@@ -73,12 +81,23 @@ int main(int argc, char **argv, char **envp){
     if (position_path_file_config != -1) {
         signal(SIGINT, handle_exit);
         signal(SIGTERM, handle_exit);
-        signal(SIGHUP, handle_exit);
+        signal(SIGHUP, handle_reload);
         while (number_try_lauch < 6) {
             try {
-                path_config_file += select_path(argv, position_path_file_config);
-                config_webserv config_webserv(path_config_file);
-//        data_server data = parsing.parsefile;
+//                path_config_file += select_path(argv, position_path_file_config);
+//                config_webserv config_webserv(path_config_file);
+//                server server(config_webserv);
+            }
+            catch (const std::exception &e) {
+                std::cout << e.what() << std::endl;
+            }
+            number_try_lauch++;
+        }
+    }
+    exit(EXIT_FAILURE);
+}
+
+/* data_server data = parsing.parsefile;
 //        data_server data;
 //        std::string ip =  "127.0.0.1";
 //        int port = 8081;
@@ -93,14 +112,4 @@ int main(int argc, char **argv, char **envp){
 //        data.setOptionName(SO_REUSEADDR);
 //        data.setOptionVal(1);
 //        server serv(data);
-//        serv.launcher();
-            }
-            catch (const std::exception &e) {
-                std::cout << e.what() << std::endl;
-            }
-            number_try_lauch++;
-        }
-    }
-    exit(EXIT_FAILURE);
-}
-
+//        serv.launcher();*/

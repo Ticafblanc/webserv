@@ -18,12 +18,24 @@ public:
 /**
  * Constructor of peg_parser.class
  *
- * peg_parser(std::stringstream & string_stream,);
+ * peg_parser(std::string & path_config_file);
  *
  * @param   string_stream& is a buffer to parse
  * @throw   none
  **/
-    peg_parser(std::stringstream&);
+    peg_parser();
+
+/**
+ * Constructor of peg_parser.class
+ *
+ * peg_parser(std::string & path_config_file);
+ *
+ * @param   string_stream& is a buffer to parse
+ * @throw   none
+ **/
+    peg_parser(std::string &);
+
+    //@todo add constructor with stringstream arg
 
 /**
 * Destructor of peg_parser.class
@@ -79,7 +91,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        syntax_exception(peg_parser&, const char *, int);
+        syntax_exception(const char *, int);
 
         /**
          * Copy constructor of syntax_exception class
@@ -124,8 +136,6 @@ public:
 
     private:
         std::string         _message;
-        peg_parser &        _config;
-        int                 _line;
     };
 
 /*>*******************************private section**********************************/
@@ -181,7 +191,7 @@ private:
  *              infoline is a token of bloc
  * @throw       syntax_exception
  */
-    void parse_bloc(t_bloc&, std::pair<std::string, std::vector<std::string> >);
+    void parse_bloc(std::pair<std::string, std::vector<std::string> >);
 
 /**
  * Public methode of peg_parser.class
@@ -257,7 +267,7 @@ private:
  * @param       bloc is a bloc where are this info
  * @throw       syntaxe_exception
  */
-    bool parse_info(t_bloc &);
+    bool parse_info();
 
 /**
  * Public methode of peg_parser.class
@@ -275,8 +285,43 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::stringstream &                                 _string_stream;
+    std::stringstream   _string_stream;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //typedef struct s_bloc {
 //

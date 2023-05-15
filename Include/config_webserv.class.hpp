@@ -9,10 +9,14 @@
 /*   Updated: 2023/03/17 14:47:10 by mdoquocb         ###   ########.ca       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #ifndef WEBSERV_CONFIG_WEBSERV_HPP
 #define WEBSERV_CONFIG_WEBSERV_HPP
 
 #include <Include/header.hpp>
+#include <Include/peg_parser.class.hpp>
+
+struct base{};
 
 /*
 *==========================================================================================================
@@ -395,11 +399,7 @@ private:
 
 
 
-struct config_webserv{
-
-/*>*******************************public section*********************************/
-
-public:
+struct config_webserv : public peg_parser{
 
 /*
 *====================================================================================
@@ -410,13 +410,13 @@ public:
 /**
  * Constructor of config_webserv class
  *
- * config_webserv(std::string path_config_file);
+ * config_webserv(std::string & path_config_file);
  *
  * @param   path_config_file is a std::string is a path to config file
  *          specified at start of webserv
- * @throw   config_webserv::config_exception
+ * @throw   none
  **/
-    config_webserv(std::string & path_config_file);
+    config_webserv(std::string &);
 
 /**
 * Destructor of config_webserv class
@@ -429,7 +429,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Element access                                 |
+*|                                  Element access                                  |
 *====================================================================================
 */
 
@@ -441,17 +441,7 @@ public:
  * @returns     void
  * @param       void
  */
-    void set_bloc_event();
-
-/**
- * Protected methode of config_webserv class
- *
- * int get_bloc_events();
- *
- * @returns     bloc_events contain the events config
- * @param       void
- */
-    bloc_events & get_bloc_event() const;
+    friend std::string set_bloc_event(std::stringstream&);
 
 /**
  * Protected methode of config_webserv class
@@ -461,31 +451,22 @@ public:
  * @returns     void
  * @param       void
  */
-    void set_bloc_http();
-
-/**
- * Protected methode of config_webserv class
- *
- * int get_bloc_http();
- *
- * @returns     bloc_http contain the http config
- * @param       void
- */
-    bloc_http & get_bloc_http() const;
-
-/*>*******************************private section*********************************/
-
-private:
+    friend std::string set_bloc_http(std::stringstream&);
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
+    peg_parser          _peg_parser;
 
-    std::stringstream   _webserv_config_file;
-    const bloc_events   _bloc_events;//required
-    const bloc_http     _bloc_http;//if not set as default
+//    const bloc_events   _bloc_events;//required
+//    const bloc_http     _bloc_http;//if not set as default
 };
+
+std::string set_bloc_event(std::stringstream&);
+std::string set_bloc_http(std::stringstream&);
+
+
 
 #endif //WEBSERV_CONFIG_WEBSERV_HPP
