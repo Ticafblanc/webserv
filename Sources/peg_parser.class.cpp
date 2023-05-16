@@ -8,16 +8,16 @@
 
 peg_parser::peg_parser() {}
 
-//peg_parser::peg_parser(const char * path_file) {
-//    std::ifstream       file_to_parse(path_file);
-//
-//    if (!file_to_parse.is_open())
-//        throw syntax_exception(strerror(errno));
-//    std::copy(std::istreambuf_iterator<char>(file_to_parse),
-//              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
-//    std::cout << _string_stream.str() << std::endl;
-//    file_to_parse.close();
-//}
+peg_parser::peg_parser(const char * path_file) {
+    std::ifstream       file_to_parse(path_file);
+
+    if (!file_to_parse.is_open())
+        throw syntax_exception(strerror(errno));
+    std::copy(std::istreambuf_iterator<char>(file_to_parse),
+              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
+    std::cout << _string_stream.str() << std::endl;
+    file_to_parse.close();
+}
 
 peg_parser::peg_parser(std::string & string_to_parse) : _string_stream(string_to_parse){ }
 
@@ -85,16 +85,32 @@ const char *peg_parser::syntax_exception::what() const throw() { return _message
 *====================================================================================
 */
 
+void peg_parser::delete_comments(std::string & buffer_line){
+    if (buffer_line.find('#') != std::string::npos)
+        buffer_line = buffer_line.substr(0, buffer_line.find('#'));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 bool peg_parser::check_is_empty(std::string & buffer_line){
     _string_stream.str(buffer_line);
     std::getline(_string_stream >> std::ws, buffer_line);
     return buffer_line.empty();
 }
 
-void peg_parser::delete_comments(std::string & buffer_line){
-    if (buffer_line.find('#') != std::string::npos)
-        buffer_line = buffer_line.substr(0, buffer_line.find('#'));
-}
+
 
 bool peg_parser::get_next_line(){
     std::string         buffer_line;

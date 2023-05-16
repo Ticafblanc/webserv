@@ -191,7 +191,7 @@ std::string bloc_events::set_work_connection() {
 *==========================================================================================================
 */
 
-config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file),
+config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file.c_str()),
                                     _bloc_events(_peg_parser), _bloc_http(_peg_parser) {
     std::map<std::string, std::string (config_webserv::*)()>  map_token_list_action;
     map_token_list_action["events"] = &config_webserv::parse_bloc_event;

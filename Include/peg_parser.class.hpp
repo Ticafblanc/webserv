@@ -104,11 +104,8 @@ public:
     template<class T>
     void find_token(T& base, std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
         std::string token = extract_data(control_operator);
-        (void)base;
-        (void)control_operator;
-        (void)map_token_list_action;
+
         typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
-        (void)it;
         if (it == map_token_list_action.end()) {
             std::string error("error token in ");
             error += token;
