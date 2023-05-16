@@ -16,8 +16,6 @@
 #include <Include/header.hpp>
 #include <Include/peg_parser.class.hpp>
 
-struct base{};
-
 /*
 *==========================================================================================================
 *|                                                  bloc location                                         |
@@ -26,9 +24,6 @@ struct base{};
 
 struct bloc_location {
 
-/*>********************************public section**********************************/
-
-public:
 
 /*
 *====================================================================================
@@ -44,7 +39,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_location(std::stringstream & webserv_config_file);
+    bloc_location(peg_parser&);
 
 /**
 * Destructor of bloc_location.class class
@@ -55,93 +50,6 @@ public:
 **/
     ~bloc_location();
 
-/*
-*====================================================================================
-*|                                  Element access                                 |
-*====================================================================================
-*/
-
-/**
- * Public methode of bloc_location.class class
- *
- * std::vector<std::string> &get_vector_location_name() const;
- *
- * @returns     std::vector<std::string>& contain all names of server
- * @param       void
- * @throw       none
- */
-    std::vector<std::string> &get_vector_location_name() const;
-
-
-/**
- * Public methode of bloc_location.class class
- *
- * void set_vector_location_name(std::string & name);
- *
- * @returns     void
- * @param       name is an std::string contain name of server to add
- * @throw       bloc_exception if name already exist
- */
-    void add_vector_location_name(std::string &);
-
-/**
- * Public methode of bloc_location.class class
- *
- * std::string& get_ip_address();
- *
- * @returns     std::vector<std::string>& contain all names of server
- * @param       void
- * @throw       bloc_exception out of rang
- */
-    std::vector<std::string>  &get_vector_sock_address() const;
-
-
-/**
- * Public methode of bloc_location.class class
- *
- * void add_vector_sock_address(std::string ip_address, const int port);
- *
- * @returns     void
- * @param       ip_adress is a std::string with ip_address
- *              port is an int with port to add
- * @throw       bloc_exception if ip/port already exist in _webserv instance
- */
-    void add_vector_sock_address(std::string, const int );
-
-/*>*******************************private section**********************************/
-
-private:
-
-/*
-*====================================================================================
-*|                                     Member                                       |
-*====================================================================================
-*/
-    std::string                         _root;//path of this location
-    std::vector<std::string>            _index;// set name of specific index file
-};
-
-
-
-/*
-*==========================================================================================================
-*|                                                  bloc server                                           |
-*==========================================================================================================
-*/
-
-
-struct bloc_server {
-
-/*>********************************public section**********************************/
-
-public:
-
-/*
-*====================================================================================
-*|                                  Member Fonction                                 |
-*====================================================================================
-*/
-
 /**
  * Constructor of config_server.class class
  *
@@ -150,7 +58,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_server();
+    bloc_location(const bloc_location &);
 
 /**
 * Destructor of bloc_server.class class
@@ -159,7 +67,7 @@ public:
 *
 * @throw   none
 **/
-    ~bloc_server();
+    bloc_location& operator=(const bloc_location&);
 
 /*
 *====================================================================================
@@ -176,8 +84,113 @@ public:
  * @param       void
  * @throw       none
  */
-    std::string parse_bloc_server(peg_parser & peg);
+    std::string parse_bloc_location();
 
+/**
+ * Public methode of bloc_location.class class
+ *
+ * std::vector<std::string> &get_vector_location_name() const;
+ *
+ * @returns     std::vector<std::string>& contain all names of server
+ * @param       void
+ * @throw       none
+ */
+    std::string set_root();
+
+
+/**
+ * Public methode of bloc_location.class class
+ *
+ * void set_vector_location_name(std::string & name);
+ *
+ * @returns     void
+ * @param       name is an std::string contain name of server to add
+ * @throw       bloc_exception if name already exist
+ */
+    std::string add_index();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    peg_parser&                         _peg_parser;
+    std::string                         _root;//path of this location
+    std::vector<std::string>            _index;// set name of specific index file
+};
+
+
+
+/*
+*==========================================================================================================
+*|                                                  bloc server                                           |
+*==========================================================================================================
+*/
+
+
+struct bloc_server {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of config_server.class class
+ *
+ * bloc_server(std::stringstream & webserv_config_file);
+ *
+ * @param   void
+ * @throw   none
+ **/
+    bloc_server(peg_parser&);
+
+/**
+* Destructor of bloc_server.class class
+*
+* bloc_server.class.class();
+*
+* @throw   none
+**/
+    ~bloc_server();
+
+/**
+ * Constructor of config_server.class class
+ *
+ * bloc_server(std::stringstream & webserv_config_file);
+ *
+ * @param   void
+ * @throw   none
+ **/
+    bloc_server(const bloc_server &);
+
+/**
+* Destructor of bloc_server.class class
+*
+* bloc_server.class.class();
+*
+* @throw   none
+**/
+    bloc_server& operator=(const bloc_server&);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of bloc_server.class class
+ *
+ * std::vector<std::string> &get_vector_server_name() const;
+ *
+ * @returns     std::vector<std::string>& contain all names of server
+ * @param       void
+ * @throw       none
+ */
+    std::string parse_bloc_server();
 
 /**
  * Public methode of bloc_server.class class
@@ -188,7 +201,18 @@ public:
  * @param       name is an std::string contain name of server to add
  * @throw       bloc_exception if name already exist
  */
-    void add_vector_server_name(std::string &);
+    std::string add_multimap_listen();
+
+/**
+ * Public methode of bloc_server.class class
+ *
+ * void set_vector_server_name(std::string & name);
+ *
+ * @returns     void
+ * @param       name is an std::string contain name of server to add
+ * @throw       bloc_exception if name already exist
+ */
+    std::string add_vector_server_name();
 
 /**
  * Public methode of bloc_server.class class
@@ -199,7 +223,7 @@ public:
  * @param       void
  * @throw       bloc_exception out of rang
  */
-    std::vector<std::string>  &get_vector_sock_address() const;
+    std::string set_root();
 
 
 /**
@@ -212,21 +236,18 @@ public:
  *              port is an int with port to add
  * @throw       bloc_exception if ip/port already exist in _webserv instance
  */
-    void add_vector_sock_address(std::string, const int );
-
-/*>*******************************private section**********************************/
-
-private:
+    std::string add_vector_bloc_location();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::multimap<std::string, int>         _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    peg_parser&                             _peg_parser;
+    std::multimap<std::string, int>         _multimap_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                _vector_server_name;// store all server name
     std::string                             _root;//path of repo defaut of server
-    std::vector<bloc_location>              _vector_sock_address;
+    std::vector<bloc_location>              _vector_bloc_location;
 };
 
 
@@ -241,9 +262,6 @@ private:
 
 struct bloc_http {
 
-/*>********************************public section**********************************/
-
-public:
 
 /*
 *====================================================================================
@@ -259,7 +277,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_http();
+    bloc_http(peg_parser&);
 
 /**
 * Destructor of bloc_http.class class
@@ -285,7 +303,7 @@ public:
  * @param       void
  * @throw       none
  */
-    std::string parse_bloc_http(peg_parser&);
+    std::string parse_bloc_http();
 
 /**
  * Public methode of bloc_http.class class
@@ -296,16 +314,18 @@ public:
  * @param       void
  * @throw       none
  */
-    friend std::string add_vector_bloc_server(peg_parser&);
+    std::string add_vector_bloc_server();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
+    peg_parser&                     _peg_parser;
     std::vector<bloc_server>        _vector_bloc_server;//no default value
 };
-std::string add_vector_bloc_server(peg_parser&);
+
+
 
 /*
 *==========================================================================================================
@@ -313,9 +333,11 @@ std::string add_vector_bloc_server(peg_parser&);
 *==========================================================================================================
 */
 
+
+
+
 struct bloc_events {
 
-public:
 
 /*
 *====================================================================================
@@ -331,7 +353,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    bloc_events();
+    bloc_events(peg_parser&);
 
 /**
 * Destructor of bloc_events.class class
@@ -357,7 +379,7 @@ public:
  * @param       work_connection is number of pending connections avaible
  * @throw       none
  */
-    std::string parse_bloc_events(peg_parser&) ;
+    std::string parse_bloc_events() ;
 
 /**
  * Public methode of bloc_events.class class
@@ -368,17 +390,16 @@ public:
  * @param       work_connection is number of pending connections avaible
  * @throw       none
  */
-    friend std::string set_work_connection(peg_parser&) ;
+    std::string set_work_connection() ;
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    int _work_connection;//if not define default 10 else accept >o and < 11
+    peg_parser&     _peg_parser;
+    int             _work_connection;//if not define default 10 else accept >o and < 11
 };
-
-std::string set_work_connection(peg_parser&) ;
 
 
 
@@ -397,6 +418,17 @@ struct config_webserv {
 *|                                  Member Fonction                                 |
 *====================================================================================
 */
+
+/**
+ * Constructor of config_webserv class
+ *
+ * config_webserv(std::string & path_config_file);
+ *
+ * @param   path_config_file is a std::string is a path to config file
+ *          specified at start of webserv
+ * @throw   none
+ **/
+    config_webserv();
 
 /**
  * Constructor of config_webserv class
@@ -432,7 +464,7 @@ struct config_webserv {
  * @returns     void
  * @param       void
  */
-    friend std::string set_bloc_event(config_webserv&, peg_parser &);
+    std::string parse_bloc_event();
 
 /**
  * Protected methode of config_webserv class
@@ -442,7 +474,7 @@ struct config_webserv {
  * @returns     void
  * @param       void
  */
-    friend std::string set_bloc_http(peg_parser &);
+    std::string parse_bloc_http();
 
 /*
 *====================================================================================
@@ -453,10 +485,5 @@ struct config_webserv {
     bloc_events         _bloc_events;//required
     bloc_http           _bloc_http;//if not set as default
 };
-
-std::string set_bloc_event(peg_parser &);
-std::string set_bloc_http(peg_parser &);
-
-
 
 #endif //WEBSERV_CONFIG_WEBSERV_HPP

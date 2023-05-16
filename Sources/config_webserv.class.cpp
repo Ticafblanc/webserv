@@ -14,32 +14,120 @@
 
 /*
 *==========================================================================================================
+*|                                                  Bloc location                                         |
+*==========================================================================================================
+*/
+
+
+bloc_location::bloc_location(peg_parser&  peg_parser)
+        : _peg_parser(peg_parser), _root(), _index() {}
+
+bloc_location::~bloc_location() {}
+
+bloc_location::bloc_location(const bloc_location & other)
+        : _peg_parser(other._peg_parser), _root(other._root), _index(other._index) {}
+
+bloc_location &bloc_location::operator=(const bloc_location & rhs) {
+    this->_peg_parser = rhs._peg_parser;
+    this->_root = rhs._root;
+    this->_index = rhs._index;
+    return *this;
+}
+
+
+std::string bloc_location::parse_bloc_location() {
+    std::cout << "in parse location" << std::endl;
+    std::map<std::string, std::string (bloc_location::*)()>  map_token_list_action;
+    map_token_list_action["root"] =  &bloc_location::set_root;
+    map_token_list_action["index"] =  &bloc_location::add_index;
+    _peg_parser.parse(map_token_list_action);
+
+    return std::string("");
+}
+
+std::string bloc_location::set_root(){
+    std::cout << "set root" << std::endl;
+    std::string root;
+    _root = root;
+    return std::string("");
+
+}
+
+std::string bloc_location::add_index() {
+    std::cout << "add index" << std::endl;
+    std::string index;
+    _index.push_back(index);
+    return std::string("");
+
+}
+
+/*
+*==========================================================================================================
 *|                                                  Bloc server                                             |
 *==========================================================================================================
 */
 
 
-bloc_server::bloc_server() {}
+bloc_server::bloc_server(peg_parser&  peg_parser)
+        : _peg_parser(peg_parser), _multimap_listen(), _vector_server_name(),
+        _root(), _vector_bloc_location() {}
 
 bloc_server::~bloc_server() {}
 
-std::string bloc_server::parse_bloc_server(peg_parser & peg) {
-    (void)peg;
+bloc_server::bloc_server(const bloc_server & other)
+        : _peg_parser(other._peg_parser), _multimap_listen(other._multimap_listen),
+        _vector_server_name(), _root(), _vector_bloc_location() {}
+
+bloc_server &bloc_server::operator=(const bloc_server & rhs) {
+    this->_peg_parser = rhs._peg_parser;
+    this->_multimap_listen = rhs._multimap_listen;
+    this->_vector_server_name = rhs._vector_server_name;
+    this->_root = rhs._root;
+    this->_vector_bloc_location = rhs._vector_bloc_location;
+    return *this;
+}
+
+std::string bloc_server::parse_bloc_server() {
     std::cout << "in parse server" << std::endl;
-    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
-    map_token_list_action.insert(std::make_pair(std::string("server"), &add_vector_bloc_server));
-    peg.parse(map_token_list_action);
+    //todo find {
+    std::map<std::string, std::string (bloc_server::*)()>  map_token_list_action;
+    map_token_list_action["listen"] =  &bloc_server::add_multimap_listen;
+    map_token_list_action["server_name"] =  &bloc_server::add_multimap_listen;
+    map_token_list_action["root"] =  &bloc_server::set_root;
+    _peg_parser.parse(map_token_list_action);
 
     return std::string("");
 }
 
-//std::string add_vector_bloc_server(peg_parser & peg) {
-//    (void)peg;
-//    std::cout << "in parse bloc server" << std::endl;
-//
-//    return std::string("");
-//}
+std::string bloc_server::add_multimap_listen(){
+    std::cout << "add multimap listen" << std::endl;
+    std::pair<std::string, int> listen;
+    _multimap_listen.insert(listen);
+    return std::string("");
 
+}
+
+std::string bloc_server::add_vector_server_name(){
+    std::cout << "add vector server name" << std::endl;
+    std::string server_name;
+    _vector_server_name.push_back(server_name);
+    return std::string("");
+}
+
+std::string bloc_server::set_root(){
+    std::cout << "set root" << std::endl;
+    std::string root;
+    _root = root;
+    return std::string("");
+}
+
+std::string bloc_server::add_vector_bloc_location() {
+    std::cout << "add vector bloc location" << std::endl;
+    bloc_location bloc_location(_peg_parser);
+    _vector_bloc_location.push_back(bloc_location);
+    return std::string("");
+
+}
 
 /*
 *==========================================================================================================
@@ -48,25 +136,24 @@ std::string bloc_server::parse_bloc_server(peg_parser & peg) {
 */
 
 
-bloc_http::bloc_http() : _vector_bloc_server() {}
+bloc_http::bloc_http(peg_parser&  peg_parser) : _peg_parser(peg_parser), _vector_bloc_server() {}
 
 bloc_http::~bloc_http() {}
 
-std::string parse_bloc_http(peg_parser & peg) {
-    (void)peg;
+std::string bloc_http::parse_bloc_http() {
     std::cout << "in parse http" << std::endl;
-    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
-    map_token_list_action.insert(std::make_pair(std::string("server"), &add_vector_bloc_server));
-    peg.parse(map_token_list_action);
+    std::map<std::string, std::string (bloc_http::*)()>  map_token_list_action;
+    map_token_list_action["server"]= &bloc_http::add_vector_bloc_server;
+    _peg_parser.parse(map_token_list_action);
 
     return std::string("");
 }
 
-std::string add_vector_bloc_server(peg_parser & peg) {
-    (void)peg;
+std::string bloc_http::add_vector_bloc_server() {
     std::cout << "in parse bloc server" << std::endl;
-    this->
-    _veparse_bloc_server(peg);
+    bloc_server build_bloc_server(_peg_parser);
+    build_bloc_server.parse_bloc_server();
+    _vector_bloc_server.push_back(build_bloc_server);
     return std::string("");
 }
 
@@ -77,25 +164,21 @@ std::string add_vector_bloc_server(peg_parser & peg) {
 *==========================================================================================================
 */
 
-
-bloc_events::bloc_events() : _work_connection(){}
+bloc_events::bloc_events(peg_parser&  peg_parser) : _peg_parser(peg_parser), _work_connection(){}
 
 bloc_events::~bloc_events() {}
 
-std::string parse_bloc_events(peg_parser & peg) {
-    (void)peg;
-    std::cout << "in parse events" << std::endl;
-    std::map<std::string, string (*)(peg_parser &)>  map_token_list_action;
-    map_token_list_action.insert(std::make_pair(std::string("work_connection"), &set_work_connection));
-    peg.parse(map_token_list_action);
 
+std::string bloc_events::parse_bloc_events() {
+    std::cout << "in parse events" << std::endl;
+    std::map<std::string, std::string (bloc_events::*)()>  map_token_list_action;
+    map_token_list_action["work_connection"] = &bloc_events::set_work_connection;
+    _peg_parser.parse(map_token_list_action);
     return std::string("");
 }
 
-std::string set_work_connection(peg_parser & peg) {
-    (void)peg;
+std::string bloc_events::set_work_connection() {
     std::cout << "in parse work connection" << std::endl;
-
 
     return std::string("");
 }
@@ -109,167 +192,25 @@ std::string set_work_connection(peg_parser & peg) {
 
 
 config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file),
-                                    _bloc_events(), _bloc_http() {
-    std::map<std::string, string (*)(peg_parser&)>  map_token_list_action;
-    map_token_list_action.insert(std::make_pair(std::string("events"), &set_bloc_event));
-    map_token_list_action.insert(std::make_pair(std::string("http"), &set_bloc_http));
+                                    _bloc_events(_peg_parser), _bloc_http(_peg_parser) {
+    std::map<std::string, std::string (config_webserv::*)()>  map_token_list_action;
+    map_token_list_action["events"] = &config_webserv::parse_bloc_event;
+    map_token_list_action["http"] = &config_webserv::parse_bloc_http;
     _peg_parser.parse(map_token_list_action);
 }
 
 config_webserv::~config_webserv() {}
 
-std::string set_bloc_event(config_webserv& webserv, peg_parser & peg) {
-    (void)peg;
+std::string config_webserv::parse_bloc_event() {
     std::cout << "in parse events" << std::endl;
-    parse_bloc_events(peg);
-    (void)webserv._peg_parser;
+    _bloc_events.parse_bloc_events();
     return std::string("");
 }
 
-std::string set_bloc_http(config_webserv& webserv, peg_parser & peg) {
-    (void)peg;
+std::string config_webserv::parse_bloc_http() {
     std::cout << "in parse http" << std::endl;
-    (void)webserv;
-    parse_bloc_http(peg);
+    _bloc_http.parse_bloc_http();
     return std::string("");
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//
-///*
-//*====================================================================================
-//*|                                  private fonction utils                          |
-//*====================================================================================
-//*/
-//
-//
-//
-//
-///*
-//*==========================================================================================================
-//*|                                                  Config Webserv                                        |
-//*==========================================================================================================
-//*/
-//
-//
-//
-//
-//
-///*
-//*====================================================================================
-//*|                                  Member Fonction                                 |
-//*====================================================================================
-//*/
-//
-//config_webserv::config_webserv(std::string path_config_file) : _max_events(), _number_of_server(),
-//                                                                _vector_config_webservs() {
-//    std::ifstream file(path_config_file.c_str());
-//    //@todo add parser config to add config server to _vector_config_webserv
-//    //@todo if possible to set [0] server local ?
-//    //@todo if key server config_webserv(file, this);
-//}
-//
-//config_webserv::~config_webserv() {}
-//
-//config_webserv::config_webserv(const config_webserv &other) : _max_events(other._max_events), _number_of_server(other._number_of_server),
-//                                                              _vector_config_webservs(other._vector_config_webservs){}
-//
-//config_webserv &config_webserv::operator=(const config_webserv &rhs) {
-//    _max_events = rhs._max_events;
-//    _number_of_server = rhs._number_of_server;
-//    _vector_config_webservs = rhs._vector_config_webservs;
-//    return *this;
-//}
-//
-///*
-//*====================================================================================
-//*|                                  Member Exception                                 |
-//*====================================================================================
-//*/
-//
-//config_webserv::config_exception::config_exception(config_webserv &config, const char *message) :
-//                                        std::exception(), _message(message), _config(config) {}
-//
-//config_webserv::config_exception::config_exception(const config_webserv::config_exception &other) :
-//                                std::exception(), _message(other._message), _config(other._config){}
-//
-//config_webserv::config_exception &
-//config_webserv::config_exception::operator=(const config_webserv::config_exception &rhs) {
-//    this->_message = rhs._message;
-//    this->_config = rhs._config;
-//    return *this;
-//}
-//
-//config_webserv::config_exception::~config_exception() throw() {}
-//
-//const char *config_webserv::config_exception::what() const throw() { return _message.c_str(); }
-//
-///*
-//*====================================================================================
-//*|                                  Element access                                 |
-//*====================================================================================
-//*/
-//
-//int config_webserv::get_max_events() const {
-//    return _max_events;
-//}
-//
-//int config_webserv::get_number_of_server() const {
-//    return _number_of_server;
-//}
-//
-//std::vector<config_webserv> config_webserv::get_vector_config_webservs() const {
-//    return _vector_config_webservs;
-//}
-//
-///*
-//*====================================================================================
-//*|                                  private fonction utils                          |
-//*====================================================================================
-//*/
-//
-//
-//
-//
-//
-//
