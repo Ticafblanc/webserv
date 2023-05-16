@@ -1,4 +1,4 @@
-#include <Include/peg_parser.class.hpp>
+#include "../Include/peg_parser.class.hpp"
 
 /*
 *====================================================================================
@@ -12,9 +12,10 @@ peg_parser::peg_parser(const char * path_file) {
     std::ifstream       file_to_parse(path_file);
 
     if (!file_to_parse.is_open())
-        throw peg_parser::syntax_exception(strerror(errno), __LINE__ );
+        throw syntax_exception(strerror(errno));
     std::copy(std::istreambuf_iterator<char>(file_to_parse),
               std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
+    std::cout << _string_stream.str() << std::endl;
     file_to_parse.close();
 }
 
@@ -37,12 +38,38 @@ peg_parser &peg_parser::operator=(const peg_parser & rhs) {
 *|                                      Methode                                     |
 *====================================================================================
 */
+
 template<class T>
-bool peg_parser::parse(std::map<std::string, std::string (T::*)()> & map_token_list_action) {
-    (void)map_token_list_action;
+void peg_parser::find_token(std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
+    std::string token = extract_data(control_operator);
 
+    typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
+    if (it == map_token_list_action.end()) {
+        std::string error("error token in ");
+        error += token;
+        throw syntax_exception(error.c_str());
+    }
+    std::string result = (static_cast<T *>(this)->*(it->second))();
 
-    return false;
+    std::cout << "Token: " << token << ", Action: " << result << std::endl;
+}
+
+std::string peg_parser::extract_data(char control_operator) {
+    std::string data;
+
+    if (control_operator == 0)
+        _string_stream >> data >> std::ws;
+    else
+        std::getline(_string_stream >> std::ws, data, control_operator);
+
+    std::cout << "Data: " << data << std::endl;
+
+    if (_string_stream.eof()) {
+        std::string error("find end of file in ");
+        error += data;
+        throw syntax_exception(error.c_str());
+    }
+    return data;
 }
 
 /*
@@ -51,13 +78,11 @@ bool peg_parser::parse(std::map<std::string, std::string (T::*)()> & map_token_l
 *====================================================================================
 */
 
-peg_parser::syntax_exception::syntax_exception(const char * message, int line) :
-                _message(message){
-    std::ostringstream oss;
-    oss << line;
-    _message += " line error => ";
-    _message += oss.str();
-}
+
+
+
+peg_parser::syntax_exception::syntax_exception(const char * message) :
+                _message(message){}
 
 peg_parser::syntax_exception::syntax_exception(const peg_parser::syntax_exception & other) :
                 _message(other._message) {}
@@ -142,7 +167,7 @@ void peg_parser::set_flag_token(char token){
 //   _flag_token = identify_token(token);
 }
 
-void peg_parser::find_token(std::string & word){
+void peg_parser::find_toke(std::string & word){
     (void)word;//    set_flag_token(_token_list[white_space]);
 //    for (std::size_t word_size = 0; word_size < word.length() ; ++word_size) {
 //        for (std::size_t token_list_size = 0; token_list_size < _token_list.length() ; ++token_list_size) {
@@ -171,7 +196,7 @@ bool peg_parser::find_next_word(std::string & word){
 //    string_stream >> word >> std::ws;
 //    size_t number_of_whit_space = string_stream.str().size();
 //    (void)number_of_whit_space;
-    find_token(word);
+    find_toke(word);
     if(is_token(word) || word.empty())
         return false;
     return true;
@@ -209,3 +234,4 @@ void peg_parser::log_error(std::string & key, std::vector<std::string> & info){
         std::cout << *it << " ";
     std::cout<<std::endl;
 }
+

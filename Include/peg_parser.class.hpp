@@ -1,7 +1,7 @@
 #ifndef WEBSERV_PEG_PARSER_HPP
 #define WEBSERV_PEG_PARSER_HPP
 
-#include <Include/header.hpp>
+#include "../Include/header.hpp"
 
 class peg_parser {
 
@@ -91,14 +91,28 @@ public:
 /**
  * Public methode of peg_parser.class
  *
- *  bool parse( std::map<std::string , std::string (*)(std::stringstream &)>& map_token_list_action);
+ *   template<class T>
+    void find_token( std::map<std::string , std::string (T::*)()>&, char control_operator);
  *
- * @returns     bool if it's empty
- * @param       map_token_list_action is a std::map key = token (string), data = action to do (std::string (*)(std::stringstream&))
+ * @returns     void
+ * @param       map_token_list_action is a std::map key = token (string),
+ *              data = action to do (std::string (*)(std::stringstream&))
+ * @param       control_operator delimit the end of data to extract 0 = white space
  * @throw       syntaxe_exception
  */
     template<class T>
-    bool parse( std::map<std::string , std::string (T::*)()>&);
+    void find_token( std::map<std::string , std::string (T::*)()>&, char);
+
+    /**
+ * Public methode of peg_parser.class
+ *
+ *   void parse(char control_operator);
+ *
+ * @returns     std::string data extracted befor the control operator
+ * @param       control_operator delimit the end of data to extract 0 = white space
+ * @throw       syntaxe_exception
+ */
+    std::string extract_data(char control_operator);
 
 
 /*
@@ -121,14 +135,12 @@ public:
         /**
          * Constructor of syntax_exception class
          *
-         * syntax_exception(peg_parser & config, const char* message, int line);
+         * syntax_exception(peg_parser & config, const char* message);
          *
-         * @param   peg_parser is a parse_syntax_file reference to set the private _config
-         *          to manage the close of parse_syntax_file class
-         *          message to store const char*
+         * @param   message to store const char*
          * @throw   none
          **/
-        syntax_exception(const char *, int);
+        syntax_exception(const char *);
 
         /**
          * Copy constructor of syntax_exception class
@@ -184,6 +196,8 @@ private:
 *|                                      Methode                                     |
 *====================================================================================
 */
+
+
 
 /**
  * Public methode of peg_parser.class
@@ -282,7 +296,7 @@ private:
  * @param       word is string to find token
  * @throw       none
  */
-    void find_token(std::string&);
+    void find_toke(std::string&);
 
 /**
  * Public methode of peg_parser.class
@@ -324,3 +338,5 @@ private:
 */
     std::stringstream   _string_stream;
 };
+
+#endif

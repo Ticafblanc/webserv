@@ -13,8 +13,8 @@
 #ifndef WEBSERV_CONFIG_WEBSERV_HPP
 #define WEBSERV_CONFIG_WEBSERV_HPP
 
-#include <Include/header.hpp>
-#include <Include/peg_parser.class.hpp>
+#include "../Include/header.hpp"
+#include "../Include/peg_parser.class.hpp"
 
 /*
 *==========================================================================================================

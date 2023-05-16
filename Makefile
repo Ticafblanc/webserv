@@ -95,8 +95,11 @@ $(BIN): title directory $(OBJ)
 run: all
 		@./$(BIN)
 
-HTTP = http://127.0.0.1:8081/
-curl: curl --http1.1 -v $(HTTP)
+test_filer: all
+		@./$(BIN) -t
+
+#HTTP = http://127.0.0.1:8081/
+#curl: curl --http1.1 -v $(HTTP)
 
 
 title: 
