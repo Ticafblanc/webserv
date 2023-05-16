@@ -8,16 +8,16 @@
 
 peg_parser::peg_parser() {}
 
-peg_parser::peg_parser(const char * path_file) {
-    std::ifstream       file_to_parse(path_file);
-
-    if (!file_to_parse.is_open())
-        throw syntax_exception(strerror(errno));
-    std::copy(std::istreambuf_iterator<char>(file_to_parse),
-              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
-    std::cout << _string_stream.str() << std::endl;
-    file_to_parse.close();
-}
+//peg_parser::peg_parser(const char * path_file) {
+//    std::ifstream       file_to_parse(path_file);
+//
+//    if (!file_to_parse.is_open())
+//        throw syntax_exception(strerror(errno));
+//    std::copy(std::istreambuf_iterator<char>(file_to_parse),
+//              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
+//    std::cout << _string_stream.str() << std::endl;
+//    file_to_parse.close();
+//}
 
 peg_parser::peg_parser(std::string & string_to_parse) : _string_stream(string_to_parse){ }
 
@@ -38,21 +38,6 @@ peg_parser &peg_parser::operator=(const peg_parser & rhs) {
 *|                                      Methode                                     |
 *====================================================================================
 */
-
-template<class T>
-void peg_parser::find_token(std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
-    std::string token = extract_data(control_operator);
-
-    typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
-    if (it == map_token_list_action.end()) {
-        std::string error("error token in ");
-        error += token;
-        throw syntax_exception(error.c_str());
-    }
-    std::string result = (static_cast<T *>(this)->*(it->second))();
-
-    std::cout << "Token: " << token << ", Action: " << result << std::endl;
-}
 
 std::string peg_parser::extract_data(char control_operator) {
     std::string data;
@@ -77,9 +62,6 @@ std::string peg_parser::extract_data(char control_operator) {
 *|                                  Member Exception                                 |
 *====================================================================================
 */
-
-
-
 
 peg_parser::syntax_exception::syntax_exception(const char * message) :
                 _message(message){}
@@ -234,4 +216,5 @@ void peg_parser::log_error(std::string & key, std::vector<std::string> & info){
         std::cout << *it << " ";
     std::cout<<std::endl;
 }
+
 

@@ -89,7 +89,7 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@echo $(BLUE) $(notdir $@) is created !!
 
 $(BIN): title directory $(OBJ)
-		@$(CC) $(OBJ) -o $(BIN)
+		@$(CC) $(OBJ) $(INC_FLAGS) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all

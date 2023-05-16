@@ -20,7 +20,7 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <sys/epoll.h>
+//#include <sys/epoll.h>
 #include <csignal>
 #include <map>
 #include <sstream>

@@ -100,10 +100,25 @@ public:
  * @param       control_operator delimit the end of data to extract 0 = white space
  * @throw       syntaxe_exception
  */
-    template<class T>
-    void find_token( std::map<std::string , std::string (T::*)()>&, char);
 
-    /**
+    template<class T>
+    void find_token(T& base, std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
+        std::string token = extract_data(control_operator);
+        (void)base;
+        (void)control_operator;
+        (void)map_token_list_action;
+        typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
+        (void)it;
+        if (it == map_token_list_action.end()) {
+            std::string error("error token in ");
+            error += token;
+            throw syntax_exception(error.c_str());
+        }
+        std::string result = (base.*(it->second))();
+
+        std::cout << "Token: " << token << ", Action: " << result << std::endl;
+    }
+/**
  * Public methode of peg_parser.class
  *
  *   void parse(char control_operator);
