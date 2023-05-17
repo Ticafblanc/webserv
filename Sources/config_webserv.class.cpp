@@ -196,6 +196,7 @@ config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path
     std::map<std::string, std::string (config_webserv::*)()>  map_token_list_action;
     map_token_list_action["events"] = &config_webserv::parse_bloc_event;
     map_token_list_action["http"] = &config_webserv::parse_bloc_http;
+    map_token_list_action["worker_processes"] = &config_webserv::parse_bloc_http;
     _peg_parser.find_token(*this, map_token_list_action, 0);
 }
 
@@ -209,6 +210,14 @@ std::string config_webserv::parse_bloc_event() {
 std::string config_webserv::parse_bloc_http() {
 //    _bloc_http.parse_bloc_http();
     return std::string("in parse http fonction ");
+}
+
+std::string config_webserv::set_worker_processes() {
+    std::string value = _peg_parser.extract_data(';');
+    std::cout << value << std::endl;
+    int val = std::atoi(value.c_str());
+    std::cout << val << std::endl;
+    return std::string();
 }
 
 

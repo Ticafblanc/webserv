@@ -231,7 +231,7 @@ private:
  * @param       buffer_line is a string to remove comment
  * @throw       syntaxe_exception
  */
-    void delete_comments(std::string&);
+    bool delete_comments();
 
 /**
  * Public methode of peg_parser.class

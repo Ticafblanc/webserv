@@ -475,6 +475,7 @@ struct config_webserv {
  * @param       void
  */
     std::string parse_bloc_http();
+    std::string set_worker_processes();
 
 /*
 *====================================================================================
@@ -482,6 +483,7 @@ struct config_webserv {
 *====================================================================================
 */
     peg_parser          _peg_parser;
+    int                 _work_process;
     bloc_events         _bloc_events;//required
     bloc_http           _bloc_http;//if not set as default
 };

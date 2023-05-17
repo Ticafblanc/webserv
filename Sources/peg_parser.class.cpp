@@ -42,6 +42,9 @@ peg_parser &peg_parser::operator=(const peg_parser & rhs) {
 std::string peg_parser::extract_data(char control_operator) {
     std::string data;
 
+    if (!delete_comments())
+        return data;
+
     if (control_operator == 0)
         _string_stream >> data >> std::ws;
     else
@@ -85,10 +88,20 @@ const char *peg_parser::syntax_exception::what() const throw() { return _message
 *====================================================================================
 */
 
-void peg_parser::delete_comments(std::string & buffer_line){
-    if (buffer_line.find('#') != std::string::npos)
-        buffer_line = buffer_line.substr(0, buffer_line.find('#'));
+bool peg_parser::delete_comments() {
+    std::string line = "#";
+    std::streampos init;
+    while (line[0] == '#' && !_string_stream.eof()) {
+        init = _string_stream.tellg();
+        std::getline(_string_stream >> std::ws, line, '\n');
+    }
+    if (line[0] != '#' && !_string_stream.eof()) {
+        _string_stream.seekg(init);
+        return true;
+    }
+    return false;
 }
+
 
 
 
