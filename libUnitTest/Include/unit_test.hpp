@@ -6,7 +6,7 @@
 /*   By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/02 16:23:33 by jrossign          #+#    #+#             */
-/*   Updated: 2023/05/08 14:55:16 by jrossign         ###   ########.fr       */
+/*   Updated: 2023/05/17 15:06:05 by jrossign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 
 #define TEST_NEQ(x, y)								\
 	if (x == y)										\
-		return (TEST_FAIL)							\
+		return (TEST_FAIL); 						\
 
 #define EXPECT_THROW(statment, expected_exception)	\
 	try {											\
