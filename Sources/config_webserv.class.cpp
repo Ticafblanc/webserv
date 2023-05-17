@@ -38,7 +38,7 @@ bloc_location &bloc_location::operator=(const bloc_location & rhs) {
 
 std::string bloc_location::parse_bloc_location() {
     while (!_peg_parser.check_is_end_of_bloc('}'))
-        std::cout << _peg_parser.extract_data(';')<< std::endl;
+        _peg_parser.extract_data(';');
 //        _peg_parser.find_token(*this, _map_token_list_action, 0);
 //    set_default_value();
     return std::string("");
@@ -122,9 +122,9 @@ std::string bloc_server::add_vector_server_name(){
 }
 
 std::string bloc_server::set_root(){
-    std::cout << "set root" << std::endl;
-    std::string root;
-    _root = root;
+    _map_token_list_action.erase("root");
+    _root = _peg_parser.extract_data(';');
+    //@todo manage error
     return std::string("");
 }
 
@@ -161,8 +161,9 @@ bloc_http::bloc_http(peg_parser&  peg_parser) : _peg_parser(peg_parser), _map_to
 bloc_http::~bloc_http() {}
 
 std::string bloc_http::parse_bloc_http() {
-    while (!_peg_parser.check_is_end_of_bloc('}'))
+    while (!_peg_parser.check_is_end_of_bloc('}')) {
         _peg_parser.find_token(*this, _map_token_list_action, 0);
+    }
     set_default_value();
     return std::string("");
 }

@@ -133,11 +133,12 @@ public:
         std::string token = extract_data(control_operator);
 
         typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
-        if (it == map_token_list_action.end()) {
+        if (it == map_token_list_action.end() && !check_is_empty()) {
             syntax_exception exception(token.c_str());
             exception.set_error_message("error token in ");
             throw exception;
         }
+
         std::string result = (base.*(it->second))();
 
         if (!result.empty()) {
@@ -146,6 +147,7 @@ public:
             throw exception;
         }
     }
+
 /**
  * Public methode of peg_parser.class
  *
