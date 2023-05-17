@@ -18,23 +18,53 @@ public:
 /**
  * Constructor of peg_parser.class
  *
- * peg_parser(std::string & path_config_file);
+ * peg_parser();
  *
- * @param   string_stream& is a buffer to parse
+ * @param   void
  * @throw   none
  **/
     peg_parser();
 
-/*
+/**
+ * Constructor of peg_parser.class
+ *
+ * peg_parser(std::string line_comment_character);
+ *
+ * @param   line_comment_character is a line character indicates the line not to be processed
+ * @throw   none
+ **/
+    peg_parser(const std::string);
+
+/**
  * Constructor of peg_parser.class
  *
  * peg_parser(const char *path_file);
  *
- * @param   string_stream& is a buffer to parse
- * @throw   none
+ * @param   path_file is a path of file to parse
+ * @throw   syntax_exception if can't open th file
  **/
     peg_parser(const char *);
 
+/**
+ * Constructor of peg_parser.class
+ *
+ * peg_parser(const char *path_file, std::string line_comment_character);
+ *
+ * @param   path_file is a path of file to parse
+ * @param   line_comment_character is a line character indicates the line not to be processed
+ * @throw   syntax_exception if can't open th file
+ **/
+    peg_parser(const char *, std::string);
+
+/**
+ * Constructor of peg_parser.class
+ *
+ * peg_parser(std::string & string_to_parse);
+ *
+ * @param   string_to_parse
+ * @throw   none
+ **/
+    peg_parser(const std::string &);
 
 /**
  * Constructor of peg_parser.class
@@ -42,16 +72,15 @@ public:
  * peg_parser(std::string & string_to_parse);
  *
  * @param   string_stream& is a buffer to parse
+ * @param   line_comment_character is a line character indicates the line not to be processed
  * @throw   none
  **/
-    peg_parser(std::string &);
-
-    //@todo add constructor with stringstream arg
+    peg_parser(const std::string &, const std::string);
 
 /**
 * Destructor of peg_parser.class
 *
-* peg_parser.class.class();
+* ~peg_parser();
 *
 * @throw   none
 **/
@@ -60,26 +89,24 @@ public:
 /**
  * Constructor of peg_parser.class
  *
- * warning loss the position after copy
+ *  peg_parser(peg_parser & other);
  *
- * peg_parser(const peg_parser & other);
- *
- * @param   string_stream& is a buffer to parse
+ * @param   other is peg_parser to copy
  * @throw   none
  **/
-    peg_parser(const peg_parser &);
+    peg_parser(peg_parser &);
 
 /**
  * Constructor of peg_parser.class
  *
  * warning loss the position after copy
  *
- * peg_parser(const peg_parser & rhs);
+ * peg_parser& operator=(peg_parser & rhs);
  *
- * @param   string_stream& is a buffer to parse
+ * @param   rhs is peg_parser at right position of = operator to copy
  * @throw   none
  **/
-    peg_parser& operator=(const peg_parser&);
+    peg_parser& operator=(peg_parser&);
 
 
 /*
@@ -349,6 +376,7 @@ private:
 *====================================================================================
 */
     std::stringstream   _string_stream;
+    std::string         _line_comment_character;
 };
 
 #endif

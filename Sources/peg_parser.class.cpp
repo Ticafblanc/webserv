@@ -6,9 +6,12 @@
 *====================================================================================
 */
 
-peg_parser::peg_parser() {}
+peg_parser::peg_parser() : _string_stream(), _line_comment_character(){}
 
-peg_parser::peg_parser(const char * path_file) {
+peg_parser::peg_parser(const std::string line_comment_character)
+    : _string_stream(), _line_comment_character(line_comment_character){}
+
+peg_parser::peg_parser(const char * path_file) : _string_stream(), _line_comment_character() {
     std::ifstream       file_to_parse(path_file);
 
     if (!file_to_parse.is_open())
@@ -19,16 +22,36 @@ peg_parser::peg_parser(const char * path_file) {
     file_to_parse.close();
 }
 
-peg_parser::peg_parser(std::string & string_to_parse) : _string_stream(string_to_parse){ }
+peg_parser::peg_parser(const char *path_file , const std::string line_comment_character)
+    : _string_stream(), _line_comment_character(line_comment_character) {
+    std::ifstream       file_to_parse(path_file);
+
+    if (!file_to_parse.is_open())
+        throw syntax_exception(strerror(errno));
+    std::copy(std::istreambuf_iterator<char>(file_to_parse),
+              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
+    std::cout << _string_stream.str() << std::endl;
+    file_to_parse.close();
+}
+
+peg_parser::peg_parser(const std::string & string_to_parse)
+    : _string_stream(string_to_parse), _line_comment_character(){}
+
+peg_parser::peg_parser(const string & string_to_parse, const std::string line_comment_character)
+    : _string_stream(string_to_parse), _line_comment_character(line_comment_character){
+
+}
 
 peg_parser::~peg_parser() { }
 
-peg_parser::peg_parser(const peg_parser & other) : _string_stream(){
+peg_parser::peg_parser(peg_parser & other) : _string_stream(){
     *this = other;
 }
 
-peg_parser &peg_parser::operator=(const peg_parser & rhs) {
+peg_parser &peg_parser::operator=(peg_parser & rhs) {
     this->_string_stream.str() = rhs._string_stream.str();
+    this->_string_stream.seekg(rhs._string_stream.tellg());
+    this->_line_comment_character = rhs._line_comment_character;
     return *this;
 }
 
@@ -245,5 +268,7 @@ void peg_parser::log_error(std::string & key, std::vector<std::string> & info){
         std::cout << *it << " ";
     std::cout<<std::endl;
 }
+
+
 
 
