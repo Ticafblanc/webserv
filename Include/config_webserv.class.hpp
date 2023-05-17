@@ -116,9 +116,10 @@ struct bloc_location {
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                         _peg_parser;
-    std::string                         _root;//path of this location
-    std::vector<std::string>            _index;// set name of specific index file
+    peg_parser&                                             _peg_parser;
+    std::map<std::string, std::string (bloc_location::*)()>   _map_token_list_action;
+    std::string                                             _root;//path of this location
+    std::vector<std::string>                                _index;// set name of specific index file
 };
 
 

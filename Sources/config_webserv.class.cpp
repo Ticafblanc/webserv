@@ -21,7 +21,9 @@
 
 
 bloc_location::bloc_location(peg_parser&  peg_parser)
-        : _peg_parser(peg_parser), _root(), _index() {}
+        : _peg_parser(peg_parser), _map_token_list_action(), _root(), _index() {
+    _map_token_list_action["root"] =  &bloc_location::set_root;
+}
 
 bloc_location::~bloc_location() {}
 
@@ -38,16 +40,15 @@ bloc_location &bloc_location::operator=(const bloc_location & rhs) {
 
 std::string bloc_location::parse_bloc_location() {
     while (!_peg_parser.check_is_end_of_bloc('}'))
-        _peg_parser.extract_data(';');
-//        _peg_parser.find_token(*this, _map_token_list_action, 0);
+        _peg_parser.find_token(*this, _map_token_list_action, 0);
 //    set_default_value();
     return std::string("");
 }
 
 std::string bloc_location::set_root(){
-    std::cout << "set root" << std::endl;
-    std::string root;
-    _root = root;
+    _map_token_list_action.erase("root");
+    _root = _peg_parser.extract_data(';');
+    //@todo manage error
     return std::string("");
 
 }
@@ -211,7 +212,7 @@ std::string bloc_events::set_worker_connections() {
     _map_token_list_action.erase("worker_connections");
     std::string value = _peg_parser.extract_data(';');
     int val = std::atoi(value.c_str());
-    if (val < 10 || val > 1024)
+    if (val < 10 || val > 20)
         return value;
     _worker_connections = val;
     value.clear();
