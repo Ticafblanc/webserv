@@ -134,13 +134,17 @@ public:
 
         typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
         if (it == map_token_list_action.end()) {
-            std::string error("error token in ");
-            error += token;
-            throw syntax_exception(error.c_str());
+            syntax_exception exception(token.c_str());
+            exception.set_error_message("error token in ");
+            throw exception;
         }
         std::string result = (base.*(it->second))();
 
-        std::cout << "Token: " << token << ", Action: " << result << std::endl;
+        if (!result.empty()) {
+            syntax_exception exception(result.c_str());
+            exception.set_error_message("value invalid in ");
+            throw exception;
+        }
     }
 /**
  * Public methode of peg_parser.class
@@ -153,6 +157,27 @@ public:
  */
     std::string extract_data(char control_operator);
 
+/**
+ * Public methode of peg_parser.class
+ *
+ *  bool check_is_empty();
+ *
+ * @returns     bool true if it's empty
+ * @param       void
+ * @throw       syntaxe_exception
+ */
+    bool check_is_empty();
+
+/**
+ * Public methode of peg_parser.class
+ *
+ *  bool check_is_end_of_bloc(char end_of_bloc_character);
+ *
+ * @returns     bool true if find end_of_bloc_character
+ * @param       end_of_bloc_character define the end of bloc
+ * @throw       syntaxe_exception
+ */
+    bool check_is_end_of_bloc(char);
 
 /*
 *====================================================================================
@@ -222,6 +247,17 @@ public:
          **/
         virtual const char * what() const throw();
 
+        /**
+         * Public methode of syntax_exception
+         *
+         *  void set_error( std::string error_message)
+         *
+         * @returns void
+         * @param    error_message to set befor the initial message
+         * @throw   none
+         **/
+         void set_error_message(std::string);
+
     private:
         std::string         _message;
     };
@@ -236,29 +272,34 @@ private:
 *====================================================================================
 */
 
-
-
 /**
  * Public methode of peg_parser.class
  *
- *  bool check_isempty(std::string & buffer_line);
- *
- * @returns     bool if it's empty
- * @param       buffer_line is string to check if is empty
- * @throw       syntaxe_exception
- */
-    bool check_is_empty(std::string&);
-
-/**
- * Public methode of peg_parser.class
- *
- * void delete_comments(std::string & buffer_line);
+ * bool delete_comments();
  *
  * @returns     void
  * @param       buffer_line is a string to remove comment
  * @throw       syntaxe_exception
  */
     bool delete_comments();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Public methode of peg_parser.class

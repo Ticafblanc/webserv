@@ -74,11 +74,15 @@ std::string peg_parser::extract_data(char control_operator) {
         std::getline(_string_stream >> std::ws, data, control_operator);
 
     std::cout << "Data: " << data << std::endl;
+//    std::string to_print = _string_stream.str();
+//    to_print = to_print.substr(_string_stream.tellg(), to_print.length() - _string_stream.tellg());
+//    std::cout << to_print << std::endl;
+
 
     if (_string_stream.eof()) {
-        std::string error("find end of file in ");
-        error += data;
-        throw syntax_exception(error.c_str());
+        syntax_exception exception(data.c_str());
+        exception.set_error_message("find end of file in ");
+        throw exception;
     }
     return data;
 }
@@ -105,26 +109,57 @@ peg_parser::syntax_exception::~syntax_exception() throw() { }
 
 const char *peg_parser::syntax_exception::what() const throw() { return _message.c_str(); }
 
+void peg_parser::syntax_exception::set_error_message( std::string error_message) {
+    _message = error_message + _message;
+}
+
 /*
 *====================================================================================
 *|                                  private fonction utils                          |
 *====================================================================================
 */
+bool peg_parser::check_is_empty() {
+    return _string_stream.eof();
+}
+
+bool peg_parser::check_is_end_of_bloc(char end_of_bloc_character) {
+    std::string check;
+    std::streampos init = _string_stream.tellg();
+    check = extract_data(end_of_bloc_character);
+
+    if (check.empty())
+        return true;
+
+    _string_stream.seekg(init);
+    return false;
+}
+
 
 bool peg_parser::delete_comments() {
     if (!_line_comment_character.empty()){
         std::string line = _line_comment_character;
         std::streampos init;
-        while (line.substr(0, _line_comment_character.length()) == line && !_string_stream.eof()) {
+        while (line.substr(0, _line_comment_character.length()) == _line_comment_character
+            && !_string_stream.eof()) {
             init = _string_stream.tellg();
             std::getline(_string_stream >> std::ws, line, '\n');
         }
-        if (line[0] != '#' && !_string_stream.eof()) {
+
+        if (line.substr(0, _line_comment_character.length()) != _line_comment_character
+            && _string_stream.eof()) {
+            syntax_exception exception(line.c_str());
+            exception.set_error_message("find end of file in ");
+            throw exception;
+        }
+
+        if (line.substr(0, _line_comment_character.length()) != _line_comment_character
+            && !_string_stream.eof()) {
             _string_stream.seekg(init);
             return true;
         }
         return false;
     }
+    return true;
 }
 
 
@@ -142,13 +177,13 @@ bool peg_parser::delete_comments() {
 
 
 
-bool peg_parser::check_is_empty(std::string & buffer_line){
-    _string_stream.str(buffer_line);
-    std::getline(_string_stream >> std::ws, buffer_line);
-    return buffer_line.empty();
-}
 
 
+//bool peg_parser::check_is_empt(std::string & buffer_line){
+//    _string_stream.str(buffer_line);
+//    std::getline(_string_stream >> std::ws, buffer_line);
+//    return buffer_line.empty();
+//}
 
 bool peg_parser::get_next_line(){
     std::string         buffer_line;
@@ -270,6 +305,10 @@ void peg_parser::log_error(std::string & key, std::vector<std::string> & info){
         std::cout << *it << " ";
     std::cout<<std::endl;
 }
+
+
+
+
 
 
 
