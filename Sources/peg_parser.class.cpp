@@ -112,17 +112,19 @@ const char *peg_parser::syntax_exception::what() const throw() { return _message
 */
 
 bool peg_parser::delete_comments() {
-    std::string line = "#";
-    std::streampos init;
-    while (line[0] == '#' && !_string_stream.eof()) {
-        init = _string_stream.tellg();
-        std::getline(_string_stream >> std::ws, line, '\n');
+    if (!_line_comment_character.empty()){
+        std::string line = _line_comment_character;
+        std::streampos init;
+        while (line.substr(0, _line_comment_character.length()) == line && !_string_stream.eof()) {
+            init = _string_stream.tellg();
+            std::getline(_string_stream >> std::ws, line, '\n');
+        }
+        if (line[0] != '#' && !_string_stream.eof()) {
+            _string_stream.seekg(init);
+            return true;
+        }
+        return false;
     }
-    if (line[0] != '#' && !_string_stream.eof()) {
-        _string_stream.seekg(init);
-        return true;
-    }
-    return false;
 }
 
 
