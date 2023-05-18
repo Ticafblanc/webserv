@@ -109,17 +109,37 @@ struct bloc_location {
  */
     std::string add_index();
 
+/**
+ * Public methode of config_webserv struct
+ *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token();
 
+/**
+ * Public methode of bloc_http class
+ *
+ * void set_default_value();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_default_value();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                                             _peg_parser;
-    std::map<std::string, std::string (bloc_location::*)()>   _map_token_list_action;
-    std::string                                             _root;//path of this location
-    std::vector<std::string>                                _index;// set name of specific index file
+    peg_parser&                                                 _peg_parser;
+    std::map<std::string, std::string (bloc_location::*)()>     _map_token_list_action;
+    std::string                                                 _root;//path of this location
+    std::vector<std::string>                                    _index;// set name of specific index file
 };
 
 
@@ -242,6 +262,28 @@ struct bloc_server {
     std::string add_map_bloc_location();
 
 /**
+ * Public methode of config_webserv struct
+ *
+ * sockaddr_in set_sockaddr_in(std::string ip_address, int port);
+ *
+ * @returns     void
+ * @param       ip_address is an valid ipv4 ip address
+ * @param       port is an int to define a valid port
+ * @throw       none
+ */
+    static sockaddr_in set_sockaddr_in(std::string, int);
+/**
+ * Public methode of config_webserv struct
+ *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token();
+
+/**
  * Public methode of bloc_http class
  *
  * void set_default_value();
@@ -259,7 +301,7 @@ struct bloc_server {
 */
     peg_parser&                                             _peg_parser;
     std::map<std::string, std::string (bloc_server::*)()>   _map_token_list_action;
-    std::multimap<std::string, int>                         _multimap_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<sockaddr_in>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                                _vector_server_name;// store all server name
     std::string                                             _root;//path of repo defaut of server
     std::map<std::string, bloc_location>                    _map_bloc_location;
@@ -332,9 +374,23 @@ struct bloc_http {
     std::string add_vector_bloc_server();
 
 /**
+ * Public methode of config_webserv struct
+ *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token();
+
+/**
  * Public methode of bloc_http class
  *
  * void set_default_value();
+ *
+ * std::string ip =  "127.0.0.1";
+ * int port = 8081;
  *
  * @returns     void
  * @param       void
@@ -422,6 +478,17 @@ struct bloc_events {
     std::string set_worker_connections() ;
 
 /**
+ * Public methode of config_webserv struct
+ *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token();
+
+/**
  * Public methode of bloc_events class
  *
  * void set_default_value();
@@ -431,6 +498,8 @@ struct bloc_events {
  * @throw       none
  */
     void set_default_value();
+
+
 
 /*
 *====================================================================================
@@ -463,10 +532,9 @@ struct config_webserv {
 /**
  * Constructor of config_webserv class
  *
- * config_webserv(std::string & path_config_file);
+ * config_webserv();
  *
- * @param   path_config_file is a std::string is a path to config file
- *          specified at start of webserv
+ * @param   void
  * @throw   none
  **/
     config_webserv();
@@ -530,6 +598,17 @@ struct config_webserv {
 /**
  * Public methode of config_webserv struct
  *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token();
+
+/**
+ * Public methode of config_webserv struct
+ *
  * void set_default_value();
  *
  * @returns     void
@@ -545,9 +624,20 @@ struct config_webserv {
 */
     peg_parser                                                  _peg_parser;
     std::map<std::string, std::string (config_webserv::*)()>    _map_token_list_action;
-    int                                                         _work_process;
+    int                                                         _worker_process;
     bloc_events                                                 _bloc_events;//required
     bloc_http                                                   _bloc_http;//if not set as default
 };
+
+
+//        data.setType(SOCK_STREAM);
+//        data.setProtocol(0);
+//        data.setBacklog(10);
+//        data.setAddress(AF_INET, 8081);
+//        data.setLevel(SOL_SOCKET);
+//        data.setOptionName(SO_REUSEADDR);
+//        data.setOptionVal(1);
+//        server serv(data);
+
 
 #endif //WEBSERV_CONFIG_WEBSERV_HPP
