@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
-set(WEBSERV Sources/main.cpp Sources/init.cpp Sources/server.class.cpp Sources/data_server.class.cpp Sources/Parser.class.cpp Sources/Route.class.cpp)
+set(WEBSERV Sources/main.cpp Sources/config_webserv.class.cpp Sources/peg_parser.class.cpp)
 set(UNIT_TEST_PEG_PARSER libUnitTest/Sources/unitTestPegParser.cpp)
 
 add_library(webservlib ${WEBSERV})
@@ -16,6 +16,6 @@ enable_testing()
 
 add_executable(webserv ${WEBSERV})
 add_executable(unitTestPegParser ${UNIT_TEST_PEG_PARSER})
-target_link_libraries(unitTestInit webservlib)
+target_link_libraries(unitTestPegParser webservlib)
 
 add_test(NAME pegParserTest COMMAND unitTestPegParser)
