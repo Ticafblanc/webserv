@@ -23,6 +23,7 @@
 bloc_location::bloc_location(peg_parser&  peg_parser)
         : _peg_parser(peg_parser), _map_token_list_action(), _root(), _index() {
     _map_token_list_action["root"] =  &bloc_location::set_root;
+    _map_token_list_action["index"] =  &bloc_location::add_index;
 }
 
 bloc_location::~bloc_location() {}
@@ -55,10 +56,10 @@ std::string bloc_location::set_root(){
 
 std::string bloc_location::add_index() {
     std::cout << "add index" << std::endl;
-    std::string index;
+    _map_token_list_action.erase("index");
+    std::string index = _peg_parser.extract_data(';');
     _index.push_back(index);
     return std::string("");
-
 }
 
 /*
