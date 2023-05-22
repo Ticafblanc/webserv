@@ -19,197 +19,46 @@
 
 class server{
 
-/*>********************************public section**********************************/
-
-public:
-
-/*
-*====================================================================================
-*|                                      Fonction                                    |
-*====================================================================================
-*/
-
-/**
- * Constructor of sever class
- *
- * sever(data_server *);
- *
- * @param   config_webserv instance to build the server
- * @throw   none
- **/
-    server(config_webserv &);
-
-/**
- * Destructor of sever class
- *
- * ~sever();
- *
- * @throw   none
- **/
-    ~server();
-
-/**
- * Copy constructor of sever class
- *
- * sever(server &);
- *
- * @param   server instance to build the server
- * @throw   none
- **/
-    server(const server &);
-
-/**
- * Operator overload= of sever class
- *
- * operator=(const server&);
- *
- * @param   server instance const to copy the server
- * @throw   none
- **/
-    server& operator=(const server &);
-
-
-/*
-*====================================================================================
-*|                                  Class Exception                                 |
-*====================================================================================
-*/
-
-
-/**
- * Class exception of sever class
- *
- * class server_exception;
- *
- * @inherit std::exception
- **/
-    class server_exception: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of server_exception class
-         *
-         * server_exception(server & server , const char * message);
-         *
-         * @param   server is a server reference to set the private _server
-         *          to manage the close of server class
-         *          message to store const char*
-         * @throw   none
-         **/
-        server_exception(server & server, const char * message);
-
-        /**
-         * Copy constructor of server_exception class
-         *
-         * server_exception(server_exception &);
-         *
-         * @param   server_exception instance to build the server_exception
-         *          server_socket in an int to close
-         * @throw   none
-         **/
-        server_exception(const server_exception &);
-
-        /**
-         * Operator overload= of server_exception class
-         *
-         * operator=(const server_exception&);
-         *
-         * @param   server_exception instance const to copy the server_exception
-         * @throw   none
-         **/
-        server_exception& operator=(const server_exception &);
-
-        /**
-        * Destructor of server_exception class
-        *
-        * virtual ~server_exception() throw();
-        *
-        * @throw   none
-        **/
-        virtual ~server_exception() throw();
-
-        /**
-         * Public methode of server_exception
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "socket error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string     _message;
-        server         &_server;
-    };
-
-/*
-*====================================================================================
-*|                                        Accessor                                  |
-*====================================================================================
-*/
-
-/**
- * Accessor of sever class
- *
- * data_server getDataServer() const;
- *
- * @returns data_server instance
- * @param void
- * @throw none
- **/
-    config_webserv get_config_webserv() const;
-
-/*
-*====================================================================================
-*|                                      Methode                                     |
-*====================================================================================
-*/
-
-
-/**
- * Public methode of sever class
- *
- * void launcher();
- *
- * @returns void
- * @param void
- * @throw none
- *
- * @see https://man7.org/linux/man-pages/man2/accept.2.html
- * @todo overload fonction to run launcher and launcher(flag);
- */
-    void launcher();
-
 /*>*******************************private section**********************************/
 
 private:
 
 /*
 *====================================================================================
-*|                                      signal                                      |
+*|                                       Member                                     |
 *====================================================================================
 */
 
-/**
- * Private methode of sever class
- *
- * void handle(int sig);
- *
- * @returns void
- * @param int signal catch by foction call
- * @throw none
- */
-    static void handle(int);
+
+    config_webserv              &_config;
+    static bool                 _stat_of_server;
+    int                         _epoll_instance;
+    int                         _number_triggered_events;
+    int                         _server_socket;
+    struct epoll_event          _server_event, *_server_events;
+    int                         _client_socket;
+    struct epoll_event          *_client_event;
+    struct sockaddr_storage     _client_address;
+    socklen_t                   _client_address_len;
 
 /*
 *====================================================================================
 *|                                       Methode                                    |
 *====================================================================================
 */
+
+/**
+ * Private methode of server class
+ *
+ * set epoll to follow one or multi ip and port
+ *
+ * void set_epoll();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ **/
+    void set_epoll();
 
 /**
  * Private methode of server class
@@ -226,17 +75,13 @@ private:
  *
  * nginx work only on tcp protocol !!
  *
- * void set_socket();
+ * void set_socket(int & server_socket);
  *
  * @returns file descriptor (int) server socket created
- * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to create
- *
- *          domaine is an int define the family of address AF_INET for IPv4 and AF_INET6 for IPv6
- *          define in config_webserv->config_server.class->config_adress->_sock_address.sin_family
+ * @param   server_socket is an int & who refer set new socket
  * @throws  server::server_exception
  **/
-    void set_socket();
+    void set_socket(int &);
 
 /**
  * Private methode of server class
@@ -263,12 +108,12 @@ private:
  *
  * @returns void
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to bind()
+ * @param   sock_address is an sockaddr_in contain data to set socket
  * @throws  server::server_exception
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
  * */
-    void set_bind(int & server_socket, struct sockaddr * sock_address);
+    void set_bind(int & server_socket, sockaddr_in sock_address);
 
 /**
  * Private methode of server class
@@ -435,22 +280,179 @@ private:
  */
 //    int socket_isopen();
 
+
+
+/*>********************************public section**********************************/
+
+public:
+
 /*
 *====================================================================================
-*|                                       Member                                     |
+*|                                      Fonction                                    |
+*====================================================================================
+*/
+
+/**
+ * Constructor of sever class
+ *
+ * sever(data_server *);
+ *
+ * @param   config_webserv instance to build the server
+ * @throw   none
+ **/
+    server(config_webserv &);
+
+/**
+ * Destructor of sever class
+ *
+ * ~sever();
+ *
+ * @throw   none
+ **/
+    ~server();
+
+/**
+ * Copy constructor of sever class
+ *
+ * sever(server &);
+ *
+ * @param   server instance to build the server
+ * @throw   none
+ **/
+    server(const server &);
+
+/**
+ * Operator overload= of sever class
+ *
+ * operator=(const server&);
+ *
+ * @param   server instance const to copy the server
+ * @throw   none
+ **/
+    server& operator=(const server &);
+
+
+/*
+*====================================================================================
+*|                                  Class Exception                                 |
 *====================================================================================
 */
 
 
-    config_webserv              &_config;
-    static bool                 _stat_of_server;
-    int                         _epoll_instance;
-    int                         _number_triggered_events;
-    struct epoll_event          *_events;
-    int                         _client_socket;
-    struct epoll_event          _client_event;
-    struct sockaddr_storage     _client_address;
-    socklen_t                   _client_address_len;
+/**
+ * Class exception of sever class
+ *
+ * class server_exception;
+ *
+ * @inherit std::exception
+ **/
+    class server_exception: public std::exception
+    {
+    public:
+
+        /**
+         * Constructor of server_exception class
+         *
+         * server_exception(server & server , const char * message);
+         *
+         * @param   server is a server reference to set the private _server
+         *          to manage the close of server class
+         *          message to store const char*
+         * @throw   none
+         **/
+        server_exception(server & server, const char * message);
+
+        /**
+         * Copy constructor of server_exception class
+         *
+         * server_exception(server_exception &);
+         *
+         * @param   server_exception instance to build the server_exception
+         *          server_socket in an int to close
+         * @throw   none
+         **/
+        server_exception(const server_exception &);
+
+        /**
+         * Operator overload= of server_exception class
+         *
+         * operator=(const server_exception&);
+         *
+         * @param   server_exception instance const to copy the server_exception
+         * @throw   none
+         **/
+        server_exception& operator=(const server_exception &);
+
+        /**
+        * Destructor of server_exception class
+        *
+        * virtual ~server_exception() throw();
+        *
+        * @throw   none
+        **/
+        virtual ~server_exception() throw();
+
+        /**
+         * Public methode of server_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @returns  const char * store in private std::string _message
+         *          at the construction defaut constructor "socket error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string     _message;
+        server         &_server;
+    };
+
+/*
+*====================================================================================
+*|                                        Accessor                                  |
+*====================================================================================
+*/
+
+/**
+ * Accessor of sever class
+ *
+ * data_server getDataServer() const;
+ *
+ * @returns data_server instance
+ * @param void
+ * @throw none
+ **/
+    config_webserv get_config_webserv() const;
+
+/*
+*====================================================================================
+*|                                      Methode                                     |
+*====================================================================================
+*/
+
+
+/**
+ * Public methode of sever class
+ *
+ * void launcher();
+ *
+ * @returns void
+ * @param void
+ * @throw none
+ *
+ * @see https://man7.org/linux/man-pages/man2/accept.2.html
+ * @todo overload fonction to run launcher and launcher(flag);
+ */
+    void launcher();
+
+
+
+
+
+
+
 };
 
 

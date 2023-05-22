@@ -16,6 +16,7 @@
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
 
+struct config_webserv;
 /*
 *==========================================================================================================
 *|                                                  bloc location                                         |
@@ -345,6 +346,26 @@ struct bloc_http {
 **/
     ~bloc_http();
 
+/**
+ * Copy constructor of bloc_http class
+ *
+ * bloc_http(const bloc_http &);
+ *
+ * @param   bloc_http instance to build the server
+ * @throw   none
+ **/
+    bloc_http(config_webserv &);
+
+/**
+ * Operator overload= of bloc_http class
+ *
+ * bloc_http(const bloc_http &);
+ *
+ * @param   bloc_http instance const to copy the server
+ * @throw   none
+ **/
+    bloc_http& operator=(bloc_http &);
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
@@ -405,7 +426,7 @@ struct bloc_http {
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                                             _peg_parser;
+    config_webserv&                                         _config;
     std::map<std::string, std::string (bloc_http::*)()>     _map_token_list_action;
     std::vector<bloc_server>                                _vector_bloc_server;//no default value
 };
@@ -438,7 +459,7 @@ struct bloc_events {
  * @param   peg_parser &
  * @throw   none
  **/
-    bloc_events(peg_parser&);
+    bloc_events(config_webserv&);
 
 /**
 * Destructor of bloc_events.class class
@@ -449,6 +470,26 @@ struct bloc_events {
 **/
     ~bloc_events();
 
+/**
+ * Copy constructor of bloc_events class
+ *
+ * bloc_events(const bloc_events &);
+ *
+ * @param   bloc_events instance to build the server
+ * @throw   none
+ **/
+    bloc_events(bloc_events &);
+
+/**
+ * Operator overload= of bloc_events class
+ *
+ * bloc_events(const bloc_events &);
+ *
+ * @param   bloc_events instance const to copy the server
+ * @throw   none
+ **/
+    bloc_events& operator=(bloc_events &);
+
 /*
 *====================================================================================
 *|                                  Element access                                 |
@@ -456,7 +497,7 @@ struct bloc_events {
 */
 
 /**
- * Public methode of bloc_events.class class
+ * Public methode of bloc_events class
  *
  * std::string set_work_connection() ;
  *
@@ -467,7 +508,7 @@ struct bloc_events {
     std::string parse_bloc_events() ;
 
 /**
- * Public methode of bloc_events.class class
+ * Public methode of bloc_events class
  *
  * std::string set_work_connection() ;
  *
@@ -478,7 +519,7 @@ struct bloc_events {
     std::string set_worker_connections() ;
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of bloc_events struct
  *
  * void set_map_token();
  *
@@ -506,7 +547,7 @@ struct bloc_events {
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                                             _peg_parser;
+    config_webserv&                                         _config;
     std::map<std::string, std::string (bloc_events::*)()>   _map_token_list_action;
     int                                                     _worker_connections;//if not define default 10 else accept >o and < 11
 };
@@ -558,6 +599,26 @@ struct config_webserv {
 * @throw   none
 **/
     ~config_webserv();
+
+/**
+ * Copy constructor of config_webserv class
+ *
+ * config_webserv(const config_webserv &);
+ *
+ * @param   config_webserv instance to build the server
+ * @throw   none
+ **/
+    config_webserv(config_webserv &);
+
+/**
+ * Operator overload= of config_webserv class
+ *
+ * config_webserv(const config_webserv &);
+ *
+ * @param   config_webserv instance const to copy the server
+ * @throw   none
+ **/
+    config_webserv& operator=(config_webserv &);
 
 /*
 *====================================================================================

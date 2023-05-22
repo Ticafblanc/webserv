@@ -18,8 +18,8 @@
 *====================================================================================
 */
 
-server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(),
-                                                _events(), _client_socket(), _client_event(), _client_address(),
+server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(), _server_socket(),
+                                        _events(), _client_socket(), _client_event(), _client_address(),
                                                 _client_address_len(sizeof(_client_address)) {
     _stat_of_server = false;
 }
@@ -27,7 +27,7 @@ server::server(config_webserv& config) : _config(config), _epoll_instance(), _nu
 server::~server() {}
 
 server::server(const server& other) :   _config(other._config), _epoll_instance(other._epoll_instance),
-                                        _number_triggered_events(other._number_triggered_events),
+                                        _number_triggered_events(other._number_triggered_events), _server_socket(other._server_socket),
                                         _events(other._events), _client_socket(other._client_socket),
                                         _client_event(other._client_event), _client_address(other._client_address),
                                         _client_address_len(other._client_address_len){}
@@ -36,6 +36,7 @@ server& server::operator=(const server& rhs){
     this->_config = rhs._config;
     this->_epoll_instance = rhs._epoll_instance;
     this->_number_triggered_events = rhs._number_triggered_events;
+    this->_server_socket = rhs._server_socket;
     this->_events = rhs._events;
     this->_client_socket = rhs._client_socket;
     this->_client_event = rhs._client_event;
@@ -73,7 +74,7 @@ server::server_exception &server::server_exception::operator=(const server_excep
 */
 
 config_webserv server::get_config_webserv() const {
-    return *_config;
+    return _config;
 }
 
 /*
@@ -99,24 +100,22 @@ void server::launcher() {
     signal(SIGKILL, handle);
     _stat_of_server = true;
     try {
-        set_socket(_config);//create a new socket new socket with the data sever specification
-        set_socket_option();//set option of sever socket
-        set_bind();
-        set_listen(_config.getBacklog());
-        accessor_socket_flag(_server_socket, F_SETFL, O_NONBLOCK);//init the socket non blocking force flag to respect subject
-        create_epoll();
-        set_epoll_socket(_server_socket, EPOLLIN);
-        set_epoll_ctl(EPOLL_CTL_ADD, _server_socket, &_event);
-        while(_stat_of_server) {
-            set_epoll_wait();
-            std::cout << "number of trigg = " << _number_triggered_events << std::endl;
-            for (int i = 0; i < _number_triggered_events; ++i) {
-                if (_events[i].data.fd == _server_socket)//@todo change to methode for iter in serversket
-                    accept_connection();
-                else
-                    manage_event(_events[i].data.fd);
-            }
-        }
+        set_epoll();
+
+//
+//        create_epoll();
+//        set_epoll_socket(_server_socket, EPOLLIN);
+//        set_epoll_ctl(EPOLL_CTL_ADD, _server_socket, &_event);
+//        while(_stat_of_server) {
+//            set_epoll_wait();
+//            std::cout << "number of trigg = " << _number_triggered_events << std::endl;
+//            for (int i = 0; i < _number_triggered_events; ++i) {
+//                if (_events[i].data.fd == _server_socket)//@todo change to methode for iter in serversket
+//                    accept_connection();
+//                else
+//                    manage_event(_events[i].data.fd);
+//            }
+//        }
     }
     catch (const std::exception& e){//if necessary to save the socket in process
         throw e;
@@ -128,9 +127,29 @@ void server::launcher() {
 *|                                 private utils function to launch                 |
 *====================================================================================
 */
+void server::set_epoll(){
+//@todo merge to config class ??
+    create_epoll();
+    for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
+    server != _config._bloc_http._vector_bloc_server.end(); ++server){
+        for (std::vector<sockaddr_in>::iterator listen = server->_vector_listen.begin();
+             listen != server->_vector_listen.end(); ++listen) {
+            set_socket(_server_socket);//create a new socket new socket with the data sever specification
+            set_socket_option(_server_socket);//set option of sever socket
+            set_bind(_server_socket, *listen);
+            set_listen(_client_socket, 10);//@todo update to worker_connection
+            accessor_socket_flag(_server_socket, F_SETFL, O_NONBLOCK);
+            set_epoll_event(_server_socket, _server_events, EPOLLIN);
 
-void server::set_socket(int & server_socket, int domain) {
-    server_socket = (socket(domain, SOCK_STREAM, IPPROTO_TCP));
+        }
+
+    }
+    create_epoll();
+}
+
+
+void server::set_socket(int & server_socket) {
+    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (server_socket == 0)
         throw server::server_exception(*this, strerror(errno));
 }
@@ -142,8 +161,8 @@ void server::set_socket_option(int & server_socket){
         throw server::server_exception(*this, strerror(errno));
 }
 
-void server::set_bind(int & server_socket, struct sockaddr * sock_address) {
-    if (bind(server_socket, sock_address, sizeof(&sock_address)) < 0)
+void server::set_bind(int & server_socket, sockaddr_in sock_address) {
+    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
         throw server::server_exception(*this, strerror(errno));
 }
 
