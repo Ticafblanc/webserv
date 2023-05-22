@@ -136,7 +136,6 @@ bool peg_parser::delete_comments() {
             && !_string_stream.eof()) {
             init = _string_stream.tellg();
             std::getline(_string_stream >> std::ws, line, '\n');
-            std::cout << line << std::endl;
         }
 
         if (line.substr(0, _line_comment_character.length()) != _line_comment_character
