@@ -7,3 +7,5 @@ a.out
 Bin
 .cache
 build
+cmake-build-debug-docker/
+cmake-build-debug/

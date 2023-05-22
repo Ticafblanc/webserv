@@ -54,8 +54,8 @@ std::string bloc_location::set_root(){
 }
 
 std::string bloc_location::add_index() {
-    std::cout << "add index" << std::endl;
-    std::string index;
+    _map_token_list_action.erase("index");
+    std::string index = _peg_parser.extract_data(';');
     _index.push_back(index);
     return std::string("");
 
