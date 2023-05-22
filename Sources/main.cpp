@@ -86,7 +86,7 @@ int main(int argc, char **argv, char **envp){
         config_webserv config_webserv;//@todo add path to constructo after the test
         while (number_try_lauch < 6) {
             try {
-                server server(config_webserv);
+//                server server(config_webserv);
             }
             catch (const std::exception &e) {
                 std::cout << e.what() << std::endl;

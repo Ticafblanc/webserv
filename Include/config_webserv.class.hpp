@@ -40,7 +40,7 @@ struct bloc_location {
  * @param   void
  * @throw   none
  **/
-    bloc_location(peg_parser&);
+    bloc_location(config_webserv&);
 
 /**
 * Destructor of bloc_location.class class
@@ -59,7 +59,7 @@ struct bloc_location {
  * @param   void
  * @throw   none
  **/
-    bloc_location(const bloc_location &);
+    bloc_location(const bloc_location&);
 
 /**
 * Destructor of bloc_server.class class
@@ -137,7 +137,7 @@ struct bloc_location {
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                                                 _peg_parser;
+    config_webserv&                                             _config;
     std::map<std::string, std::string (bloc_location::*)()>     _map_token_list_action;
     std::string                                                 _root;//path of this location
     std::vector<std::string>                                    _index;// set name of specific index file
@@ -169,7 +169,7 @@ struct bloc_server {
  * @param   peg_parser&
  * @throw   none
  **/
-    bloc_server(peg_parser&);
+    bloc_server(config_webserv&);
 
 /**
 * Destructor of bloc_server.class class
@@ -188,7 +188,7 @@ struct bloc_server {
  * @param   bloc_server &
  * @throw   none
  **/
-    bloc_server(const bloc_server &);
+    bloc_server(const bloc_server&);
 
 /**
 * Destructor of bloc_server.class class
@@ -300,7 +300,7 @@ struct bloc_server {
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser&                                             _peg_parser;
+    config_webserv&                                         _config;
     std::map<std::string, std::string (bloc_server::*)()>   _map_token_list_action;
     std::vector<sockaddr_in>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                                _vector_server_name;// store all server name
@@ -335,7 +335,7 @@ struct bloc_http {
  * @param   peg_parser
  * @throw   none
  **/
-    bloc_http(peg_parser&);
+    bloc_http(config_webserv&);
 
 /**
 * Destructor of bloc_http.class class
@@ -354,7 +354,7 @@ struct bloc_http {
  * @param   bloc_http instance to build the server
  * @throw   none
  **/
-    bloc_http(config_webserv &);
+    bloc_http(bloc_http&);
 
 /**
  * Operator overload= of bloc_http class
