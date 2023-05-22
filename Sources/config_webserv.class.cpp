@@ -41,7 +41,7 @@ bloc_location &bloc_location::operator=(const bloc_location & rhs) {
 std::string bloc_location::parse_bloc_location() {
     while (!_config._peg_parser.check_is_end_of_bloc('}'))
         _config._peg_parser.find_token(*this, _map_token_list_action, 0);
-//    set_default_value();
+    set_default_value();
     return std::string("");
 }
 
@@ -63,6 +63,7 @@ std::string bloc_location::add_index() {
 
 void bloc_location::set_map_token() {
     _map_token_list_action["root"] =  &bloc_location::set_root;
+    _map_token_list_action["index"] = &bloc_location::add_index;
 }
 
 void bloc_location::set_default_value() {
@@ -121,7 +122,6 @@ std::string bloc_server::add_multimap_listen(){
 }
 
 std::string bloc_server::add_vector_server_name(){
-    std::cout << "add vector server name" << std::endl;
     std::string server_name;
     _vector_server_name.push_back(server_name);
     return std::string("");
@@ -261,7 +261,7 @@ std::string bloc_events::set_worker_connections() {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (val < 10 || val > 20)
         return value;
-    _worker_connections = static_cast<int>(val);;
+    _worker_connections = static_cast<int>(val);
     value.clear();
     return value;
 }
@@ -328,6 +328,8 @@ std::string config_webserv::parse_bloc_http() {
     std::string value = _peg_parser.extract_data('{');
     if (value.empty())
         value = _bloc_http.parse_bloc_http();
+    std::cout << "_vector_bloc_server size:" << " " << _bloc_http._vector_bloc_server.size() << std::endl;
+    std::cout << "_vector_bloc_server 0:" << " " << htons(_bloc_http._vector_bloc_server.at(0)._vector_listen.at(0).sin_port) << std::endl;
     return value;
 }
 
