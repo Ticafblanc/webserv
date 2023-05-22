@@ -1,17 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   UTmain.cpp                                         :+:      :+:    :+:   */
+/*   unitTestInit.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*   By: jrossign <jrossign@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/03/02 18:57:53 by mdoquocb          #+#    #+#             */
-/*   Updated: 2023/03/02 18:57:57 by mdoquocb         ###   ########.fr       */
+/*   Created: 2023/03/02 18:57:53 by jrossign          #+#    #+#             */
+/*   Updated: 2023/05/09 11:43:35 by jrossign         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../Include/unit_test.hpp"
-#include <sys/socket.h>
 
 int unitTestInit()
 {
