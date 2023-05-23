@@ -127,6 +127,7 @@ std::string listen_data::parse_listen_data() {
 }
 
 void listen_data::set_sockaddr_in(){
+    memset(&_sockaddress, 0, sizeof(_sockaddress));
     _sockaddress.sin_family = AF_INET;
     _sockaddress.sin_addr.s_addr = inet_addr(_ip_address.c_str());
     _sockaddress.sin_port = htons(_port);
@@ -246,6 +247,7 @@ std::string bloc_server::add_map_bloc_location() {
 void bloc_server::set_default_value() {
     if (_vector_listen.empty())
         _vector_listen.push_back(listen_data(_config, "127.0.0.1:8080"));
+    (void)_config;
 //    if(_vector_server_name.empty() )
 //        _vector_server_name.push_back("default_server.com");
 //    if(_root.empty())

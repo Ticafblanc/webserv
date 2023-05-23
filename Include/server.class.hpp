@@ -31,10 +31,10 @@ private:
 
 
     config_webserv              &_config;
-    static bool                 _stat_of_server;
+    bool                 _stat_of_server;
     int                         _epoll_instance;
     int                         _number_triggered_events;
-    struct epoll_event          _server_event, *_server_events;
+    epoll_event          _webserv_event, *_server_events;
     int                         _client_socket;
     struct epoll_event          *_client_event;
     struct sockaddr_storage     _client_address;
@@ -214,10 +214,7 @@ private:
  * void set_epoll_ctl(int option, int & server_socket, struct epoll_event * event);
  *
  * @returns void
- * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
- *
- *          event is a struct epoll_event * who point to
+ * @param   event is a struct epoll_event * who point to
  *          config_webserv->config_server.class->config_address.class->_event to set
  *
  *          option is an int action to do:
@@ -226,7 +223,7 @@ private:
  *          EPOLL_CTL_DEL to delete a monitored descriptor.
  * @throws  server::server_exception
  * */
-    void set_epoll_ctl(int, int&, struct epoll_event *);
+    void set_epoll_ctl(int, int);
 
 /**
  * Private methode of server class
@@ -359,7 +356,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        server_exception(server & server, const char * message);
+        server_exception(const char * message);
 
         /**
          * Copy constructor of server_exception class
@@ -405,7 +402,6 @@ public:
 
     private:
         std::string     _message;
-        server         &_server;
     };
 
 /*

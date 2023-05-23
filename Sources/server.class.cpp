@@ -18,16 +18,16 @@
 *====================================================================================
 */
 
-server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(),
-                                        _client_socket(), _client_event(), _client_address(),
-                                                _client_address_len(sizeof(_client_address)) {
-    _stat_of_server = false;
+server::server(config_webserv& config) : _config(config), _stat_of_server(false), _epoll_instance(),
+                                        _number_triggered_events(), _webserv_event(), _server_events(), _client_socket(), _client_event(),
+                                        _client_address(), _client_address_len(sizeof(_client_address)) {
+    create_epoll();
 }
 
 server::~server() {}
 
-server::server(const server& other) :   _config(other._config), _epoll_instance(other._epoll_instance),
-                                        _number_triggered_events(other._number_triggered_events),
+server::server(const server& other) :   _config(other._config), _stat_of_server(other._stat_of_server), _epoll_instance(other._epoll_instance),
+                                        _number_triggered_events(other._number_triggered_events), _webserv_event(other._webserv_event), _server_events(other._server_events),
                                         _client_socket(other._client_socket),
                                         _client_event(other._client_event), _client_address(other._client_address),
                                         _client_address_len(other._client_address_len){}
@@ -49,19 +49,18 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
-server::server_exception::server_exception(server & server, const char * message) :
-                        std::exception(), _message(message), _server(server) {}
+server::server_exception::server_exception(const char * message) : _message(message) {
+    std::cerr << strerror(errno) << std::endl;
+}
 
 server::server_exception::~server_exception() throw() {}
 
 const char * server::server_exception::what() const throw() { return _message.c_str(); }
 
-server::server_exception::server_exception(const server_exception & other) :
-                        std::exception(), _message(other._message), _server(other._server) {}
+server::server_exception::server_exception(const server::server_exception & other) : _message(other._message) {}
 
-server::server_exception &server::server_exception::operator=(const server_exception &rhs) {
-    _message = rhs._message;
-    _server = rhs._server;
+server::server_exception &server::server_exception::operator=(const server::server_exception &rhs) {
+    this->_message = rhs._message;
     return *this;
 }
 
@@ -112,81 +111,89 @@ void server::launcher() {
 *====================================================================================
 */
 void server::set_epoll(){
-    create_epoll();
+
     for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
     server != _config._bloc_http._vector_bloc_server.end(); ++server){
         for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
              vec_listen != server->_vector_listen.end(); ++vec_listen) {
-            set_epoll_event(vec_listen->_server_socket, _server_event, EPOLLIN);
-            set_epoll_ctl(EPOLL_CTL_ADD, vec_listen->_server_socket, &_server_event);
+            set_epoll_event(vec_listen->_server_socket, _webserv_event, EPOLLIN);
+            set_epoll_ctl(EPOLL_CTL_ADD, vec_listen->_server_socket);
+            std::cout << vec_listen->_ip_address <<":"<< vec_listen->_port<<std::endl;
         }
     }
-    create_epoll();
 }
-
-void server::create_epoll() {
-    _epoll_instance = epoll_create(1);
-    if (_epoll_instance == -1)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_epoll_ctl(int option, int & server_socket, struct epoll_event * event) {
-    if(epoll_ctl( _epoll_instance, option, server_socket, event) == -1)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-
-void server::set_socket(int & server_socket) {
-    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (server_socket == 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_socket_option(int & server_socket){
-    int option_val = 1;
-    if (setsockopt(server_socket, IPPROTO_TCP, SO_REUSEADDR,
-                   &option_val, (socklen_t)sizeof(option_val)))
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_bind(int & server_socket, sockaddr_in sock_address) {
-    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_listen(int & server_socket, int backlog) {
-    if (listen(server_socket, backlog) < 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-int server::accessor_socket_flag(int & server_socket, int command, int flag){
-    int return_flag = fcntl(server_socket, command, flag);
-    if (return_flag < 0)
-        throw server::server_exception(*this, strerror(errno));
-    return return_flag;
-}
-
 
 void server::set_epoll_event(int & server_socket, struct epoll_event & event, int events){
     event.data.fd = server_socket;
     event.events = events;
 }
 
+void server::create_epoll() {
+
+    _epoll_instance = epoll_create(1);
+    if (_epoll_instance == -1)
+        throw server_exception(strerror(errno));
+}
+
+void server::set_epoll_ctl(int option, int server_socket) {
+//    (void)server_socket;
+//    int socket;
+//    set_socket(socket);
+    if(epoll_ctl( _epoll_instance, option, server_socket, &_webserv_event) == -1){
+        server_exception server_exception(strerror(errno));
+        throw server_exception;
+    }
+}
+
+
+void server::set_socket(int & server_socket) {
+    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (server_socket == 0)
+        throw server::server_exception(strerror(errno));
+}
+
+void server::set_socket_option(int & server_socket){
+    int option_val = 1;
+    if (setsockopt(server_socket, IPPROTO_TCP, SO_REUSEADDR,
+                   &option_val, (socklen_t)sizeof(option_val)))
+        throw server::server_exception(strerror(errno));
+}
+
+void server::set_bind(int & server_socket, sockaddr_in sock_address) {
+    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
+        throw server::server_exception(strerror(errno));
+}
+
+void server::set_listen(int & server_socket, int backlog) {
+    if (listen(server_socket, backlog) < 0)
+        throw server::server_exception(strerror(errno));
+}
+
+int server::accessor_socket_flag(int & server_socket, int command, int flag){
+    int return_flag = fcntl(server_socket, command, flag);
+    if (return_flag < 0)
+        throw server::server_exception(strerror(errno));
+    return return_flag;
+}
+
+
+
+
 
 
 void server::set_epoll_wait() {
-    _number_triggered_events = epoll_wait(_epoll_instance, _events, _config.max_events, -1);//@todo switch maxevent
+    _number_triggered_events = epoll_wait(_epoll_instance, _server_events, _config._worker_process, -1);//@todo switch maxevent
     if (_number_triggered_events == -1)
-        throw server::server_exception(*this, strerror(errno));
+        throw server::server_exception(strerror(errno));
 }
 
 void server::accept_connection(int & server_socket) {
     _client_socket = accept(server_socket, (struct sockaddr *)&_client_address, &_client_address_len);
     if (_client_socket == -1)
-        throw server::server_exception(*this, strerror(errno));
+        throw server::server_exception(strerror(errno));
     accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);
-    set_epoll_event(_client_socket, _client_event, EPOLLIN | EPOLLET);
-    set_epoll_ctl(EPOLL_CTL_ADD, _client_socket, &_client_event);
+    set_epoll_event(_client_socket, _webserv_event, EPOLLIN | EPOLLET);
+    set_epoll_ctl(EPOLL_CTL_ADD, _client_socket);
 
 }
 

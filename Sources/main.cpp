@@ -75,7 +75,7 @@ static int check_option(int argc, char **argv){
 int main(int argc, char **argv, char **envp){
     (void)envp;
     std::string  path_config_file;
-    int         number_try_lauch = 0;
+//    int         number_try_lauch = 0;
     int         position_path_file_config = check_option(argc, argv);
 
     if (position_path_file_config != -1) {
@@ -84,15 +84,16 @@ int main(int argc, char **argv, char **envp){
         signal(SIGHUP, handle_reload);
         path_config_file += select_path(argv, position_path_file_config);
         config_webserv config_webserv;//@todo add path to constructo after the test
-        while (number_try_lauch < 6) {
+//        while (number_try_lauch < 1) {
             try {
-//                server server(config_webserv);
+                server server(config_webserv);
+                server.launcher();
             }
             catch (const std::exception &e) {
                 std::cout << e.what() << std::endl;
             }
-            number_try_lauch++;
-        }
+//            number_try_lauch++;
+//        }
     }
     exit(EXIT_FAILURE);
 }
