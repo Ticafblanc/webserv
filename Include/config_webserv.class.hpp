@@ -143,6 +143,211 @@ struct bloc_location {
     std::vector<std::string>                                    _index;// set name of specific index file
 };
 
+/*
+*==========================================================================================================
+*|                                                  listen data                                           |
+*==========================================================================================================
+*/
+
+
+struct listen_data {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of config_server.class class
+ *
+ * listen_data(config_webserv& config, std::string& input);
+ *
+ * @param   input is a string reference extract befor;
+ * @param   config is config webserv reference
+ * @throw   none
+ **/
+    listen_data(config_webserv&, std::string&);
+/**
+ * Constructor of config_server.class class
+ *
+ * listen_data(config_webserv& config, std::string& default_input);
+ *
+ * @param   input is a default string ;
+ * @param   config is config webserv reference
+ * @throw   none
+ **/
+    listen_data(config_webserv&, std::string);
+
+/**
+* Destructor of listen_data.class class
+*
+* ~listen_data();
+*
+* @throw   none
+**/
+    ~listen_data();
+
+/**
+ * Constructor of config_server.class class
+ *
+ * listen_data(const listen_data & listen_data);
+ *
+ * @param   listen_data &
+ * @throw   none
+ **/
+    listen_data(const listen_data&);
+
+/**
+* Destructor of listen_data.class class
+*
+*  listen_data& operator=(const listen_data& listen_data);
+*
+* @param   listen_data&
+* @throw   none
+**/
+    listen_data& operator=(const listen_data&);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of listen_data.class class
+ *
+ * std::string parse_listen_data();
+ *
+ * @returns     std::vector<std::string>& contain all names of server
+ * @param       void
+ * @throw       none
+ */
+    std::string parse_listen_data();
+
+/**
+ * Public methode of config_webserv struct
+ *
+ * void set_sockaddr_in(std::string ip_address, int port);
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_sockaddr_in();
+
+/**
+ * Private methode of listen_data class
+ *
+ * create a new socket with fonction socket
+ *
+ * @see https://man7.org/linux/man-pages/man2/socket.2.html
+ *
+ * int socket(int domain, int protocol);
+ *
+ * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
+ * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
+ * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
+ *
+ * nginx work only on tcp protocol !!
+ *
+ * std::string set_socket();
+ *
+ * @returns std::string error or empty if its ok
+ * @param   void
+ * @throws  none
+ **/
+    std::string set_socket();
+
+/**
+ * Private methode of listen_data class
+ *
+ * set the option of server socket already created
+ *
+ * std::string set_socket_option();
+ *
+ * @returns std::string error or empty if its ok
+ * @param   void
+ * @throws  none
+ *
+ * @see https://linux.die.net/man/3/setsockopt
+ * */
+    std::string set_socket_option();
+
+/**
+ * Private methode of listen_data class
+ *
+ * associate an IP address and a port number with a socket already created
+ *
+ * std::string set_bind();
+ *
+ * @returns std::string error or empty if its ok
+ * @param   void
+ * @throws  none
+ *
+ * @see https://man7.org/linux/man-pages/man2/bind.2.html
+ * */
+    std::string set_bind();
+
+/**
+ * Private methode of listen data class
+ *
+ * set the listen option so the number of possible connexion
+ *
+ * std::string set_listen();
+ *
+ * @returns std::string error or empty if its ok
+ * @param   void
+ * @throws  none
+ *
+ * @see https://man7.org/linux/man-pages/man2/listen.2.html
+ * */
+    std::string set_listen();
+
+/**
+ * Private methode of listen class
+ *
+ * accessor of socket to get or set the flag option
+ * set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)
+ * don't show the actual flag in socket and force to change it to non blocking
+ *
+ * std::string accessor_server();
+ *
+ * @returns std::string error or empty if its ok
+ * @param  void
+ * @throws  none
+ * */
+    std::string set_socket_flag();
+
+/**
+ * Private methode of listen_data class
+ *
+ * set epoll_event instance with socket and type of event to follow
+ * before to add a epoll_event to epoll
+ *
+ * void set_epoll_event();
+ *
+ * @returns void
+ * @param   void
+ * @throws  none
+ * */
+    void set_epoll_event();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+
+    config_webserv&          _config;
+    std::stringstream       _input;
+    std::string             _ip_address;
+    int                     _port;
+    int                     _server_socket;
+    sockaddr_in             _sockaddress;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    struct epoll_event      _event;
+};
 
 
 /*
@@ -166,7 +371,7 @@ struct bloc_server {
  *
  * bloc_server(peg_parser& peg_parser);
  *
- * @param   peg_parser&
+ * @param   config_webserv&
  * @throw   none
  **/
     bloc_server(config_webserv&);
@@ -226,7 +431,7 @@ struct bloc_server {
  * @param       void
  * @throw       bloc_exception if name already exist
  */
-    std::string add_multimap_listen();
+    std::string add_vector_listen();
 
 /**
  * Public methode of bloc_server.class class
@@ -265,17 +470,6 @@ struct bloc_server {
 /**
  * Public methode of config_webserv struct
  *
- * sockaddr_in set_sockaddr_in(std::string ip_address, int port);
- *
- * @returns     void
- * @param       ip_address is an valid ipv4 ip address
- * @param       port is an int to define a valid port
- * @throw       none
- */
-    static sockaddr_in set_sockaddr_in(std::string, int);
-/**
- * Public methode of config_webserv struct
- *
  * void set_map_token();
  *
  * @returns     void
@@ -302,7 +496,7 @@ struct bloc_server {
 */
     config_webserv&                                         _config;
     std::map<std::string, std::string (bloc_server::*)()>   _map_token_list_action;
-    std::vector<sockaddr_in>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<listen_data>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                                _vector_server_name;// store all server name
     std::string                                             _root;//path of repo defaut of server
     std::map<std::string, bloc_location>                    _map_bloc_location;

@@ -81,7 +81,7 @@ private:
  * @param   server_socket is an int & who refer set new socket
  * @throws  server::server_exception
  **/
-    void set_socket(int &);
+//    void set_socket(int &);
 
 /**
  * Private methode of server class
@@ -97,7 +97,7 @@ private:
  *
  * @see https://linux.die.net/man/3/setsockopt
  * */
-    void set_socket_option(int & server_socket);
+//    void set_socket_option(int & server_socket);
 
 /**
  * Private methode of server class
@@ -113,7 +113,7 @@ private:
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
  * */
-    void set_bind(int & server_socket, sockaddr_in sock_address);
+//    void set_bind(int & server_socket, sockaddr_in sock_address);
 
 /**
  * Private methode of server class
@@ -132,7 +132,7 @@ private:
  *
  * @see https://man7.org/linux/man-pages/man2/listen.2.html
  * */
-    void set_listen(int&, int);
+//    void set_listen(int&, int);
 
 /**
  * Private methode of server class
@@ -163,7 +163,7 @@ private:
  *
  * @throws  server::server_exception
  * */
-    int accessor_socket_flag(int&, int, int);
+//    int accessor_socket_flag(int&, int, int);
 
 /**
  * Private methode of server class
@@ -205,7 +205,7 @@ private:
  *
  * @throws  none
  * */
-    void set_epoll_event(int&, struct epoll_event &, int);
+//    void set_epoll_event(int&, struct epoll_event &, int);
 
 /**
  * Private methode of server class

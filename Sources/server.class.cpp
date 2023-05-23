@@ -148,45 +148,45 @@ void server::set_epoll(){
 }
 
 
-void server::set_socket(int & server_socket) {
-    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (server_socket == 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_socket_option(int & server_socket){
-    int option_val = 1;
-    if (setsockopt(server_socket, IPPROTO_TCP, SO_REUSEADDR,
-                   &option_val, (socklen_t)sizeof(option_val)))
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_bind(int & server_socket, sockaddr_in sock_address) {
-    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-void server::set_listen(int & server_socket, int backlog) {
-    if (listen(server_socket, backlog) < 0)
-        throw server::server_exception(*this, strerror(errno));
-}
-
-int server::accessor_socket_flag(int & server_socket, int command, int flag){
-    int return_flag = fcntl(server_socket, command, flag);
-    if (return_flag < 0)
-        throw server::server_exception(*this, strerror(errno));
-    return return_flag;
-}
+//void server::set_socket(int & server_socket) {
+//    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+//    if (server_socket == 0)
+//        throw server::server_exception(*this, strerror(errno));
+//}
+//
+//void server::set_socket_option(int & server_socket){
+//    int option_val = 1;
+//    if (setsockopt(server_socket, IPPROTO_TCP, SO_REUSEADDR,
+//                   &option_val, (socklen_t)sizeof(option_val)))
+//        throw server::server_exception(*this, strerror(errno));
+//}
+//
+//void server::set_bind(int & server_socket, sockaddr_in sock_address) {
+//    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
+//        throw server::server_exception(*this, strerror(errno));
+//}
+//
+//void server::set_listen(int & server_socket, int backlog) {
+//    if (listen(server_socket, backlog) < 0)
+//        throw server::server_exception(*this, strerror(errno));
+//}
+//
+//int server::accessor_socket_flag(int & server_socket, int command, int flag){
+//    int return_flag = fcntl(server_socket, command, flag);
+//    if (return_flag < 0)
+//        throw server::server_exception(*this, strerror(errno));
+//    return return_flag;
+//}
 void server::create_epoll() {
     _epoll_instance = epoll_create(1);
     if (_epoll_instance == -1)
         throw server::server_exception(*this, strerror(errno));
 }
 
-void server::set_epoll_event(int & server_socket, struct epoll_event & event, int events){
-    event.data.fd = server_socket;
-    event.events = events;
-}
+//void server::set_epoll_event(int & server_socket, struct epoll_event & event, int events){
+//    event.data.fd = server_socket;
+//    event.events = events;
+//}
 
 void server::set_epoll_ctl(int option, int & server_socket, struct epoll_event * event) {
     if(epoll_ctl( _epoll_instance, option, server_socket, event) == -1)

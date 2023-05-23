@@ -72,6 +72,91 @@ void bloc_location::set_default_value() {
 
 /*
 *==========================================================================================================
+*|                                                listen data                                             |
+*==========================================================================================================
+*/
+
+
+listen_data::listen_data(config_webserv& config, std::string & input)
+    : _config(config), _input(input), _sockaddress(){}
+
+listen_data::listen_data(config_webserv& config, std::string  default_input)
+    : _config(config), _input(default_input), _sockaddress(){
+    parse_listen_data();
+    set_sockaddr_in();
+    set_socket();
+    set_socket_option();
+    set_bind();
+    set_listen();
+    set_socket_flag();
+    set_epoll_event();
+}
+
+listen_data::~listen_data() {}
+
+listen_data::listen_data(const listen_data& other){}
+
+listen_data &listen_data::operator=(const listen_data & rhs) {
+
+    return *this;
+}
+
+std::string listen_data::parse_listen_data() {
+    std::string port;
+    std::getline(_input >> std::ws, _ip_address, ':');
+    _input >> port >> std::ws;
+    _port = std::atoi(port.c_str());
+    //@todo check port and ip
+    return std::string("");
+}
+
+void listen_data::set_sockaddr_in(){
+    _sockaddress.sin_family = AF_INET;
+    _sockaddress.sin_addr.s_addr = inet_addr(_ip_address.c_str());
+    _sockaddress.sin_port = htons(_port);
+}
+
+std::string listen_data::set_socket() {
+    _server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (_server_socket == 0)
+        return std::string(strerror(errno));
+    return std::string();
+}
+
+std::string listen_data::set_socket_option(){
+    int option_val = 1;
+    if (setsockopt(_server_socket, IPPROTO_TCP, SO_REUSEADDR,
+                   &option_val, (socklen_t)sizeof(option_val)))
+        return std::string(strerror(errno));
+    return std::string();
+}
+
+std::string listen_data::set_bind() {
+    if (bind(_server_socket, reinterpret_cast<struct sockaddr *>(&_sockaddress), sizeof(_sockaddress)) < 0)
+        return std::string(strerror(errno));
+    return std::string();
+}
+
+std::string listen_data::set_listen() {
+    if (listen(_server_socket, _config._bloc_events._worker_connections) < 0)
+        return std::string(strerror(errno));
+    return std::string();
+}
+
+std::string listen_data::set_socket_flag(){
+    int flag = fcntl(_server_socket, F_SETFL, O_NONBLOCK );
+    if (flag < 0)
+        return std::string(strerror(errno));
+     return std::string();
+}
+
+void listen_data::set_epoll_event(){
+    _event.data.fd = _server_socket;
+    _event.events = EPOLLIN;
+}
+
+/*
+*==========================================================================================================
 *|                                                  Bloc server                                             |
 *==========================================================================================================
 */
@@ -105,18 +190,12 @@ std::string bloc_server::parse_bloc_server() {
     return std::string("");
 }
 
-std::string bloc_server::add_multimap_listen(){
+std::string bloc_server::add_vector_listen(){
     _map_token_list_action.erase("listen");
     std::string value = _config._peg_parser.extract_data(';');
     if (value.empty())
         return std::string("empty");
-    std::string ip, port;
-    std::stringstream listen(value);
-    while (!listen.eof()) {
-        std::getline(listen >> std::ws, ip, ':');
-        listen >> port >> std::ws;
-        //@todo check port and ip
-    }
+
     value.clear();
     return value;
 }
@@ -144,18 +223,9 @@ std::string bloc_server::add_map_bloc_location() {
     return path;
 }
 
-sockaddr_in bloc_server::set_sockaddr_in(std::string ip_address, int port){
-    sockaddr_in sockaddr = {};
-
-    sockaddr.sin_family = AF_INET;
-    sockaddr.sin_addr.s_addr = inet_addr(ip_address.c_str());
-    sockaddr.sin_port = htons(port);
-    return sockaddr;
-}
-
 void bloc_server::set_default_value() {
     if (_vector_listen.empty())
-        _vector_listen.push_back(set_sockaddr_in("127.0.0.1", 8081));
+        _vector_listen.push_back(listen_data("127.0.0.1:8080"));
 //    if(_vector_server_name.empty() )
 //        _vector_server_name.push_back("default_server.com");
 //    if(_root.empty())
@@ -163,8 +233,8 @@ void bloc_server::set_default_value() {
 }
 
 void bloc_server::set_map_token() {
-    _map_token_list_action["listen"] =  &bloc_server::add_multimap_listen;
-    _map_token_list_action["server_name"] =  &bloc_server::add_multimap_listen;
+    _map_token_list_action["listen"] =  &bloc_server::add_vector_listen;
+    _map_token_list_action["server_name"] =  &bloc_server::add_vector_server_name;
     _map_token_list_action["root"] =  &bloc_server::set_root;
     _map_token_list_action["location"] =  &bloc_server::add_map_bloc_location;
 }
