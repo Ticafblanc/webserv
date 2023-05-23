@@ -47,9 +47,8 @@ peg_parser::peg_parser(peg_parser & other) : _string_stream(){
     *this = other;
 }
 
-peg_parser &peg_parser::operator=(peg_parser & rhs) {
+peg_parser &peg_parser::operator=(const peg_parser & rhs) {
     this->_string_stream.str() = rhs._string_stream.str();
-    this->_string_stream.seekg(rhs._string_stream.tellg());
     this->_line_comment_character = rhs._line_comment_character;
     return *this;
 }

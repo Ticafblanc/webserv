@@ -340,7 +340,7 @@ struct listen_data {
 *====================================================================================
 */
 
-    config_webserv&          _config;
+    config_webserv&         _config;
     std::stringstream       _input;
     std::string             _ip_address;
     int                     _port;
@@ -558,7 +558,7 @@ struct bloc_http {
  * @param   bloc_http instance const to copy the server
  * @throw   none
  **/
-    bloc_http& operator=(bloc_http &);
+    bloc_http& operator=(const bloc_http &);
 
 /*
 *====================================================================================
@@ -682,7 +682,7 @@ struct bloc_events {
  * @param   bloc_events instance const to copy the server
  * @throw   none
  **/
-    bloc_events& operator=(bloc_events &);
+    bloc_events& operator=(const bloc_events &);
 
 /*
 *====================================================================================
@@ -812,7 +812,7 @@ struct config_webserv {
  * @param   config_webserv instance const to copy the server
  * @throw   none
  **/
-    config_webserv& operator=(config_webserv &);
+    config_webserv& operator=(const config_webserv &);
 
 /*
 *====================================================================================

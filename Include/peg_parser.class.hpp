@@ -106,7 +106,7 @@ public:
  * @param   rhs is peg_parser at right position of = operator to copy
  * @throw   none
  **/
-    peg_parser& operator=(peg_parser&);
+    peg_parser& operator=(const peg_parser&);
 
 
 /*

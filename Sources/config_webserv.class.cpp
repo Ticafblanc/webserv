@@ -94,10 +94,19 @@ listen_data::listen_data(config_webserv& config, std::string  default_input)
 
 listen_data::~listen_data() {}
 
-listen_data::listen_data(const listen_data& other){}
+listen_data::listen_data(const listen_data& other)
+    : _config(other._config), _input(other._input.str()), _ip_address(other._ip_address),
+    _port(other._port), _server_socket(other._server_socket), _sockaddress(other._sockaddress),
+      _event(other._event){}
 
 listen_data &listen_data::operator=(const listen_data & rhs) {
-
+    this->_config = rhs._config;
+    this->_input.str() = rhs._input.str();
+    this->_ip_address = rhs._ip_address;
+    this->_port = rhs._port;
+    this->_server_socket = rhs._server_socket;
+    this->_sockaddress = rhs._sockaddress;
+    this->_event = rhs._event;
     return *this;
 }
 
@@ -201,7 +210,7 @@ std::string bloc_server::add_vector_listen(){
 }
 
 std::string bloc_server::add_vector_server_name(){
-    std::string server_name;
+    std::string server_name = _config._peg_parser.extract_data(';');
     _vector_server_name.push_back(server_name);
     return std::string("");
 }
@@ -225,7 +234,7 @@ std::string bloc_server::add_map_bloc_location() {
 
 void bloc_server::set_default_value() {
     if (_vector_listen.empty())
-        _vector_listen.push_back(listen_data("127.0.0.1:8080"));
+        _vector_listen.push_back(listen_data(_config, "127.0.0.1:8080"));
 //    if(_vector_server_name.empty() )
 //        _vector_server_name.push_back("default_server.com");
 //    if(_root.empty())
@@ -255,7 +264,7 @@ bloc_http::~bloc_http() {}
 bloc_http::bloc_http(bloc_http &other)
     : _config(other._config), _map_token_list_action(other._map_token_list_action), _vector_bloc_server(other._vector_bloc_server){}
 
-bloc_http &bloc_http::operator=(bloc_http &rhs) {
+bloc_http &bloc_http::operator=(const bloc_http &rhs) {
     this->_config = rhs._config;
     this->_vector_bloc_server = rhs._vector_bloc_server;
     this->_map_token_list_action = rhs._map_token_list_action;
@@ -309,7 +318,7 @@ bloc_events::bloc_events(bloc_events &other)
 : _config(other._config), _map_token_list_action(other._map_token_list_action), _worker_connections(other._worker_connections) {}
 
 
-bloc_events &bloc_events::operator=(bloc_events &rhs) {
+bloc_events &bloc_events::operator=(const bloc_events &rhs) {
    this->_config = rhs._config;
    this->_map_token_list_action = rhs._map_token_list_action;
    this->_worker_connections = rhs._worker_connections;
@@ -375,7 +384,7 @@ config_webserv::config_webserv(config_webserv & other)
 
 }
 
-config_webserv &config_webserv::operator=(config_webserv &rhs) {
+config_webserv &config_webserv::operator=(const config_webserv &rhs) {
     this->_peg_parser = rhs._peg_parser;
     this->_map_token_list_action = rhs._map_token_list_action;
     this->_worker_process = rhs._worker_process;
@@ -398,8 +407,8 @@ std::string config_webserv::parse_bloc_http() {
     std::string value = _peg_parser.extract_data('{');
     if (value.empty())
         value = _bloc_http.parse_bloc_http();
-    std::cout << "_vector_bloc_server size:" << " " << _bloc_http._vector_bloc_server.size() << std::endl;
-    std::cout << "_vector_bloc_server 0:" << " " << htons(_bloc_http._vector_bloc_server.at(0)._vector_listen.at(0).sin_port) << std::endl;
+//    std::cout << "_vector_bloc_server size:" << " " << _bloc_http._vector_bloc_server.size() << std::endl;
+//    std::cout << "_vector_bloc_server 0:" << " " <<_ << std::endl;
     return value;
 }
 
