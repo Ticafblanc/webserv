@@ -34,7 +34,6 @@ private:
     static bool                 _stat_of_server;
     int                         _epoll_instance;
     int                         _number_triggered_events;
-    int                         _server_socket;
     struct epoll_event          _server_event, *_server_events;
     int                         _client_socket;
     struct epoll_event          *_client_event;
@@ -446,12 +445,6 @@ public:
  * @todo overload fonction to run launcher and launcher(flag);
  */
     void launcher();
-
-
-
-
-
-
 
 };
 

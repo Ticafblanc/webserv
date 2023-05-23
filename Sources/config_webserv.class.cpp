@@ -80,7 +80,7 @@ void bloc_location::set_default_value() {
 listen_data::listen_data(config_webserv& config, std::string & input)
     : _config(config), _input(input), _sockaddress(){}
 
-listen_data::listen_data(config_webserv& config, std::string  default_input)
+listen_data::listen_data(config_webserv& config, std::string default_input)
     : _config(config), _input(default_input), _sockaddress(){
     parse_listen_data();
     set_sockaddr_in();
@@ -89,15 +89,23 @@ listen_data::listen_data(config_webserv& config, std::string  default_input)
     set_bind();
     set_listen();
     set_socket_flag();
-    set_epoll_event();
 }
 
 listen_data::~listen_data() {}
+//todo manage close fd at end of programme
+/*check if file descriptor is open
+ * if process fail throw server::socket_exception();
+ */
+//    int fd_isopen();
+
+/*check if socket  is open
+ * if process fail throw server::socket_exception();
+ */
+//    int socket_isopen();
 
 listen_data::listen_data(const listen_data& other)
     : _config(other._config), _input(other._input.str()), _ip_address(other._ip_address),
-    _port(other._port), _server_socket(other._server_socket), _sockaddress(other._sockaddress),
-      _event(other._event){}
+    _port(other._port), _server_socket(other._server_socket), _sockaddress(other._sockaddress){}
 
 listen_data &listen_data::operator=(const listen_data & rhs) {
     this->_config = rhs._config;
@@ -106,7 +114,6 @@ listen_data &listen_data::operator=(const listen_data & rhs) {
     this->_port = rhs._port;
     this->_server_socket = rhs._server_socket;
     this->_sockaddress = rhs._sockaddress;
-    this->_event = rhs._event;
     return *this;
 }
 
@@ -135,34 +142,38 @@ std::string listen_data::set_socket() {
 std::string listen_data::set_socket_option(){
     int option_val = 1;
     if (setsockopt(_server_socket, IPPROTO_TCP, SO_REUSEADDR,
-                   &option_val, (socklen_t)sizeof(option_val)))
+                   &option_val, (socklen_t)sizeof(option_val))){
+        close(_server_socket);
         return std::string(strerror(errno));
+    }
     return std::string();
 }
 
 std::string listen_data::set_bind() {
-    if (bind(_server_socket, reinterpret_cast<struct sockaddr *>(&_sockaddress), sizeof(_sockaddress)) < 0)
+    if (bind(_server_socket, reinterpret_cast<struct sockaddr *>(&_sockaddress), sizeof(_sockaddress)) < 0){
+        close(_server_socket);
         return std::string(strerror(errno));
+    }
     return std::string();
 }
 
 std::string listen_data::set_listen() {
-    if (listen(_server_socket, _config._bloc_events._worker_connections) < 0)
+    if (listen(_server_socket, _config._bloc_events._worker_connections) < 0){
+        close(_server_socket);
         return std::string(strerror(errno));
+    }
     return std::string();
 }
 
 std::string listen_data::set_socket_flag(){
     int flag = fcntl(_server_socket, F_SETFL, O_NONBLOCK );
-    if (flag < 0)
+    if (flag < 0){
+        close(_server_socket);
         return std::string(strerror(errno));
-     return std::string();
+    }
+    return std::string();
 }
 
-void listen_data::set_epoll_event(){
-    _event.data.fd = _server_socket;
-    _event.events = EPOLLIN;
-}
 
 /*
 *==========================================================================================================

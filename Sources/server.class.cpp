@@ -18,8 +18,8 @@
 *====================================================================================
 */
 
-server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(), _server_socket(),
-                                        _events(), _client_socket(), _client_event(), _client_address(),
+server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(),
+                                        _client_socket(), _client_event(), _client_address(),
                                                 _client_address_len(sizeof(_client_address)) {
     _stat_of_server = false;
 }
@@ -27,8 +27,8 @@ server::server(config_webserv& config) : _config(config), _epoll_instance(), _nu
 server::~server() {}
 
 server::server(const server& other) :   _config(other._config), _epoll_instance(other._epoll_instance),
-                                        _number_triggered_events(other._number_triggered_events), _server_socket(other._server_socket),
-                                        _events(other._events), _client_socket(other._client_socket),
+                                        _number_triggered_events(other._number_triggered_events),
+                                        _client_socket(other._client_socket),
                                         _client_event(other._client_event), _client_address(other._client_address),
                                         _client_address_len(other._client_address_len){}
 
@@ -36,8 +36,6 @@ server& server::operator=(const server& rhs){
     this->_config = rhs._config;
     this->_epoll_instance = rhs._epoll_instance;
     this->_number_triggered_events = rhs._number_triggered_events;
-    this->_server_socket = rhs._server_socket;
-    this->_events = rhs._events;
     this->_client_socket = rhs._client_socket;
     this->_client_event = rhs._client_event;
     this->_client_address = rhs._client_address;
@@ -79,25 +77,11 @@ config_webserv server::get_config_webserv() const {
 
 /*
 *====================================================================================
-*|                                      Signal                                      |
-*====================================================================================
-*/
-
-//@todo implement handle fonction to quitte de fonction
-void server::handle(int sig) {
-    (void) sig;
-    _stat_of_server = false;
-}
-
-/*
-*====================================================================================
 *|                                      Launcher                                    |
 *====================================================================================
 */
 
 void server::launcher() {
-    signal(SIGINT, handle);
-    signal(SIGKILL, handle);
     _stat_of_server = true;
     try {
         set_epoll();
@@ -128,23 +112,27 @@ void server::launcher() {
 *====================================================================================
 */
 void server::set_epoll(){
-//@todo merge to config class ??
     create_epoll();
     for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
     server != _config._bloc_http._vector_bloc_server.end(); ++server){
-        for (std::vector<sockaddr_in>::iterator listen = server->_vector_listen.begin();
-             listen != server->_vector_listen.end(); ++listen) {
-            set_socket(_server_socket);//create a new socket new socket with the data sever specification
-            set_socket_option(_server_socket);//set option of sever socket
-            set_bind(_server_socket, *listen);
-            set_listen(_client_socket, 10);//@todo update to worker_connection
-            accessor_socket_flag(_server_socket, F_SETFL, O_NONBLOCK);
-            set_epoll_event(_server_socket, _server_events, EPOLLIN);
-
+        for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
+             vec_listen != server->_vector_listen.end(); ++vec_listen) {
+            set_epoll_event(vec_listen->_server_socket, _server_event, EPOLLIN);
+            set_epoll_ctl(EPOLL_CTL_ADD, vec_listen->_server_socket, &_server_event);
         }
-
     }
     create_epoll();
+}
+
+void server::create_epoll() {
+    _epoll_instance = epoll_create(1);
+    if (_epoll_instance == -1)
+        throw server::server_exception(*this, strerror(errno));
+}
+
+void server::set_epoll_ctl(int option, int & server_socket, struct epoll_event * event) {
+    if(epoll_ctl( _epoll_instance, option, server_socket, event) == -1)
+        throw server::server_exception(*this, strerror(errno));
 }
 
 
@@ -177,21 +165,14 @@ int server::accessor_socket_flag(int & server_socket, int command, int flag){
         throw server::server_exception(*this, strerror(errno));
     return return_flag;
 }
-void server::create_epoll() {
-    _epoll_instance = epoll_create(1);
-    if (_epoll_instance == -1)
-        throw server::server_exception(*this, strerror(errno));
-}
+
 
 void server::set_epoll_event(int & server_socket, struct epoll_event & event, int events){
     event.data.fd = server_socket;
     event.events = events;
 }
 
-void server::set_epoll_ctl(int option, int & server_socket, struct epoll_event * event) {
-    if(epoll_ctl( _epoll_instance, option, server_socket, event) == -1)
-        throw server::server_exception(*this, strerror(errno));
-}
+
 
 void server::set_epoll_wait() {
     _number_triggered_events = epoll_wait(_epoll_instance, _events, _config.max_events, -1);//@todo switch maxevent

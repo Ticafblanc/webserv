@@ -320,20 +320,6 @@ struct listen_data {
  * */
     std::string set_socket_flag();
 
-/**
- * Private methode of listen_data class
- *
- * set epoll_event instance with socket and type of event to follow
- * before to add a epoll_event to epoll
- *
- * void set_epoll_event();
- *
- * @returns void
- * @param   void
- * @throws  none
- * */
-    void set_epoll_event();
-
 /*
 *====================================================================================
 *|                                     Member                                       |
@@ -346,7 +332,6 @@ struct listen_data {
     int                     _port;
     int                     _server_socket;
     sockaddr_in             _sockaddress;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    struct epoll_event      _event;
 };
 
 
