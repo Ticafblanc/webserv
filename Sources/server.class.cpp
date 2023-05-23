@@ -131,14 +131,14 @@ void server::set_epoll_event(int & server_socket, struct epoll_event & event, in
 void server::create_epoll() {
 
     _epoll_instance = epoll_create(1);
+//    _epoll_instance = epoll_create(1);
     if (_epoll_instance == -1)
         throw server_exception(strerror(errno));
 }
 
 void server::set_epoll_ctl(int option, int server_socket) {
 //    (void)server_socket;
-//    int socket;
-//    set_socket(socket);
+//    set_socket(server_socket);
     if(epoll_ctl( _epoll_instance, option, server_socket, &_webserv_event) == -1){
         server_exception server_exception(strerror(errno));
         throw server_exception;

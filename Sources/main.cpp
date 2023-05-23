@@ -83,9 +83,9 @@ int main(int argc, char **argv, char **envp){
         signal(SIGTERM, handle_exit);
         signal(SIGHUP, handle_reload);
         path_config_file += select_path(argv, position_path_file_config);
-        config_webserv config_webserv;//@todo add path to constructo after the test
 //        while (number_try_lauch < 1) {
             try {
+                config_webserv config_webserv;//@todo add path to constructo after the test
                 server server(config_webserv);
                 server.launcher();
             }

@@ -34,7 +34,7 @@ private:
     bool                 _stat_of_server;
     int                         _epoll_instance;
     int                         _number_triggered_events;
-    epoll_event          _webserv_event, *_server_events;
+    struct epoll_event          _webserv_event, _server_events[10];
     int                         _client_socket;
     struct epoll_event          *_client_event;
     struct sockaddr_storage     _client_address;
