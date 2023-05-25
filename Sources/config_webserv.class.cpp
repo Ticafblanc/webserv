@@ -78,10 +78,12 @@ void bloc_location::set_default_value() {
 
 
 listen_data::listen_data(config_webserv& config, std::string & input)
-    : _config(config), _input(input), _sockaddress(){}
+    : _config(config), _input(input), _ip_address(), _port(0), _server_socket(0),
+      _sockaddress(){}
 
 listen_data::listen_data(config_webserv& config, std::string default_input)
-    : _config(config), _input(default_input), _sockaddress(){
+        : _config(config), _input(default_input), _ip_address(), _port(0), _server_socket(0),
+          _sockaddress(){
     parse_listen_data();
     set_sockaddr_in();
     set_socket();
@@ -127,14 +129,14 @@ std::string listen_data::parse_listen_data() {
 }
 
 void listen_data::set_sockaddr_in(){
-    memset(&_sockaddress, 0, sizeof(_sockaddress));
+    memset(&_sockaddress.sin_zero, 0, sizeof(_sockaddress.sin_zero));
     _sockaddress.sin_family = AF_INET;
     _sockaddress.sin_addr.s_addr = inet_addr(_ip_address.c_str());
     _sockaddress.sin_port = htons(_port);
 }
 
 std::string listen_data::set_socket() {
-    _server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    _server_socket = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
     if (_server_socket == 0)
         return std::string(strerror(errno));
     return std::string();
@@ -142,7 +144,7 @@ std::string listen_data::set_socket() {
 
 std::string listen_data::set_socket_option(){
     int option_val = 1;
-    if (setsockopt(_server_socket, IPPROTO_TCP, SO_REUSEADDR,
+    if (setsockopt(_server_socket, SOL_SOCKET, SO_REUSEADDR,
                    &option_val, (socklen_t)sizeof(option_val))){
         close(_server_socket);
         return std::string(strerror(errno));
@@ -246,7 +248,7 @@ std::string bloc_server::add_map_bloc_location() {
 
 void bloc_server::set_default_value() {
     if (_vector_listen.empty())
-        _vector_listen.push_back(listen_data(_config, "127.0.0.1:8080"));
+        _vector_listen.push_back(listen_data(_config, "0.0.0.0:8081"));
     (void)_config;
 //    if(_vector_server_name.empty() )
 //        _vector_server_name.push_back("default_server.com");

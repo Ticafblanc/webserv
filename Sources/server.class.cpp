@@ -19,12 +19,14 @@
 */
 
 server::server(config_webserv& config) : _config(config), _stat_of_server(false), _epoll_instance(),
-                                        _number_triggered_events(), _webserv_event(), _server_events(), _client_socket(), _client_event(),
-                                        _client_address(), _client_address_len(sizeof(_client_address)) {
-    create_epoll();
-}
+                                        _number_triggered_events(), _webserv_event(),
+                                        _server_events(new struct epoll_event[(config._bloc_events._worker_connections * config._worker_process)]),
+                                        _client_socket(), _client_event(),
+                                        _client_address(), _client_address_len(sizeof(_client_address)) {}
 
-server::~server() {}
+server::~server() {
+    delete[] _server_events;
+}
 
 server::server(const server& other) :   _config(other._config), _stat_of_server(other._stat_of_server), _epoll_instance(other._epoll_instance),
                                         _number_triggered_events(other._number_triggered_events), _webserv_event(other._webserv_event), _server_events(other._server_events),
@@ -84,24 +86,18 @@ void server::launcher() {
     _stat_of_server = true;
     try {
         set_epoll();
-
-//
-//        create_epoll();
-//        set_epoll_socket(_server_socket, EPOLLIN);
-//        set_epoll_ctl(EPOLL_CTL_ADD, _server_socket, &_event);
-//        while(_stat_of_server) {
-//            set_epoll_wait();
-//            std::cout << "number of trigg = " << _number_triggered_events << std::endl;
-//            for (int i = 0; i < _number_triggered_events; ++i) {
-//                if (_events[i].data.fd == _server_socket)//@todo change to methode for iter in serversket
-//                    accept_connection();
-//                else
-//                    manage_event(_events[i].data.fd);
-//            }
-//        }
+        while(_stat_of_server) {
+            set_epoll_wait();
+            for (int i = 0; i < _number_triggered_events; ++i) {
+                if (is_server_socket(i))
+                    accept_connection();
+                else
+                    manage_event_already_conected();
+            }
+        }
     }
     catch (const std::exception& e){//if necessary to save the socket in process
-        throw e;
+        std::cout << e.what() << std::endl;
     }
 }
 
@@ -110,17 +106,23 @@ void server::launcher() {
 *|                                 private utils function to launch                 |
 *====================================================================================
 */
-void server::set_epoll(){
 
+void server::set_epoll(){
+    create_epoll();
     for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
     server != _config._bloc_http._vector_bloc_server.end(); ++server){
         for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
              vec_listen != server->_vector_listen.end(); ++vec_listen) {
             set_epoll_event(vec_listen->_server_socket, _webserv_event, EPOLLIN);
             set_epoll_ctl(EPOLL_CTL_ADD, vec_listen->_server_socket);
-            std::cout << vec_listen->_ip_address <<":"<< vec_listen->_port<<std::endl;
         }
     }
+}
+
+void server::create_epoll() {
+    _epoll_instance = epoll_create(1);
+    if (_epoll_instance == -1)
+        throw server_exception(strerror(errno));
 }
 
 void server::set_epoll_event(int & server_socket, struct epoll_event & event, int events){
@@ -128,22 +130,77 @@ void server::set_epoll_event(int & server_socket, struct epoll_event & event, in
     event.events = events;
 }
 
-void server::create_epoll() {
-
-    _epoll_instance = epoll_create(1);
-//    _epoll_instance = epoll_create(1);
-    if (_epoll_instance == -1)
-        throw server_exception(strerror(errno));
-}
-
 void server::set_epoll_ctl(int option, int server_socket) {
-//    (void)server_socket;
-//    set_socket(server_socket);
     if(epoll_ctl( _epoll_instance, option, server_socket, &_webserv_event) == -1){
         server_exception server_exception(strerror(errno));
         throw server_exception;
     }
 }
+
+void server::set_epoll_wait() {
+    _number_triggered_events = epoll_wait(_epoll_instance, _server_events,
+                                          (_config._bloc_events._worker_connections * _config._worker_process),
+                                          -1);//@todo switch maxevent
+    if (_number_triggered_events == -1)
+        throw server::server_exception(strerror(errno));
+}
+
+bool server::is_server_socket(int position){
+    _client_socket = _server_events[position].data.fd;
+    for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
+         server != _config._bloc_http._vector_bloc_server.end(); ++server) {
+        for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
+             vec_listen != server->_vector_listen.end(); ++vec_listen) {
+            if (vec_listen->_server_socket == _client_socket)
+                return true;//@todo add chech server name
+        }
+    }
+    return false;
+}
+
+void server::accept_connection() {
+    _client_socket = accept(_client_socket, reinterpret_cast<struct sockaddr *>(&_client_address),
+            &_client_address_len);
+    if (_client_socket == -1)
+        throw server::server_exception(strerror(errno));
+    accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);
+    set_epoll_event(_client_socket, _webserv_event, EPOLLIN | EPOLLET);
+    set_epoll_ctl(EPOLL_CTL_ADD, _client_socket);
+
+}
+
+void server::manage_event_already_conected(){
+    //@todo juste simple recv and send to test
+    char buffer[1024];
+    ssize_t bytes_received;
+    ssize_t bytes_send;
+    std::string response;
+    while ((bytes_received = recv(_client_socket, buffer, sizeof(buffer), 0)) > 0) {
+        response.append("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nHello, World!");
+        bytes_send = send(_client_socket, response.c_str(), response.length(), 0);
+        if (bytes_send == -1 || bytes_received == -1) {
+            std::cerr << "error" << std::endl;
+            break;
+        }
+    }
+    close(_client_socket);
+
+//    set_epoll_ctl(EPOLL_CTL_DEL, socket, NULL); for close socket unlonk
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 void server::set_socket(int & server_socket) {
@@ -181,40 +238,9 @@ int server::accessor_socket_flag(int & server_socket, int command, int flag){
 
 
 
-void server::set_epoll_wait() {
-    _number_triggered_events = epoll_wait(_epoll_instance, _server_events, _config._worker_process, -1);//@todo switch maxevent
-    if (_number_triggered_events == -1)
-        throw server::server_exception(strerror(errno));
-}
 
-void server::accept_connection(int & server_socket) {
-    _client_socket = accept(server_socket, (struct sockaddr *)&_client_address, &_client_address_len);
-    if (_client_socket == -1)
-        throw server::server_exception(strerror(errno));
-    accessor_socket_flag(_client_socket, F_SETFL, O_NONBLOCK);
-    set_epoll_event(_client_socket, _webserv_event, EPOLLIN | EPOLLET);
-    set_epoll_ctl(EPOLL_CTL_ADD, _client_socket);
 
-}
 
-void server::manage_event(int socket){
-    //@todo juste simple recv and send to test
-    char buffer[1024];
-    ssize_t bytes_received;
-    ssize_t bytes_send;
-    std::string response;
-    while ((bytes_received = recv(socket, buffer, sizeof(buffer), 0)) > 0) {
-        response.append("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nHello, World!");
-        bytes_send = send(socket, response.c_str(), response.length(), 0);
-        if (bytes_send == -1 || bytes_received == -1) {
-            std::cerr << "error" << std::endl;
-            break;
-        }
-    }
-    close(socket);
-
-//    set_epoll_ctl(EPOLL_CTL_DEL, socket, NULL); for close socket unlonk
-}
 
 
 

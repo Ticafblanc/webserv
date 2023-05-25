@@ -31,13 +31,14 @@ private:
 
 
     config_webserv              &_config;
-    bool                 _stat_of_server;
+    bool                        _stat_of_server;
     int                         _epoll_instance;
     int                         _number_triggered_events;
-    struct epoll_event          _webserv_event, _server_events[10];
+    struct epoll_event          _webserv_event, *_server_events;
     int                         _client_socket;
+
     struct epoll_event          *_client_event;
-    struct sockaddr_storage     _client_address;
+    sockaddr_in                 _client_address;
     socklen_t                   _client_address_len;
 
 /*
@@ -45,6 +46,20 @@ private:
 *|                                       Methode                                    |
 *====================================================================================
 */
+
+/**
+ * Private methode of server class
+ *
+ * create an instance of epoll in _epoll_instance and
+ * return a file descriptor to new instance of epoll
+ *
+ * void create_epoll();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void create_epoll();
 
 /**
  * Private methode of server class
@@ -58,6 +73,138 @@ private:
  * @throws  server::server_exception
  **/
     void set_epoll();
+
+/**
+ * Private methode of server class
+ *
+ * set epoll_event instance with socket and type of event to follow
+ * before to add a epoll_event to epoll
+ *
+ * void set_epoll_socket(int & server_socket, struct epoll_event & event, int events);
+ *
+ * @returns event fixed
+ * @param   server_socket is an int & who refer to
+ *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
+ *
+ *          event is a struct epoll_event & who refer to
+ *          config_webserv->config_server.class->config_address.class->_event to set
+ *
+ *          events is int to add to the event
+ *          EPOLLIN the event occurs when data can be read from the file descriptor
+ *          EPOLLOUT the event occurs when data can be written to the file descriptor
+ *          EPOLLERR the event occurs when there is an error on the file descriptor
+ *          EPOLLRDHUP the event occurs when the connection is closed by the remote peer
+ *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
+ *          EPOLLET edge triggering mode
+ *          EPOLLONESHOT single trigger mode
+ *
+ * @throws  none
+ * */
+    void set_epoll_event(int&, struct epoll_event &, int);
+
+/**
+ * Private methode of server class
+ *
+ * set _event instance with socket to add remove or modify
+ *
+ * void set_epoll_ctl(int option, int server_socket);
+ *
+ * @returns void
+ * @param   event is a struct epoll_event * who point to
+ *          config_webserv->config_server.class->config_address.class->_event to set
+ *
+ *          option is an int action to do:
+ *          EPOLL_CTL_ADD to add a new descriptor to be monitored
+ *          EPOLL_CTL_MOD to modify the monitoring of an already monitored descriptor
+ *          EPOLL_CTL_DEL to delete a monitored descriptor.
+ * @throws  server::server_exception
+ * */
+    void set_epoll_ctl(int, int);
+
+/**
+ * Private methode of server class
+ *
+ * wait un event in request connect or new event in socket already open
+ *
+ * void set_epoll_wait();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void set_epoll_wait();
+
+/**
+ * Private methode of server class
+ *
+ * check if is a request try to connect with a server socket
+ *
+ * bool is_server_socket(int position);
+ *
+ * @returns bool true if is a sever socket than false
+ * @param    position is index in server_event tab
+ * @throws  server::server_exception
+ * */
+    bool is_server_socket(int);
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void accept_connection();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void accept_connection();
+
+/**
+ * Private methode of server class
+ *
+ * manage event like receive data
+ *
+ * void manage_event_already_conected();
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void manage_event_already_conected();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Private methode of server class
@@ -164,107 +311,6 @@ private:
  * */
     int accessor_socket_flag(int&, int, int);
 
-/**
- * Private methode of server class
- *
- * create an instance of epoll in _epoll_instance and
- * return a file descriptor to new instance of epoll
- *
- * void create_epoll();
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void create_epoll();
-
-/**
- * Private methode of server class
- *
- * set epoll_event instance with socket and type of event to follow
- * before to add a epoll_event to epoll
- *
- * void set_epoll_socket(int & server_socket, struct epoll_event & event, int events);
- *
- * @returns event fixed
- * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
- *
- *          event is a struct epoll_event & who refer to
- *          config_webserv->config_server.class->config_address.class->_event to set
- *
- *          events is int to add to the event
- *          EPOLLIN the event occurs when data can be read from the file descriptor
- *          EPOLLOUT the event occurs when data can be written to the file descriptor
- *          EPOLLERR the event occurs when there is an error on the file descriptor
- *          EPOLLRDHUP the event occurs when the connection is closed by the remote peer
- *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
- *          EPOLLET edge triggering mode
- *          EPOLLONESHOT single trigger mode
- *
- * @throws  none
- * */
-    void set_epoll_event(int&, struct epoll_event &, int);
-
-/**
- * Private methode of server class
- *
- * set _event instance with socket to add remove or modify
- *
- * void set_epoll_ctl(int option, int & server_socket, struct epoll_event * event);
- *
- * @returns void
- * @param   event is a struct epoll_event * who point to
- *          config_webserv->config_server.class->config_address.class->_event to set
- *
- *          option is an int action to do:
- *          EPOLL_CTL_ADD to add a new descriptor to be monitored
- *          EPOLL_CTL_MOD to modify the monitoring of an already monitored descriptor
- *          EPOLL_CTL_DEL to delete a monitored descriptor.
- * @throws  server::server_exception
- * */
-    void set_epoll_ctl(int, int);
-
-/**
- * Private methode of server class
- *
- * wait un event in request connect or new event in socket already open
- *
- * void set_epoll_wait();
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void set_epoll_wait();
-
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * void accept_connection(int & server_socket);
- *
- * @returns void
- * @param   server_socket is an int & who refer to
- *          socket who recev a request connection
- * @throws  server::server_exception
- * */
-    void accept_connection(int &);
-
-/**
- * Private methode of server class
- *
- * manage event like receive data
- *
- * void manage_event(int socket);
- *
- * @returns void
- * @param   socket is an int to manage the recev and send answer
- * @throws  server::server_exception
- * */
-    void manage_event(int);
 
 /*check if file descriptor is open
  * if process fail throw server::socket_exception();
