@@ -33,9 +33,10 @@ private:
     config_webserv              &_config;
     bool                        _stat_of_server;
     int                         _epoll_instance;
+    int                         _number_max_events;
     int                         _number_triggered_events;
     struct epoll_event          _webserv_event, *_server_events;
-    int                         _client_socket;
+    std::map<int, bloc_server>  _map_client_socket;
 
     struct epoll_event          *_client_event;
     sockaddr_in                 _client_address;
@@ -139,13 +140,13 @@ private:
  *
  * check if is a request try to connect with a server socket
  *
- * bool is_server_socket(int position);
+ * bool is_server_socket_already_conected(int position);
  *
  * @returns bool true if is a sever socket than false
  * @param    position is index in server_event tab
  * @throws  server::server_exception
  * */
-    bool is_server_socket(int);
+    bool is_server_socket_already_conected(int);
 
 /**
  * Private methode of server class
@@ -153,34 +154,92 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void accept_connection();
+ * void accept_connection(int new_client_socket);
  *
  * @returns void
  * @param   void
  * @throws  server::server_exception
  * */
-    void accept_connection();
+    void accept_connection(int, bloc_server & server);
 
 /**
  * Private methode of server class
  *
  * manage event like receive data
  *
- * void manage_event_already_conected();
+ * void manage_event_already_conected(int position);
  *
  * @returns void
  * @param   void
  * @throws  server::server_exception
  * */
-    void manage_event_already_conected();
+    void manage_event_already_conected(int);
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string recv_data_client(int client_socket);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string recv_data_client(int);
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void send_data_client(int client_socket, std::string& content);
+ *
+ * @returns void
+ * @param   client_socket to send message
+ * @param   content & to message to send
+ * @throws  server::server_exception
+ * */
+    void send_data_client(int, std::string);
 
+/**
+ * Private methode of server class
+ *
+ * add headers befor send
+ *
+ * std::string set_html_content(std::string headers, std::string path_html_file);
+ *
+ * @returns std::string ready to send
+ * @param   path_html_file to content to send
+ * @throws  server::server_exception
+ * */
+     std::string set_content(std::string (*f)(size_t), std::string path_html_file);
 
+/**
+ * Private methode of server class
+ *
+ * set headers befor send
+ *
+ * std::string set_headers(size_t Content-Length);
+ *
+ * @returns std::string ready to send
+ * @param   Content-Length to add to headers
+ * @throws  server::server_exception
+ * */
+    std::string set_headers_html(size_t);
 
-
-
-
+/**
+ * Private methode of server class
+ *
+ * set headers befor send
+ *
+ * std::string set_headers(size_t Content-Length);
+ *
+ * @returns std::string ready to send
+ * @param   Content-Length to add to headers
+ * @throws  server::server_exception
+ * */
+    std::string set_headers_css(size_t);
 
 
 
