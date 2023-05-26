@@ -18,10 +18,8 @@
 *====================================================================================
 */
 
-server::server(config_webserv& config) : _config(config), _epoll_instance(),
-                                         _number_max_events(config._bloc_events._worker_connections * config._worker_process),
-                                         _number_triggered_events(), _webserv_event(),
-                                         _server_events(new struct epoll_event[_number_max_events]), _map_client_socket(),
+server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(), _webserv_event(),
+                                         _server_events(new struct epoll_event[config._bloc_http._number_max_events]),
                                          _client_address(), _client_address_len(sizeof(_client_address)) {}
 
 server::~server() {
@@ -29,18 +27,17 @@ server::~server() {
 }
 
 server::server(const server& other) :   _config(other._config),_epoll_instance(other._epoll_instance),
-                                        _number_max_events(other._number_max_events),
                                         _number_triggered_events(other._number_triggered_events),
                                         _webserv_event(other._webserv_event), _server_events(other._server_events),
-                                        _map_client_socket(other._map_client_socket), _client_address(other._client_address),
+                                        _client_address(other._client_address),
                                         _client_address_len(other._client_address_len){}
 
 server& server::operator=(const server& rhs){
     this->_config = rhs._config;
     this->_epoll_instance = rhs._epoll_instance;
-    this->_number_max_events = rhs._number_max_events;
     this->_number_triggered_events = rhs._number_triggered_events;
-    this->_map_client_socket = rhs._map_client_socket;
+    this->_webserv_event = rhs._webserv_event;
+    this->_server_events = rhs._server_events;
     this->_client_address = rhs._client_address;
     this->_client_address_len = rhs._client_address_len;
     return *this;
@@ -79,12 +76,12 @@ void server::launcher() {
             try {
                 set_epoll_wait();
                 for (int i = 0; i < _number_triggered_events; ++i) {
-                    if (is_server_socket_already_conected(i))
-                        manage_event_already_conected(i);
+                    http_request request(_server_events[i], *this);
                 }
             }
             catch (const std::exception& e){
                 std::cout << e.what() << std::endl;
+                //@todo http_request request(_server_events[position], *server);
             }
         }
     }
@@ -135,22 +132,7 @@ void server::set_epoll_wait() {
         throw server::server_exception(strerror(errno));
 }
 
-bool server::is_server_socket_already_connected(int position){
-    for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
-         server != _config._bloc_http._vector_bloc_server.end(); ++server) {
-        for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
-             vec_listen != server->_vector_listen.end(); ++vec_listen) {
-            if (vec_listen->_server_socket == _server_events[position].data.fd){
-                http_request request(std::make_pair(vec_listen->_server_socket, *vec_listen));
-                if (request.connection())
-                    accept_connection(request);
-                request.send_reply();
-                return false;
-            }
-        }
-    }
-    return true;
-}
+
 
 int server::accessor_socket_flag(int & server_socket, int command, int flag){
     int return_flag = fcntl(server_socket, command, flag);
@@ -159,7 +141,7 @@ int server::accessor_socket_flag(int & server_socket, int command, int flag){
     return return_flag;
 }
 
-void server::accept_connection(http_request & request) {
+void server::connect_new_client(int new_client_socket) {
     new_client_socket = accept(new_client_socket, reinterpret_cast<struct sockaddr *>(&_client_address),
             &_client_address_len);
     if (new_client_socket == -1) {
@@ -169,26 +151,17 @@ void server::accept_connection(http_request & request) {
     accessor_socket_flag(new_client_socket, F_SETFL, O_NONBLOCK);
     set_epoll_event(new_client_socket, _webserv_event, EPOLLIN | EPOLLET);
     set_epoll_ctl(EPOLL_CTL_ADD, new_client_socket);
-    _number_max_events--;
-    _map_client_socket.insert(std::make_pair(new_client_socket, server));
+    _config._bloc_http._number_max_events--;
+    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, server));
 }
 
 void server::accept_disconnection(int client_socket) {
-    _number_max_events++;
-    _map_client_socket.erase(client_socket);
+    _config._bloc_http._number_max_events++;
     set_epoll_ctl(EPOLL_CTL_DEL, client_socket);
     close(client_socket);
 }
 
-void server::manage_event_already_conected(int position){
-    try{
-        if (_map_client_socket.find(_server_events[position].data.fd) != _map_client_socket.end()) {
-            http_request request(_map_client_socket.at(_server_events[position].data.fd), data);
-            if (request.disconection())
-                accept_disconnection(_server_events[position].data.fd);
-            request.send_reply();
-        }//@todo if necessary to throw
-    }catch (std::exception & e){
-        //@todo log error;
-    }
-}
+
+
+bloc_http & server::get_http() { return _config._bloc_http; }
+

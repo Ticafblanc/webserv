@@ -270,19 +270,23 @@ void bloc_server::set_map_token() {
 */
 
 
-bloc_http::bloc_http(config_webserv& config) : _config(config), _map_token_list_action(), _vector_bloc_server() {
+bloc_http::bloc_http(config_webserv& config) : _config(config), _map_token_list_action(), _vector_bloc_server(),
+                                               _map_client_socket(), _number_max_events(config._bloc_events._worker_connections * config._worker_process) {
     set_map_token();
 }
 
 bloc_http::~bloc_http() {}
 
 bloc_http::bloc_http(bloc_http &other)
-    : _config(other._config), _map_token_list_action(other._map_token_list_action), _vector_bloc_server(other._vector_bloc_server){}
+    : _config(other._config), _map_token_list_action(other._map_token_list_action),
+    _vector_bloc_server(other._vector_bloc_server), _map_client_socket(), _number_max_events(other._number_max_events){}
 
 bloc_http &bloc_http::operator=(const bloc_http &rhs) {
     this->_config = rhs._config;
     this->_vector_bloc_server = rhs._vector_bloc_server;
     this->_map_token_list_action = rhs._map_token_list_action;
+    this->_map_client_socket = rhs._map_client_socket;
+    this->_number_max_events = rhs._number_max_events;
     return *this;
 }
 

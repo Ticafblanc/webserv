@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+
 #include "../Include/http_request.class.hpp"
 
 
@@ -19,58 +20,55 @@
 *==========================================================================================================
 */
 
-http_request::http_request(std::string &path_config_file) : _peg_parser(path_config_file.c_str()){
-    set_map_token();
-    while (!_peg_parser.check_is_empty()) {
-        _peg_parser.find_token(*this, _map_token_list_action, 0);
+http_request::http_request(epoll_event & event, server & server) :_event(event), _server(server) {
+    //@todo see if necessary to check data event
+    try {
+        switch (is_server_socket_already_connected()) {
+            case false:
+                _server.connect_new_client(_event.data.fd);
+                break;
+            default:
+                manage_event_already_connected(_event.data.fd);
+                break;
+        }
     }
-    set_default_value();
+    catch (const std::exception& e){
+        std::cout << e.what() << std::endl;
+
+    }
 }
 
 http_request::~http_request() {}
 
-http_request::http_request(http_request & other)
-    : _peg_parser(other._peg_parser),_map_token_list_action(other._map_token_list_action),
-    _worker_process(other._worker_process), _bloc_events(other._bloc_events), _bloc_http(other._bloc_http){
-
-}
 
 http_request &http_request::operator=(const http_request &rhs) {
-    this->_peg_parser = rhs._peg_parser;
-    this->_map_token_list_action = rhs._map_token_list_action;
-    this->_worker_process = rhs._worker_process;
     return *this;
 }
 
+/*
+*====================================================================================
+*|                                       Methode                                    |
+*====================================================================================
+*/
 
-std::string http_request::parse_bloc_event() {
-    _map_token_list_action.erase("events");
-    std::string value = _peg_parser.extract_data('{');
-    if (value.empty())
-        value = _bloc_events.parse_bloc_events();
-    return value;
+bool http_request::is_server_socket_already_connected(){
+    for (std::vector<bloc_server>::iterator server = _server.get_http()._vector_bloc_server.begin();
+         server != _server.get_http()._vector_bloc_server.end(); ++server) {
+        for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
+             vec_listen != server->_vector_listen.end(); ++vec_listen) {
+            if (vec_listen->_server_socket == _event.data.fd){
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
-std::string http_request::parse_bloc_http() {
-    _map_token_list_action.erase("http");
-    std::string value = _peg_parser.extract_data('{');
-    if (value.empty())
-        value = _bloc_http.parse_bloc_http();
-//    std::cout << "_vector_bloc_server size:" << " " << _bloc_http._vector_bloc_server.size() << std::endl;
-//    std::cout << "_vector_bloc_server 0:" << " " <<_ << std::endl;
-    return value;
-}
-
-std::string http_request::set_worker_processes() {
-    _map_token_list_action.erase("worker_processes");
-    std::string value = _peg_parser.extract_data(';');
-    char * end;//@todo to manage error
-    const long val = std::strtol(value.c_str(), &end, 10);
-    if (val < 1 || val > 4)
-        return value;
-    _worker_process = static_cast<int>(val);
-    value.clear();
-    return value;
+void http_request::manage_event_already_connected(int client_socket){
+    std::map<int, bloc_server&>::iterator  it = _server.get_http()._map_client_socket.find(client_socket);
+    if ( it != _server.get_http()._map_client_socket.end()) {
+        //@todo parse ....
+    }
 }
 
 std::string server::set_html_content(std::string path_html_file) {

@@ -33,10 +33,8 @@ private:
 
     config_webserv              &_config;
     int                         _epoll_instance;
-    int                         _number_max_events;
     int                         _number_triggered_events;
     struct epoll_event          _webserv_event, *_server_events;
-    std::map<int, bloc_server>  _map_client_socket;
     sockaddr_in                 _client_address;
     socklen_t                   _client_address_len;
 
@@ -133,18 +131,7 @@ private:
  * */
     void set_epoll_wait();
 
-/**
- * Private methode of server class
- *
- * check if is a request try to connect with a server socket
- *
- * bool is_server_socket_already_conected(int position);
- *
- * @returns bool true if is a sever socket than false
- * @param    position is index in server_event tab
- * @throws  server::server_exception
- * */
-    bool is_server_socket_already_connected(int);
+
 
 /**
  * Private methode of server class
@@ -177,46 +164,9 @@ private:
  * */
     int accessor_socket_flag(int&, int, int);
 
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * void accept_connection(http_request & request);
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void accept_connection(http_request & request);
 
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * void accept_disconnection(int client_socket);
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void accept_disconnection(int);
 
-/**
- * Private methode of server class
- *
- * manage event like receive data
- *
- * void manage_event_already_conected(int position);
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void manage_event_already_conected(int);
+
 
 
 /*>********************************public section**********************************/
@@ -365,6 +315,44 @@ public:
  * @see https://man7.org/linux/man-pages/man2/accept.2.html
  */
     void launcher();
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void connect_new_client(int new_client_socket);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void connect_new_client(int);
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void accept_disconnection(int client_socket);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void accept_disconnection(int);
+
+
+/*
+*====================================================================================
+*|                                  Element access                                  |
+*====================================================================================
+*/
+
+    bloc_http & get_http();
+
 
 };
 

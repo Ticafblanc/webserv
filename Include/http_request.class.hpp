@@ -15,7 +15,8 @@
 
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
-
+#include "../Include/server.class.hpp"
+_map_client_socket.erase(client_socket);
 
 allow_methods
         send_data_client(new_client_socket,
@@ -34,101 +35,66 @@ data = recv_data_client(_server_events[position].data.fd);
 *==========================================================================================================
 */
 
-
-
 class http_request {
 
+/*>*******************************private section**********************************/
+
+private:
+
 /*
 *====================================================================================
-*|                                  Member Fonction                                 |
+*|                                       Member                                     |
+*====================================================================================
+*/
+
+    epoll_event                 &_event;
+    server                      &_server;
+    std::map<int, std::string>  _status_code;
+
+
+/*
+*====================================================================================
+*|                                       Methode                                    |
 *====================================================================================
 */
 
 /**
- * Constructor of http_request class
+ * Private methode of server class
  *
- * http_request();
+ * check if is a request try to connect with a server socket
  *
+ * bool is_server_socket_already_conected();
+ *
+ * @returns bool true if is a sever socket than false
+ * @param    position is index in server_event tab
+ * @throws  server::server_exception
+ * */
+    bool is_server_socket_already_connected();
+
+/**
+ * Private methode of server class
+ *
+ * manage event like receive data
+ *
+ * void manage_event_already_conected(int client_socket);
+ *
+ * @returns void
  * @param   void
- * @throw   none
- **/
-    http_request();
+ * @throws  server::server_exception
+ * */
+    void manage_event_already_connected(int);
 
-/**
- * Constructor of http_request class
- *
- * http_request(std::string & path_config_file);
- *
- * @param   path_config_file is a std::string is a path to config file
- *          specified at start of webserv
- * @throw   none
- **/
-    http_request(std::string &);
 
-/**
-* Destructor of http_request class
-*
-* ~http_request();
-*
-* @throw   none
-**/
-    ~http_request();
 
-/**
- * Copy constructor of http_request class
- *
- * http_request(const http_request &);
- *
- * @param   http_request instance to build the server
- * @throw   none
- **/
-    http_request(http_request &);
 
-/**
- * Operator overload= of http_request class
- *
- * http_request(const http_request &);
- *
- * @param   http_request instance const to copy the server
- * @throw   none
- **/
-    http_request& operator=(const http_request &);
 
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
 
-/**
- * Protected methode of http_request struct
- *
- * int set_bloc_event();
- *
- * @returns     void
- * @param       void
- */
-    std::string parse_bloc_event();
 
-/**
- * Protected methode of http_request struct
- *
- * int set_bloc_http();
- *
- * @returns     void
- * @param       void
- */
-    std::string parse_bloc_http();
 
-/**
- * Protected methode of http_request struct
- *
- * std::string set_worker_processes();
- *
- * @returns     std::string if error in data for this token
- * @param       void
- */
-    std::string set_worker_processes();
+
+
+
+
 
 /**
  * Public methode of http_request struct
@@ -140,17 +106,6 @@ class http_request {
  * @throw       none
  */
     void set_map_token();
-
-/**
- * Public methode of http_request struct
- *
- * void set_default_value();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void set_default_value();
 
     /**
  * Private methode of server class
@@ -178,7 +133,8 @@ class http_request {
  * @throws  server::server_exception
  * */
     void send_data_client(int, std::string);
-    /**
+
+/**
  * Private methode of server class
  *
  * add headers befor send
@@ -204,14 +160,64 @@ class http_request {
  * */
     std::string set_headers(size_t);
 
+
+/*>********************************public section**********************************/
+
+public:
+
 /*
 *====================================================================================
-*|                                     Member                                       |
+*|                                  Member Fonction                                 |
 *====================================================================================
 */
-    peg_parser                                                  _peg_parser;
-    std::map<std::string, std::string (http_request::*)()>        _map_token_list_action;
-    int                                                         _worker_process;
+
+/**
+ * Constructor of http_request class
+ *
+ * http_request(epoll_event & event, config_webserv & config);
+ *
+ * @param   void
+ * @throw   none
+ **/
+    http_request(epoll_event &, server &);
+
+/**
+* Destructor of http_request class
+*
+* ~http_request();
+*
+* @throw   none
+**/
+    ~http_request();
+
+/**
+ * Copy constructor of http_request class
+ *
+ * http_request(const http_request &);
+ *
+ * @param   http_request instance to build the server
+ * @throw   none
+ **/
+    http_request(http_request &, server server);
+
+/**
+ * Operator overload= of http_request class
+ *
+ * http_request(const http_request &);
+ *
+ * @param   http_request instance const to copy the server
+ * @throw   none
+ **/
+    http_request& operator=(const http_request &);
+
+/*
+*====================================================================================
+*|                                  Element access                                  |
+*====================================================================================
+*/
+
+
+
 };
 
 

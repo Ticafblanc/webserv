@@ -608,6 +608,8 @@ struct bloc_http {
     config_webserv&                                         _config;
     std::map<std::string, std::string (bloc_http::*)()>     _map_token_list_action;
     std::vector<bloc_server>                                _vector_bloc_server;//no default value
+    std::map<int, bloc_server&>                             _map_client_socket;
+    int                                                     _number_max_events;
 };
 
 
