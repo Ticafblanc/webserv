@@ -13,8 +13,9 @@
 #ifndef WEBSERV_SERVER_CLASS_HPP
 # define WEBSERV_SERVER_CLASS_HPP
 
-#include "../Include/config_webserv.class.hpp"
 #include "../Include/header.hpp"
+#include "../Include/config_webserv.class.hpp"
+#include "../Include/http_request.class.hpp"
 
 
 class server{
@@ -31,14 +32,11 @@ private:
 
 
     config_webserv              &_config;
-    bool                        _stat_of_server;
     int                         _epoll_instance;
     int                         _number_max_events;
     int                         _number_triggered_events;
     struct epoll_event          _webserv_event, *_server_events;
     std::map<int, bloc_server>  _map_client_socket;
-
-    struct epoll_event          *_client_event;
     sockaddr_in                 _client_address;
     socklen_t                   _client_address_len;
 
@@ -146,198 +144,7 @@ private:
  * @param    position is index in server_event tab
  * @throws  server::server_exception
  * */
-    bool is_server_socket_already_conected(int);
-
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * void accept_connection(int new_client_socket);
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void accept_connection(int, bloc_server & server);
-
-/**
- * Private methode of server class
- *
- * manage event like receive data
- *
- * void manage_event_already_conected(int position);
- *
- * @returns void
- * @param   void
- * @throws  server::server_exception
- * */
-    void manage_event_already_conected(int);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string recv_data_client(int client_socket);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string recv_data_client(int);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void send_data_client(int client_socket, std::string& content);
- *
- * @returns void
- * @param   client_socket to send message
- * @param   content & to message to send
- * @throws  server::server_exception
- * */
-    void send_data_client(int, std::string);
-
-/**
- * Private methode of server class
- *
- * add headers befor send
- *
- * std::string set_html_content(std::string headers, std::string path_html_file);
- *
- * @returns std::string ready to send
- * @param   path_html_file to content to send
- * @throws  server::server_exception
- * */
-     std::string set_content(std::string (*f)(size_t), std::string path_html_file);
-
-/**
- * Private methode of server class
- *
- * set headers befor send
- *
- * std::string set_headers(size_t Content-Length);
- *
- * @returns std::string ready to send
- * @param   Content-Length to add to headers
- * @throws  server::server_exception
- * */
-    std::string set_headers_html(size_t);
-
-/**
- * Private methode of server class
- *
- * set headers befor send
- *
- * std::string set_headers(size_t Content-Length);
- *
- * @returns std::string ready to send
- * @param   Content-Length to add to headers
- * @throws  server::server_exception
- * */
-    std::string set_headers_css(size_t);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Private methode of server class
- *
- * create a new socket with fonction socket
- *
- * @see https://man7.org/linux/man-pages/man2/socket.2.html
- *
- * int socket(int domain, int protocol);
- *
- * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
- * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
- * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
- *
- * nginx work only on tcp protocol !!
- *
- * void set_socket(int & server_socket);
- *
- * @returns file descriptor (int) server socket created
- * @param   server_socket is an int & who refer set new socket
- * @throws  server::server_exception
- **/
-    void set_socket(int &);
-
-/**
- * Private methode of server class
- *
- * set the option of server socket already created
- *
- * void set_socket_option(int & server_socket);
- *
- * @returns void
- * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to set option
- * @throws  server::server_exception
- *
- * @see https://linux.die.net/man/3/setsockopt
- * */
-    void set_socket_option(int & server_socket);
-
-/**
- * Private methode of server class
- *
- * associate an IP address and a port number with a socket already created
- *
- * void set_bind(int & server_socket, struct sockaddr * sock_address);
- *
- * @returns void
- * @param   server_socket is an int & who refer to
- * @param   sock_address is an sockaddr_in contain data to set socket
- * @throws  server::server_exception
- *
- * @see https://man7.org/linux/man-pages/man2/bind.2.html
- * */
-    void set_bind(int & server_socket, sockaddr_in sock_address);
-
-/**
- * Private methode of server class
- *
- * set the listen option so the number of possible connexion
- *
- * void set_listen(int & server_socket, int backlog);
- *
- * @returns void
- * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to bind()
- *
- *          backlog is an int to define the maximum number of pending connections
- *          that can be queued before the server starts refusing new incoming connections.
- * @throws  server::server_exception
- *
- * @see https://man7.org/linux/man-pages/man2/listen.2.html
- * */
-    void set_listen(int&, int);
+    bool is_server_socket_already_connected(int);
 
 /**
  * Private methode of server class
@@ -370,17 +177,46 @@ private:
  * */
     int accessor_socket_flag(int&, int, int);
 
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void accept_connection(http_request & request);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void accept_connection(http_request & request);
 
-/*check if file descriptor is open
- * if process fail throw server::socket_exception();
- */
-//    int fd_isopen();
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * void accept_disconnection(int client_socket);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void accept_disconnection(int);
 
-/*check if socket  is open
- * if process fail throw server::socket_exception();
- */
-//    int socket_isopen();
-
+/**
+ * Private methode of server class
+ *
+ * manage event like receive data
+ *
+ * void manage_event_already_conected(int position);
+ *
+ * @returns void
+ * @param   void
+ * @throws  server::server_exception
+ * */
+    void manage_event_already_conected(int);
 
 
 /*>********************************public section**********************************/
@@ -509,22 +345,6 @@ public:
         std::string     _message;
     };
 
-/*
-*====================================================================================
-*|                                        Accessor                                  |
-*====================================================================================
-*/
-
-/**
- * Accessor of sever class
- *
- * data_server getDataServer() const;
- *
- * @returns data_server instance
- * @param void
- * @throw none
- **/
-    config_webserv get_config_webserv() const;
 
 /*
 *====================================================================================
@@ -543,7 +363,6 @@ public:
  * @throw none
  *
  * @see https://man7.org/linux/man-pages/man2/accept.2.html
- * @todo overload fonction to run launcher and launcher(flag);
  */
     void launcher();
 

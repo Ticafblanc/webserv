@@ -18,24 +18,21 @@
 *====================================================================================
 */
 
-server::server(config_webserv& config) : _config(config), _stat_of_server(false), _epoll_instance(),
+server::server(config_webserv& config) : _config(config), _epoll_instance(),
                                          _number_max_events(config._bloc_events._worker_connections * config._worker_process),
                                          _number_triggered_events(), _webserv_event(),
-                                         _server_events(new struct epoll_event[_number_max_events]),
-                                         _map_client_socket(), _client_event(),
+                                         _server_events(new struct epoll_event[_number_max_events]), _map_client_socket(),
                                          _client_address(), _client_address_len(sizeof(_client_address)) {}
 
 server::~server() {
     delete[] _server_events;
 }
 
-server::server(const server& other) :   _config(other._config), _stat_of_server(other._stat_of_server),
-                                        _epoll_instance(other._epoll_instance),
+server::server(const server& other) :   _config(other._config),_epoll_instance(other._epoll_instance),
                                         _number_max_events(other._number_max_events),
                                         _number_triggered_events(other._number_triggered_events),
                                         _webserv_event(other._webserv_event), _server_events(other._server_events),
-                                        _map_client_socket(other._map_client_socket),
-                                        _client_event(other._client_event), _client_address(other._client_address),
+                                        _map_client_socket(other._map_client_socket), _client_address(other._client_address),
                                         _client_address_len(other._client_address_len){}
 
 server& server::operator=(const server& rhs){
@@ -44,7 +41,6 @@ server& server::operator=(const server& rhs){
     this->_number_max_events = rhs._number_max_events;
     this->_number_triggered_events = rhs._number_triggered_events;
     this->_map_client_socket = rhs._map_client_socket;
-    this->_client_event = rhs._client_event;
     this->_client_address = rhs._client_address;
     this->_client_address_len = rhs._client_address_len;
     return *this;
@@ -69,15 +65,6 @@ server::server_exception &server::server_exception::operator=(const server::serv
     return *this;
 }
 
-/*
-*====================================================================================
-*|                                  Element access                                 |
-*====================================================================================
-*/
-
-config_webserv server::get_config_webserv() const {
-    return _config;
-}
 
 /*
 *====================================================================================
@@ -86,18 +73,22 @@ config_webserv server::get_config_webserv() const {
 */
 
 void server::launcher() {
-    _stat_of_server = true;
     try {
         set_epoll();
-        while(_stat_of_server) {
-            set_epoll_wait();
-            for (int i = 0; i < _number_triggered_events; ++i) {
-                if (is_server_socket_already_conected(i))
-                    manage_event_already_conected(i);
+        while(true) {
+            try {
+                set_epoll_wait();
+                for (int i = 0; i < _number_triggered_events; ++i) {
+                    if (is_server_socket_already_conected(i))
+                        manage_event_already_conected(i);
+                }
+            }
+            catch (const std::exception& e){
+                std::cout << e.what() << std::endl;
             }
         }
     }
-    catch (const std::exception& e){//if necessary to save the socket in process
+    catch (const std::exception& e){//if necessary to save the socket in process reset error value
         std::cout << e.what() << std::endl;
     }
 }
@@ -144,153 +135,21 @@ void server::set_epoll_wait() {
         throw server::server_exception(strerror(errno));
 }
 
-bool server::is_server_socket_already_conected(int position){
+bool server::is_server_socket_already_connected(int position){
     for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
          server != _config._bloc_http._vector_bloc_server.end(); ++server) {
         for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
              vec_listen != server->_vector_listen.end(); ++vec_listen) {
             if (vec_listen->_server_socket == _server_events[position].data.fd){
-                accept_connection(_server_events[position].data.fd, *server);
-                return false;//@todo add check server name and number of connection extract data client if necessary
+                http_request request(std::make_pair(vec_listen->_server_socket, *vec_listen));
+                if (request.connection())
+                    accept_connection(request);
+                request.send_reply();
+                return false;
             }
         }
     }
     return true;
-}
-
-void server::accept_connection(int new_client_socket, bloc_server &server) {
-    new_client_socket = accept(new_client_socket, reinterpret_cast<struct sockaddr *>(&_client_address),
-            &_client_address_len);
-    if (new_client_socket == -1)
-        throw server::server_exception(strerror(errno));
-    accessor_socket_flag(new_client_socket, F_SETFL, O_NONBLOCK);
-    set_epoll_event(new_client_socket, _webserv_event, EPOLLIN | EPOLLET);
-    set_epoll_ctl(EPOLL_CTL_ADD, new_client_socket);
-    _number_max_events--;
-    _map_client_socket.insert(std::make_pair(new_client_socket, server));
-    send_data_client(new_client_socket,
-                     set_html_content(&set_headers_htm, "/usr/local/var/www/webserv.com/accueille.html"));//@todo set server html root
-}
-
-void server::manage_event_already_conected(int position){
-    std::string data;
-    recv_data_client(_server_events[position].data.fd);
-    std::cout << data << std::endl;
-    send_data_client(_server_events[position].data.fd, data);
-
-//    close(_server_events[position].data.fd);
-
-//    set_epoll_ctl(EPOLL_CTL_DEL, socket, NULL); for close socket unlonk
-}
-
-std::string server::recv_data_client(int client_socket){
-    char buffer[1024];//@todo see if define in conf file
-    ssize_t bytes_received;
-    std::string data;
-
-    bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
-    std::cout << buffer << std::endl;
-    data += buffer;
-    if (bytes_received == -1) {
-        server_exception server_exception(strerror(errno));
-        throw server_exception;
-    }
-    return data;
-}
-
-void server::send_data_client(int client_socket, std::string content){
-    ssize_t bytes_send;
-    std::cout <<content <<std::endl;
-    bytes_send = send(client_socket, content.c_str(), content.length(), 0);
-    if (bytes_send == -1) {
-        server_exception server_exception(strerror(errno));
-        throw server_exception;
-    }
-}
-
-std::string server::set_content(std::string (*f)(size_t), std::string path_file) {
-    std::ifstream html(path_file.c_str());
-    if (!html) {
-        server_exception server_exception(strerror(errno));
-        throw server_exception;
-    }
-    std::stringstream html_string;
-    html_string << html.rdbuf();
-    html.close();
-
-    std::string content = f(html_string.str().length());
-    content += "\r\n\r\n" + html_string.str();
-
-    return content;
-}
-
-std::string server::set_headers_html(size_t content_length) {
-    std::string headers(  "HTTP/1.1 200 OK\r\n"
-                            "Content-Type: text/html\r\n"
-                            "Content-Length: " );
-    std::stringstream length;
-    length << content_length;
-    headers += length.str();
-    return headers;
-}
-
-std::string server::set_headers_css(size_t content_length) {
-    std::string headers(  "HTTP/1.1 200 OK\r\n"
-                          "Content-Type: text/css\r\n"
-                          "Content-Length: " );
-    std::stringstream length;
-    length << content_length;
-    headers += length.str();
-    return headers;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void server::set_socket(int & server_socket) {
-    server_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if (server_socket == 0)
-        throw server::server_exception(strerror(errno));
-}
-
-void server::set_socket_option(int & server_socket){
-    int option_val = 1;
-    if (setsockopt(server_socket, IPPROTO_TCP, SO_REUSEADDR,
-                   &option_val, (socklen_t)sizeof(option_val)))
-        throw server::server_exception(strerror(errno));
-}
-
-void server::set_bind(int & server_socket, sockaddr_in sock_address) {
-    if (bind(server_socket, reinterpret_cast<struct sockaddr *>(&sock_address), sizeof(sock_address)) < 0)
-        throw server::server_exception(strerror(errno));
-}
-
-void server::set_listen(int & server_socket, int backlog) {
-    if (listen(server_socket, backlog) < 0)
-        throw server::server_exception(strerror(errno));
 }
 
 int server::accessor_socket_flag(int & server_socket, int command, int flag){
@@ -300,37 +159,36 @@ int server::accessor_socket_flag(int & server_socket, int command, int flag){
     return return_flag;
 }
 
+void server::accept_connection(http_request & request) {
+    new_client_socket = accept(new_client_socket, reinterpret_cast<struct sockaddr *>(&_client_address),
+            &_client_address_len);
+    if (new_client_socket == -1) {
+        server_exception server_exception(strerror(errno));
+        throw server_exception;
+    }
+    accessor_socket_flag(new_client_socket, F_SETFL, O_NONBLOCK);
+    set_epoll_event(new_client_socket, _webserv_event, EPOLLIN | EPOLLET);
+    set_epoll_ctl(EPOLL_CTL_ADD, new_client_socket);
+    _number_max_events--;
+    _map_client_socket.insert(std::make_pair(new_client_socket, server));
+}
 
+void server::accept_disconnection(int client_socket) {
+    _number_max_events++;
+    _map_client_socket.erase(client_socket);
+    set_epoll_ctl(EPOLL_CTL_DEL, client_socket);
+    close(client_socket);
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-//int data_server::fd_isopen() {
-//    int ret = fcntl(getServerFd(), F_GETFL);
-//    if (ret == -1) {
-//        throw data_server::data_exception();
-//    }
-//    return 1;
-//}
-//
-//int data_server::socket_isopen() {
-//    int error;
-//    socklen_t len = sizeof(error);
-//    int ret = getsockopt(getServerFd(), SOL_SOCKET, SO_ERROR, &error, &len);
-//    if (ret != 0 || error > 0) {i
-//        throw data_server::data_exception();
-//    }
-//    return 1;
-//}
-
-
+void server::manage_event_already_conected(int position){
+    try{
+        if (_map_client_socket.find(_server_events[position].data.fd) != _map_client_socket.end()) {
+            http_request request(_map_client_socket.at(_server_events[position].data.fd), data);
+            if (request.disconection())
+                accept_disconnection(_server_events[position].data.fd);
+            request.send_reply();
+        }//@todo if necessary to throw
+    }catch (std::exception & e){
+        //@todo log error;
+    }
+}
