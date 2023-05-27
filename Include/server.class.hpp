@@ -31,12 +31,13 @@ private:
 */
 
 
-    config_webserv              &_config;
-    int                         _epoll_instance;
-    int                         _number_triggered_events;
-    struct epoll_event          _webserv_event, *_server_events;
-    sockaddr_in                 _client_address;
-    socklen_t                   _client_address_len;
+    config_webserv                                  &_config;
+    int                                             _epoll_instance;
+    int                                             _number_triggered_events;
+    struct epoll_event                              _webserv_event, *_server_events;
+    sockaddr_in                                     _client_address;
+    socklen_t                                       _client_address_len;
+    std::map<std::string, void (server::*)(int)>    _map_connection;
 
 /*
 *====================================================================================
@@ -325,7 +326,7 @@ public:
  * void connect_new_client(int new_client_socket);
  *
  * @returns void
- * @param   void
+ * @param   client socket to disconnect
  * @throws  server::server_exception
  * */
     void connect_new_client(int);
@@ -336,13 +337,13 @@ public:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void accept_disconnection(int client_socket);
+ * void disconnect_client(int client_socket);
  *
  * @returns void
- * @param   void
+ * @param   client socket to disconnect
  * @throws  server::server_exception
  * */
-    void accept_disconnection(int);
+    void disconnect_client(int);
 
 
 /*
@@ -351,7 +352,6 @@ public:
 *====================================================================================
 */
 
-    bloc_http & get_http();
 
 
 };

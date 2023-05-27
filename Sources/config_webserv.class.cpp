@@ -308,11 +308,13 @@ std::string bloc_http::add_vector_bloc_server() {
 }
 
 void bloc_http::set_default_value() {
-    if (_vector_bloc_server.empty()) {
-        bloc_server bloc_server(_config);
-        bloc_server.set_default_value();
-        _vector_bloc_server.push_back(bloc_server);
-    }
+//    if (_vector_bloc_server.empty()) {
+//
+//    }
+    _number_max_events = _config._bloc_events._worker_connections * _config._worker_process ;
+    bloc_server bloc_server(_config);
+    bloc_server.set_default_value();
+    _vector_bloc_server.push_back(bloc_server);
 }
 
 void bloc_http::set_map_token() {
@@ -365,8 +367,8 @@ std::string bloc_events::set_worker_connections() {
 }
 
 void bloc_events::set_default_value() {
-    if (_map_token_list_action.size() == 1)
-        _worker_connections = 10;
+//    if (_map_token_list_action.size() == 1)
+    _worker_connections = 10;
 }
 
 void bloc_events::set_map_token() {
@@ -444,16 +446,10 @@ std::string config_webserv::set_worker_processes() {
 }
 
 void config_webserv::set_default_value() {
-    std::map<std::string, std::string (config_webserv::*)()>::iterator it = _map_token_list_action.begin();
-    for (;it != _map_token_list_action.end(); ++it) {
-        if (it->first == "worker_processes") {
-            _worker_process = 1;
-        } else if (it->first == "events") {
-            _bloc_events.set_default_value();
-        } else if (it->first == "http"){
-            _bloc_http.set_default_value();
-        }
-    }
+//    std::map<std::string, std::string (config_webserv::*)()>::iterator it = _map_token_list_action.begin();
+    _worker_process = 1;
+    _bloc_events.set_default_value();
+    _bloc_http.set_default_value();
 }
 
 void config_webserv::set_map_token() {

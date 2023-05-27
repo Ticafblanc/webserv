@@ -20,7 +20,10 @@
 
 server::server(config_webserv& config) : _config(config), _epoll_instance(), _number_triggered_events(), _webserv_event(),
                                          _server_events(new struct epoll_event[config._bloc_http._number_max_events]),
-                                         _client_address(), _client_address_len(sizeof(_client_address)) {}
+                                         _client_address(), _client_address_len(sizeof(_client_address)), _map_connection(){
+    _map_connection["connection"] = &server::connect_new_client;
+    _map_connection["disconnection"] = &server::disconnect_client;
+}
 
 server::~server() {
     delete[] _server_events;
@@ -72,11 +75,13 @@ server::server_exception &server::server_exception::operator=(const server::serv
 void server::launcher() {
     try {
         set_epoll();
+        http_request request(_config);
         while(true) {
             try {
                 set_epoll_wait();
                 for (int i = 0; i < _number_triggered_events; ++i) {
-                    http_request request(_server_events[i], *this);
+                    (this->*(_map_connection.find(request.manage_request(_server_events[i]))->second))(_server_events[i].data.fd);
+                    request.send_data_client(_server_events[i].data.fd);
                 }
             }
             catch (const std::exception& e){
@@ -127,7 +132,7 @@ void server::set_epoll_ctl(int option, int server_socket) {
 }
 
 void server::set_epoll_wait() {
-    _number_triggered_events = epoll_wait(_epoll_instance, _server_events,_number_max_events, -1);//@todo manage limit connectiuon
+    _number_triggered_events = epoll_wait(_epoll_instance, _server_events,_config._bloc_http._number_max_events, -1);//@todo manage limit connectiuon
     if (_number_triggered_events == -1)
         throw server::server_exception(strerror(errno));
 }
@@ -152,16 +157,12 @@ void server::connect_new_client(int new_client_socket) {
     set_epoll_event(new_client_socket, _webserv_event, EPOLLIN | EPOLLET);
     set_epoll_ctl(EPOLL_CTL_ADD, new_client_socket);
     _config._bloc_http._number_max_events--;
-    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, server));
+//    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, ))
+//    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, server);
 }
 
-void server::accept_disconnection(int client_socket) {
+void server::disconnect_client(int client_socket) {
     _config._bloc_http._number_max_events++;
     set_epoll_ctl(EPOLL_CTL_DEL, client_socket);
     close(client_socket);
 }
-
-
-
-bloc_http & server::get_http() { return _config._bloc_http; }
-

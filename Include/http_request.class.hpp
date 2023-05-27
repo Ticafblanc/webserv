@@ -15,20 +15,41 @@
 
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
-#include "../Include/server.class.hpp"
-_map_client_socket.erase(client_socket);
+#include "../Include/config_webserv.class.hpp"
 
-allow_methods
-        send_data_client(new_client_socket,
-                         set_html_content("/usr/local/var/www/webserv.com/accueille.html"));//@todo set server html root
-        cgi_pass
-if (request.disconection())
-accept_disconnection(_server_events[position].data.fd);
-send_data_client(_server_events[position].data.fd, request.reply());
-int                         _stat_of_server;
-std::map<int, std::string>  _status_code;
-std::string data;
-data = recv_data_client(_server_events[position].data.fd);
+//text/plain : Texte brut.
+//text/html : Document HTML.
+//text/css : Feuille de style CSS.
+//text/javascript : Code JavaScript.
+//application/json : Données au format JSON.
+//application/xml : Document XML.
+//application/pdf : Fichier PDF.
+//application/octet-stream : Flux binaire générique.
+//image/jpeg : Image au format JPEG.
+//image/png : Image au format PNG.
+//image/gif : Image au format GIF.
+//audio/mpeg : Fichier audio au format MP3.
+//video/mp4 : Fichier vidéo au format MP4.
+//multipart/form-data : Utilisé pour l'envoi de données de formulaire multipart, généralement utilisé pour les téléchargements de fichiers.
+//HTTP/1.1 200 OK
+//        Content-Type: text/html
+//        Content-Length: 19
+//
+//<html><body>Connected</body></html>
+
+//_map_client_socket.erase(client_socket);
+//
+//allow_methods
+//        send_data_client(new_client_socket,
+//                         set_html_content("/usr/local/var/www/webserv.com/accueille.html"));//@todo set server html root
+//        cgi_pass
+//if (request.disconection())
+//accept_disconnection(_server_events[position].data.fd);
+//send_data_client(_server_events[position].data.fd, request.reply());
+//int                         _stat_of_server;
+//std::map<int, std::string>  _status_code;
+//std::string data;
+//data = recv_data_client(_server_events[position].data.fd);
 /*
 *==========================================================================================================
 *|                                                  http token                                        |
@@ -47,9 +68,15 @@ private:
 *====================================================================================
 */
 
-    epoll_event                 &_event;
-    server                      &_server;
-    std::map<int, std::string>  _status_code;
+    config_webserv                      &_config;
+    std::map<int, std::string>          _map_status_code;
+    int                                 _status_code;
+    std::map<std::string , std::string> _map_content_type;
+    std::string                         _content_type;
+    std::string                         _buffer;
+    std::string                         _header_buffer;
+    std::string                         _body_buffer;
+    std::vector<std::string>            _vector_body_buffer_next;
 
 
 /*
@@ -59,55 +86,32 @@ private:
 */
 
 /**
- * Private methode of server class
+ * Private methode of http_request class
  *
  * check if is a request try to connect with a server socket
  *
  * bool is_server_socket_already_conected();
  *
- * @returns bool true if is a sever socket than false
- * @param    position is index in server_event tab
- * @throws  server::server_exception
+ * @returns bool false if is a sever socket than true
+ * @param    event is an epoll event to manage
+ * @throws  none
  * */
-    bool is_server_socket_already_connected();
+    bool is_server_socket_already_connected(epoll_event &);
 
 /**
- * Private methode of server class
+ * Private methode of http_request class
  *
  * manage event like receive data
  *
- * void manage_event_already_conected(int client_socket);
+ * std::string manage_event_already_conected(epoll_event & event);
  *
- * @returns void
- * @param   void
- * @throws  server::server_exception
+ * @returns std::string action to do for server
+ * @param   event is an epoll event to manage
+ * @throws  http_request::http_request_exception
  * */
-    void manage_event_already_connected(int);
-
-
-
-
-
-
-
-
-
-
-
-
+    std::string manage_event_already_connected(epoll_event &);
 
 /**
- * Public methode of http_request struct
- *
- * void set_map_token();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void set_map_token();
-
-    /**
  * Private methode of server class
  *
  * extract data and put in std::string
@@ -125,40 +129,90 @@ private:
  *
  * extract data and put in std::string
  *
+ * void set_reply();
+ *
+ * @returns void
+ * @param   void
+ * @throws  none
+ * */
+    void set_reply();
+
+/**
+ * Private methode of http_request class
+ *
+ * add headers befor send
+ *
+ * void set_content();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void set_content();
+
+/**
+ * Private methode of http_request class
+ *
+ * set headers befor send
+ *
+ * std::string set_headers();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void set_header();
+
+/**
+ * Private methode of http_request class
+ *
+ * add buffer to send
+ *
+ * void set_buffer();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void set_buffer();
+
+/**
+ * Public methode of http_request struct
+ *
+ * void set_reply();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+//    void set_map_token();
+/**
+ * Public methode of http_request struct *
+ * void set_map_token();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+//    void set_map_token();
+
+/**
+ * Private methode of http_request class
+ *
+ * extract data and put in std::string
+ *
  * void send_data_client(int client_socket, std::string& content);
  *
  * @returns void
  * @param   client_socket to send message
  * @param   content & to message to send
- * @throws  server::server_exception
+ * @throws  http_request::http_request_exception
  * */
-    void send_data_client(int, std::string);
+//    void send_data_client(int, std::string);
 
-/**
- * Private methode of server class
- *
- * add headers befor send
- *
- * std::string set_html_content(std::string path_html_file);
- *
- * @returns std::string ready to send
- * @param   path_html_file to content to send
- * @throws  server::server_exception
- * */
-    std::string set_html_content(std::string path_html_file);
+;
 
-/**
- * Private methode of server class
- *
- * set headers befor send
- *
- * std::string set_headers(size_t Content-Length);
- *
- * @returns std::string ready to send
- * @param   Content-Length to add to headers
- * @throws  server::server_exception
- * */
-    std::string set_headers(size_t);
+
 
 
 /*>********************************public section**********************************/
@@ -174,12 +228,12 @@ public:
 /**
  * Constructor of http_request class
  *
- * http_request(epoll_event & event, config_webserv & config);
+ * http_request(config_webserv & config);
  *
- * @param   void
+ * @param   config_webserv &
  * @throw   none
  **/
-    http_request(epoll_event &, server &);
+    http_request(config_webserv &);
 
 /**
 * Destructor of http_request class
@@ -198,7 +252,7 @@ public:
  * @param   http_request instance to build the server
  * @throw   none
  **/
-    http_request(http_request &, server server);
+    http_request(const http_request &);
 
 /**
  * Operator overload= of http_request class
@@ -216,6 +270,107 @@ public:
 *====================================================================================
 */
 
+/**
+ * Private methode of server class
+ *
+ * set headers befor send
+ *
+ * std::string set_headers(size_t Content-Length);
+ *
+ * @returns std::string ready to send
+ * @param   Content-Length to add to headers
+ * @throws  http_request::http_requestexception
+ * */
+    std::string manage_request(epoll_event&);
+
+/**
+ * Private methode of server class
+ *
+ * send _body_buffer to client
+ *
+ * void send_data_client(int);
+ *
+ * @returns void
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void send_data_client(int);
+
+/*
+*====================================================================================
+*|                                  Class Exception                                 |
+*====================================================================================
+*/
+
+
+/**
+ * Class exception of http_request class
+ *
+ * class http_request_exception;
+ *
+ * @inherit std::exception
+ **/
+    class http_request_exception: public std::exception
+    {
+    public:
+
+        /**
+         * Constructor of http_request_exception class
+         *
+         * http_request_exception(server & server , const char * message);
+         *
+         * @param   server is a server reference to set the private _server
+         *          to manage the close of server class
+         *          message to store const char*
+         * @throw   none
+         **/
+        http_request_exception(const char * message);
+
+        /**
+         * Copy constructor of http_request_exception class
+         *
+         * http_request_exception(http_request_exception &);
+         *
+         * @param   http_request_exception instance to build the http_request_exception
+         *          http_request_socket in an int to close
+         * @throw   none
+         **/
+        http_request_exception(const http_request_exception &);
+
+        /**
+         * Operator overload= of http_request_exception class
+         *
+         * operator=(const http_request_exception&);
+         *
+         * @param   http_request_exception instance const to copy the http_request_exception
+         * @throw   none
+         **/
+        http_request_exception& operator=(const http_request_exception &);
+
+        /**
+        * Destructor of http_request_exception class
+        *
+        * virtual ~http_request_exception() throw();
+        *
+        * @throw   none
+        **/
+        virtual ~http_request_exception() throw();
+
+        /**
+         * Public methode of http_request_exception
+         *
+         * virtual const char * what() const throw();
+         *
+         * @returns  const char * store in private std::string _message
+         *          at the construction defaut constructor "socket error"
+         * @param   void
+         * @throw   none
+         **/
+        virtual const char * what() const throw();
+
+    private:
+        std::string     _message;
+    };
 
 
 };
