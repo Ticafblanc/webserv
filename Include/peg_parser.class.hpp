@@ -33,7 +33,7 @@ public:
  * @param   line_comment_character is a line character indicates the line not to be processed
  * @throw   none
  **/
-    peg_parser(const std::string);
+//    peg_parser(const std::string);
 
 /**
  * Constructor of peg_parser.class

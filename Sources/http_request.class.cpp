@@ -23,7 +23,7 @@
 http_request::http_request(config_webserv &config)
 : _config(config), _map_status_code(), _status_code(200), _map_content_type(), _content_type("html"),
 _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
-    //@todo set map
+    set_map_status_code();
 }//@todo manage buffer client_header_buffer_size client_body_buffer_size client_max_body_size
 
 http_request::~http_request() {}
@@ -76,6 +76,9 @@ std::string http_request::manage_event_already_connected(epoll_event & event){
     std::map<int, bloc_server&>::iterator  it = _config._bloc_http._map_client_socket.find(event.data.fd);
     if ( it != _config._bloc_http._map_client_socket.end()) {
         recv_data_client(event.data.fd);
+        //read and check
+        //exec if necessary
+        set_reply();
     }
     return std::string("");
 }
@@ -139,6 +142,126 @@ void http_request::set_buffer() {
     _buffer.replace(0, _header_buffer.size(), _header_buffer);
 
 }
+
+
+
+void http_request::set_map_status_code() {
+    std::ifstream       file_to_parse("./Data/http_status_code.json");
+
+    if (!file_to_parse.is_open())
+        throw http_request::http_request_exception("error parse http_status_code.json");
+    std::string string((std::istreambuf_iterator<char>(file_to_parse)), std::istreambuf_iterator<char>());
+    std::cout << string << std::endl;
+    std::map<std::string, std::string> json_data = parseJson(string);
+    for(std::map<std::string, std::string>::iterator it = json_data.begin();
+    it != json_data.end(); ++it){
+        int code = std::atoi(it->first.c_str());
+        if (_map_status_code.find(code) != _map_status_code.end())
+            _map_status_code[std::atoi(it->first.c_str())] = status_code(it->second);
+    }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+    /**
+     *  the server has received the client's request headers and is ready
+     * to receive the request body. It allows the client to proceed with sending the request.
+     */
+//    _map_status_code[100] = "Continue";
+
+    /**
+     * the server agrees to switch to a different protocol, specified in the response's "Upgrade"
+     * header. For example, it can be used when a client requests an upgrade to the WebSocket protocol.
+     */
+//    _map_status_code[101] = "Switching Protocols";
+
+    /**
+     * the server has received the client's request and is currently processing it, but the final
+     * response is not yet available.
+     */
+//    _map_status_code[102] = "Processing";
+
+    /**
+     *  the client's request has been successfully processed, and the corresponding response is being returned.
+     */
+//    _map_status_code[200] = "200 OK";
+
+    /**
+     * the request has been successfully processed and a new resource has been created as a result.
+     * For example, when a new record is created in a database.
+     */
+//    _map_status_code[201] = "Created";
+
+    /**
+     * the request has been accepted for processing, but the processing is not yet complete.
+     * The final response may be returned later.
+     */
+//    _map_status_code[202] = "Accepted";
+
+    /**
+     * the request has been successfully processed, but the response does not contain any content to be returned.
+     * For example, when a deletion request is successful but no additional response is needed.
+     */
+//    _map_status_code[204] = "No Content";
+
+    /**
+     * the response contains only a portion of the requested resource. This typically occurs in
+     * the case of range requests, where the client requests only a specific part of the resource.
+     */
+//    _map_status_code[206] = "Partial Content";
+
+    /**
+     * the response may contain multiple options, and the client needs to choose from them.
+     * For example, when a URL redirects to multiple other possible URLs.
+     */
+//    _map_status_code[300] = "Multiple Choices";
+
+    /**
+     * the requested resource has been permanently moved to a new URL.
+     * The client is typically instructed to update its links and use the new URL.
+     */
+//    _map_status_code[301] = "Moved Permanently";
+
+    /**
+     *  the requested resource has been temporarily moved to a different URL.
+     *  The client is typically instructed to follow the redirection.
+     */
+//    _map_status_code[302] = "Found";
+
+    /**
+     * the requested resource has not been modified since the client's last request,
+     * and therefore the response is empty. The client can use the locally cached copy of the resource.
+     */
+//    _map_status_code[304] = "Not Modified";
+
+
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+//    _map_status_code[100] = "Continue";
+
+
 
 //std::string http_request::set_content() {
 //    std::ifstream html(path_html_file.c_str());

@@ -16,7 +16,18 @@
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
 #include "../Include/config_webserv.class.hpp"
-
+#include "./utils.cpp"
+//User-Agent : spécifie l'agent utilisateur (généralement le navigateur) qui envoie la requête
+//Accept : indique les types de contenu que le client peut accepter de la part du serveur
+//        Authorization : fournit des informations d'identification pour l'authentification du client
+//Cookie : envoie des cookies stockés par le client au serveur
+//        Content-Type : spécifie le type de contenu inclus dans une requête POST ou PUT
+//Content-Length : indique la longueur du corps de la requête en octets
+//Host : indique le nom d'hôte et éventuellement le numéro de port du serveur
+//Referer : spécifie l'URL de la page précédente à partir de laquelle la requête a été déclenchée
+//Origin : indique l'origine de la requête Cross-Origin Resource Sharing (CORS)
+//If-Modified-Since : permet aux clients de vérifier si une ressource a été modifiée depuis une date spécifiée
+//        Cache-Control : spécifie les directives de mise en cache pour les serveurs et les clients
 //text/plain : Texte brut.
 //text/html : Document HTML.
 //text/css : Feuille de style CSS.
@@ -68,15 +79,15 @@ private:
 *====================================================================================
 */
 
-    config_webserv                      &_config;
-    std::map<int, std::string>          _map_status_code;
-    int                                 _status_code;
-    std::map<std::string , std::string> _map_content_type;
-    std::string                         _content_type;
-    std::string                         _buffer;
-    std::string                         _header_buffer;
-    std::string                         _body_buffer;
-    std::vector<std::string>            _vector_body_buffer_next;
+    config_webserv                                      &_config;
+    std::map<int, std::pair<std::string, std::string> > _map_status_code;
+    int                                                 _status_code;
+    std::map<std::string , std::string>                 _map_content_type;
+    std::string                                         _content_type;
+    std::string                                         _buffer;
+    std::string                                         _header_buffer;
+    std::string                                         _body_buffer;
+    std::vector<std::string>                            _vector_body_buffer_next;
 
 
 /*
@@ -179,13 +190,14 @@ private:
 /**
  * Public methode of http_request struct
  *
- * void set_reply();
+ * void set_map_status_code();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-//    void set_map_token();
+    void set_map_status_code();
+
 /**
  * Public methode of http_request struct *
  * void set_map_token();

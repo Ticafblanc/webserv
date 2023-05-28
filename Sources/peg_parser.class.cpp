@@ -8,8 +8,8 @@
 
 peg_parser::peg_parser() : _string_stream(), _line_comment_character(){}
 
-peg_parser::peg_parser(const std::string line_comment_character)
-    : _string_stream(), _line_comment_character(line_comment_character){}
+//peg_parser::peg_parser(const std::string line_comment_character)
+//    : _string_stream(), _line_comment_character(line_comment_character){}
 
 peg_parser::peg_parser(const char * path_file) : _string_stream(), _line_comment_character() {
     std::ifstream       file_to_parse(path_file);
