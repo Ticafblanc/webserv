@@ -25,7 +25,8 @@ http_request::http_request(config_webserv &config)
   _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
     set_map_status_code();
     set_map_content_type();
-    set_map_token();
+    set_map_token_information();
+    set_map_token_methode();
 }//@todo manage buffer client_header_buffer_size client_body_buffer_size client_max_body_size
 
 http_request::~http_request() {}
@@ -85,7 +86,7 @@ std::string http_request::manage_event_already_connected(epoll_event & event){
     }
         //exec if necessary
     set_reply();
-    return std::string("");
+    return _connection;
 }
 
 std::string http_request::recv_data_client(int client_socket){
@@ -380,21 +381,22 @@ void http_request::set_map_token_methode() {
 }
 
 void http_request::set_map_token_information() {
-    _map_token_list_action_information["Host: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["User-Agent: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Accept: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Accept-Language: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Accept-Encoding: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Connection: "] = &http_request::connection_information;
-    _map_token_list_action_information["Upgrade-Insecure-Requests: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Dest: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Mode: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Site: "] = &http_request::extract_unused_information;
-    _map_token_list_action_information["Upgrade-Insecure-Requests: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Host:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["User-Agent:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept-Language:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept-Encoding:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Connection:"] = &http_request::connection_information;
+    _map_token_list_action_information["Upgrade-Insecure-Requests:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Dest:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Mode:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Site:"] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-User:"] = &http_request::extract_unused_information;
 }
 
 std::string http_request::extract_unused_information() {
-    return peg.extract_data('\n');;
+    std::string http_version = peg.extract_data('\n');
+    return std::string();
 }
 
 std::string http_request::extract_location() {
@@ -403,6 +405,7 @@ std::string http_request::extract_location() {
 
 std::string http_request::extract_http_version() {
     std::string http_version = peg.extract_data('\n');
+    http_version.resize(http_version.size() - 1);
     if (http_version != "HTTP/1.1")
         throw http_request::http_request_exception("error version");
     return http_version;
@@ -431,7 +434,7 @@ std::string http_request::delete_methode() {
 
 std::string http_request::connection_information() {
     std::string connection = peg.extract_data('\n');
-    _connection = connection;
+    _connection = connection.substr(0, connection.size() - 1);
     return std::string();
 }
 

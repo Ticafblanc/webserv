@@ -323,7 +323,7 @@ public:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void connect_new_client(int &new_client_socket);
+ * int connect_new_client(int);
  *
  * @returns void
  * @param   client socket to disconnect
@@ -337,13 +337,27 @@ public:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void disconnect_client(int &client_socket);
+ * int disconnect_client(int);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::server_exception
  * */
     int disconnect_client(int);
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * int keep_alive(int);
+ *
+ * @returns void
+ * @param   client socket to disconnect
+ * @throws  server::server_exception
+ * */
+    int keep_alive(int);
 
 
 /*

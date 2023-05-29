@@ -22,7 +22,8 @@ server::server(config_webserv& config) : _config(config), _epoll_instance(), _nu
                                          _server_events(new struct epoll_event[config._bloc_http._number_max_events]),
                                          _client_address(), _client_address_len(sizeof(_client_address)), _map_connection(){
     _map_connection["connection"] = &server::connect_new_client;
-    _map_connection["disconnection"] = &server::disconnect_client;
+    _map_connection["close"] = &server::disconnect_client;
+    _map_connection["keep-alive"] = &server::keep_alive;
 }
 
 server::~server() {
@@ -164,5 +165,9 @@ int server::disconnect_client(int client_socket) {
     _config._bloc_http._number_max_events++;
     set_epoll_ctl(EPOLL_CTL_DEL, client_socket);
     close(client_socket);
+    return client_socket;
+}
+
+int server::keep_alive(int client_socket) {
     return client_socket;
 }

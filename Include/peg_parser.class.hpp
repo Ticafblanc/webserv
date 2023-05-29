@@ -131,7 +131,7 @@ public:
     template<class T>
     void find_token(T& base, std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
         std::string token = extract_data(control_operator);
-        if (token.empty())
+        if (token.find_first_not_of('\0') ==  std::string::npos)
             return;
         typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
         if (it == map_token_list_action.end() && !check_is_empty()) {

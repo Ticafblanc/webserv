@@ -71,7 +71,7 @@ std::string peg_parser::extract_data(char control_operator) {
     else
         std::getline(_string_stream >> std::ws, data, control_operator);
 
-    if (_string_stream.eof()) {
+    if (_string_stream.eof() && data.find_first_not_of('\0') !=  std::string::npos) {
         syntax_exception exception(data.c_str());
         exception.set_error_message("find end of file in ");
         throw exception;
