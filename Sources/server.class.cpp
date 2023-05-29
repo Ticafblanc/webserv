@@ -80,8 +80,7 @@ void server::launcher() {
             try {
                 set_epoll_wait();
                 for (int i = 0; i < _number_triggered_events; ++i) {
-                    (this->*(_map_connection.find(request.manage_request(_server_events[i]))->second))(_server_events[i].data.fd);
-                    request.send_data_client(_server_events[i].data.fd);
+                    request.send_data_client((this->*(_map_connection.find(request.manage_request(_server_events[i]))->second))(_server_events[i].data.fd));
                 }
             }
             catch (const std::exception& e){
@@ -146,7 +145,7 @@ int server::accessor_socket_flag(int & server_socket, int command, int flag){
     return return_flag;
 }
 
-void server::connect_new_client(int new_client_socket) {
+int server::connect_new_client(int new_client_socket) {
     new_client_socket = accept(new_client_socket, reinterpret_cast<struct sockaddr *>(&_client_address),
             &_client_address_len);
     if (new_client_socket == -1) {
@@ -157,12 +156,13 @@ void server::connect_new_client(int new_client_socket) {
     set_epoll_event(new_client_socket, _webserv_event, EPOLLIN | EPOLLET);
     set_epoll_ctl(EPOLL_CTL_ADD, new_client_socket);
     _config._bloc_http._number_max_events--;
-//    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, ))
-//    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, server);
+    _config._bloc_http._map_client_socket.insert(std::make_pair(new_client_socket, _config._bloc_http._select_bloc_server));
+    return new_client_socket;
 }
 
-void server::disconnect_client(int client_socket) {
+int server::disconnect_client(int client_socket) {
     _config._bloc_http._number_max_events++;
     set_epoll_ctl(EPOLL_CTL_DEL, client_socket);
     close(client_socket);
+    return client_socket;
 }

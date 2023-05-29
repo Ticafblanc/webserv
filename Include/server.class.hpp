@@ -37,7 +37,7 @@ private:
     struct epoll_event                              _webserv_event, *_server_events;
     sockaddr_in                                     _client_address;
     socklen_t                                       _client_address_len;
-    std::map<std::string, void (server::*)(int)>    _map_connection;
+    std::map<std::string, int (server::*)(int)>    _map_connection;
 
 /*
 *====================================================================================
@@ -323,13 +323,13 @@ public:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void connect_new_client(int new_client_socket);
+ * void connect_new_client(int &new_client_socket);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::server_exception
  * */
-    void connect_new_client(int);
+    int connect_new_client(int);
 
 /**
  * Private methode of server class
@@ -337,13 +337,13 @@ public:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * void disconnect_client(int client_socket);
+ * void disconnect_client(int &client_socket);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::server_exception
  * */
-    void disconnect_client(int);
+    int disconnect_client(int);
 
 
 /*

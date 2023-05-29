@@ -21,9 +21,10 @@
 */
 
 http_request::http_request(config_webserv &config)
-: _config(config), _map_status_code(), _status_code(200), _map_content_type(), _content_type("html"),
-_header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
+: _config(config), _map_status_code(), _map_content_type(), _status_code(200), _content_type("html"),
+  _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
     set_map_status_code();
+    set_map_content_type();
 }//@todo manage buffer client_header_buffer_size client_body_buffer_size client_max_body_size
 
 http_request::~http_request() {}
@@ -65,6 +66,7 @@ bool http_request::is_server_socket_already_connected(epoll_event & event){
         for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
              vec_listen != server->_vector_listen.end(); ++vec_listen) {
             if (vec_listen->_server_socket == event.data.fd){
+                _config._bloc_http._select_bloc_server = std::distance(_config._bloc_http._vector_bloc_server.begin(), server);
                 return false;
             }
         }
@@ -73,13 +75,12 @@ bool http_request::is_server_socket_already_connected(epoll_event & event){
 }
 
 std::string http_request::manage_event_already_connected(epoll_event & event){
-    std::map<int, bloc_server&>::iterator  it = _config._bloc_http._map_client_socket.find(event.data.fd);
-    if ( it != _config._bloc_http._map_client_socket.end()) {
-        recv_data_client(event.data.fd);
+    bloc_server &server= _config._bloc_http._vector_bloc_server.at(_config._bloc_http._map_client_socket.find(event.data.fd)->second);
+    recv_data_client(event.data.fd);
+    (void)server;
         //read and check
         //exec if necessary
-        set_reply();
-    }
+    set_reply();
     return std::string("");
 }
 
@@ -112,19 +113,40 @@ void http_request::set_reply() {
     set_buffer();
 }
 
+std::string http_request::add_status_code() {
+    std::string code(_map_status_code.find(_status_code)->second);
+    code += "\r\n";
+    return code;
+}
+
+std::string http_request::add_content_info() {
+    if(_body_buffer.empty())
+        return std::string();
+    std::string info("Content-Type: ");
+    info += _map_content_type.find(_content_type)->second;
+    info += "\r\n Content-Length: ";
+    std::stringstream ss;
+    ss << _body_buffer.size();
+    info += ss.str();
+    return info;
+}
+
+std::string http_request::add_connection() {
+    std::string connection("Connection: ");
+    connection += _connection;
+    return connection;
+}
+
 void http_request::set_header() {
     std::string header_tmp;
     header_tmp += "HTTP/1.1 ";
-    header_tmp += _map_status_code.find(_status_code)->second;
-    header_tmp += "\r\n";
-    header_tmp += "Content-Type: ";
-    header_tmp += _map_content_type.find(_content_type)->second;
-    header_tmp += "\r\n";
-    header_tmp += "Content-Length: ";
-    std::stringstream ss;
-    ss << _body_buffer.size();
-    header_tmp += ss.str();
+    header_tmp += add_status_code();
+    header_tmp += add_content_info();
+    //@todo servername date expire Location Set-Cookie
+//    header_tmp += add_connection();
+
     header_tmp += "\r\n\r\n";
+
     if (header_tmp.size() > 1024)//@todo update value
         throw http_request::http_request_exception("headers to large");
     std::fill(_header_buffer.begin(), _header_buffer.end(), '\0');
@@ -140,126 +162,200 @@ void http_request::set_content() {
 void http_request::set_buffer() {
     std::fill(_buffer.begin(), _buffer.end(), '\0');
     _buffer.replace(0, _header_buffer.size(), _header_buffer);
-
+    _buffer.replace(_header_buffer.find('\0'), _body_buffer.size(), _body_buffer);
 }
 
 
 
 void http_request::set_map_status_code() {
-    std::ifstream       file_to_parse("./Data/http_status_code.json");
 
-    if (!file_to_parse.is_open())
-        throw http_request::http_request_exception("error parse http_status_code.json");
-    std::string string((std::istreambuf_iterator<char>(file_to_parse)), std::istreambuf_iterator<char>());
-    std::cout << string << std::endl;
-    std::map<std::string, std::string> json_data = parseJson(string);
-    for(std::map<std::string, std::string>::iterator it = json_data.begin();
-    it != json_data.end(); ++it){
-        int code = std::atoi(it->first.c_str());
-        if (_map_status_code.find(code) != _map_status_code.end())
-            _map_status_code[std::atoi(it->first.c_str())] = status_code(it->second);
-    }
-
-
-}
-
-
-
-
-
-
-
-
-
+    /**
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+     */
 
     /**
      *  the server has received the client's request headers and is ready
      * to receive the request body. It allows the client to proceed with sending the request.
      */
-//    _map_status_code[100] = "Continue";
+    _map_status_code[100] = "Continue";
 
     /**
      * the server agrees to switch to a different protocol, specified in the response's "Upgrade"
      * header. For example, it can be used when a client requests an upgrade to the WebSocket protocol.
      */
-//    _map_status_code[101] = "Switching Protocols";
+    _map_status_code[101] = "Switching Protocols";
 
     /**
      * the server has received the client's request and is currently processing it, but the final
      * response is not yet available.
      */
-//    _map_status_code[102] = "Processing";
+    _map_status_code[102] = "Processing";
 
     /**
      *  the client's request has been successfully processed, and the corresponding response is being returned.
      */
-//    _map_status_code[200] = "200 OK";
+    _map_status_code[200] = "200 OK";
 
     /**
      * the request has been successfully processed and a new resource has been created as a result.
      * For example, when a new record is created in a database.
      */
-//    _map_status_code[201] = "Created";
+    _map_status_code[201] = "Created";
 
     /**
      * the request has been accepted for processing, but the processing is not yet complete.
      * The final response may be returned later.
      */
-//    _map_status_code[202] = "Accepted";
+    _map_status_code[202] = "Accepted";
 
     /**
      * the request has been successfully processed, but the response does not contain any content to be returned.
      * For example, when a deletion request is successful but no additional response is needed.
      */
-//    _map_status_code[204] = "No Content";
+    _map_status_code[204] = "No Content";
 
     /**
      * the response contains only a portion of the requested resource. This typically occurs in
      * the case of range requests, where the client requests only a specific part of the resource.
      */
-//    _map_status_code[206] = "Partial Content";
+    _map_status_code[206] = "Partial Content";
 
     /**
      * the response may contain multiple options, and the client needs to choose from them.
      * For example, when a URL redirects to multiple other possible URLs.
      */
-//    _map_status_code[300] = "Multiple Choices";
+    _map_status_code[300] = "Multiple Choices";
 
     /**
      * the requested resource has been permanently moved to a new URL.
      * The client is typically instructed to update its links and use the new URL.
      */
-//    _map_status_code[301] = "Moved Permanently";
+    _map_status_code[301] = "Moved Permanently";
 
     /**
      *  the requested resource has been temporarily moved to a different URL.
      *  The client is typically instructed to follow the redirection.
      */
-//    _map_status_code[302] = "Found";
+    _map_status_code[302] = "Found";
 
     /**
      * the requested resource has not been modified since the client's last request,
      * and therefore the response is empty. The client can use the locally cached copy of the resource.
      */
-//    _map_status_code[304] = "Not Modified";
+    _map_status_code[304] = "Not Modified";
+
+    /**
+     *  the requested resource has been temporarily moved to a different URL.
+     *  The client is typically instructed to follow the redirection while maintaining
+     *  the original request method.
+     */
+    _map_status_code[307] = "Temporary Redirect";
+
+    /**
+     * the requested resource has been permanently moved to a new URL. The client is typically
+     * instructed to follow the redirection while maintaining the original request method.
+     */
+    _map_status_code[308] = "Permanent Redirect";
+
+    /**
+     * the client's request is incorrect or malformed and cannot be processed by the server.
+     */
+    _map_status_code[400] = "Bad Request";
+
+    /**
+     * authentication is required to access the requested resource, but the client has not
+     * provided valid credentials or is not authorized to access the resource.
+     */
+    _map_status_code[401] = " Unauthorized";
+
+    /**
+     * the client is not authorized to access the requested resource,
+     * even after successful authentication.
+     */
+    _map_status_code[403] = "Forbidden";
+
+    /**
+     * the requested resource could not be found on the server.
+     */
+    _map_status_code[404] = "Not Found";
+
+    /**
+     *  the request method used by the client is not allowed for the requested resource.
+     *  For example, if a client attempts to use a POST method for a resource accept only GET methode
+     */
+    _map_status_code[405] = "Method Not Allowed";
+
+    /**
+     * the request cannot be completed due to a conflict with the current state of the resource.
+     * For example, when there is a versioning conflict or a conflict between concurrent requests.
+     */
+    _map_status_code[409] = "Conflict";
+
+    /**
+     * the requested resource is no longer available on the server and there is no forwarding address.
+     * It is similar to a 404 error but indicates that the resource is permanently gone.
+     */
+    _map_status_code[410] = "Gone";
+
+    /**
+     * the client has sent too many requests within a given time frame and has exceeded the server's
+     * rate limiting policy. It is often used to prevent abuse or to ensure fair usage.
+     */
+    _map_status_code[429] = "Too Many Requests";
+
+    /**
+     * an unexpected error occurs on the server that prevents it from fulfilling the client's request.
+     * It indicates a server-side issue.
+     */
+    _map_status_code[500] = "Internal Server Error";
+
+    /**
+     * the server does not support the functionality required to fulfill the request.
+     * It typically indicates that the server lacks the capability to handle the requested method.
+     */
+    _map_status_code[501] = "Not Implemented";
+
+    /**
+     * the server acting as a gateway or proxy receives an invalid response from an upstream server.
+     */
+    _map_status_code[502] = "Bad Gateway";
+
+    /**
+     * the server is temporarily unable to handle the request due to being overloaded or undergoing maintenance.
+     * It indicates a temporary unavailability of the server.
+     */
+    _map_status_code[503] = "Service Unavailable";
+
+    /**
+     * the server acting as a gateway or proxy does not receive a timely response from an upstream server.
+     */
+    _map_status_code[504] = "Gateway Timeout";
+
+    /**
+     * the server does not support the HTTP protocol version used in the request.
+     */
+    _map_status_code[505] = "HTTP Version Not Supported";
+}
+
+void http_request::set_map_content_type() {
+    _map_content_type["plain"] = "text/plain";
+    _map_content_type["html"] = "text/html";
+    _map_content_type["css"] = "text/css";
+    _map_content_type["js"] = "text/javascript";
+    _map_content_type["json"] = "application/json";
+    _map_content_type["xml"] = "application/xml";
+    _map_content_type["pdf"] = "application/pdf";
+    _map_content_type["octet-stream"] = "application/octet-stream";
+    _map_content_type["jpeg"] = "image/jpeg";
+    _map_content_type["png"] = "image/png";
+    _map_content_type["gif"] = "image/gif";
+    _map_content_type["mpeg"] = "audio/mpeg";
+    _map_content_type["mp4"] = "video/mp4";
+    _map_content_type["form-data"] = "multipart/form-data";
+}
 
 
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
-//    _map_status_code[100] = "Continue";
+
 
 
 

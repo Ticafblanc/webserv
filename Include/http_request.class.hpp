@@ -16,7 +16,6 @@
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
 #include "../Include/config_webserv.class.hpp"
-#include "./utils.cpp"
 //User-Agent : spécifie l'agent utilisateur (généralement le navigateur) qui envoie la requête
 //Accept : indique les types de contenu que le client peut accepter de la part du serveur
 //        Authorization : fournit des informations d'identification pour l'authentification du client
@@ -28,25 +27,6 @@
 //Origin : indique l'origine de la requête Cross-Origin Resource Sharing (CORS)
 //If-Modified-Since : permet aux clients de vérifier si une ressource a été modifiée depuis une date spécifiée
 //        Cache-Control : spécifie les directives de mise en cache pour les serveurs et les clients
-//text/plain : Texte brut.
-//text/html : Document HTML.
-//text/css : Feuille de style CSS.
-//text/javascript : Code JavaScript.
-//application/json : Données au format JSON.
-//application/xml : Document XML.
-//application/pdf : Fichier PDF.
-//application/octet-stream : Flux binaire générique.
-//image/jpeg : Image au format JPEG.
-//image/png : Image au format PNG.
-//image/gif : Image au format GIF.
-//audio/mpeg : Fichier audio au format MP3.
-//video/mp4 : Fichier vidéo au format MP4.
-//multipart/form-data : Utilisé pour l'envoi de données de formulaire multipart, généralement utilisé pour les téléchargements de fichiers.
-//HTTP/1.1 200 OK
-//        Content-Type: text/html
-//        Content-Length: 19
-//
-//<html><body>Connected</body></html>
 
 //_map_client_socket.erase(client_socket);
 //
@@ -80,10 +60,11 @@ private:
 */
 
     config_webserv                                      &_config;
-    std::map<int, std::pair<std::string, std::string> > _map_status_code;
-    int                                                 _status_code;
+    std::map<int, std::string>                          _map_status_code;
     std::map<std::string , std::string>                 _map_content_type;
+    int                                                 _status_code;
     std::string                                         _content_type;
+    std::string                                         _connection;
     std::string                                         _buffer;
     std::string                                         _header_buffer;
     std::string                                         _body_buffer;
@@ -179,6 +160,44 @@ private:
  *
  * add buffer to send
  *
+ * std::string add_status_code();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    std::string add_status_code();
+
+/**
+ * Private methode of http_request class
+ *
+ * add buffer to send
+ *
+ * std::string add_status_code();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    std::string add_content_info();
+
+/**
+ * Private methode of http_request class
+ *
+ * add buffer to send
+ *
+ * std::string add_connection();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    std::string add_connection();
+/**
+ * Private methode of http_request class
+ *
+ * add buffer to send
+ *
  * void set_buffer();
  *
  * @returns void
@@ -197,7 +216,16 @@ private:
  * @throw       none
  */
     void set_map_status_code();
-
+/**
+ * Public methode of http_request struct
+ *
+ * void set_map_content_type();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_content_type();
 /**
  * Public methode of http_request struct *
  * void set_map_token();
