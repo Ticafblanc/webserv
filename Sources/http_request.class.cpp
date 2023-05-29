@@ -25,6 +25,7 @@ http_request::http_request(config_webserv &config)
   _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
     set_map_status_code();
     set_map_content_type();
+    set_map_token();
 }//@todo manage buffer client_header_buffer_size client_body_buffer_size client_max_body_size
 
 http_request::~http_request() {}
@@ -75,10 +76,13 @@ bool http_request::is_server_socket_already_connected(epoll_event & event){
 }
 
 std::string http_request::manage_event_already_connected(epoll_event & event){
-    bloc_server &server= _config._bloc_http._vector_bloc_server.at(_config._bloc_http._map_client_socket.find(event.data.fd)->second);
+//    bloc_server &server= _config._bloc_http._vector_bloc_server.at(_config._bloc_http._map_client_socket.find(event.data.fd)->second);
     recv_data_client(event.data.fd);
-    (void)server;
-        //read and check
+    peg.setStringStream(_buffer);
+    //@todo set in try
+    while (!peg.check_is_empty()) {
+        peg.find_token(*this, _map_token_list_action_methode, 0);
+    }
         //exec if necessary
     set_reply();
     return std::string("");
@@ -143,7 +147,7 @@ void http_request::set_header() {
     header_tmp += add_status_code();
     header_tmp += add_content_info();
     //@todo servername date expire Location Set-Cookie
-//    header_tmp += add_connection();
+    header_tmp += add_connection();
 
     header_tmp += "\r\n\r\n";
 
@@ -158,6 +162,21 @@ void http_request::set_content() {
     std::fill(_body_buffer.begin(), _body_buffer.end(), '\0');
     _body_buffer.replace(0, connect.size(), "<html><body>Connected</body></html>");
 }
+//std::string http_request::set_content() {
+//    std::ifstream html(path_html_file.c_str());
+//    if (!html) {
+//        server_exception server_exception(strerror(errno));
+//        throw server_exception;
+//    }
+//    std::stringstream html_string;
+//    html_string << html.rdbuf();
+//    html.close();
+//
+//    std::string content = set_headers(html_string.str().length());
+//    content += "\r\n\r\n" + html_string.str();
+//
+//    return content;
+//}
 
 void http_request::set_buffer() {
     std::fill(_buffer.begin(), _buffer.end(), '\0');
@@ -354,50 +373,67 @@ void http_request::set_map_content_type() {
     _map_content_type["form-data"] = "multipart/form-data";
 }
 
+void http_request::set_map_token_methode() {
+    _map_token_list_action_methode["GET"] = &http_request::get_methode;
+    _map_token_list_action_methode["POST"] = &http_request::post_methode;
+    _map_token_list_action_methode["DELETE"] = &http_request::delete_methode;
+}
 
+void http_request::set_map_token_information() {
+    _map_token_list_action_information["Host: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["User-Agent: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept-Language: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Accept-Encoding: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Connection: "] = &http_request::connection_information;
+    _map_token_list_action_information["Upgrade-Insecure-Requests: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Dest: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Mode: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Site: "] = &http_request::extract_unused_information;
+    _map_token_list_action_information["Upgrade-Insecure-Requests: "] = &http_request::extract_unused_information;
+}
 
+std::string http_request::extract_unused_information() {
+    return peg.extract_data('\n');;
+}
 
+std::string http_request::extract_location() {
+    return peg.extract_data(' ');
+}
 
+std::string http_request::extract_http_version() {
+    std::string http_version = peg.extract_data('\n');
+    if (http_version != "HTTP/1.1")
+        throw http_request::http_request_exception("error version");
+    return http_version;
+}
 
-//std::string http_request::set_content() {
-//    std::ifstream html(path_html_file.c_str());
-//    if (!html) {
-//        server_exception server_exception(strerror(errno));
-//        throw server_exception;
-//    }
-//    std::stringstream html_string;
-//    html_string << html.rdbuf();
-//    html.close();
-//
-//    std::string content = set_headers(html_string.str().length());
-//    content += "\r\n\r\n" + html_string.str();
-//
-//    return content;
-//}
+std::string http_request::get_methode() {
+    std::string location = extract_location();
+    std::string http_version = extract_http_version();
+    while (!peg.check_is_empty()) {
+        peg.find_token(*this, _map_token_list_action_information, 0);
+    }
+    return std::string();
+}
 
+std::string http_request::post_methode() {
+    std::string location = extract_location();
+    std::string http_version = extract_http_version();
+    return std::string();
+}
 
-//void http_request::set_default_value() {
-//    std::map<std::string, std::string (http_request::*)()>::iterator it = _map_token_list_action.begin();
-//    for (;it != _map_token_list_action.end(); ++it) {
-//        if (it->first == "worker_processes") {
-//            _worker_process = 1;
-//        } else if (it->first == "events") {
-//            _bloc_events.set_default_value();
-//        } else if (it->first == "http"){
-//            _bloc_http.set_default_value();
-//        }
-//    }
-//}
-//
-//void http_request::set_map_token() {
-//    _map_token_list_action["GET"] = &http_request::set_worker_processes;
-//    _map_token_list_action["POST"] = &http_request::parse_bloc_event;
-//    _map_token_list_action["DELETE"] = &http_request::parse_bloc_http;
-//}
-//
-//
-//
-//
+std::string http_request::delete_methode() {
+    std::string location = extract_location();
+    std::string http_version = extract_http_version();
+    return std::string();
+}
+
+std::string http_request::connection_information() {
+    std::string connection = peg.extract_data('\n');
+    _connection = connection;
+    return std::string();
+}
 
 
 /*

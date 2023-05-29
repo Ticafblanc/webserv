@@ -59,16 +59,20 @@ private:
 *====================================================================================
 */
 
-    config_webserv                                      &_config;
-    std::map<int, std::string>                          _map_status_code;
-    std::map<std::string , std::string>                 _map_content_type;
-    int                                                 _status_code;
-    std::string                                         _content_type;
-    std::string                                         _connection;
-    std::string                                         _buffer;
-    std::string                                         _header_buffer;
-    std::string                                         _body_buffer;
-    std::vector<std::string>                            _vector_body_buffer_next;
+    config_webserv                                          &_config;
+    peg_parser                                              peg;
+    std::map<int, std::string>                              _map_status_code;
+    std::map<std::string , std::string>                     _map_content_type;
+    int                                                     _status_code;
+    std::string                                             _content_type;
+    std::string                                             _connection;
+    std::string                                             _buffer;
+    std::string                                             _header_buffer;
+    std::string                                             _body_buffer;
+    std::vector<std::string>                                _vector_body_buffer_next;
+    std::map<std::string, std::string (http_request::*)()>  _map_token_list_action_methode;
+    std::map<std::string, std::string (http_request::*)()>  _map_token_list_action_information;
+
 
 
 /*
@@ -226,34 +230,104 @@ private:
  * @throw       none
  */
     void set_map_content_type();
+
 /**
- * Public methode of http_request struct *
- * void set_map_token();
+ * Public methode of http_request struct
+ *
+ * void set_map_token_methode();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-//    void set_map_token();
+    void set_map_token_methode();
 
 /**
- * Private methode of http_request class
+ * Public methode of http_request struct
  *
- * extract data and put in std::string
+ * void set_map_token_information();
  *
- * void send_data_client(int client_socket, std::string& content);
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void set_map_token_information();
+
+/**
+ * Protected methode of http_request class
  *
- * @returns void
- * @param   client_socket to send message
- * @param   content & to message to send
- * @throws  http_request::http_request_exception
- * */
-//    void send_data_client(int, std::string);
+ * std::string get_methode();
+ *
+ * @returns     std::string containt error to throw
+ * @param       void
+ * @throw       none
+ */
+    std::string get_methode();
 
-;
+/**
+ * Protected methode of http_request class
+ *
+ * std::string post_methode();
+ *
+ * @returns     std::string containt error to throw
+ * @param       void
+ * @throw       none
+ */
+    std::string post_methode();
 
+/**
+ * Protected methode of http_request class
+ *
+ * std::string delete_methode();
+ *
+ * @returns     std::string containt error to throw
+ * @param       void
+ * @throw       none
+ */
+    std::string delete_methode();
 
+/**
+ * Protected methode of http_request class
+ *
+ * std::string extract_http_version();
+ *
+ * @returns     version of http
+ * @param       void
+ * @throw       none
+ */
+    std::string extract_unused_information();
+/**
+ * Protected methode of http_request class
+ *
+ * std::string extract_location();
+ *
+ * @returns     path of location resource
+ * @param       void
+ * @throw       none
+ */
+    std::string extract_location();
 
+/**
+ * Protected methode of http_request class
+ *
+ * std::string extract_http_version();
+ *
+ * @returns     version of http
+ * @param       void
+ * @throw       none
+ */
+    std::string extract_http_version();
+
+/**
+ * Protected methode of http_request class
+ *
+ * std::string connection_information();
+ *
+ * @returns     version of http
+ * @param       void
+ * @throw       none
+ */
+    std::string connection_information();
 
 /*>********************************public section**********************************/
 

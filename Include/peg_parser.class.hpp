@@ -182,6 +182,50 @@ public:
  */
     bool check_is_end_of_bloc(char);
 
+/**
+ * Public methode of peg_parser.class
+ *
+ *   const std::stringstream &getStringStream() const;
+ *
+ * @returns     bool true if find end_of_bloc_character
+ * @param       end_of_bloc_character define the end of bloc
+ * @throw       syntaxe_exception
+ */
+    const std::stringstream &getStringStream() const;
+
+/**
+ * Public methode of peg_parser.class
+ *
+ *  void setStringStream(const std::stringstream &stringStream);
+ *
+ * @returns     bool true if find end_of_bloc_character
+ * @param       end_of_bloc_character define the end of bloc
+ * @throw       syntaxe_exception
+ */
+    void setStringStream(const std::string &string);
+
+/**
+ * Public methode of peg_parser.class
+ *
+ *  const string &getLineCommentCharacter() const;
+ *
+ * @returns     bool true if find end_of_bloc_character
+ * @param       end_of_bloc_character define the end of bloc
+ * @throw       syntaxe_exception
+ */
+    const string &getLineCommentCharacter() const;
+
+/**
+ * Public methode of peg_parser.class
+ *
+ *   void setLineCommentCharacter(const string &lineCommentCharacter);
+ *
+ * @returns     bool true if find end_of_bloc_character
+ * @param       end_of_bloc_character define the end of bloc
+ * @throw       syntaxe_exception
+ */
+    void setLineCommentCharacter(const string &lineCommentCharacter);
+
 /*
 *====================================================================================
 *|                                  Member Exception                                 |

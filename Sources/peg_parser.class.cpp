@@ -146,3 +146,20 @@ bool peg_parser::delete_comments() {
     }
     return true;
 }
+
+const std::stringstream &peg_parser::getStringStream() const {
+    return _string_stream;
+}
+
+void peg_parser::setStringStream(const std::string &string) {
+    _string_stream.str(string);
+    _string_stream.seekg(0);
+}
+
+const string &peg_parser::getLineCommentCharacter() const {
+    return _line_comment_character;
+}
+
+void peg_parser::setLineCommentCharacter(const string &lineCommentCharacter) {
+    _line_comment_character = lineCommentCharacter;
+}
