@@ -66,13 +66,13 @@ private:
     int                                                     _status_code;
     std::string                                             _content_type;
     std::string                                             _connection;
+    std::string                                             _content;
     std::string                                             _buffer;
     std::string                                             _header_buffer;
     std::string                                             _body_buffer;
     std::vector<std::string>                                _vector_body_buffer_next;
     std::map<std::string, std::string (http_request::*)()>  _map_token_list_action_methode;
     std::map<std::string, std::string (http_request::*)()>  _map_token_list_action_information;
-
 
 
 /*
@@ -118,7 +118,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string recv_data_client(int);
+    ssize_t recv_data_client(int);
 
 /**
  * Private methode of server class

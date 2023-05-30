@@ -32,6 +32,7 @@ private:
 
 
     config_webserv                                  &_config;
+    http_request                                    _request;
     int                                             _epoll_instance;
     int                                             _number_triggered_events;
     struct epoll_event                              _webserv_event, *_server_events;

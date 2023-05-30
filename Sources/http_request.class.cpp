@@ -22,7 +22,7 @@
 
 http_request::http_request(config_webserv &config)
 : _config(config), _map_status_code(), _map_content_type(), _status_code(200), _content_type("html"),
-  _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0') {
+  _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0'){
     set_map_status_code();
     set_map_content_type();
     set_map_token_information();
@@ -69,6 +69,8 @@ bool http_request::is_server_socket_already_connected(epoll_event & event){
              vec_listen != server->_vector_listen.end(); ++vec_listen) {
             if (vec_listen->_server_socket == event.data.fd){
                 _config._bloc_http._select_bloc_server = std::distance(_config._bloc_http._vector_bloc_server.begin(), server);
+                _content = "<!DOCTYPE html><html><body>Connected</body></html>";
+                _connection = "keep-alive";
                 return false;
             }
         }
@@ -78,7 +80,12 @@ bool http_request::is_server_socket_already_connected(epoll_event & event){
 
 std::string http_request::manage_event_already_connected(epoll_event & event){
 //    bloc_server &server= _config._bloc_http._vector_bloc_server.at(_config._bloc_http._map_client_socket.find(event.data.fd)->second);
-    recv_data_client(event.data.fd);
+    if (recv_data_client(event.data.fd) == 0){
+        _content.clear();
+        _connection = "close";
+        set_reply();
+        return _connection;
+    }
     peg.setStringStream(_buffer);
     //@todo set in try
     while (!peg.check_is_empty()) {
@@ -89,16 +96,21 @@ std::string http_request::manage_event_already_connected(epoll_event & event){
     return _connection;
 }
 
-std::string http_request::recv_data_client(int client_socket){
+ssize_t http_request::recv_data_client(int client_socket){
     std::fill(_buffer.begin(), _buffer.end(), '\0');
-    ssize_t bytes_received = recv(client_socket, (void *) _buffer.data(), _buffer.size(), 0);
-    if (bytes_received == -1 || bytes_received == 0 || static_cast<unsigned long long>(bytes_received) == (_buffer.size() - 1))
+    char buffer[1024];
+    ssize_t bytes_received = recv(client_socket, buffer, 1024, 0);
+    _buffer.replace(0, 1024, buffer);
+    _buffer[bytes_received] ='\0';
+    if (bytes_received == -1 /*|| bytes_received == 0*/ || static_cast<unsigned long long>(bytes_received) == (_buffer.size() - 1))
         throw http_request::http_request_exception(strerror(errno));
-    std::cout << _buffer << std::endl;
-    return std::string(_buffer);
+    std::cout << "recv >>> \n"  << _buffer << "\n"<< std::endl;
+    return bytes_received;
 }
 
 void http_request::send_data_client(int client_socket){
+    std::cout << "send >>> \n" << _buffer << "\n"<<std::endl;
+
     ssize_t bytes_send = send(client_socket, (void *)_buffer.data(), _buffer.size(), 0);
     if (bytes_send == -1) {
         throw http_request::http_request_exception(strerror(errno));
@@ -125,14 +137,15 @@ std::string http_request::add_status_code() {
 }
 
 std::string http_request::add_content_info() {
-    if(_body_buffer.empty())
+    if(_content.empty())
         return std::string();
     std::string info("Content-Type: ");
     info += _map_content_type.find(_content_type)->second;
-    info += "\r\n Content-Length: ";
+    info += "\r\nContent-Length: ";
     std::stringstream ss;
     ss << _body_buffer.size();
     info += ss.str();
+    info += "\r\n";
     return info;
 }
 
@@ -159,30 +172,18 @@ void http_request::set_header() {
 }
 
 void http_request::set_content() {
-    std::string connect("<html><body>Connected</body></html>");
     std::fill(_body_buffer.begin(), _body_buffer.end(), '\0');
-    _body_buffer.replace(0, connect.size(), "<html><body>Connected</body></html>");
+    if (!_content.empty()) {
+        _body_buffer.replace(0, _content.size(), _content);
+    }
 }
-//std::string http_request::set_content() {
-//    std::ifstream html(path_html_file.c_str());
-//    if (!html) {
-//        server_exception server_exception(strerror(errno));
-//        throw server_exception;
-//    }
-//    std::stringstream html_string;
-//    html_string << html.rdbuf();
-//    html.close();
-//
-//    std::string content = set_headers(html_string.str().length());
-//    content += "\r\n\r\n" + html_string.str();
-//
-//    return content;
-//}
 
 void http_request::set_buffer() {
     std::fill(_buffer.begin(), _buffer.end(), '\0');
     _buffer.replace(0, _header_buffer.size(), _header_buffer);
-    _buffer.replace(_header_buffer.find('\0'), _body_buffer.size(), _body_buffer);
+    if (!_content.empty()) {
+        _buffer.replace(_header_buffer.find('\0'), _body_buffer.size(), _body_buffer);
+    }
 }
 
 
@@ -417,6 +418,15 @@ std::string http_request::get_methode() {
     while (!peg.check_is_empty()) {
         peg.find_token(*this, _map_token_list_action_information, 0);
     }
+    std::ifstream file("/usr/local/var/www/webserv.com/accueille.html");//location
+    if (!file) {
+        throw http_request::http_request_exception("error location");
+    }
+    file.seekg(0, std::ios::end); // Se positionner à la fin du fichier
+    _content.clear();
+    _content.reserve(file.tellg()); // Réserver l'espace dans la chaîne
+    file.seekg(0, std::ios::beg);
+    _content.assign(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
     return std::string();
 }
 
@@ -435,6 +445,7 @@ std::string http_request::delete_methode() {
 std::string http_request::connection_information() {
     std::string connection = peg.extract_data('\n');
     _connection = connection.substr(0, connection.size() - 1);
+//    _connection = "close";
     return std::string();
 }
 
