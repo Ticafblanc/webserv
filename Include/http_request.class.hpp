@@ -81,18 +81,7 @@ private:
 *====================================================================================
 */
 
-/**
- * Private methode of http_request class
- *
- * check if is a request try to connect with a server socket
- *
- * bool is_server_socket_already_conected();
- *
- * @returns bool false if is a sever socket than true
- * @param    event is an epoll event to manage
- * @throws  none
- * */
-    bool is_server_socket_already_connected(epoll_event &);
+
 
 /**
  * Private methode of http_request class

@@ -22,7 +22,7 @@
 
 http_request::http_request(config_webserv &config)
 : _config(config), _map_status_code(), _map_content_type(), _status_code(200), _content_type("html"),
-  _connection("keep-alive"), _buffer(), _header_buffer(1024 + 1, '\0'), _body_buffer(1024 + 1, '\0'){
+  _connection("keep-alive"), _buffer(), _header_buffer(1024, '\0'), _body_buffer(1024, '\0'){
     set_map_status_code();
     set_map_content_type();
     set_map_token_information();
@@ -50,7 +50,7 @@ std::string http_request::manage_request(epoll_event & event) {//update to retur
     try {
         switch (is_server_socket_already_connected(event)) {
             case false:
-                set_reply();
+//                set_reply();
                 return std::string("connection");
             default:
                 return manage_event_already_connected(event);
@@ -62,27 +62,13 @@ std::string http_request::manage_request(epoll_event & event) {//update to retur
     }
 }
 
-bool http_request::is_server_socket_already_connected(epoll_event & event){
-    for (std::vector<bloc_server>::iterator server = _config._bloc_http._vector_bloc_server.begin();
-         server != _config._bloc_http._vector_bloc_server.end(); ++server) {
-        for (std::vector<listen_data>::iterator vec_listen = server->_vector_listen.begin();
-             vec_listen != server->_vector_listen.end(); ++vec_listen) {
-            if (vec_listen->_server_socket == event.data.fd){
-                _config._bloc_http._select_bloc_server = std::distance(_config._bloc_http._vector_bloc_server.begin(), server);
-                _content = "<!DOCTYPE html><html><body>Connected</body></html>";
-                _connection = "keep-alive";
-                return false;
-            }
-        }
-    }
-    return true;
-}
+
 
 std::string http_request::manage_event_already_connected(epoll_event & event){
 //    bloc_server &server= _config._bloc_http._vector_bloc_server.at(_config._bloc_http._map_client_socket.find(event.data.fd)->second);
     if (recv_data_client(event.data.fd) == 0){
-        _content.clear();
-        _connection = "close";
+        _content = "Webserv connected";
+//        _connection = "close";
         set_reply();
         return _connection;
     }
@@ -100,18 +86,20 @@ ssize_t http_request::recv_data_client(int client_socket){
     std::fill(_buffer.begin(), _buffer.end(), '\0');
     char buffer[1024];
     ssize_t bytes_received = recv(client_socket, buffer, 1024, 0);
-    _buffer.replace(0, 1024, buffer);
-    _buffer[bytes_received] ='\0';
-    if (bytes_received == -1 /*|| bytes_received == 0*/ || static_cast<unsigned long long>(bytes_received) == (_buffer.size() - 1))
+//    _buffer.replace(0, bytes_received, buffer);
+    buffer[bytes_received] ='\0';
+    _buffer = buffer;
+    std::cout << " client  >> " << client_socket<< " recv >>> \n"  << buffer << _buffer.size()<<bytes_received<< "\n"<< std::endl;
+
+    if (bytes_received == -1 /*|| bytes_received == 0*/ || static_cast<unsigned long long>(bytes_received) == (1024))
         throw http_request::http_request_exception(strerror(errno));
-    std::cout << "recv >>> \n"  << _buffer << "\n"<< std::endl;
     return bytes_received;
 }
 
 void http_request::send_data_client(int client_socket){
-    std::cout << "send >>> \n" << _buffer << "\n"<<std::endl;
+    std::cout << " client  >> " << client_socket << " send >>> \n" << _buffer << _buffer.find('\0')<<  "\n"<<std::endl;
 
-    ssize_t bytes_send = send(client_socket, (void *)_buffer.data(), _buffer.size(), 0);
+    ssize_t bytes_send = send(client_socket, (void *)_buffer.data(), 764, 0);
     if (bytes_send == -1) {
         throw http_request::http_request_exception(strerror(errno));
     }
@@ -143,7 +131,7 @@ std::string http_request::add_content_info() {
     info += _map_content_type.find(_content_type)->second;
     info += "\r\nContent-Length: ";
     std::stringstream ss;
-    ss << _body_buffer.size();
+    ss << _content.size();
     info += ss.str();
     info += "\r\n";
     return info;
@@ -160,30 +148,34 @@ void http_request::set_header() {
     header_tmp += "HTTP/1.1 ";
     header_tmp += add_status_code();
     header_tmp += add_content_info();
+    header_tmp += "Cache-Control: no-cache, no-store, must-revalidate\r\n"
+                  "Pragma: no-cache\r\n"
+                  "Expires: 0\r\n";
     //@todo servername date expire Location Set-Cookie
-    header_tmp += add_connection();
+//    header_tmp += add_connection();
 
-    header_tmp += "\r\n\r\n";
+    header_tmp += "\r\n";
 
     if (header_tmp.size() > 1024)//@todo update value
         throw http_request::http_request_exception("headers to large");
-    std::fill(_header_buffer.begin(), _header_buffer.end(), '\0');
-    _header_buffer.replace(0, header_tmp.size(), header_tmp);
+//    std::fill(_header_buffer.begin(), _header_buffer.end(), '\0');
+    _header_buffer = header_tmp;
 }
 
 void http_request::set_content() {
-    std::fill(_body_buffer.begin(), _body_buffer.end(), '\0');
-    if (!_content.empty()) {
-        _body_buffer.replace(0, _content.size(), _content);
-    }
+//    std::fill(_body_buffer.begin(), _body_buffer.end(), '\0');
+//    if (!_content.empty()) {
+//        _body_buffer.replace(0, _content.size(), _content);
+//    }
 }
 
 void http_request::set_buffer() {
-    std::fill(_buffer.begin(), _buffer.end(), '\0');
-    _buffer.replace(0, _header_buffer.size(), _header_buffer);
-    if (!_content.empty()) {
-        _buffer.replace(_header_buffer.find('\0'), _body_buffer.size(), _body_buffer);
-    }
+    _buffer = _header_buffer + _content;
+//    std::fill(_buffer.begin(), _buffer.end(), '\0');
+//    _buffer.replace(0, _header_buffer.find('\0'), _header_buffer);
+//    if (!_content.empty()) {
+//        _buffer.replace(_header_buffer.find('\0'), _body_buffer.find('\0'), _body_buffer);
+//    }
 }
 
 
@@ -418,7 +410,7 @@ std::string http_request::get_methode() {
     while (!peg.check_is_empty()) {
         peg.find_token(*this, _map_token_list_action_information, 0);
     }
-    std::ifstream file("/usr/local/var/www/webserv.com/accueille.html");//location
+    std::ifstream file("/usr/local/var/www/index.html");//location
     if (!file) {
         throw http_request::http_request_exception("error location");
     }

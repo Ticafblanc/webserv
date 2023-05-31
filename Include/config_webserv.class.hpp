@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config_webserv.class.hpp                           :+:      :+:    :+:   */
+/*   configWebserv.class.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -15,8 +15,9 @@
 
 #include "../Include/header.hpp"
 #include "../Include/peg_parser.class.hpp"
+#include "../Include/client.class.hpp"
 
-struct config_webserv;
+struct configWebserv;
 /*
 *==========================================================================================================
 *|                                                  bloc location                                         |
@@ -40,7 +41,7 @@ struct bloc_location {
  * @param   void
  * @throw   none
  **/
-    bloc_location(config_webserv&);
+    bloc_location(configWebserv&);
 
 /**
 * Destructor of bloc_location.class class
@@ -111,7 +112,7 @@ struct bloc_location {
     std::string add_index();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
  * void set_map_token();
  *
@@ -122,7 +123,7 @@ struct bloc_location {
     void set_map_token();
 
 /**
- * Public methode of bloc_http class
+ * Public methode of blocHttp class
  *
  * void set_default_value();
  *
@@ -137,7 +138,7 @@ struct bloc_location {
 *|                                     Member                                       |
 *====================================================================================
 */
-    config_webserv&                                             _config;
+    configWebserv&                                             _config;
     std::map<std::string, std::string (bloc_location::*)()>     _map_token_list_action;
     std::string                                                 _root;//path of this location
     std::vector<std::string>                                    _index;// set name of specific index file
@@ -162,23 +163,23 @@ struct listen_data {
 /**
  * Constructor of config_server.class class
  *
- * listen_data(config_webserv& config, std::string& input);
+ * listen_data(configWebserv& config, std::string& input);
  *
  * @param   input is a string reference extract befor;
  * @param   config is config webserv reference
  * @throw   none
  **/
-    listen_data(config_webserv&, std::string&);
+    listen_data(configWebserv&, std::string&);
 /**
  * Constructor of config_server.class class
  *
- * listen_data(config_webserv& config, std::string& default_input);
+ * listen_data(configWebserv& config, std::string& default_input);
  *
  * @param   input is a default string ;
  * @param   config is config webserv reference
  * @throw   none
  **/
-    listen_data(config_webserv&, std::string);
+    listen_data(configWebserv&, std::string);
 
 /**
 * Destructor of listen_data.class class
@@ -227,7 +228,7 @@ struct listen_data {
     std::string parse_listen_data();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
  * void set_sockaddr_in(std::string ip_address, int port);
  *
@@ -326,7 +327,7 @@ struct listen_data {
 *====================================================================================
 */
 
-    config_webserv&         _config;
+    configWebserv&         _config;
     std::stringstream       _input;
     std::string             _ip_address;
     int                     _port;
@@ -356,10 +357,10 @@ struct bloc_server {
  *
  * bloc_server(peg_parser& peg_parser);
  *
- * @param   config_webserv&
+ * @param   configWebserv&
  * @throw   none
  **/
-    bloc_server(config_webserv&);
+    bloc_server(configWebserv&);
 
 /**
 * Destructor of bloc_server.class class
@@ -453,7 +454,7 @@ struct bloc_server {
     std::string add_map_bloc_location();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
  * void set_map_token();
  *
@@ -464,7 +465,7 @@ struct bloc_server {
     void set_map_token();
 
 /**
- * Public methode of bloc_http class
+ * Public methode of blocHttp class
  *
  * void set_default_value();
  *
@@ -479,7 +480,7 @@ struct bloc_server {
 *|                                     Member                                       |
 *====================================================================================
 */
-    config_webserv&                                         _config;
+    configWebserv&                                         _config;
     std::map<std::string, std::string (bloc_server::*)()>   _map_token_list_action;
     std::vector<listen_data>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                                _vector_server_name;// store all server name
@@ -497,7 +498,7 @@ struct bloc_server {
 
 
 
-struct bloc_http {
+struct blocHttp {
 
 
 /*
@@ -507,43 +508,43 @@ struct bloc_http {
 */
 
 /**
- * Constructor of bloc_http.class class
+ * Constructor of blocHttp.class class
  *
- * bloc_http(peg_parser& peg_parser);
+ * blocHttp(peg_parser& peg_parser);
  *
  * @param   peg_parser
  * @throw   none
  **/
-    bloc_http(config_webserv&);
+    blocHttp(configWebserv&);
 
 /**
-* Destructor of bloc_http.class class
+* Destructor of blocHttp.class class
 *
-* bloc_http.class.class();
+* blocHttp.class.class();
 *
 * @throw   none
 **/
-    ~bloc_http();
+    ~blocHttp();
 
 /**
- * Copy constructor of bloc_http class
+ * Copy constructor of blocHttp class
  *
- * bloc_http(const bloc_http &);
+ * blocHttp(const blocHttp &);
  *
- * @param   bloc_http instance to build the server
+ * @param   blocHttp instance to build the server
  * @throw   none
  **/
-    bloc_http(bloc_http&);
+    blocHttp(blocHttp&);
 
 /**
- * Operator overload= of bloc_http class
+ * Operator overload= of blocHttp class
  *
- * bloc_http(const bloc_http &);
+ * blocHttp(const blocHttp &);
  *
- * @param   bloc_http instance const to copy the server
+ * @param   blocHttp instance const to copy the server
  * @throw   none
  **/
-    bloc_http& operator=(const bloc_http &);
+    blocHttp& operator=(const blocHttp &);
 
 /*
 *====================================================================================
@@ -552,18 +553,18 @@ struct bloc_http {
 */
 
 /**
- * Public methode of bloc_http.class class
+ * Public methode of blocHttp.class class
  *
- * std::string parse_bloc_http();
+ * std::string parse_blocHttp();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string parse_bloc_http();
+    std::string parse_blocHttp();
 
 /**
- * Public methode of bloc_http.class class
+ * Public methode of blocHttp.class class
  *
  * std::string add_vector_bloc_server();
  *
@@ -574,7 +575,7 @@ struct bloc_http {
     std::string add_vector_bloc_server();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
  * void set_map_token();
  *
@@ -585,7 +586,7 @@ struct bloc_http {
     void set_map_token();
 
 /**
- * Public methode of bloc_http class
+ * Public methode of blocHttp class
  *
  * void set_default_value();
  *
@@ -605,12 +606,12 @@ struct bloc_http {
 *|                                     Member                                       |
 *====================================================================================
 */
-    config_webserv&                                         _config;
-    std::map<std::string, std::string (bloc_http::*)()>     _map_token_list_action;
-    std::vector<bloc_server>                                _vector_bloc_server;//no default value
-    int                                                     _select_bloc_server;
-    std::map<int, int>                                      _map_client_socket;
-    int                                                     _number_max_events;
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (blocHttp::*)()>     _mapTokenListAction;
+    std::vector<blocServer>                                 _vectorBlocServer;//no default value
+    int                                                     _selectBlocServer;
+    std::map<int, int>                                      _mapClientSocket;
+    int                                                     _numberMaxEvents;
 };
 
 
@@ -624,7 +625,7 @@ struct bloc_http {
 
 
 
-struct bloc_events {
+struct blocEvents {
 
 
 /*
@@ -634,43 +635,43 @@ struct bloc_events {
 */
 
 /**
- * Constructor of bloc_events.class class
+ * Constructor of blocEvents.class class
  *
- * bloc_events(peg_parser& peg_parser);
+ * blocEvents(peg_parser& peg_parser);
  *
  * @param   peg_parser &
  * @throw   none
  **/
-    bloc_events(config_webserv&);
+    blocEvents(configWebserv&);
 
 /**
-* Destructor of bloc_events.class class
+* Destructor of blocEvents.class class
 *
-*   ~bloc_events();
+*   ~blocEvents();
 *
 * @throw   none
 **/
-    ~bloc_events();
+    ~blocEvents();
 
 /**
- * Copy constructor of bloc_events class
+ * Copy constructor of blocEvents class
  *
- * bloc_events(const bloc_events &);
+ * blocEvents(const blocEvents &);
  *
- * @param   bloc_events instance to build the server
+ * @param   blocEvents instance to build the server
  * @throw   none
  **/
-    bloc_events(bloc_events &);
+    blocEvents(blocEvents &);
 
 /**
- * Operator overload= of bloc_events class
+ * Operator overload= of blocEvents class
  *
- * bloc_events(const bloc_events &);
+ * blocEvents(const blocEvents &);
  *
- * @param   bloc_events instance const to copy the server
+ * @param   blocEvents instance const to copy the server
  * @throw   none
  **/
-    bloc_events& operator=(const bloc_events &);
+    blocEvents& operator=(const blocEvents &);
 
 /*
 *====================================================================================
@@ -679,48 +680,48 @@ struct bloc_events {
 */
 
 /**
- * Public methode of bloc_events class
+ * Public methode of blocEvents class
  *
- * std::string set_work_connection() ;
- *
- * @returns     string contain error message
- * @param       void
- * @throw       none
- */
-    std::string parse_bloc_events() ;
-
-/**
- * Public methode of bloc_events class
- *
- * std::string set_work_connection() ;
+ * std::string parseBlocEvents() ;
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string set_worker_connections() ;
+    std::string parseBlocEvents() ;
 
 /**
- * Public methode of bloc_events struct
+ * Public methode of blocEvents class
  *
- * void set_map_token();
+ * std::string setWorkerConnections() ;
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string setWorkerConnections() ;
+
+/**
+ * Public methode of blocEvents struct
+ *
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_map_token();
+    void setMapToken();
 
 /**
- * Public methode of bloc_events class
+ * Public methode of blocEvents class
  *
- * void set_default_value();
+ * void setDefaultValue();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_default_value();
+    void setDefaultValue();
 
 
 
@@ -729,9 +730,9 @@ struct bloc_events {
 *|                                     Member                                       |
 *====================================================================================
 */
-    config_webserv&                                         _config;
-    std::map<std::string, std::string (bloc_events::*)()>   _map_token_list_action;
-    int                                                     _worker_connections;//if not define default 10 else accept >o and < 11
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (blocEvents::*)()>    _mapTokenListAction;
+    int                                                     _workerConnections;//if not define default 10 else accept >o and < 11
 };
 
 
@@ -744,7 +745,7 @@ struct bloc_events {
 
 
 
-struct config_webserv {
+struct configWebserv {
 
 /*
 *====================================================================================
@@ -753,54 +754,54 @@ struct config_webserv {
 */
 
 /**
- * Constructor of config_webserv class
+ * Constructor of configWebserv class
  *
- * config_webserv();
+ * configWebserv();
  *
  * @param   void
  * @throw   none
  **/
-    config_webserv();
+    configWebserv();
 
 /**
- * Constructor of config_webserv class
+ * Constructor of configWebserv class
  *
- * config_webserv(std::string & path_config_file);
+ * configWebserv(std::string &);
  *
  * @param   path_config_file is a std::string is a path to config file
  *          specified at start of webserv
  * @throw   none
  **/
-    config_webserv(std::string &);
+    configWebserv(std::string &);
 
 /**
-* Destructor of config_webserv class
+* Destructor of configWebserv class
 *
-* ~config_webserv();
+* ~configWebserv();
 *
 * @throw   none
 **/
-    ~config_webserv();
+    ~configWebserv();
 
 /**
- * Copy constructor of config_webserv class
+ * Copy constructor of configWebserv class
  *
- * config_webserv(const config_webserv &);
+ * configWebserv(configWebserv &);
  *
- * @param   config_webserv instance to build the server
+ * @param   configWebserv instance to build the server
  * @throw   none
  **/
-    config_webserv(config_webserv &);
+    configWebserv(configWebserv &);
 
 /**
- * Operator overload= of config_webserv class
+ * Operator overload= of configWebserv class
  *
- * config_webserv(const config_webserv &);
+ * configWebserv& operator=(const configWebserv &);
  *
- * @param   config_webserv instance const to copy the server
+ * @param   configWebserv instance const to copy the server
  * @throw   none
  **/
-    config_webserv& operator=(const config_webserv &);
+    configWebserv& operator=(const configWebserv &);
 
 /*
 *====================================================================================
@@ -809,67 +810,67 @@ struct config_webserv {
 */
 
 /**
- * Protected methode of config_webserv struct
+ * Protected methode of configWebserv struct
  *
- * int set_bloc_event();
- *
- * @returns     void
- * @param       void
- */
-    std::string parse_bloc_event();
-
-/**
- * Protected methode of config_webserv struct
- *
- * int set_bloc_http();
+ * std::string parseBlocEvent();
  *
  * @returns     void
  * @param       void
  */
-    std::string parse_bloc_http();
+    std::string parseBlocEvent();
 
 /**
- * Protected methode of config_webserv struct
+ * Protected methode of configWebserv struct
  *
- * std::string set_worker_processes();
+ * std::string parseBlocHttp();
+ *
+ * @returns     void
+ * @param       void
+ */
+    std::string parseBlocHttp();
+
+/**
+ * Protected methode of configWebserv struct
+ *
+ * std::string setWorkerProcesses();
  *
  * @returns     std::string if error in data for this token
  * @param       void
  */
-    std::string set_worker_processes();
+    std::string setWorkerProcesses();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
- * void set_map_token();
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_map_token();
+    void setMapToken();
 
 /**
- * Public methode of config_webserv struct
+ * Public methode of configWebserv struct
  *
- * void set_default_value();
+ * void setDefaultValue();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_default_value();
+    void setDefaultValue();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    peg_parser                                                  _peg_parser;
-    std::map<std::string, std::string (config_webserv::*)()>    _map_token_list_action;
-    int                                                         _worker_process;
-    bloc_events                                                 _bloc_events;//required
-    bloc_http                                                   _bloc_http;//if not set as default
+    pegParser                                                  _pegParser;
+    std::map<std::string, std::string (configWebserv::*)()>     _mapTokenListAction;
+    int                                                         _workerProcess;
+    blocEvents                                                 _blocEvents;//required
+    blocHttp                                                   _blocHttp;//if not set as default
 };
 
 

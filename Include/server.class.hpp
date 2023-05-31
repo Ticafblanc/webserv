@@ -16,6 +16,7 @@
 #include "../Include/header.hpp"
 #include "../Include/config_webserv.class.hpp"
 #include "../Include/http_request.class.hpp"
+#include "../Include/client.class.hpp"
 
 
 class server{
@@ -33,12 +34,11 @@ private:
 
     config_webserv                                  &_config;
     http_request                                    _request;
-    int                                             _epoll_instance;
-    int                                             _number_triggered_events;
-    struct epoll_event                              _webserv_event, *_server_events;
-    sockaddr_in                                     _client_address;
-    socklen_t                                       _client_address_len;
-    std::map<std::string, int (server::*)(int)>    _map_connection;
+    int                                             _epollInstance;
+    int                                             _numberTriggeredEvents;
+    struct epoll_event                              _webservEvent, *_serverEvents;
+
+    std::map<std::string, int (server::*)(int)>     _mapConnection;
 
 /*
 *====================================================================================
@@ -49,44 +49,44 @@ private:
 /**
  * Private methode of server class
  *
- * create an instance of epoll in _epoll_instance and
+ * create an instance of epoll in _epollInstance and
  * return a file descriptor to new instance of epoll
  *
- * void create_epoll();
+ * void createEpoll();
  *
  * @returns void
  * @param   void
- * @throws  server::server_exception
+ * @throws  server::serverException
  * */
-    void create_epoll();
+    void createEpoll();
 
 /**
  * Private methode of server class
  *
  * set epoll to follow one or multi ip and port
  *
- * void set_epoll();
+ * void setEpoll();
  *
  * @returns void
  * @param   void
- * @throws  server::server_exception
+ * @throws  server::serverException
  **/
-    void set_epoll();
+    void setEpoll();
 
 /**
  * Private methode of server class
  *
- * set epoll_event instance with socket and type of event to follow
- * before to add a epoll_event to epoll
+ * set epollEvent instance with socket and type of event to follow
+ * before to add a epollEvent to epoll
  *
- * void set_epoll_socket(int & server_socket, struct epoll_event & event, int events);
+ * void setEpoll_socket(int & server_socket, struct epollEvent & event, int events);
  *
  * @returns event fixed
  * @param   server_socket is an int & who refer to
  *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
  *
- *          event is a struct epoll_event & who refer to
- *          config_webserv->config_server.class->config_address.class->_event to set
+ *          event is a struct epollEvent & who refer to
+ *          config_webserv->config_server.class->config_address.class->Event to set
  *
  *          events is int to add to the event
  *          EPOLLIN the event occurs when data can be read from the file descriptor
@@ -99,39 +99,39 @@ private:
  *
  * @throws  none
  * */
-    void set_epoll_event(int&, struct epoll_event &, int);
+    void setEpollEvent(int&, struct epollEvent &, int);
 
 /**
  * Private methode of server class
  *
- * set _event instance with socket to add remove or modify
+ * set Event instance with socket to add remove or modify
  *
- * void set_epoll_ctl(int option, int server_socket);
+ * void setEpoll_ctl(int option, int server_socket);
  *
  * @returns void
- * @param   event is a struct epoll_event * who point to
- *          config_webserv->config_server.class->config_address.class->_event to set
+ * @param   event is a struct epollEvent * who point to
+ *          config_webserv->config_server.class->config_address.class->Event to set
  *
  *          option is an int action to do:
  *          EPOLL_CTL_ADD to add a new descriptor to be monitored
  *          EPOLL_CTL_MOD to modify the monitoring of an already monitored descriptor
  *          EPOLL_CTL_DEL to delete a monitored descriptor.
- * @throws  server::server_exception
+ * @throws  server::serverException
  * */
-    void set_epoll_ctl(int, int);
+    void setEpoll_ctl(int, int);
 
 /**
  * Private methode of server class
  *
  * wait un event in request connect or new event in socket already open
  *
- * void set_epoll_wait();
+ * void setEpoll_wait();
  *
  * @returns void
  * @param   void
- * @throws  server::server_exception
+ * @throws  server::serverException
  * */
-    void set_epoll_wait();
+    void setEpoll_wait();
 
 
 
@@ -162,11 +162,64 @@ private:
  *          group when I/O is possible, e.g., upon availability of
  *          data to be read.
  *
- * @throws  server::server_exception
+ * @throws  server::serverException
  * */
     int accessor_socket_flag(int&, int, int);
 
+/**
+ * Private methode of server class
+ *
+ * check if is a request try to connect with a server socket
+ *
+ * bool is_server_socket_already_conected();
+ *
+ * @returns bool false if is a sever socket than true
+ * @param    event is an epoll event to manage
+ * @throws  none
+ * */
+    bool is_server_socket_already_connected(epollEvent &);
 
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * int connect_new_client(epoll_event & event);
+ *
+ * @returns void
+ * @param   client socket to disconnect
+ * @throws  server::serverException
+ * */
+    int connect_new_client(epoll_event & event);
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * int disconnect_client(int);
+ *
+ * @returns void
+ * @param   client socket to disconnect
+ * @throws  server::serverException
+ * */
+    int disconnect_client(int);
+
+/**
+ * Private methode of server class
+ *
+ * accept new request connection, create client socket,
+ * set it and add to epoll event to monitoring
+ *
+ * int keep_alive(int);
+ *
+ * @returns void
+ * @param   client socket to disconnect
+ * @throws  server::serverException
+ * */
+    int keep_alive(int);
 
 
 
@@ -231,58 +284,58 @@ public:
 /**
  * Class exception of sever class
  *
- * class server_exception;
+ * class serverException;
  *
  * @inherit std::exception
  **/
-    class server_exception: public std::exception
+    class serverException: public std::exception
     {
     public:
 
         /**
-         * Constructor of server_exception class
+         * Constructor of serverException class
          *
-         * server_exception(server & server , const char * message);
+         * serverException(const char * message, int statusCode);
          *
          * @param   server is a server reference to set the private _server
          *          to manage the close of server class
          *          message to store const char*
          * @throw   none
          **/
-        server_exception(const char * message);
+        serverException(const char * message, int statusCode);
 
         /**
-         * Copy constructor of server_exception class
+         * Copy constructor of serverException class
          *
-         * server_exception(server_exception &);
+         * serverException(serverException &);
          *
-         * @param   server_exception instance to build the server_exception
+         * @param   serverException instance to build the serverException
          *          server_socket in an int to close
          * @throw   none
          **/
-        server_exception(const server_exception &);
+        serverException(const serverException &);
 
         /**
-         * Operator overload= of server_exception class
+         * Operator overload= of serverException class
          *
-         * operator=(const server_exception&);
+         * operator=(const serverException&);
          *
-         * @param   server_exception instance const to copy the server_exception
+         * @param   serverException instance const to copy the serverException
          * @throw   none
          **/
-        server_exception& operator=(const server_exception &);
+        serverException& operator=(const serverException &);
 
         /**
-        * Destructor of server_exception class
+        * Destructor of serverException class
         *
-        * virtual ~server_exception() throw();
+        * virtual ~serverException() throw();
         *
         * @throw   none
         **/
-        virtual ~server_exception() throw();
+        virtual ~serverException() throw();
 
         /**
-         * Public methode of server_exception
+         * Public methode of serverException
          *
          * virtual const char * what() const throw();
          *
@@ -295,6 +348,7 @@ public:
 
     private:
         std::string     _message;
+        int             _statusCode;
     };
 
 
@@ -318,47 +372,9 @@ public:
  */
     void launcher();
 
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * int connect_new_client(int);
- *
- * @returns void
- * @param   client socket to disconnect
- * @throws  server::server_exception
- * */
-    int connect_new_client(int);
 
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * int disconnect_client(int);
- *
- * @returns void
- * @param   client socket to disconnect
- * @throws  server::server_exception
- * */
-    int disconnect_client(int);
 
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * int keep_alive(int);
- *
- * @returns void
- * @param   client socket to disconnect
- * @throws  server::server_exception
- * */
-    int keep_alive(int);
+
 
 
 /*

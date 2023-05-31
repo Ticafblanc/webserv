@@ -11,15 +11,16 @@
 /* ************************************************************************** */
 
 #include "../Include/webserv.hpp"
+#include "utils.cpp"
 
-void handle_exit(int sig) {
+void handleExit(int sig) {
     (void) sig;
     //@todo manage the end by signal
     std::cout << "exit by signal" << std::endl;
     exit(EXIT_SUCCESS);
 }
 
-void handle_reload(int sig) {
+void handleReload(int sig) {
     (void) sig;
     //@todo manage the reload by signal
     std::cout << "reload by signal" << std::endl;
@@ -27,31 +28,31 @@ void handle_reload(int sig) {
 }
 
 
-const char * select_path(char **argv, int position_path_file_config){
-    if(position_path_file_config == 0)
+const char * selectPath(char **argv, int positionPathFileConfig){
+    if(positionPathFileConfig == 0)
         return "/usr/local/etc/webserv/webserv.conf";
     else
-        return argv[position_path_file_config];
+        return argv[positionPathFileConfig];
 }
 
 static void check_file(int argc, char **argv){
-    int position_path_file_config = (argc == 2) ? 0 : 2;
-    std::string path_config_file(select_path(argv, position_path_file_config));
+    int positionPathFileConfig = (argc == 2) ? 0 : 2;
+    std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
     try {
-        config_webserv test_config_file(path_config_file);
+        config_webserv test_config_file(pathConfigFile);
     }
     catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
-        std::cout << "webserv: configuration file " << path_config_file << " test failed" << std::endl;
+        std::cout << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
         exit(EXIT_FAILURE);
     }
-    std::cout << "webserv: configuration file " << path_config_file << " test is successful" << std::endl;
+    std::cout << "webserv: configuration file " << pathConfigFile << " test is successful" << std::endl;
     exit(EXIT_SUCCESS);
 
 }
 
-static int check_option(int argc, char **argv){
+static int checkOption(int argc, char **argv){
     if (argc > 3){
         std::cerr << "too many arguments" << std::endl;
         return -1;
@@ -74,15 +75,16 @@ static int check_option(int argc, char **argv){
 
 int main(int argc, char **argv, char **envp){
     (void)envp;
-    std::string  path_config_file;
+    std::string  pathConfigFile;
 //    int         number_try_lauch = 0;
-    int         position_path_file_config = check_option(argc, argv);
+    setLogFile("/usr/local/var/log/log_error.txt");
+    int         positionPathFileConfig = checkOption(argc, argv);
 
-    if (position_path_file_config != -1) {
-        signal(SIGINT, handle_exit);
-        signal(SIGTERM, handle_exit);
-        signal(SIGHUP, handle_reload);
-        path_config_file += select_path(argv, position_path_file_config);
+    if (positionPathFileConfig != -1) {
+        signal(SIGINT, handleExit);
+        signal(SIGTERM, handleExit);
+        signal(SIGHUP, handleReload);
+        pathConfigFile += selectPath(argv, positionPathFileConfig);
 //        while (number_try_lauch < 1) {
             try {
                 config_webserv config_webserv;//@todo add path to constructo after the test
@@ -95,6 +97,7 @@ int main(int argc, char **argv, char **envp){
 //            number_try_lauch++;
 //        }
     }
+    printLogFile("/usr/local/var/log/log_error.txt");
     exit(EXIT_FAILURE);
 }
 

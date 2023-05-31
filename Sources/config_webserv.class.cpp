@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config_webserv.class.cpp                           :+:      :+:    :+:   */
+/*   configWebserv.class.cpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/config_webserv.class.hpp"
+#include "../Include/configWebserv.class.hpp"
 
 
 /*
@@ -20,7 +20,7 @@
 */
 
 
-bloc_location::bloc_location(config_webserv& config)
+bloc_location::bloc_location(configWebserv& config)
         : _config(config), _map_token_list_action(), _root(), _index() {
     set_map_token();
 }
@@ -77,11 +77,11 @@ void bloc_location::set_default_value() {
 */
 
 
-listen_data::listen_data(config_webserv& config, std::string & input)
+listen_data::listen_data(configWebserv& config, std::string & input)
     : _config(config), _input(input), _ip_address(), _port(0), _server_socket(0),
       _sockaddress(){}
 
-listen_data::listen_data(config_webserv& config, std::string default_input)
+listen_data::listen_data(configWebserv& config, std::string default_input)
         : _config(config), _input(default_input), _ip_address(), _port(0), _server_socket(0),
           _sockaddress(){
     parse_listen_data();
@@ -161,7 +161,7 @@ std::string listen_data::set_bind() {
 }
 
 std::string listen_data::set_listen() {
-    if (listen(_server_socket, _config._bloc_events._worker_connections) < 0){
+    if (listen(_server_socket, _config._blocEvents._worker_connections) < 0){
         close(_server_socket);
         return std::string(strerror(errno));
     }
@@ -185,7 +185,7 @@ std::string listen_data::set_socket_flag(){
 */
 
 
-bloc_server::bloc_server(config_webserv&  config)
+bloc_server::bloc_server(configWebserv&  config)
         : _config(config), _vector_listen(), _vector_server_name(),
         _root(), _map_bloc_location() {
     set_map_token();
@@ -270,18 +270,18 @@ void bloc_server::set_map_token() {
 */
 
 
-bloc_http::bloc_http(config_webserv& config) : _config(config), _map_token_list_action(), _vector_bloc_server(),
-                                               _map_client_socket(), _number_max_events(config._bloc_events._worker_connections * config._worker_process) {
+blocHttp::blocHttp(configWebserv& config) : _config(config), _map_token_list_action(), _vector_bloc_server(),
+                                               _map_client_socket(), _number_max_events(config._blocEvents._worker_connections * config._worker_process) {
     set_map_token();
 }
 
-bloc_http::~bloc_http() {}
+blocHttp::~blocHttp() {}
 
-bloc_http::bloc_http(bloc_http &other)
+blocHttp::blocHttp(blocHttp &other)
     : _config(other._config), _map_token_list_action(other._map_token_list_action),
     _vector_bloc_server(other._vector_bloc_server), _map_client_socket(), _number_max_events(other._number_max_events){}
 
-bloc_http &bloc_http::operator=(const bloc_http &rhs) {
+blocHttp &blocHttp::operator=(const blocHttp &rhs) {
     this->_config = rhs._config;
     this->_vector_bloc_server = rhs._vector_bloc_server;
     this->_map_token_list_action = rhs._map_token_list_action;
@@ -290,14 +290,14 @@ bloc_http &bloc_http::operator=(const bloc_http &rhs) {
     return *this;
 }
 
-std::string bloc_http::parse_bloc_http() {
+std::string blocHttp::parse_blocHttp() {
     while (!_config._peg_parser.check_is_end_of_bloc('}'))
         _config._peg_parser.find_token(*this, _map_token_list_action, 0);
     set_default_value();
     return std::string("");
 }
 
-std::string bloc_http::add_vector_bloc_server() {
+std::string blocHttp::add_vector_bloc_server() {
     std::string value = _config._peg_parser.extract_data('{');
     if (value.empty()) {
         bloc_server build_bloc_server(_config);
@@ -307,18 +307,18 @@ std::string bloc_http::add_vector_bloc_server() {
     return value;
 }
 
-void bloc_http::set_default_value() {
+void blocHttp::set_default_value() {
 //    if (_vector_bloc_server.empty()) {
 //
 //    }
-    _number_max_events = _config._bloc_events._worker_connections * _config._worker_process ;
+    _number_max_events = _config._blocEvents._worker_connections * _config._worker_process ;
     bloc_server bloc_server(_config);
     bloc_server.set_default_value();
     _vector_bloc_server.push_back(bloc_server);
 }
 
-void bloc_http::set_map_token() {
-    _map_token_list_action["server"]= &bloc_http::add_vector_bloc_server;
+void blocHttp::set_map_token() {
+    _map_token_list_action["server"]= &blocHttp::add_vector_bloc_server;
 }
 
 
@@ -328,18 +328,18 @@ void bloc_http::set_map_token() {
 *==========================================================================================================
 */
 
-bloc_events::bloc_events(config_webserv& config)
+blocEvents::blocEvents(configWebserv& config)
     : _config(config), _map_token_list_action(), _worker_connections(){
     set_map_token();
 }
 
-bloc_events::~bloc_events() {}
+blocEvents::~blocEvents() {}
 
-bloc_events::bloc_events(bloc_events &other)
+blocEvents::blocEvents(blocEvents &other)
 : _config(other._config), _map_token_list_action(other._map_token_list_action), _worker_connections(other._worker_connections) {}
 
 
-bloc_events &bloc_events::operator=(const bloc_events &rhs) {
+blocEvents &blocEvents::operator=(const blocEvents &rhs) {
    this->_config = rhs._config;
    this->_map_token_list_action = rhs._map_token_list_action;
    this->_worker_connections = rhs._worker_connections;
@@ -347,14 +347,14 @@ bloc_events &bloc_events::operator=(const bloc_events &rhs) {
 }
 
 
-std::string bloc_events::parse_bloc_events() {
+std::string blocEvents::parse_blocEvents() {
     while (!_config._peg_parser.check_is_end_of_bloc('}'))
         _config._peg_parser.find_token(*this, _map_token_list_action, 0);
     set_default_value();
     return std::string("");
 }
 
-std::string bloc_events::set_worker_connections() {
+std::string blocEvents::set_worker_connections() {
     _map_token_list_action.erase("worker_connections");
     std::string value = _config._peg_parser.extract_data(';');
     char * end;//@todo to manage error
@@ -366,13 +366,13 @@ std::string bloc_events::set_worker_connections() {
     return value;
 }
 
-void bloc_events::set_default_value() {
+void blocEvents::set_default_value() {
 //    if (_map_token_list_action.size() == 1)
     _worker_connections = 10;
 }
 
-void bloc_events::set_map_token() {
-    _map_token_list_action["worker_connections"] = &bloc_events::set_worker_connections;
+void blocEvents::set_map_token() {
+    _map_token_list_action["worker_connections"] = &blocEvents::set_worker_connections;
 }
 
 
@@ -382,14 +382,14 @@ void bloc_events::set_map_token() {
 *==========================================================================================================
 */
 
-config_webserv::config_webserv() : _peg_parser(),_map_token_list_action(), _worker_process(),
-                            _bloc_events(*this), _bloc_http(*this) {
+configWebserv::configWebserv() : _peg_parser(),_map_token_list_action(), _worker_process(),
+                            _blocEvents(*this), _blocHttp(*this) {
     set_map_token();
     set_default_value();
 }
 
-config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path_config_file.c_str(), "#"),
-                                    _map_token_list_action(), _worker_process(), _bloc_events(*this), _bloc_http(*this) {
+configWebserv::configWebserv(std::string &path_config_file) : _peg_parser(path_config_file.c_str(), "#"),
+                                    _map_token_list_action(), _worker_process(), _blocEvents(*this), _blocHttp(*this) {
     set_map_token();
     while (!_peg_parser.check_is_empty()) {
         _peg_parser.find_token(*this, _map_token_list_action, 0);
@@ -397,43 +397,43 @@ config_webserv::config_webserv(std::string &path_config_file) : _peg_parser(path
     set_default_value();
 }
 
-config_webserv::~config_webserv() {}
+configWebserv::~configWebserv() {}
 
-config_webserv::config_webserv(config_webserv & other)
+configWebserv::configWebserv(configWebserv & other)
     : _peg_parser(other._peg_parser),_map_token_list_action(other._map_token_list_action),
-    _worker_process(other._worker_process), _bloc_events(other._bloc_events), _bloc_http(other._bloc_http){
+    _worker_process(other._worker_process), _blocEvents(other._blocEvents), _blocHttp(other._blocHttp){
 
 }
 
-config_webserv &config_webserv::operator=(const config_webserv &rhs) {
+configWebserv &configWebserv::operator=(const configWebserv &rhs) {
     this->_peg_parser = rhs._peg_parser;
     this->_map_token_list_action = rhs._map_token_list_action;
     this->_worker_process = rhs._worker_process;
-    this->_bloc_events = rhs._bloc_events;
-    this->_bloc_http = rhs._bloc_http;
+    this->_blocEvents = rhs._blocEvents;
+    this->_blocHttp = rhs._blocHttp;
     return *this;
 }
 
 
-std::string config_webserv::parse_bloc_event() {
+std::string configWebserv::parse_bloc_event() {
     _map_token_list_action.erase("events");
     std::string value = _peg_parser.extract_data('{');
     if (value.empty())
-        value = _bloc_events.parse_bloc_events();
+        value = _blocEvents.parse_blocEvents();
     return value;
 }
 
-std::string config_webserv::parse_bloc_http() {
+std::string configWebserv::parse_blocHttp() {
     _map_token_list_action.erase("http");
     std::string value = _peg_parser.extract_data('{');
     if (value.empty())
-        value = _bloc_http.parse_bloc_http();
-//    std::cout << "_vector_bloc_server size:" << " " << _bloc_http._vector_bloc_server.size() << std::endl;
+        value = _blocHttp.parse_blocHttp();
+//    std::cout << "_vector_bloc_server size:" << " " << _blocHttp._vector_bloc_server.size() << std::endl;
 //    std::cout << "_vector_bloc_server 0:" << " " <<_ << std::endl;
     return value;
 }
 
-std::string config_webserv::set_worker_processes() {
+std::string configWebserv::set_worker_processes() {
     _map_token_list_action.erase("worker_processes");
     std::string value = _peg_parser.extract_data(';');
     char * end;//@todo to manage error
@@ -445,17 +445,17 @@ std::string config_webserv::set_worker_processes() {
     return value;
 }
 
-void config_webserv::set_default_value() {
-//    std::map<std::string, std::string (config_webserv::*)()>::iterator it = _map_token_list_action.begin();
+void configWebserv::set_default_value() {
+//    std::map<std::string, std::string (configWebserv::*)()>::iterator it = _map_token_list_action.begin();
     _worker_process = 1;
-    _bloc_events.set_default_value();
-    _bloc_http.set_default_value();
+    _blocEvents.set_default_value();
+    _blocHttp.set_default_value();
 }
 
-void config_webserv::set_map_token() {
-    _map_token_list_action["worker_processes"] = &config_webserv::set_worker_processes;
-    _map_token_list_action["events"] = &config_webserv::parse_bloc_event;
-    _map_token_list_action["http"] = &config_webserv::parse_bloc_http;
+void configWebserv::set_map_token() {
+    _map_token_list_action["worker_processes"] = &configWebserv::set_worker_processes;
+    _map_token_list_action["events"] = &configWebserv::parse_bloc_event;
+    _map_token_list_action["http"] = &configWebserv::parse_blocHttp;
 }
 
 
