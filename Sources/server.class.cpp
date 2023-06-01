@@ -19,12 +19,7 @@
 */
 
 server::server(configWebserv& config) : _config(config), _epollInstance(), _numberTriggeredEvents(), _webservEvent(),
-                                         _serverEvents(new struct epoll_event[config._blocHttp._numberMaxEvents]),
-                                         _mapConnection(){
-    _mapConnection["connection"] = &server::connectNewClient;
-    _mapConnection["close"] = &server::disconnectClient;
-    _mapConnection["keep-alive"] = &server::keepAlive;
-}
+                                         _serverEvents(new struct epoll_event[config._blocHttp._numberMaxEvents]){}
 
 server::~server() {
     delete[] _serverEvents;
@@ -49,7 +44,8 @@ server& server::operator=(const server& rhs){
 *====================================================================================
 */
 
-server::serverException::serverException(const char * message, int statusCode) : _message(message), _statusCode(statusCode) {}
+server::serverException::serverException(const char * message, int statusCode)
+: _message(message), _statusCode(statusCode) {}
 
 server::serverException::~serverException() throw() {}
 
@@ -70,24 +66,21 @@ server::serverException &server::serverException::operator=(const server::server
 */
 
 void server::launcher() {
+    std::set<client>::iterator          itSetClient;
+
     setEpoll();
     while(true) {
-        try {
-            setEpollWait();
-            for (int i = 0; i < _numberTriggeredEvents; ++i) {
-                try {
-                    if (isServerSocketAlreadyConnected(_serverEvents[i]))
-                        _setClient.manageEvent(_serverEvents[i]);
-                    else
-                        connectNewClient(_serverEvents[i]);
-                } catch (const std::exception &e) {
-                    std::cout << e.what() << std::endl;
-                }
-
+        setEpollWait();
+        for (int i = 0; i < _numberTriggeredEvents; ++i) {
+            try {
+                if(isNotNewClient(_serverEvents[i], itSetClient))
+                    if (itSetClient.manageEvent())
+                        disconnectClient(itSetClient);
+            } catch (const std::exception &e) {
+                writeLogFile(e.what(), "/webserv/config_content_server/for_var/log/log_error.txt");
+                std::cout << e.what() << std::endl;//@todo to delete
             }
-        }catch (const std::exception &e){
-            std::cout << e.what() << std::endl;
-            //@todo http_request request(_serverEvents[position], *server);
+
         }
     }
 
@@ -144,23 +137,32 @@ int server::accessorSocketFlag(int & serverSocket, int command, int flag){
     return returnFlag;
 }
 
-bool server::isServerSocketAlreadyConnected(epoll_event & event){
+bool server::isServerSocketAlreadyConnected(epoll_event & event, std::set<client>::iterator & itSetClient){
     for (std::vector<blocServer>::iterator server = _config._blocHttp._vectorBlocServer.begin();
          server != _config._blocHttp._vectorBlocServer.end(); ++server) {
         for (std::vector<listenData>::iterator vec_listen = server->_vectorListen.begin();
              vec_listen != server->_vectorListen.end(); ++vec_listen) {
             if (vec_listen->_serverSocket == event.data.fd){
-                _config._blocHttp._selectBlocServer = std::distance(_config._blocHttp._vectorBlocServer.begin(), server);
                 return false;
             }
         }
     }
+    itSetClient = _setClientConnected.find(event);
+    if (itSetClient == _setClientConnected.end()){
+        serverException serverException(strerror(errno), 404);
+        throw serverException;
+    }
     return true;
 }
 
-void server::connectNewClient(epoll_event & event) {
+
+bool server::isNotNewClient(epoll_event & event, std::set<client>::iterator & itSetClient) {
+    if(isServerSocketAlreadyConnected(event, itSetClient))
+        return true;
+    client newClient(event);
     sockaddr_in                                     clientAddress = {};
     socklen_t                                       addressLen = sizeof(clientAddress);
+    //@todo update to client
     event.data.fd = accept(event.data.fd, reinterpret_cast<struct sockaddr *>(&clientAddress), &addressLen);
     if (event.data.fd == -1) {
         serverException serverException(strerror(errno), 503);
@@ -169,23 +171,14 @@ void server::connectNewClient(epoll_event & event) {
     accessorSocketFlag(event.data.fd, F_SETFL, O_NONBLOCK);
     setEpollEvent(event.data.fd, _webservEvent, EPOLLIN | EPOLLET);
     setEpollCtl(EPOLL_CTL_ADD, event.data.fd);
+    _setClientConnected.insert(newClient);
     _config._blocHttp._numberMaxEvents--;
-    _config._blocHttp._mapClientSocket.insert(std::make_pair(newClientSocket, _config._blocHttp._selectBlocServer));
+    return false;
 }
 
-void server::disconnectClient(epoll_event & event) {
-    _request.send_data_client(client_socket);
+void server::disconnectClient(std::set<client>::iterator& itSetClient) {
     _config._blocHttp._numberMaxEvents++;
     setEpollCtl(EPOLL_CTL_DEL, client_socket);
     close(client_socket);
+    _setClientConnected.erase(itSetClient);
 }
-
-void server::keepAlive(epoll_event & event) {
-    _request.send_data_client(client_socket);
-}
-//    std::cout << " events = "<< _serverEvents[i].events << "\n"
-//                    << "EPOLLERR = " <<EPOLLERR <<"\n"
-//                    << "EPOLLET = " <<EPOLLET << "\n"
-//                    <<"EPOLLIN = "<<EPOLLIN << "\n"<< std::endl;
-//                    _serverEvents[i].data.fd = (this->*(_mapConnection.find(_request.manage_request(_serverEvents[i]))->second))(_serverEvents[i].data.fd);
-

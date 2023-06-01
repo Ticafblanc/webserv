@@ -35,8 +35,7 @@ private:
     int                                             _epollInstance;
     int                                             _numberTriggeredEvents;
     struct epoll_event                              _webservEvent, *_serverEvents;
-
-    std::map<std::string, void (server::*)(epoll_event &)>     _mapConnection;
+    std::set<client, ClientComparator>              _setClientConnected;
 
 /*
 *====================================================================================
@@ -175,7 +174,7 @@ private:
  * @param    event is an epoll event to manage
  * @throws  none
  * */
-    bool isServerSocketAlreadyConnected(epollEvent &);
+    bool isServerSocketAlreadyConnected(epoll_event & event, std::set<client>::iterator & itSetClient);
 
 /**
  * Private methode of server class
@@ -183,13 +182,13 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * int connectNewClient(epoll_event & event);
+ * int connectNewClient(epoll_event & event, std::set<client>::iterator &);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::serverException
  * */
-    void connectNewClient(epoll_event & event);
+    bool isNotNewClient(epoll_event & event, std::set<client>::iterator &);
 
 /**
  * Private methode of server class
@@ -203,24 +202,7 @@ private:
  * @param   client socket to disconnect
  * @throws  server::serverException
  * */
-    void disconnectClient(epoll_event & event);
-
-/**
- * Private methode of server class
- *
- * accept new request connection, create client socket,
- * set it and add to epoll event to monitoring
- *
- * int keepAlive(int);
- *
- * @returns void
- * @param   client socket to disconnect
- * @throws  server::serverException
- * */
-    void keepAlive(epoll_event & event);
-
-
-
+    void disconnectClient(std::set<client>::iterator & itSetClient);
 
 /*>********************************public section**********************************/
 

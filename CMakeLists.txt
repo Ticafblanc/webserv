@@ -6,7 +6,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
-set(WEBSERV  Sources/server.class.cpp Sources/config_webserv.class.cpp Sources/peg_parser.class.cpp Sources/main.cpp)
+set(WEBSERV  Sources/server.class.cpp Sources/config_webserv.class.cpp Sources/peg_parser.class.cpp Sources/main.cpp Sources/client.class.cpp)
 #set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp Sources/server.class.cpp)
 #set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)
 
