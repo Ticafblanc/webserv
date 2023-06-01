@@ -16,6 +16,7 @@
 void handleExit(int sig) {
     (void) sig;
     //@todo manage the end by signal
+    printLogFile("/usr/local/var/log/log_error.txt");
     std::cout << "exit by signal" << std::endl;
     exit(EXIT_SUCCESS);
 }
@@ -35,12 +36,12 @@ const char * selectPath(char **argv, int positionPathFileConfig){
         return argv[positionPathFileConfig];
 }
 
-static void check_file(int argc, char **argv){
+static void checkFile(int argc, char **argv){
     int positionPathFileConfig = (argc == 2) ? 0 : 2;
     std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
     try {
-        config_webserv test_config_file(pathConfigFile);
+        configWebserv testConfigFile(pathConfigFile);
     }
     catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -62,7 +63,7 @@ static int checkOption(int argc, char **argv){
             if (argv[1][1] == 's')
                 (void)argv;//@todo webserv -s (stop quit reopen reload) SIGINT, SIGTERM shutdown SIGHUP reload
             else if (argv[1][1] == 't')
-                check_file(argc, argv);
+                checkFile(argc, argv);
             else if (argv[1][1] == 'c' && argc == 3)
                 return 2;
             std::cerr << "invalid option -" << argv[1][1] << std::endl;
@@ -77,7 +78,7 @@ int main(int argc, char **argv, char **envp){
     (void)envp;
     std::string  pathConfigFile;
 //    int         number_try_lauch = 0;
-    setLogFile("/usr/local/var/log/log_error.txt");
+    setLogFile("/webserv/config_content_server/for_var/log/log_error.txt");//@todo add log
     int         positionPathFileConfig = checkOption(argc, argv);
 
     if (positionPathFileConfig != -1) {
@@ -87,9 +88,9 @@ int main(int argc, char **argv, char **envp){
         pathConfigFile += selectPath(argv, positionPathFileConfig);
 //        while (number_try_lauch < 1) {
             try {
-                config_webserv config_webserv;//@todo add path to constructo after the test
-                server server(config_webserv);
-                server.launcher();
+                configWebserv configWebserv;//@todo add path to constructo after the test
+                server server(configWebserv);
+//                server.launcher();
             }
             catch (const std::exception &e) {
                 std::cout << e.what() << std::endl;
@@ -97,7 +98,7 @@ int main(int argc, char **argv, char **envp){
 //            number_try_lauch++;
 //        }
     }
-    printLogFile("/usr/local/var/log/log_error.txt");
+    printLogFile("/webserv/config_content_server/for_var/log/log_error.txt");
     exit(EXIT_FAILURE);
 }
 

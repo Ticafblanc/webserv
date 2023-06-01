@@ -5,7 +5,7 @@
 #include "../Include/header.hpp"
 
 bool setLogFile(const std::string& filename) {
-    std::ofstream file(filename.c_str());
+    std::ofstream file(filename.c_str(), std::ios::trunc);
     if (!file.is_open()) {
         std::cerr << "fail to open file" << std::endl;
         return false;
@@ -31,13 +31,15 @@ void writeLogFile(const std::string& message, const std::string& filename) {
 }
 
 void printLogFile(const std::string& filename) {
-
     std::ifstream logfile(filename.c_str());
     if (!logfile.is_open()) {
         std::cerr << "fail to open file" << std::endl;
         return;
     }
-    std::cout << logfile << std::endl;
+    std::string line;
+    while (std::getline(logfile, line)) {
+        std::cout << line << std::endl;
+    }
     logfile.close();
 }
 

@@ -6,50 +6,50 @@
 *====================================================================================
 */
 
-peg_parser::peg_parser() : _string_stream(), _line_comment_character(){}
+pegParser::pegParser() : _stringStream(), _lineCommentCharacter(){}
 
-//peg_parser::peg_parser(const std::string line_comment_character)
-//    : _string_stream(), _line_comment_character(line_comment_character){}
+//pegParser::pegParser(const std::string lineCommentCharacter)
+//    : _stringStream(), _lineCommentCharacter(lineCommentCharacter){}
 
-peg_parser::peg_parser(const char * path_file) : _string_stream(), _line_comment_character() {
-    std::ifstream       file_to_parse(path_file);
+pegParser::pegParser(const char * path_file) : _stringStream(), _lineCommentCharacter() {
+    std::ifstream       fileToParse(path_file);
 
-    if (!file_to_parse.is_open())
-        throw syntax_exception(strerror(errno));
-    std::copy(std::istreambuf_iterator<char>(file_to_parse),
-              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
-    std::cout << _string_stream.str() << std::endl;
-    file_to_parse.close();
+    if (!fileToParse.is_open())
+        throw syntaxException(strerror(errno));
+    std::copy(std::istreambuf_iterator<char>(fileToParse),
+              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_stringStream));
+    std::cout << _stringStream.str() << std::endl;
+    fileToParse.close();
 }
 
-peg_parser::peg_parser(const char *path_file , const std::string line_comment_character)
-    : _string_stream(), _line_comment_character(line_comment_character) {
-    std::ifstream       file_to_parse(path_file);
+pegParser::pegParser(const char *path_file , const std::string lineCommentCharacter)
+    : _stringStream(), _lineCommentCharacter(lineCommentCharacter) {
+    std::ifstream       fileToParse(path_file);
 
-    if (!file_to_parse.is_open())
-        throw syntax_exception(strerror(errno));
-    std::copy(std::istreambuf_iterator<char>(file_to_parse),
-              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_string_stream));
-    file_to_parse.close();
+    if (!fileToParse.is_open())
+        throw syntaxException(strerror(errno));
+    std::copy(std::istreambuf_iterator<char>(fileToParse),
+              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_stringStream));
+    fileToParse.close();
 }
 
-peg_parser::peg_parser(const std::string & string_to_parse)
-    : _string_stream(string_to_parse), _line_comment_character(){}
+pegParser::pegParser(const std::string & stringToParse)
+    : _stringStream(stringToParse), _lineCommentCharacter(){}
 
-peg_parser::peg_parser(const string & string_to_parse, const std::string line_comment_character)
-    : _string_stream(string_to_parse), _line_comment_character(line_comment_character){
+pegParser::pegParser(const string & stringToParse, const std::string lineCommentCharacter)
+    : _stringStream(stringToParse), _lineCommentCharacter(lineCommentCharacter){
 
 }
 
-peg_parser::~peg_parser() { }
+pegParser::~pegParser() { }
 
-peg_parser::peg_parser(peg_parser & other) : _string_stream(){
+pegParser::pegParser(pegParser & other) : _stringStream(){
     *this = other;
 }
 
-peg_parser &peg_parser::operator=(const peg_parser & rhs) {
-    this->_string_stream.str() = rhs._string_stream.str();
-    this->_line_comment_character = rhs._line_comment_character;
+pegParser &pegParser::operator=(const pegParser & rhs) {
+    this->_stringStream.str() = rhs._stringStream.str();
+    this->_lineCommentCharacter = rhs._lineCommentCharacter;
     return *this;
 }
 
@@ -60,20 +60,20 @@ peg_parser &peg_parser::operator=(const peg_parser & rhs) {
 *====================================================================================
 */
 
-std::string peg_parser::extract_data(char control_operator) {
+std::string pegParser::extractData(char control_operator) {
     std::string data;
 
-    if (!delete_comments())
+    if (!deleteComments())
         return data;
 
     if (control_operator == 0)
-        _string_stream >> data >> std::ws;
+        _stringStream >> data >> std::ws;
     else
-        std::getline(_string_stream >> std::ws, data, control_operator);
+        std::getline(_stringStream >> std::ws, data, control_operator);
 
-    if (_string_stream.eof() && data.find_first_not_of('\0') !=  std::string::npos) {
-        syntax_exception exception(data.c_str());
-        exception.set_error_message("find end of file in ");
+    if (_stringStream.eof() && data.find_first_not_of('\0') != std::string::npos) {
+        syntaxException exception(data.c_str());
+        exception.setErrorMessage("find end of file in ");
         throw exception;
     }
     return data;
@@ -85,24 +85,24 @@ std::string peg_parser::extract_data(char control_operator) {
 *====================================================================================
 */
 
-peg_parser::syntax_exception::syntax_exception(const char * message) :
+pegParser::syntaxException::syntaxException(const char * message) :
                 _message(message){}
 
-peg_parser::syntax_exception::syntax_exception(const peg_parser::syntax_exception & other) :
+pegParser::syntaxException::syntaxException(const pegParser::syntaxException & other) :
                 _message(other._message) {}
 
-peg_parser::syntax_exception &
-peg_parser::syntax_exception::operator=(const peg_parser::syntax_exception &rhs) {
+pegParser::syntaxException &
+pegParser::syntaxException::operator=(const pegParser::syntaxException &rhs) {
     this->_message =rhs._message;
     return *this;
 }
 
-peg_parser::syntax_exception::~syntax_exception() throw() { }
+pegParser::syntaxException::~syntaxException() throw() { }
 
-const char *peg_parser::syntax_exception::what() const throw() { return _message.c_str(); }
+const char *pegParser::syntaxException::what() const throw() { return _message.c_str(); }
 
-void peg_parser::syntax_exception::set_error_message( std::string error_message) {
-    _message = error_message + _message;
+void pegParser::syntaxException::setErrorMessage(const std::string &errorMessage) {
+    _message = errorMessage + _message;
 }
 
 /*
@@ -110,36 +110,36 @@ void peg_parser::syntax_exception::set_error_message( std::string error_message)
 *|                                  private fonction utils                          |
 *====================================================================================
 */
-bool peg_parser::check_is_empty() {
-    return _string_stream.eof();
+bool pegParser::checkIsEmpty() {
+    return _stringStream.eof();
 }
 
-bool peg_parser::check_is_end_of_bloc(char end_of_bloc_character) {
-    std::string check= _string_stream.str();
-    std::streampos init = _string_stream.tellg();
-    check = extract_data(end_of_bloc_character);
+bool pegParser::checkIsEndOfBloc(char endOfBlocCharacter) {
+    std::string check= _stringStream.str();
+    std::streampos init = _stringStream.tellg();
+    check = extractData(endOfBlocCharacter);
 
-    if (check.empty() && check.find(end_of_bloc_character))
+    if (check.empty() && check.find(endOfBlocCharacter))
         return true;
 
-    _string_stream.seekg(init);
+    _stringStream.seekg(init);
     return false;
 }
 
 
-bool peg_parser::delete_comments() {
-    if (!_line_comment_character.empty()){
-        std::string line = _line_comment_character;
+bool pegParser::deleteComments() {
+    if (!_lineCommentCharacter.empty()){
+        std::string line = _lineCommentCharacter;
         std::streampos init;
-        while (line.substr(0, _line_comment_character.length()) == _line_comment_character
-            && !_string_stream.eof()) {
-            init = _string_stream.tellg();
-            std::getline(_string_stream >> std::ws, line, '\n');
+        while (line.substr(0, _lineCommentCharacter.length()) == _lineCommentCharacter
+            && !_stringStream.eof()) {
+            init = _stringStream.tellg();
+            std::getline(_stringStream >> std::ws, line, '\n');
         }
 
-        if (line.substr(0, _line_comment_character.length()) != _line_comment_character
-            && !check_is_empty()) {
-            _string_stream.seekg(init);
+        if (line.substr(0, _lineCommentCharacter.length()) != _lineCommentCharacter
+            && !checkIsEmpty()) {
+            _stringStream.seekg(init);
             return true;
         }
         return false;
@@ -147,19 +147,19 @@ bool peg_parser::delete_comments() {
     return true;
 }
 
-const std::stringstream &peg_parser::getStringStream() const {
-    return _string_stream;
+const std::stringstream &pegParser::getStringStream() const {
+    return _stringStream;
 }
 
-void peg_parser::setStringStream(const std::string &string) {
-    _string_stream.str(string);
-    _string_stream.seekg(0);
+void pegParser::setStringStream(const std::string &string) {
+    _stringStream.str(string);
+    _stringStream.seekg(0);
 }
 
-const string &peg_parser::getLineCommentCharacter() const {
-    return _line_comment_character;
+const string &pegParser::getLineCommentCharacter() const {
+    return _lineCommentCharacter;
 }
 
-void peg_parser::setLineCommentCharacter(const string &lineCommentCharacter) {
-    _line_comment_character = lineCommentCharacter;
+void pegParser::setLineCommentCharacter(const string &lineCommentCharacter) {
+    _lineCommentCharacter = lineCommentCharacter;
 }

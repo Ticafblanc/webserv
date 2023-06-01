@@ -3,7 +3,7 @@
 
 #include "../Include/header.hpp"
 
-class peg_parser {
+class pegParser {
 
 /*>********************************public section**********************************/
 
@@ -16,97 +16,97 @@ public:
 */
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser();
+ * pegParser();
  *
  * @param   void
  * @throw   none
  **/
-    peg_parser();
+    pegParser();
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser(std::string line_comment_character);
+ * pegParser(std::string lineCommentCharacter);
  *
- * @param   line_comment_character is a line character indicates the line not to be processed
+ * @param   lineCommentCharacter is a line character indicates the line not to be processed
  * @throw   none
  **/
-//    peg_parser(const std::string);
+//    pegParser(const std::string);
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser(const char *path_file);
+ * pegParser(const char *pathFile);
  *
- * @param   path_file is a path of file to parse
- * @throw   syntax_exception if can't open th file
+ * @param   pathFile is a path of file to parse
+ * @throw   syntaxException if can't open th file
  **/
-    peg_parser(const char *);
+    pegParser(const char *);
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser(const char *path_file, std::string line_comment_character);
+ * pegParser(const char *pathFile, std::string lineCommentCharacter);
  *
- * @param   path_file is a path of file to parse
- * @param   line_comment_character is a line character indicates the line not to be processed
- * @throw   syntax_exception if can't open th file
+ * @param   pathFile is a path of file to parse
+ * @param   lineCommentCharacter is a line character indicates the line not to be processed
+ * @throw   syntaxException if can't open th file
  **/
-    peg_parser(const char *, std::string);
+    pegParser(const char *, std::string);
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser(std::string & string_to_parse);
+ * pegParser(std::string & stringToParse);
  *
- * @param   string_to_parse
+ * @param   stringToParse
  * @throw   none
  **/
-    peg_parser(const std::string &);
+    pegParser(const std::string &);
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- * peg_parser(std::string & string_to_parse);
+ * pegParser(std::string & stringToParse);
  *
- * @param   string_stream& is a buffer to parse
- * @param   line_comment_character is a line character indicates the line not to be processed
+ * @param   stringStream& is a buffer to parse
+ * @param   lineCommentCharacter is a line character indicates the line not to be processed
  * @throw   none
  **/
-    peg_parser(const std::string &, const std::string);
+    pegParser(const std::string &, const std::string);
 
 /**
-* Destructor of peg_parser.class
+* Destructor of pegParser.class
 *
-* ~peg_parser();
+* pegParser);
 *
 * @throw   none
 **/
-    ~peg_parser();
+    ~pegParser();
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
- *  peg_parser(peg_parser & other);
+ *  pegParser(pegParser & other);
  *
- * @param   other is peg_parser to copy
+ * @param   other is pegParser to copy
  * @throw   none
  **/
-    peg_parser(peg_parser &);
+    pegParser(pegParser &);
 
 /**
- * Constructor of peg_parser.class
+ * Constructor of pegParser.class
  *
  * warning loss the position after copy
  *
- * peg_parser& operator=(peg_parser & rhs);
+ * pegParser& operator=(pegParser & rhs);
  *
- * @param   rhs is peg_parser at right position of = operator to copy
+ * @param   rhs is pegParser at right position of = operator to copy
  * @throw   none
  **/
-    peg_parser& operator=(const peg_parser&);
+    pegParser& operator=(const pegParser&);
 
 
 /*
@@ -116,113 +116,113 @@ public:
 */
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
  *   template<class T>
-    void find_token( std::map<std::string , std::string (T::*)()>&, char control_operator);
+    void findToken( std::map<std::string , std::string (T::*)()>&, char controlOperator);
  *
  * @returns     void
- * @param       map_token_list_action is a std::map key = token (string),
+ * @param       mapTokenListAction is a std::map key = token (string),
  *              data = action to do (std::string (*)(std::stringstream&))
- * @param       control_operator delimit the end of data to extract 0 = white space
- * @throw       syntaxe_exception
+ * @param       controlOperator delimit the end of data to extract 0 = white space
+ * @throw       syntaxException
  */
 
     template<class T>
-    void find_token(T& base, std::map<std::string, std::string (T::*)()> & map_token_list_action, char control_operator) {
-        std::string token = extract_data(control_operator);
+    void findToken(T& base, std::map<std::string, std::string (T::*)()> & mapTokenListAction, char controlOperator) {
+        std::string token = extractData(controlOperator);
         if (token.find_first_not_of('\0') ==  std::string::npos)
             return;
-        typename std::map<std::string, std::string (T::*)()>::iterator it = map_token_list_action.find(token);
-        if (it == map_token_list_action.end() && !check_is_empty()) {
-            syntax_exception exception(token.c_str());
-            exception.set_error_message("error token in ");
+        typename std::map<std::string, std::string (T::*)()>::iterator it = mapTokenListAction.find(token);
+        if (it == mapTokenListAction.end() && !checkIsEmpty()) {
+            syntaxException exception(token.c_str());
+            exception.setErrorMessage("error token in ");
             throw exception;
         }
 
         std::string result = (base.*(it->second))();
 
         if (!result.empty()) {
-            syntax_exception exception(result.c_str());
-            exception.set_error_message("value invalid in ");
+            syntaxException exception(result.c_str());
+            exception.setErrorMessage("value invalid in ");
             throw exception;
         }
     }
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
- *   void parse(char control_operator);
+ *   void parse(char controlOperator);
  *
  * @returns     std::string data extracted befor the control operator
- * @param       control_operator delimit the end of data to extract 0 = white space
- * @throw       syntaxe_exception
+ * @param       controlOperator delimit the end of data to extract 0 = white space
+ * @throw       syntaxException
  */
-    std::string extract_data(char control_operator);
+    std::string extractData(char controlOperator);
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
- *  bool check_is_empty();
+ *  bool checkIsEmpty();
  *
  * @returns     bool true if it's empty
  * @param       void
- * @throw       syntaxe_exception
+ * @throw       syntaxException
  */
-    bool check_is_empty();
+    bool checkIsEmpty();
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
- *  bool check_is_end_of_bloc(char end_of_bloc_character);
+ *  bool checkIsEndOfBloc(char endOfBlocCharacter);
  *
- * @returns     bool true if find end_of_bloc_character
- * @param       end_of_bloc_character define the end of bloc
- * @throw       syntaxe_exception
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
  */
-    bool check_is_end_of_bloc(char);
+    bool checkIsEndOfBloc(char);
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
  *   const std::stringstream &getStringStream() const;
  *
- * @returns     bool true if find end_of_bloc_character
- * @param       end_of_bloc_character define the end of bloc
- * @throw       syntaxe_exception
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
  */
     const std::stringstream &getStringStream() const;
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
  *  void setStringStream(const std::stringstream &stringStream);
  *
- * @returns     bool true if find end_of_bloc_character
- * @param       end_of_bloc_character define the end of bloc
- * @throw       syntaxe_exception
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
  */
     void setStringStream(const std::string &string);
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
  *  const string &getLineCommentCharacter() const;
  *
- * @returns     bool true if find end_of_bloc_character
- * @param       end_of_bloc_character define the end of bloc
- * @throw       syntaxe_exception
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
  */
     const string &getLineCommentCharacter() const;
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
  *   void setLineCommentCharacter(const string &lineCommentCharacter);
  *
- * @returns     bool true if find end_of_bloc_character
- * @param       end_of_bloc_character define the end of bloc
- * @throw       syntaxe_exception
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
  */
     void setLineCommentCharacter(const string &lineCommentCharacter);
 
@@ -233,57 +233,57 @@ public:
 */
 
 /**
- * Class exception of peg_parser class
+ * Class exception of pegParser class
  *
- * class syntax_exception;
+ * class syntaxException;
  *
  * @inherit std::exception
  **/
-    class syntax_exception: public std::exception
+    class syntaxException: public std::exception
     {
     public:
 
         /**
-         * Constructor of syntax_exception class
+         * Constructor of syntaxException class
          *
-         * syntax_exception(peg_parser & config, const char* message);
+         * syntaxException(pegParser & config, const char* message);
          *
          * @param   message to store const char*
          * @throw   none
          **/
-        syntax_exception(const char *);
+        syntaxException(const char *);
 
         /**
-         * Copy constructor of syntax_exception class
+         * Copy constructor of syntaxException class
          *
-         * syntax_exception(syntax_exception &);
+         * syntaxException(syntaxException &);
          *
-         * @param   syntax_exception instance to build the syntax_exception
+         * @param   syntaxException instance to build the syntaxException
          * @throw   none
          **/
-        syntax_exception(const syntax_exception &);
+        syntaxException(const syntaxException &);
 
         /**
-         * Operator overload= of syntax_exception class
+         * Operator overload= of syntaxException class
          *
-         * operator=(const syntax_exception&);
+         * operator=(const syntaxException&);
          *
-         * @param   syntax_exception instance const to copy the syntax_exception
+         * @param   syntaxException instance const to copy the syntaxException
          * @throw   none
          **/
-        syntax_exception& operator=(const syntax_exception &);
+        syntaxException& operator=(const syntaxException &);
 
         /**
-        * Destructor of syntax_exception class
+        * Destructor of syntaxException class
         *
-        * virtual ~syntax_exception() throw();
+        * virtual ~syntaxException() throw();
         *
         * @throw   none
         **/
-        virtual ~syntax_exception() throw();
+        virtual ~syntaxException() throw();
 
         /**
-         * Public methode of syntax_exception
+         * Public methode of syntaxException
          *
          * virtual const char * what() const throw();
          *
@@ -295,7 +295,7 @@ public:
         virtual const char * what() const throw();
 
         /**
-         * Public methode of syntax_exception
+         * Public methode of syntaxException
          *
          *  void set_error( std::string error_message)
          *
@@ -303,7 +303,7 @@ public:
          * @param    error_message to set befor the initial message
          * @throw   none
          **/
-         void set_error_message(std::string);
+         void setErrorMessage(const std::string &);
 
     private:
         std::string         _message;
@@ -320,23 +320,23 @@ private:
 */
 
 /**
- * Public methode of peg_parser.class
+ * Public methode of pegParser.class
  *
- * bool delete_comments();
+ * bool deleteComments();
  *
  * @returns     void
  * @param       buffer_line is a string to remove comment
- * @throw       syntaxe_exception
+ * @throw       syntaxException
  */
-    bool delete_comments();
+    bool deleteComments();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::stringstream   _string_stream;
-    std::string         _line_comment_character;
+    std::stringstream   _stringStream;
+    std::string         _lineCommentCharacter;
 };
 
 #endif

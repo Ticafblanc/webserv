@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   configWebserv.class.hpp                           :+:      :+:    :+:   */
+/*   config_webserv.class.hpp                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -24,7 +24,7 @@ struct configWebserv;
 *==========================================================================================================
 */
 
-struct bloc_location {
+struct blocLocation {
 
 
 /*
@@ -34,42 +34,42 @@ struct bloc_location {
 */
 
 /**
- * Constructor of config_location.class class
+ * Constructor of blocLocation.class class
  *
- * bloc_location(std::stringstream & webserv_config_file);
- *
- * @param   void
- * @throw   none
- **/
-    bloc_location(configWebserv&);
-
-/**
-* Destructor of bloc_location.class class
-*
-* bloc_location.class.class();
-*
-* @throw   none
-**/
-    ~bloc_location();
-
-/**
- * Constructor of config_server.class class
- *
- * bloc_server(std::stringstream & webserv_config_file);
+ * blocLocation(std::stringstream & webserv_config_file);
  *
  * @param   void
  * @throw   none
  **/
-    bloc_location(const bloc_location&);
+    blocLocation(configWebserv&);
 
 /**
-* Destructor of bloc_server.class class
+* Destructor of blocLocation.class class
 *
-* bloc_server.class.class();
+* blocLocation.class.class();
 *
 * @throw   none
 **/
-    bloc_location& operator=(const bloc_location&);
+    ~blocLocation();
+
+/**
+ * Constructor of blocLocation.class class
+ *
+ * blocServer(std::stringstream & webserv_config_file);
+ *
+ * @param   void
+ * @throw   none
+ **/
+    blocLocation(const blocLocation&);
+
+/**
+* Destructor of blocLocation.class class
+*
+* blocServer.class.class();
+*
+* @throw   none
+**/
+    blocLocation& operator=(const blocLocation&);
 
 /*
 *====================================================================================
@@ -78,60 +78,60 @@ struct bloc_location {
 */
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocLocation.class class
  *
- * std::vector<std::string> &get_vector_server_name() const;
- *
- * @returns     std::vector<std::string>& contain all names of server
- * @param       void
- * @throw       none
- */
-    std::string parse_bloc_location();
-
-/**
- * Public methode of bloc_location.class class
- *
- * std::vector<std::string> &get_vector_location_name() const;
+ * std::string parseBlocLocation();
  *
  * @returns     std::vector<std::string>& contain all names of server
  * @param       void
  * @throw       none
  */
-    std::string set_root();
+    std::string parseBlocLocation();
+
+/**
+ * Public methode of blocLocation.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of server
+ * @param       void
+ * @throw       none
+ */
+    std::string setRoot();
 
 
 /**
- * Public methode of bloc_location.class class
+ * Public methode of blocLocation.class class
  *
- * void set_vector_location_name(std::string & name);
+ * std::string addIndex();
  *
  * @returns     void
  * @param       name is an std::string contain name of server to add
  * @throw       bloc_exception if name already exist
  */
-    std::string add_index();
+    std::string addIndex();
 
 /**
- * Public methode of configWebserv struct
+ * Public methode of blocLocation struct
  *
- * void set_map_token();
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_map_token();
+    void setMapToken();
 
 /**
- * Public methode of blocHttp class
+ * Public methode of blocLocation class
  *
- * void set_default_value();
+ * void setDefaultValue();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_default_value();
+    void setDefaultValue();
 
 /*
 *====================================================================================
@@ -139,7 +139,7 @@ struct bloc_location {
 *====================================================================================
 */
     configWebserv&                                             _config;
-    std::map<std::string, std::string (bloc_location::*)()>     _map_token_list_action;
+    std::map<std::string, std::string (blocLocation::*)()>     _mapTokenListAction;
     std::string                                                 _root;//path of this location
     std::vector<std::string>                                    _index;// set name of specific index file
 };
@@ -151,7 +151,7 @@ struct bloc_location {
 */
 
 
-struct listen_data {
+struct listenData {
 
 
 /*
@@ -161,54 +161,54 @@ struct listen_data {
 */
 
 /**
- * Constructor of config_server.class class
+ * Constructor of configServer.class class
  *
- * listen_data(configWebserv& config, std::string& input);
+ * listenData(configWebserv& config, std::string& input);
  *
  * @param   input is a string reference extract befor;
  * @param   config is config webserv reference
  * @throw   none
  **/
-    listen_data(configWebserv&, std::string&);
+    listenData(configWebserv&, std::string&);
 /**
- * Constructor of config_server.class class
+ * Constructor of configServer.class class
  *
- * listen_data(configWebserv& config, std::string& default_input);
+ * listenData(configWebserv& config, std::string& default_input);
  *
  * @param   input is a default string ;
  * @param   config is config webserv reference
  * @throw   none
  **/
-    listen_data(configWebserv&, std::string);
+    listenData(configWebserv&, std::string);
 
 /**
-* Destructor of listen_data.class class
+* Destructor of listenData.class class
 *
-* ~listen_data();
+* ~listenData();
 *
 * @throw   none
 **/
-    ~listen_data();
+    ~listenData();
 
 /**
- * Constructor of config_server.class class
+ * Constructor of configServer.class class
  *
- * listen_data(const listen_data & listen_data);
+ * listenData(const listenData & listenData);
  *
- * @param   listen_data &
+ * @param   listenData &
  * @throw   none
  **/
-    listen_data(const listen_data&);
+    listenData(const listenData&);
 
 /**
-* Destructor of listen_data.class class
+* Destructor of listenData.class class
 *
-*  listen_data& operator=(const listen_data& listen_data);
+*  listenData& operator=(const listenData& listenData);
 *
-* @param   listen_data&
+* @param   listenData&
 * @throw   none
 **/
-    listen_data& operator=(const listen_data&);
+    listenData& operator=(const listenData&);
 
 /*
 *====================================================================================
@@ -217,15 +217,15 @@ struct listen_data {
 */
 
 /**
- * Public methode of listen_data.class class
+ * Public methode of listenData.class class
  *
- * std::string parse_listen_data();
+ * std::string parseListenData();
  *
  * @returns     std::vector<std::string>& contain all names of server
  * @param       void
  * @throw       none
  */
-    std::string parse_listen_data();
+    std::string parseListenData();
 
 /**
  * Public methode of configWebserv struct
@@ -236,10 +236,10 @@ struct listen_data {
  * @param       void
  * @throw       none
  */
-    void set_sockaddr_in();
+    void setSockaddrIn();
 
 /**
- * Private methode of listen_data class
+ * Private methode of listenData class
  *
  * create a new socket with fonction socket
  *
@@ -259,14 +259,14 @@ struct listen_data {
  * @param   void
  * @throws  none
  **/
-    std::string set_socket();
+    std::string setSocket();
 
 /**
- * Private methode of listen_data class
+ * Private methode of listenData class
  *
  * set the option of server socket already created
  *
- * std::string set_socket_option();
+ * std::string setSocketOption();
  *
  * @returns std::string error or empty if its ok
  * @param   void
@@ -274,14 +274,14 @@ struct listen_data {
  *
  * @see https://linux.die.net/man/3/setsockopt
  * */
-    std::string set_socket_option();
+    std::string setSocketOption();
 
 /**
- * Private methode of listen_data class
+ * Private methode of listenData class
  *
  * associate an IP address and a port number with a socket already created
  *
- * std::string set_bind();
+ * std::string setBind();
  *
  * @returns std::string error or empty if its ok
  * @param   void
@@ -289,14 +289,14 @@ struct listen_data {
  *
  * @see https://man7.org/linux/man-pages/man2/bind.2.html
  * */
-    std::string set_bind();
+    std::string setBind();
 
 /**
  * Private methode of listen data class
  *
  * set the listen option so the number of possible connexion
  *
- * std::string set_listen();
+ * std::string setListen();
  *
  * @returns std::string error or empty if its ok
  * @param   void
@@ -304,7 +304,7 @@ struct listen_data {
  *
  * @see https://man7.org/linux/man-pages/man2/listen.2.html
  * */
-    std::string set_listen();
+    std::string setListen();
 
 /**
  * Private methode of listen class
@@ -319,7 +319,7 @@ struct listen_data {
  * @param  void
  * @throws  none
  * */
-    std::string set_socket_flag();
+    std::string setSocketFlag();
 
 /*
 *====================================================================================
@@ -327,11 +327,11 @@ struct listen_data {
 *====================================================================================
 */
 
-    configWebserv&         _config;
+    configWebserv&          _config;
     std::stringstream       _input;
-    std::string             _ip_address;
+    std::string             _ipAddress;
     int                     _port;
-    int                     _server_socket;
+    int                     _serverSocket;
     sockaddr_in             _sockaddress;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
 };
 
@@ -343,7 +343,7 @@ struct listen_data {
 */
 
 
-struct bloc_server {
+struct blocServer {
 
 
 /*
@@ -353,43 +353,43 @@ struct bloc_server {
 */
 
 /**
- * Constructor of config_server.class class
+ * Constructor of configServer.class class
  *
- * bloc_server(peg_parser& peg_parser);
+ * blocServer(pegParser& pegParser);
  *
  * @param   configWebserv&
  * @throw   none
  **/
-    bloc_server(configWebserv&);
+    blocServer(configWebserv&);
 
 /**
-* Destructor of bloc_server.class class
+* Destructor of blocServer.class class
 *
-* ~bloc_server();
+* ~blocServer();
 *
 * @throw   none
 **/
-    ~bloc_server();
+    ~blocServer();
 
 /**
- * Constructor of config_server.class class
+ * Constructor of configServer.class class
  *
- * bloc_server(const bloc_server & bloc_server);
+ * blocServer(const blocServer & blocServer);
  *
- * @param   bloc_server &
+ * @param   blocServer &
  * @throw   none
  **/
-    bloc_server(const bloc_server&);
+    blocServer(const blocServer&);
 
 /**
-* Destructor of bloc_server.class class
+* Destructor of blocServer.class class
 *
-*  bloc_server& operator=(const bloc_server& bloc_server);
+*  blocServer& operator=(const blocServer& blocServer);
 *
-* @param   bloc_server&
+* @param   blocServer&
 * @throw   none
 **/
-    bloc_server& operator=(const bloc_server&);
+    blocServer& operator=(const blocServer&);
 
 /*
 *====================================================================================
@@ -398,94 +398,94 @@ struct bloc_server {
 */
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocServer.class class
  *
- * std::string parse_bloc_server();
+ * std::string parseBlocServer();
  *
  * @returns     std::vector<std::string>& contain all names of server
  * @param       void
  * @throw       none
  */
-    std::string parse_bloc_server();
+    std::string parseBlocServer();
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocServer.class class
  *
- * std::string add_multimap_listen();
+ * std::string addMultimapListen();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       bloc_exception if name already exist
  */
-    std::string add_vector_listen();
+    std::string addVectorListen();
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocServer.class class
  *
- * std::string add_vector_server_name();
+ * std::string addVectorServerName();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string add_vector_server_name();
+    std::string addVectorServerName();
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocServer.class class
  *
- * std::string set_root();
+ * std::string setRoot();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string set_root();
+    std::string setRoot();
 
 
 /**
- * Public methode of bloc_server.class class
+ * Public methode of blocServer.class class
  *
- * std::string add_vector_bloc_location();
+ * std::string addVectorBlocLocation();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string add_map_bloc_location();
+    std::string addMapBlocLocation();
 
 /**
  * Public methode of configWebserv struct
  *
- * void set_map_token();
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_map_token();
+    void setMapToken();
 
 /**
  * Public methode of blocHttp class
  *
- * void set_default_value();
+ * void setDefaultValue();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_default_value();
+    void setDefaultValue();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    configWebserv&                                         _config;
-    std::map<std::string, std::string (bloc_server::*)()>   _map_token_list_action;
-    std::vector<listen_data>                                _vector_listen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<std::string>                                _vector_server_name;// store all server name
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (blocServer::*)()>   _mapTokenListAction;
+    std::vector<listenData>                                _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<std::string>                                _vectorServerName;// store all server name
     std::string                                             _root;//path of repo defaut of server
-    std::map<std::string, bloc_location>                    _map_bloc_location;
+    std::map<std::string, blocLocation>                    _mapBlocLocation;
 };
 
 
@@ -510,7 +510,7 @@ struct blocHttp {
 /**
  * Constructor of blocHttp.class class
  *
- * blocHttp(peg_parser& peg_parser);
+ * blocHttp(pegParser& pegParser);
  *
  * @param   peg_parser
  * @throw   none
@@ -555,40 +555,40 @@ struct blocHttp {
 /**
  * Public methode of blocHttp.class class
  *
- * std::string parse_blocHttp();
+ * std::string parseBlocHttp();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string parse_blocHttp();
+    std::string parseBlocHttp();
 
 /**
  * Public methode of blocHttp.class class
  *
- * std::string add_vector_bloc_server();
+ * std::string addVectorBlocServer();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string add_vector_bloc_server();
+    std::string addVectorBlocServer();
 
 /**
  * Public methode of configWebserv struct
  *
- * void set_map_token();
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void set_map_token();
+    void setMapToken();
 
 /**
  * Public methode of blocHttp class
  *
- * void set_default_value();
+ * void setDefaultValue();
  *
  * std::string ip =  "127.0.0.1";
  * int port = 8081;
@@ -597,7 +597,7 @@ struct blocHttp {
  * @param       void
  * @throw       none
  */
-    void set_default_value();
+    void setDefaultValue();
 
 
 
@@ -637,7 +637,7 @@ struct blocEvents {
 /**
  * Constructor of blocEvents.class class
  *
- * blocEvents(peg_parser& peg_parser);
+ * blocEvents(configWebserv&);
  *
  * @param   peg_parser &
  * @throw   none
@@ -867,8 +867,8 @@ struct configWebserv {
 *====================================================================================
 */
     pegParser                                                  _pegParser;
-    std::map<std::string, std::string (configWebserv::*)()>     _mapTokenListAction;
-    int                                                         _workerProcess;
+    std::map<std::string, std::string (configWebserv::*)()>    _mapTokenListAction;
+    int                                                        _workerProcess;
     blocEvents                                                 _blocEvents;//required
     blocHttp                                                   _blocHttp;//if not set as default
 };

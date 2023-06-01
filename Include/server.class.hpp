@@ -15,7 +15,6 @@
 
 #include "../Include/header.hpp"
 #include "../Include/config_webserv.class.hpp"
-#include "../Include/http_request.class.hpp"
 #include "../Include/client.class.hpp"
 
 
@@ -32,13 +31,12 @@ private:
 */
 
 
-    config_webserv                                  &_config;
-    http_request                                    _request;
+    configWebserv                                  &_config;
     int                                             _epollInstance;
     int                                             _numberTriggeredEvents;
     struct epoll_event                              _webservEvent, *_serverEvents;
 
-    std::map<std::string, int (server::*)(int)>     _mapConnection;
+    std::map<std::string, void (server::*)(epoll_event &)>     _mapConnection;
 
 /*
 *====================================================================================
@@ -83,10 +81,10 @@ private:
  *
  * @returns event fixed
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to add to the instance
+ *          configWebserv->config_server.class->config_address.class->server_socket to add to the instance
  *
  *          event is a struct epollEvent & who refer to
- *          config_webserv->config_server.class->config_address.class->Event to set
+ *          configWebserv->config_server.class->config_address.class->Event to set
  *
  *          events is int to add to the event
  *          EPOLLIN the event occurs when data can be read from the file descriptor
@@ -99,18 +97,18 @@ private:
  *
  * @throws  none
  * */
-    void setEpollEvent(int&, struct epollEvent &, int);
+    void setEpollEvent(int&, struct epoll_event &, int);
 
 /**
  * Private methode of server class
  *
  * set Event instance with socket to add remove or modify
  *
- * void setEpoll_ctl(int option, int server_socket);
+ * void setEpollCtl(int option, int server_socket);
  *
  * @returns void
  * @param   event is a struct epollEvent * who point to
- *          config_webserv->config_server.class->config_address.class->Event to set
+ *          configWebserv->config_server.class->config_address.class->Event to set
  *
  *          option is an int action to do:
  *          EPOLL_CTL_ADD to add a new descriptor to be monitored
@@ -118,20 +116,20 @@ private:
  *          EPOLL_CTL_DEL to delete a monitored descriptor.
  * @throws  server::serverException
  * */
-    void setEpoll_ctl(int, int);
+    void setEpollCtl(int, int);
 
 /**
  * Private methode of server class
  *
  * wait un event in request connect or new event in socket already open
  *
- * void setEpoll_wait();
+ * void setEpollWait();
  *
  * @returns void
  * @param   void
  * @throws  server::serverException
  * */
-    void setEpoll_wait();
+    void setEpollWait();
 
 
 
@@ -146,7 +144,7 @@ private:
  *
  * @returns return the flag set in server_socket
  * @param   server_socket is an int & who refer to
- *          config_webserv->config_server.class->config_address.class->server_socket to set or get flag option
+ *          configWebserv->config_server.class->config_address.class->server_socket to set or get flag option
  *
  *          Command  (cmd) for accessor server :
  *          F_SETFD      Set the file descriptor flags to arg.
@@ -164,7 +162,7 @@ private:
  *
  * @throws  server::serverException
  * */
-    int accessor_socket_flag(int&, int, int);
+    int accessorSocketFlag(int&, int, int);
 
 /**
  * Private methode of server class
@@ -177,7 +175,7 @@ private:
  * @param    event is an epoll event to manage
  * @throws  none
  * */
-    bool is_server_socket_already_connected(epollEvent &);
+    bool isServerSocketAlreadyConnected(epollEvent &);
 
 /**
  * Private methode of server class
@@ -185,13 +183,13 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * int connect_new_client(epoll_event & event);
+ * int connectNewClient(epoll_event & event);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::serverException
  * */
-    int connect_new_client(epoll_event & event);
+    void connectNewClient(epoll_event & event);
 
 /**
  * Private methode of server class
@@ -199,13 +197,13 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * int disconnect_client(int);
+ * int disconnectClient(int);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::serverException
  * */
-    int disconnect_client(int);
+    void disconnectClient(epoll_event & event);
 
 /**
  * Private methode of server class
@@ -213,13 +211,13 @@ private:
  * accept new request connection, create client socket,
  * set it and add to epoll event to monitoring
  *
- * int keep_alive(int);
+ * int keepAlive(int);
  *
  * @returns void
  * @param   client socket to disconnect
  * @throws  server::serverException
  * */
-    int keep_alive(int);
+    void keepAlive(epoll_event & event);
 
 
 
@@ -239,10 +237,10 @@ public:
  *
  * sever(data_server *);
  *
- * @param   config_webserv instance to build the server
+ * @param   configWebserv instance to build the server
  * @throw   none
  **/
-    server(config_webserv &);
+    server(configWebserv &);
 
 /**
  * Destructor of sever class
