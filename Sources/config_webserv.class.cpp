@@ -184,6 +184,7 @@ std::string blocServer::setRoot(){
 }
 
 std::string blocServer::addMapBlocLocation() {
+    this->_numberTriggeredEvents = 0;
     std::string path = _config._pegParser.extractData('{');
     //@todo check path ....
     blocLocation blocLocation(_config);
@@ -212,6 +213,10 @@ void blocServer::setMapToken() {
 
 blocServer::blocServer() {
 
+}
+
+bool blocServer::EpollWait(int timeOut) {
+    return baseEpoll::EpollWait(timeOut);
 }
 
 /*

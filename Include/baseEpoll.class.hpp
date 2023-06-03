@@ -196,7 +196,7 @@ public:
  * @param   sock instance of AbaseSocket
  * @throw   epollException
  * */
-    void setEpollCtl(int  option, serverSocket & sock) const;
+    void setEpollCtl(int  option, AbaseSocket & sock) const;
 
 /**
  * wait un event in request connect or new event in AbaseSocket already open
@@ -208,7 +208,7 @@ public:
  * @param   maxEvents is the maximum number of events to be returned
  * @param   timeOut time to wait event -1 until first event or >0
  * */
-    bool EpollWait(int  timeOut);
+    virtual bool EpollWait(int  timeOut);
     bool EpollWait();
 
 /**

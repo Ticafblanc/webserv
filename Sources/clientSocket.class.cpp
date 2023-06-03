@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serverSocket.class.cpp                                   :+:      :+:    :+:   */
+/*   clientSocket.class.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,23 +10,24 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Include/serverSocket.class.hpp"
+#include "../Include/clientSocket.class.hpp"
 
 /*
 *====================================================================================
 *|                                  Member Fonction                                 |
 *====================================================================================
 */
-serverSocket::serverSocket() {}
+clientSocket::clientSocket() : _request(*this), _connection("keep-alive") {}
 
-serverSocket::serverSocket(blocServer &blocServer, string &ipAddr, int &port)
-: AbaseSocket(blocServer, ipAddr, port) {}
+clientSocket::clientSocket(blocServer &blocServer, epoll_event & event)
+: AbaseSocket(blocServer, event), _request(*this), _connection("keep-alive") {}
 
-serverSocket::~serverSocket() {}
+clientSocket::~clientSocket() {}
 
-serverSocket::serverSocket(const serverSocket& other) : AbaseSocket(other) {}
+clientSocket::clientSocket(const clientSocket& other) : AbaseSocket(other), _request(other._request), _connection("keep-alive") {}
                                       
-serverSocket& serverSocket::operator=(const serverSocket& rhs){
+clientSocket& clientSocket::operator=(const clientSocket& rhs){
+    this->_request = rhs._request;
     return *this;
 }
 
@@ -36,16 +37,16 @@ serverSocket& serverSocket::operator=(const serverSocket& rhs){
 *====================================================================================
 */
 
-serverSocket::serverSocketException::serverSocketException(const char * message)
+clientSocket::clientSocketException::clientSocketException(const char * message)
 : _message(message) {}
 
-serverSocket::serverSocketException::~serverSocketException() throw() {}
+clientSocket::clientSocketException::~clientSocketException() throw() {}
 
-const char * serverSocket::serverSocketException::what() const throw() { return _message.c_str(); }
+const char * clientSocket::clientSocketException::what() const throw() { return _message.c_str(); }
 
-serverSocket::serverSocketException::serverSocketException(const serverSocket::serverSocketException & other) : _message(other._message) {}
+clientSocket::clientSocketException::clientSocketException(const clientSocket::clientSocketException & other) : _message(other._message) {}
 
-serverSocket::serverSocketException &serverSocket::serverSocketException::operator=(const serverSocket::serverSocketException &rhs) {
+clientSocket::clientSocketException &clientSocket::clientSocketException::operator=(const clientSocket::clientSocketException &rhs) {
     this->_message = rhs._message;
     return *this;
 }
@@ -58,14 +59,12 @@ serverSocket::serverSocketException &serverSocket::serverSocketException::operat
 */
 
 
-void serverSocket::manageEvent(epoll_event &event) {
+void clientSocket::manageEvent(epoll_event &event) {
     if ((event.events & EPOLLERR) || (event.events & EPOLLHUP) || (!(event.events & EPOLLIN)))
     {
-        throw serverSocketException(strerror(errno));
+        throw clientSocketException(strerror(errno));//deconnexion
     }
-    if (isConnectionPossible()){
-        connectNewClient(event);
-    }
+    _request.manageRequest();
 }
 
 /*
@@ -74,15 +73,9 @@ void serverSocket::manageEvent(epoll_event &event) {
 *====================================================================================
 */
 
-bool serverSocket::isConnectionPossible(){
-    //number connection
-    return true;
-}
 
-void serverSocket::connectNewClient(epoll_event & event) {
-    clientSocket newClient(_blocServer, event);
-   _blocServer._config._mapFdSocket[newClient.data.fd] = newClient;
-}
+
+
 
 
 

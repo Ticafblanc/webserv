@@ -29,7 +29,6 @@ protected:
 *====================================================================================
 */
 
-    int             _socket;
     std::string     _ipAddress;
     int             _port;
     blocServer&     _blocServer;
@@ -65,22 +64,23 @@ public:
 /**
  * Constructor of AbaseSocket class
  *
- * AbaseSocket(data_socket *);
+ * AbaseSocket(blocServer& blocServer, string &ipAddr, int &port);
  *
  * @param   void
  * @throw   none
  **/
     AbaseSocket(blocServer& blocServer, string &ipAddr, int &port);
+
 /**
  * Constructor of AbaseSocket class
  *
- * AbaseSocket(data_socket *);
+ * AbaseSocket(blocServer& blocServer, epoll_event &event);
  *
  * @param   sockaddr instance to sockaddres_in
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    AbaseSocket(blocServer& blocServer, epoll_event &event, sockaddr_in &sockaddr);
+    AbaseSocket(blocServer& blocServer, epoll_event &event);
 
 /**
  * Destructor of AbaseSocket class
@@ -97,7 +97,7 @@ public:
  * @param   socket instance to build the AbaseSocket
  * @throw   none
  **/
-    AbaseSocket(const AbaseSocket &other, blocServer &blocServer);
+    AbaseSocket(const AbaseSocket &other);
 
 /**
  * Operator overload= of AbaseSocket class
@@ -133,7 +133,7 @@ public:
          *
          * socketException(const char * message, int statusCode);
          *
-         * @param   socket is a AbaseSocket reference to set the private _socket
+         * @param   socket is a AbaseSocket reference to set the private _socketFd
          *          to manage the close of AbaseSocket class
          *          message to store const char*
          * @throw   none
@@ -202,6 +202,17 @@ public:
  * @throw       socketException
  */
     void setSockaddrIn();
+
+/**
+ * Public methode of AbaseSocket struct
+ *
+ *     void getSockaddrIn(const sockaddr_in& addr);
+ *
+ * @returns     void
+ * @param       addr to extract data
+ * @throw       socketException
+ */
+    void getSockaddrIn();
 
 /**
  * Private methode of AbaseSocket class
@@ -321,6 +332,8 @@ public:
  * */
     void setEpollEvent(int flag);
 
+    void acceptConnection();
+
 /**
  * Private methode of socket class
  *
@@ -334,13 +347,22 @@ public:
 /**
  * Private methode of socket class
  *
- * void buildSocket();
+ * void buildServerSocket();
  *
  * @returns void
  * @param   void
  * */
-    void buildSocket();
+    void buildServerSocket();
 
+/**
+ * Private methode of socket class
+ *
+ * void buildClientSocket();
+ *
+ * @returns void
+ * @param   void
+ * */
+    void buildClientSocket();
 /**
  * Private methode of socket class
  *
@@ -360,7 +382,7 @@ public:
  * @returns void
  * @param   void
  * */
-    virtual void manageEvent(epoll_event & event, AbaseSocket & sock) = 0;
+    virtual void manageEvent(epoll_event & event) = 0;
 
 
 };

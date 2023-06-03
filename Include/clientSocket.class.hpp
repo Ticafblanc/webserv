@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   serverSocket.class.hpp                             :+:      :+:    :+:   */
+/*   clientSocket.class.hpp                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -12,13 +12,13 @@
 
 #pragma once
 
-#ifndef WEBSERV_SERVERSOCKET_CLASS_HPP
-# define WEBSERV_SERVERSOCKET_CLASS_HPP
+#ifndef WEBSERV_CLIENTSOCKET_CLASS_HPP
+# define WEBSERV_CLIENTSOCKET_CLASS_HPP
 
 #include "webserv.hpp"
 
 
-class serverSocket : public AbaseSocket{
+class clientSocket : public AbaseSocket{
 
 /*>*******************************private section**********************************/
 
@@ -30,7 +30,8 @@ private:
 *====================================================================================
 */
 
-
+    httpRequest     _request;
+    std::string     _connection;
 
 /*
 *====================================================================================
@@ -38,34 +39,6 @@ private:
 *====================================================================================
 */
 
-
-
-/**
- * Private methode of serverSocket class
- *
- * check if is a request try to connect with a serverSocket AbaseSocket
- *
- * bool isConnectionPossible();
- *
- * @returns bool false if is a sever AbaseSocket than true
- * @param    event is an baseEpoll event to manage
- * @throws  none
- * */
-    bool isConnectionPossible();
-
-/**
- * Private methode of serverSocket class
- *
- * accept new request connection, create AbaseSocket AbaseSocket,
- * set it and add to baseEpoll event to monitoring
- *
- * void connectNewClient(epoll_event & event);
- *
- * @returns void
- * @param   client AbaseSocket to disconnect
- * @throws  server::serverException
- * */
-    void connectNewClient(epoll_event & event);
 
 /*>********************************public section**********************************/
 
@@ -78,53 +51,53 @@ public:
 */
 
 /**
- * Constructor of sever class
+ * Constructor of client class
  *
- * sever();
+ * client();
  *
- * @param   configWebserv instance to build the serverSocket
+ * @param   configWebserv instance to build the clientSocket
  * @throw   none
  **/
-    serverSocket();
+    clientSocket();
 
 /**
- * Constructor of sever class
+ * Constructor of client class
  *
- * sever(data_server *);
+ * client(data_client *);
  *
- * @param   configWebserv instance to build the serverSocket
+ * @param   configWebserv instance to build the clientSocket
  * @throw   none
  **/
-    serverSocket(blocServer& blocServer, string &ipAddr, int &port);
+    clientSocket(blocServer& blocServer, epoll_event & event);
 
 /**
- * Destructor of sever class
+ * Destructor of client class
  *
- * ~sever();
+ * ~client();
  *
  * @throw   none
  **/
-    virtual ~serverSocket();
+    virtual ~clientSocket();
 
 /**
- * Copy constructor of sever class
+ * Copy constructor of client class
  *
- * sever(serverSocket &);
+ * client(clientSocket &);
  *
- * @param   server instance to build the serverSocket
+ * @param   client instance to build the clientSocket
  * @throw   none
  **/
-    serverSocket(const serverSocket &);
+    clientSocket(const clientSocket &);
 
 /**
- * Operator overload= of sever class
+ * Operator overload= of client class
  *
- * operator=(const serverSocket&);
+ * operator=(const clientSocket&);
  *
- * @param   server instance const to copy the serverSocket
+ * @param   client instance const to copy the clientSocket
  * @throw   none
  **/
-    serverSocket& operator=(const serverSocket &);
+    clientSocket& operator=(const clientSocket &);
 
 
 /*
@@ -135,60 +108,60 @@ public:
 
 
 /**
- * Class exception of sever class
+ * Class exception of client class
  *
- * class serverSocketException;
+ * class clientSocketException;
  *
  * @inherit std::exception
  **/
-    class serverSocketException: public std::exception
+    class clientSocketException: public std::exception
     {
     public:
 
         /**
-         * Constructor of serverException class
+         * Constructor of clientException class
          *
-         * serverException(const char * message, int statusCode);
+         * clientException(const char * message, int statusCode);
          *
-         * @param   server is a serverSocket reference to set the private _server
-         *          to manage the close of serverSocket class
+         * @param   client is a clientSocket reference to set the private _client
+         *          to manage the close of clientSocket class
          *          message to store const char*
          * @throw   none
          **/
-        serverSocketException(const char * message);
+        clientSocketException(const char * message);
 
         /**
-         * Copy constructor of serverException class
+         * Copy constructor of clientException class
          *
-         * serverException(serverException &);
+         * clientException(clientException &);
          *
-         * @param   serverException instance to build the serverException
-         *          server_socket in an int to close
+         * @param   clientException instance to build the clientException
+         *          client_socket in an int to close
          * @throw   none
          **/
-        serverSocketException(const serverSocketException &);
+        clientSocketException(const clientSocketException &);
 
         /**
-         * Operator overload= of serverException class
+         * Operator overload= of clientException class
          *
-         * operator=(const serverException&);
+         * operator=(const clientException&);
          *
-         * @param   serverException instance const to copy the serverException
+         * @param   clientException instance const to copy the clientException
          * @throw   none
          **/
-        serverSocketException& operator=(const serverSocketException &);
+        clientSocketException& operator=(const clientSocketException &);
 
         /**
-        * Destructor of serverException class
+        * Destructor of clientException class
         *
-        * virtual ~serverException() throw();
+        * virtual ~clientException() throw();
         *
         * @throw   none
         **/
-        virtual ~serverSocketException() throw();
+        virtual ~clientSocketException() throw();
 
         /**
-         * Public methode of serverException
+         * Public methode of clientException
          *
          * virtual const char * what() const throw();
          *
@@ -212,7 +185,7 @@ public:
 
 
 /**
- * Public methode of sever class
+ * Public methode of client class
  *
  * void launcher();
  *
@@ -234,4 +207,4 @@ public:
 };
 
 
-#endif //WEBSERV_SERVERSOCKET_CLASS_HPP
+#endif //WEBSERV_CLIENTSOCKET_CLASS_HPP

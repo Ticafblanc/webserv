@@ -19,23 +19,25 @@
 */
 
 AbaseSocket::AbaseSocket()
-: epoll_event(), sockaddr_in(), _socket(), _ipAddress(), _port(), _blocServer(*(new blocServer)) {}
+: epoll_event(), sockaddr_in(), _ipAddress(), _port(), _blocServer(*(new blocServer)) {}
 
 AbaseSocket::AbaseSocket(blocServer& blocServer, std::string & ipAddr, int & port)
-: epoll_event(), sockaddr_in(), _socket(), _ipAddress(ipAddr), _port(port), _blocServer(blocServer){
-    buildSocket();
+: epoll_event(), sockaddr_in(), _ipAddress(ipAddr), _port(port), _blocServer(blocServer){
+    buildServerSocket();
 }
 
-AbaseSocket::AbaseSocket(blocServer& blocServer, epoll_event & event, sockaddr_in & sockaddr)
-: epoll_event(event), sockaddr_in(sockaddr), _socket(), _port(), _blocServer(blocServer){}
+AbaseSocket::AbaseSocket(blocServer& blocServer, epoll_event & event)
+: epoll_event(event), sockaddr_in(), _port(), _blocServer(blocServer){
+    buildClientSocket();
+}
 
 AbaseSocket::~AbaseSocket() {
     delete &_blocServer;
     closeSocket();
 }
 
-AbaseSocket::AbaseSocket(const AbaseSocket &other, blocServer &blocServer)
-        : epoll_event(other), sockaddr_in(other), _socket(), _port(), _blocServer(blocServer) {}
+AbaseSocket::AbaseSocket(const AbaseSocket &other)
+        : epoll_event(other), sockaddr_in(other), _port(), _blocServer(other._blocServer) {}
 
 AbaseSocket& AbaseSocket::operator=(const AbaseSocket& rhs){
     if (this != &rhs) {
@@ -85,52 +87,67 @@ void AbaseSocket::setSockaddrIn() {
     sin_port = htons(_port);
 }
 
-__attribute__((unused)) void AbaseSocket::setSocket() {
-    _socket = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
-    if (_socket == 0)
+void AbaseSocket::getSockaddrIn() {
+    _ipAddress = inet_ntoa(sin_addr);
+    _port = ntohs(sin_port);
+}
+
+void AbaseSocket::setSocket() {
+    data.fd = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
+    if (data.fd == 0)
         throw socketException(strerror(errno));
 }
 
 void AbaseSocket::setSocketOption() {
     int optionVal = 1;
-    if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR,
+    if (setsockopt(data.fd, SOL_SOCKET, SO_REUSEADDR,
                    &optionVal, (socklen_t)sizeof(optionVal))){
-        close(_socket);
+        close(data.fd);
         throw socketException(strerror(errno));
     }
 }
 
 void AbaseSocket::setBind() {
-    if (bind(_socket, reinterpret_cast<struct sockaddr *>(this), sizeof(*this)) < 0){
-        close(_socket);
+    if (bind(data.fd, reinterpret_cast<struct sockaddr *>(this), sizeof(*this)) < 0){
+        close(data.fd);
         throw socketException(strerror(errno));
     }
 }
 
 void AbaseSocket::setListen(int backlog) const {
-    if (listen(_socket, backlog) < 0){
-        close(_socket);
+    if (listen(data.fd, backlog) < 0){
+        close(data.fd);
         throw socketException(strerror(errno));
     }
 }
 
 void AbaseSocket::accessorSocketFlag(int command, int flag) const {
-    if (fcntl(_socket, command, flag ) < 0){
-        close(_socket);
+    if (fcntl(data.fd, command, flag ) < 0){
+        close(data.fd);
         throw socketException(strerror(errno));
     }
 }
 
+void AbaseSocket::acceptConnection() {
+    socklen_t  addressLen = sizeof(*this);
+    int fd = accept(data.fd, reinterpret_cast<struct sockaddr *>(this), &addressLen);
+    if (fd == -1) {
+        closeSocket();
+        throw socketException(strerror(errno));
+    }
+    data.fd = fd;
+}
+
 void AbaseSocket::setEpollEvent(int flag){
-    data.fd = _socket;
+    data.fd = data.fd;
     events = flag;
 }
 
 int AbaseSocket::getSocket() const {
-    return _socket;
+    return data.fd; 
 }
 
-void AbaseSocket::buildSocket() {
+void AbaseSocket::buildServerSocket() {
     setSockaddrIn();
     setSocket();
     setSocketOption();
@@ -140,6 +157,23 @@ void AbaseSocket::buildSocket() {
     setEpollEvent(EPOLLIN);
 }
 
-void AbaseSocket::closeSocket() const {
-    close(_socket);
+void AbaseSocket::buildClientSocket() {
+    acceptConnection();
+    getSockaddrIn();
+    accessorSocketFlag(F_SETFL, O_NONBLOCK);
+    setEpollEvent(EPOLLIN | EPOLLET);
+    _blocServer.setEpollCtl(EPOLL_CTL_ADD, *this);
+    _blocServer._config._mapFdSocket.insert(data.fd, *this);
+    _blocServer._maxEvents--;
 }
+
+void AbaseSocket::closeSocket() const {
+    _blocServer._maxEvents++;
+    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
+    _blocServer._config._mapFdSocket.erase(data.fd);
+    close(data.fd);
+}
+
+
+
+

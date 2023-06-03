@@ -77,7 +77,7 @@ void baseEpoll::createEpollInstance(int nbr) {
         throw epollException(strerror(errno));
 }
 
-void baseEpoll::setEpollCtl(int  option, serverSocket & sock) const {
+void baseEpoll::setEpollCtl(int  option, AbaseSocket & sock) const {
     if (epoll_ctl(_epollInstanceFd, option, sock.getSocket(), &sock) == -1){
         close (_epollInstanceFd);
         throw epollException(strerror(errno));

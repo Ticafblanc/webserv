@@ -307,6 +307,7 @@ struct blocServer : public baseEpoll{
 *====================================================================================
 */
 
+virtual bool EpollWait(int  timeOut);
 /**
  * Public methode of blocServer.class class
  *
@@ -784,8 +785,6 @@ struct configWebserv {
     blocHttp                                                   _blocHttp;//if not set as default
     std::vector<blocServer>                                    _vectorServer;
     std::map<int, AbaseSocket>                                _mapFdSocket;
-
-
 };
 
 

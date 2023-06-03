@@ -79,12 +79,15 @@ static void launcher(configWebserv & config) {
         for (std::vector<blocServer>::iterator it = config._vectorServer.begin();
         it != config._vectorServer.end(); ++it) {
             try {
-                if(it->){
-                    for (int i = 0; i < it->_epoll.getNumberTriggeredEvents(); ++i) {
+                EpollWait(200);
+                if(it->EpollWait(200)){
+                    for (int i = 0; i < it->getNumberTriggeredEvents(); ++i) {
                         std::map<int, AbaseSocket>::iterator tok = config._mapFdSocket.find(it->_epoll.getEvents()[i].data.fd);
                         if (tok != config._mapFdSocket.end())
                             tok->second.manageEvent(it->_epoll.getEvents()[i], tok->second);
                         else {
+                            if (it->getEvents()[i].data.fd == 0)
+                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                             std::string error("file descriptor inconnu => " );
                             error += intToString(it->_epoll.getEvents()->data.fd);
                             writeLogFile(error,"/webserv/config_content_server/for_var/log/log_error.txt");

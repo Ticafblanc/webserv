@@ -31,6 +31,8 @@
 #include <algorithm>
 #include <set>
 #include <ctime>
+#include <limits>
+
 
 #define FLAG1 0x01 // 0000 0001
 #define FLAG2 0x02 // 0000 0010
