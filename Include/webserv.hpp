@@ -1,9 +1,13 @@
+#pragma once
+
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
 
-#include "../Include/header.hpp"
-#include "../Include/peg_parser.class.hpp"
-#include "../Include/config_webserv.class.hpp"
-#include "../Include/server.class.hpp"
+#include "header.hpp"
+#include "peg_parser.class.hpp"
+#include "config_webserv.class.hpp"
+#include "baseEpoll.class.hpp"
+#include "A_baseSocket.class.hpp"
+#include "serverSocket.class.hpp"
 
 #endif

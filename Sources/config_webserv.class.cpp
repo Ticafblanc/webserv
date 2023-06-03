@@ -78,36 +78,30 @@ void blocLocation::setDefaultValue() {
 
 
 listenData::listenData(configWebserv& config, std::string & input)
-    : _config(config), _input(input), _ipAddress(), _port(0), _serverSocket(0),
-      _sockaddress(){}
+    : _config(config), _input(input), _ipAddress(), _port(0), _socket(<#initializer#>) {}
 
 listenData::listenData(configWebserv& config, std::string defaultInput)
-        : _config(config), _input(defaultInput), _ipAddress(), _port(0), _serverSocket(0),
-          _sockaddress(){
+        : _config(config), _input(defaultInput), _ipAddress(), _port(0), _socket(<#initializer#>) {
     parseListenData();
-    setSockaddrIn();
-    setSocket();
-    setSocketOption();
-    setBind();
-    setListen();
-    setSocketFlag();
+
 }
 
 listenData::~listenData() {}
 //todo manage close fd at end of programme
 /*check if file descriptor is open
- * if process fail throw server::socket_exception();
+ * if process fail throw serverSocket::socket_exception();
  */
 //    int fd_isopen();
 
-/*check if socket  is open
- * if process fail throw server::socket_exception();
+/*check if AbaseSocket  is open
+ * if process fail throw serverSocket::socket_exception();
  */
 //    int socket_isopen();
 
 listenData::listenData(const listenData& other)
     : _config(other._config), _input(other._input.str()), _ipAddress(other._ipAddress),
-      _port(other._port), _serverSocket(other._serverSocket), _sockaddress(other._sockaddress){}
+      _port(other._port), _serverSocket(other._serverSocket), _sockaddress(other._sockaddress),
+      _socket(<#initializer#>) {}
 
 listenData &listenData::operator=(const listenData & rhs) {
     this->_config = rhs._config;
@@ -128,66 +122,19 @@ std::string listenData::parseListenData() {
     return std::string("");
 }
 
-void listenData::setSockaddrIn(){
-    memset(&_sockaddress.sin_zero, 0, sizeof(_sockaddress.sin_zero));
-    _sockaddress.sin_family = AF_INET;
-    _sockaddress.sin_addr.s_addr = inet_addr(_ipAddress.c_str());
-    _sockaddress.sin_port = htons(_port);
-}
 
-std::string listenData::setSocket() {
-    _serverSocket = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
-    if (_serverSocket == 0)
-        return std::string(strerror(errno));
-    return std::string();
-}
-
-std::string listenData::setSocketOption(){
-    int optionVal = 1;
-    if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR,
-                   &optionVal, (socklen_t)sizeof(optionVal))){
-        close(_serverSocket);
-        return std::string(strerror(errno));
-    }
-    return std::string();
-}
-
-std::string listenData::setBind() {
-    if (bind(_serverSocket, reinterpret_cast<struct sockaddr *>(&_sockaddress), sizeof(_sockaddress)) < 0){
-        close(_serverSocket);
-        return std::string(strerror(errno));
-    }
-    return std::string();
-}
-
-std::string listenData::setListen() {
-    if (listen(_serverSocket, _config._blocEvents._workerConnections) < 0){
-        close(_serverSocket);
-        return std::string(strerror(errno));
-    }
-    return std::string();
-}
-
-std::string listenData::setSocketFlag(){
-    int flag = fcntl(_serverSocket, F_SETFL, O_NONBLOCK );
-    if (flag < 0){
-        close(_serverSocket);
-        return std::string(strerror(errno));
-    }
-    return std::string();
-}
 
 
 /*
 *==========================================================================================================
-*|                                                  Bloc server                                             |
+*|                                                  Bloc serverSocket                                             |
 *==========================================================================================================
 */
 
 
 blocServer::blocServer(configWebserv&  config)
         : _config(config), _vectorListen(), _vectorServerName(),
-          _root(), _mapBlocLocation() {
+          _root(), _mapBlocLocation(), _epollInstance() {
     setMapToken();
 }
 
@@ -195,7 +142,7 @@ blocServer::~blocServer() {}
 
 blocServer::blocServer(const blocServer& other)
         : _config(other._config), _vectorListen(other._vectorListen),
-          _vectorServerName(), _root(), _mapBlocLocation() {}
+          _vectorServerName(), _root(), _mapBlocLocation(), _epollInstance() {}
 
 blocServer &blocServer::operator=(const blocServer & rhs) {
     this->_config = rhs._config;
@@ -263,6 +210,10 @@ void blocServer::setMapToken() {
     _mapTokenListAction["location"] =  &blocServer::addMapBlocLocation;
 }
 
+blocServer::blocServer() {
+
+}
+
 /*
 *==========================================================================================================
 *|                                                  Bloc http                                             |
@@ -318,7 +269,7 @@ void blocHttp::setDefaultValue() {
 }
 
 void blocHttp::setMapToken() {
-    _mapTokenListAction["server"]= &blocHttp::addVectorBlocServer;
+    _mapTokenListAction["serverSocket"]= &blocHttp::addVectorBlocServer;
 }
 
 
@@ -378,7 +329,7 @@ void blocEvents::setMapToken() {
 
 /*
 *==========================================================================================================
-*|                                                  Config server                                         |
+*|                                                  Config serverSocket                                         |
 *==========================================================================================================
 */
 

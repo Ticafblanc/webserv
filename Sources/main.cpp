@@ -74,10 +74,35 @@ static int checkOption(int argc, char **argv){
     return 0;
 }
 
+static void launcher(configWebserv & config) {
+    while(true) {
+        for (std::vector<blocServer>::iterator it = config._vectorServer.begin();
+        it != config._vectorServer.end(); ++it) {
+            try {
+                if(it->){
+                    for (int i = 0; i < it->_epoll.getNumberTriggeredEvents(); ++i) {
+                        std::map<int, AbaseSocket>::iterator tok = config._mapFdSocket.find(it->_epoll.getEvents()[i].data.fd);
+                        if (tok != config._mapFdSocket.end())
+                            tok->second.manageEvent(it->_epoll.getEvents()[i], tok->second);
+                        else {
+                            std::string error("file descriptor inconnu => " );
+                            error += intToString(it->_epoll.getEvents()->data.fd);
+                            writeLogFile(error,"/webserv/config_content_server/for_var/log/log_error.txt");
+                            close(it->_epoll.getEvents()->data.fd);//see if necessary to check fd before close
+                        }
+                    }
+                }
+            }catch (std::exception & e){
+                writeLogFile(e.what(), "/webserv/config_content_server/for_var/log/log_error.txt");
+            }
+        }
+    }
+}
+
 int main(int argc, char **argv, char **envp){
     (void)envp;
+
     std::string  pathConfigFile;
-//    int         number_try_lauch = 0;
     setLogFile("/webserv/config_content_server/for_var/log/log_error.txt");//@todo add log
     int         positionPathFileConfig = checkOption(argc, argv);
 
@@ -86,17 +111,13 @@ int main(int argc, char **argv, char **envp){
         signal(SIGTERM, handleExit);
         signal(SIGHUP, handleReload);
         pathConfigFile += selectPath(argv, positionPathFileConfig);
-//        while (number_try_lauch < 1) {
-            try {
-                configWebserv configWebserv;//@todo add path to constructo after the test
-                server server(configWebserv);
-//                server.launcher();
-            }
-            catch (const std::exception &e) {
-                std::cout << e.what() << std::endl;
-            }
-//            number_try_lauch++;
-//        }
+        try {
+            configWebserv configWebserv;//@todo add path to constructo after the test
+            launcher(configWebserv);//@todo manage thread
+        }
+        catch (const std::exception &e) {
+            writeLogFile(e.what(), "/webserv/config_content_server/for_var/log/log_error.txt");
+        }
     }
     printLogFile("/webserv/config_content_server/for_var/log/log_error.txt");
     exit(EXIT_FAILURE);

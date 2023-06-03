@@ -1,7 +1,9 @@
+#pragma once
+
 #ifndef WEBSERV_PEG_PARSER_HPP
 #define WEBSERV_PEG_PARSER_HPP
 
-#include "../Include/header.hpp"
+#include "webserv.hpp"
 
 class pegParser {
 
@@ -288,7 +290,7 @@ public:
          * virtual const char * what() const throw();
          *
          * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "socket error"
+         *          at the construction defaut constructor "AbaseSocket error"
          * @param   void
          * @throw   none
          **/

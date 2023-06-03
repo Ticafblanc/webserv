@@ -4,6 +4,8 @@
 
 #include "../Include/header.hpp"
 
+
+
 bool setLogFile(const std::string& filename) {
     std::ofstream file(filename.c_str(), std::ios::trunc);
     if (!file.is_open()) {
@@ -43,4 +45,8 @@ void printLogFile(const std::string& filename) {
     logfile.close();
 }
 
-
+std::string intToString(int number) {
+    std::ostringstream oss;
+    oss << number;
+    return oss.str();
+}

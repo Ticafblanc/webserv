@@ -10,12 +10,14 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#pragma once
+
 #ifndef WEBSERV_CONFIG_WEBSERV_HPP
 #define WEBSERV_CONFIG_WEBSERV_HPP
 
-#include "../Include/header.hpp"
-#include "../Include/peg_parser.class.hpp"
-#include "../Include/client.class.hpp"
+#include "webserv.hpp"
+
+
 
 struct configWebserv;
 /*
@@ -82,7 +84,7 @@ struct blocLocation {
  *
  * std::string parseBlocLocation();
  *
- * @returns     std::vector<std::string>& contain all names of server
+ * @returns     std::vector<std::string>& contain all names of serverSocket
  * @param       void
  * @throw       none
  */
@@ -93,7 +95,7 @@ struct blocLocation {
  *
  * std::string setRoot();
  *
- * @returns     std::vector<std::string>& contain all names of server
+ * @returns     std::vector<std::string>& contain all names of serverSocket
  * @param       void
  * @throw       none
  */
@@ -106,7 +108,7 @@ struct blocLocation {
  * std::string addIndex();
  *
  * @returns     void
- * @param       name is an std::string contain name of server to add
+ * @param       name is an std::string contain name of serverSocket to add
  * @throw       bloc_exception if name already exist
  */
     std::string addIndex();
@@ -221,105 +223,12 @@ struct listenData {
  *
  * std::string parseListenData();
  *
- * @returns     std::vector<std::string>& contain all names of server
+ * @returns     std::vector<std::string>& contain all names of serverSocket
  * @param       void
  * @throw       none
  */
     std::string parseListenData();
 
-/**
- * Public methode of configWebserv struct
- *
- * void set_sockaddr_in(std::string ip_address, int port);
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setSockaddrIn();
-
-/**
- * Private methode of listenData class
- *
- * create a new socket with fonction socket
- *
- * @see https://man7.org/linux/man-pages/man2/socket.2.html
- *
- * int socket(int domain, int protocol);
- *
- * tcp_socket = socket(AF_INET, SOCK_STREAM, 0);
- * udp_socket = socket(AF_INET, SOCK_DGRAM, 0);
- * raw_socket = socket(AF_INET, SOCK_RAW, protocol);
- *
- * nginx work only on tcp protocol !!
- *
- * std::string set_socket();
- *
- * @returns std::string error or empty if its ok
- * @param   void
- * @throws  none
- **/
-    std::string setSocket();
-
-/**
- * Private methode of listenData class
- *
- * set the option of server socket already created
- *
- * std::string setSocketOption();
- *
- * @returns std::string error or empty if its ok
- * @param   void
- * @throws  none
- *
- * @see https://linux.die.net/man/3/setsockopt
- * */
-    std::string setSocketOption();
-
-/**
- * Private methode of listenData class
- *
- * associate an IP address and a port number with a socket already created
- *
- * std::string setBind();
- *
- * @returns std::string error or empty if its ok
- * @param   void
- * @throws  none
- *
- * @see https://man7.org/linux/man-pages/man2/bind.2.html
- * */
-    std::string setBind();
-
-/**
- * Private methode of listen data class
- *
- * set the listen option so the number of possible connexion
- *
- * std::string setListen();
- *
- * @returns std::string error or empty if its ok
- * @param   void
- * @throws  none
- *
- * @see https://man7.org/linux/man-pages/man2/listen.2.html
- * */
-    std::string setListen();
-
-/**
- * Private methode of listen class
- *
- * accessor of socket to get or set the flag option
- * set fnctl like subject fcntl(fd, F_SETFL, O_NONBLOCK)
- * don't show the actual flag in socket and force to change it to non blocking
- *
- * std::string accessor_server();
- *
- * @returns std::string error or empty if its ok
- * @param  void
- * @throws  none
- * */
-    std::string setSocketFlag();
 
 /*
 *====================================================================================
@@ -331,19 +240,18 @@ struct listenData {
     std::stringstream       _input;
     std::string             _ipAddress;
     int                     _port;
-    int                     _serverSocket;
-    sockaddr_in             _sockaddress;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    AbaseSocket           _socket;
 };
 
 
 /*
 *==========================================================================================================
-*|                                                  bloc server                                           |
+*|                                                  bloc serverSocket                                           |
 *==========================================================================================================
 */
 
 
-struct blocServer {
+struct blocServer : public baseEpoll{
 
 
 /*
@@ -351,6 +259,8 @@ struct blocServer {
 *|                                  Member Fonction                                 |
 *====================================================================================
 */
+
+    blocServer();
 
 /**
  * Constructor of configServer.class class
@@ -402,7 +312,7 @@ struct blocServer {
  *
  * std::string parseBlocServer();
  *
- * @returns     std::vector<std::string>& contain all names of server
+ * @returns     std::vector<std::string>& contain all names of serverSocket
  * @param       void
  * @throw       none
  */
@@ -483,9 +393,10 @@ struct blocServer {
     configWebserv&                                          _config;
     std::map<std::string, std::string (blocServer::*)()>   _mapTokenListAction;
     std::vector<listenData>                                _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<std::string>                                _vectorServerName;// store all server name
-    std::string                                             _root;//path of repo defaut of server
+    std::vector<std::string>                                _vectorServerName;// store all serverSocket name
+    std::string                                             _root;//path of repo defaut of serverSocket
     std::map<std::string, blocLocation>                    _mapBlocLocation;
+    int                                                        _epollInstance;
 };
 
 
@@ -531,7 +442,7 @@ struct blocHttp {
  *
  * blocHttp(const blocHttp &);
  *
- * @param   blocHttp instance to build the server
+ * @param   blocHttp instance to build the serverSocket
  * @throw   none
  **/
     blocHttp(blocHttp&);
@@ -541,7 +452,7 @@ struct blocHttp {
  *
  * blocHttp(const blocHttp &);
  *
- * @param   blocHttp instance const to copy the server
+ * @param   blocHttp instance const to copy the serverSocket
  * @throw   none
  **/
     blocHttp& operator=(const blocHttp &);
@@ -608,7 +519,7 @@ struct blocHttp {
 */
     configWebserv&                                          _config;
     std::map<std::string, std::string (blocHttp::*)()>     _mapTokenListAction;
-    std::vector<blocServer>                                 _vectorBlocServer;//no default value
+    std::map<const int, blocServer>                         _mapBlocServer;//no default value
     int                                                     _selectBlocServer;
     std::map<int, int>                                      _mapClientSocket;
     int                                                     _numberMaxEvents;
@@ -658,7 +569,7 @@ struct blocEvents {
  *
  * blocEvents(const blocEvents &);
  *
- * @param   blocEvents instance to build the server
+ * @param   blocEvents instance to build the serverSocket
  * @throw   none
  **/
     blocEvents(blocEvents &);
@@ -668,7 +579,7 @@ struct blocEvents {
  *
  * blocEvents(const blocEvents &);
  *
- * @param   blocEvents instance const to copy the server
+ * @param   blocEvents instance const to copy the serverSocket
  * @throw   none
  **/
     blocEvents& operator=(const blocEvents &);
@@ -788,7 +699,7 @@ struct configWebserv {
  *
  * configWebserv(configWebserv &);
  *
- * @param   configWebserv instance to build the server
+ * @param   configWebserv instance to build the serverSocket
  * @throw   none
  **/
     configWebserv(configWebserv &);
@@ -798,7 +709,7 @@ struct configWebserv {
  *
  * configWebserv& operator=(const configWebserv &);
  *
- * @param   configWebserv instance const to copy the server
+ * @param   configWebserv instance const to copy the serverSocket
  * @throw   none
  **/
     configWebserv& operator=(const configWebserv &);
@@ -871,6 +782,10 @@ struct configWebserv {
     int                                                        _workerProcess;
     blocEvents                                                 _blocEvents;//required
     blocHttp                                                   _blocHttp;//if not set as default
+    std::vector<blocServer>                                    _vectorServer;
+    std::map<int, AbaseSocket>                                _mapFdSocket;
+
+
 };
 
 
@@ -881,7 +796,7 @@ struct configWebserv {
 //        data.setLevel(SOL_SOCKET);
 //        data.setOptionName(SO_REUSEADDR);
 //        data.setOptionVal(1);
-//        server serv(data);
+//        serverSocket serv(data);
 
 
 #endif //WEBSERV_CONFIG_WEBSERV_HPP
