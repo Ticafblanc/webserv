@@ -76,6 +76,7 @@ void Location::setDefaultValue() {
 *==========================================================================================================
 */
 
+Listen::Listen(Server& server) : _config(server._config) {}
 
 Listen::Listen(Config& config, std::string & input)
         : _config(config), _input(input), _ipAddress(), _port(0), _socket(<#initializer#>) {}
@@ -122,7 +123,9 @@ std::string Listen::parseListenData() {
     return std::string("");
 }
 
-
+std::string Listen::parseListenData(string &) {
+    return std::string();
+}
 
 
 /*
@@ -131,10 +134,11 @@ std::string Listen::parseListenData() {
 *==========================================================================================================
 */
 
+Server::Server() : _config(*(new Config) ) {}
 
 Server::Server(Config&  config)
         : _config(config), _vectorListen(), _vectorServerName(),
-          _root(), _mapBlocLocation(), _epollInstance() {
+          _root(), _mapBlocLocation(){
     setMapToken();
 }
 
@@ -142,7 +146,7 @@ Server::~Server() {}
 
 Server::Server(const Server& other)
         : _config(other._config), _vectorListen(other._vectorListen),
-          _vectorServerName(), _root(), _mapBlocLocation(), _epollInstance() {}
+          _vectorServerName(), _root(), _mapBlocLocation(){}
 
 Server &Server::operator=(const Server & rhs) {
     this->_config = rhs._config;
@@ -156,7 +160,7 @@ Server &Server::operator=(const Server & rhs) {
 std::string Server::parseBlocServer() {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
-    setDefaultValue();
+//    setDefaultValue();
     return std::string("");
 }
 
@@ -194,14 +198,14 @@ std::string Server::addMapBlocLocation() {
     return path;
 }
 
-void Server::setDefaultValue() {
-    if (_vectorListen.empty())
-        _vectorListen.push_back(Listen(_config, "0.0.0.0:8081"));
-    (void)_config;
-//    if(_vectorServerName.empty() )
-//        _vectorServerName.push_back("default_server.com");
-//    if(_root.empty())
-//        _root = "/usr/local/var/www";
+void Server::setDefaultValue(std::string address) {
+    Listen lisdef(_config);
+    lisdef.parseListenData(address);
+    _vectorListen.push_back(lisdef);
+    _vectorServerName.push_back("sever_name.com") ;
+    _root = "/usr/local/var/www";
+    Location locdef(_config);
+    _mapBlocLocation.insert(std::make_pair("/html", locdef));
 }
 
 void Server::setMapToken() {
@@ -211,12 +215,41 @@ void Server::setMapToken() {
     _mapTokenListAction["location"] =  &Server::addMapBlocLocation;
 }
 
-Server::Server() {
-
-}
-
 bool Server::EpollWait(int timeOut) {
     return Epoll::EpollWait(timeOut);
+}
+
+/*
+*==========================================================================================================
+*|                                                  mime type                                             |
+*==========================================================================================================
+*/
+
+
+Types::Types(std::string pathFile) : _peg(pathFile), _mapMimeType(){
+    parseBlocTypes();
+}
+
+Types::~Types() {}
+
+Types::Types(Types & other) : _peg(other._peg), _mapMimeType(other._mapMimeType){}
+
+Types &Types::operator=(const Types &rhs) {
+    this->_peg = rhs._peg;
+    this->_mapMimeType = rhs._mapMimeType;
+    return *this;
+}
+
+std::string Types::parseBlocTypes() {
+    std::string value;
+    std::string token;
+
+    while (!_peg.checkIsEmpty()) {
+        value = _peg.extractData(0);
+        token = _peg.extractData(';');
+        _mapMimeType[token] = value;
+    }
+    return std::string();
 }
 
 /*
@@ -226,23 +259,23 @@ bool Server::EpollWait(int timeOut) {
 */
 
 
-Http::Http(Config& config) : _config(config), _mapTokenListAction(), _vectorBlocServer(),
-                                            _mapClientSocket(), _numberMaxEvents(config._Events._workerConnections * config._workerProcess) {
+Http::Http(Config& config) : _config(config), _mapTokenListAction(), _Types("conf/mime.types"),
+_clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
     setMapToken();
 }
 
 Http::~Http() {}
 
 Http::Http(Http &other)
-        : _config(other._config), _mapTokenListAction(other._mapTokenListAction),
-          _vectorBlocServer(other._vectorBlocServer), _mapClientSocket(), _numberMaxEvents(other._numberMaxEvents){}
+        : _config(other._config), _mapTokenListAction(other._mapTokenListAction), _Types(other._Types),
+          _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){}
 
 Http &Http::operator=(const Http &rhs) {
-    this->_config = rhs._config;
-    this->_vectorBlocServer = rhs._vectorBlocServer;
     this->_mapTokenListAction = rhs._mapTokenListAction;
-    this->_mapClientSocket = rhs._mapClientSocket;
-    this->_numberMaxEvents = rhs._numberMaxEvents;
+    this->_Types = rhs._Types;
+    this->_clientBodyBufferSize = rhs._clientBodyBufferSize;
+    this->_clientHeaderBufferSize = rhs._clientHeaderBufferSize;
+    this->_clientMaxBodySize = rhs._clientMaxBodySize;
     return *this;
 }
 
@@ -258,19 +291,18 @@ std::string Http::addVectorBlocServer() {
     if (value.empty()) {
         Server buildBlocServer(_config);
         value = buildBlocServer.parseBlocServer();
-        _vectorBlocServer.push_back(buildBlocServer);
+        _config._vectorServer.push_back(buildBlocServer);
     }
     return value;
 }
 
 void Http::setDefaultValue() {
-//    if (_vectorBlocServer.empty()) {
-//
-//    }
-    _numberMaxEvents = _config._Events._workerConnections * _config._workerProcess ;
-    Server Server(_config);
-    Server.setDefaultValue();
-    _vectorBlocServer.push_back(Server);
+    Server Server1(_config);
+    Server1.setDefaultValue("127.0.0.1:8080");
+    _config._vectorServer.push_back(Server1);
+    Server Server2(_config);
+    Server2.setDefaultValue("127.0.0.1:8081");
+    _config._vectorServer.push_back(Server2);
 }
 
 void Http::setMapToken() {
@@ -285,7 +317,7 @@ void Http::setMapToken() {
 */
 
 Events::Events(Config& config)
-        : _config(config), _mapTokenListAction(), _workerConnections(){
+        : _config(config), _mapTokenListAction(), _workerConnections(10){
     setMapToken();
 }
 
@@ -296,7 +328,6 @@ Events::Events(Events &other)
 
 
 Events &Events::operator=(const Events &rhs) {
-    this->_config = rhs._config;
     this->_mapTokenListAction = rhs._mapTokenListAction;
     this->_workerConnections = rhs._workerConnections;
     return *this;
@@ -306,7 +337,6 @@ Events &Events::operator=(const Events &rhs) {
 std::string Events::parseBlocEvents() {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
-    setDefaultValue();
     return std::string("");
 }
 
@@ -322,11 +352,6 @@ std::string Events::setWorkerConnections() {
     return value;
 }
 
-void Events::setDefaultValue() {
-//    if (_mapTokenListAction.size() == 1)
-    _workerConnections = 10;
-}
-
 void Events::setMapToken() {
     _mapTokenListAction["worker_connections"] = &Events::setWorkerConnections;
 }
@@ -334,21 +359,18 @@ void Events::setMapToken() {
 
 /*
 *==========================================================================================================
-*|                                                  Config serverSocket                                         |
+*|                                                  Config                                                |
 *==========================================================================================================
 */
 
-Config::Config() : _pegParser(),_mapTokenListAction(), _workerProcess(),
-                                 _Events(*this), _Http(*this) {
-    setMapToken();
-    setDefaultValue();
-}
-
 Config::Config(std::string &pathConfigFile) : _pegParser(pathConfigFile.c_str(), "#"),
-                                                            _mapTokenListAction(), _workerProcess(), _Events(*this), _Http(*this) {
-    setMapToken();
-    while (!_pegParser.checkIsEmpty()) {
-        _pegParser.findToken(*this, _mapTokenListAction, 0);
+_mapTokenListAction(), _workerProcess(1), _errorLog("logs/error.logs"), _pidLog("logs/webserv.pid"),
+_Events(*this), _Http(*this), _vectorServer() {
+    if (!pathConfigFile.empty()) {
+        setMapToken();
+        while (!_pegParser.checkIsEmpty()) {
+            _pegParser.findToken(*this, _mapTokenListAction, 0);
+        }
     }
     setDefaultValue();
 }
@@ -357,16 +379,18 @@ Config::~Config() {}
 
 Config::Config(Config & other)
         : _pegParser(other._pegParser),_mapTokenListAction(other._mapTokenListAction),
-          _workerProcess(other._workerProcess), _Events(other._Events), _Http(other._Http){
-
-}
+          _workerProcess(other._workerProcess), _errorLog(other._errorLog), _pidLog(other._pidLog),
+          _Events(other._Events), _Http(other._Http), _vectorServer(other._vectorServer){}
 
 Config &Config::operator=(const Config &rhs) {
     this->_pegParser = rhs._pegParser;
     this->_mapTokenListAction = rhs._mapTokenListAction;
     this->_workerProcess = rhs._workerProcess;
+    this->_errorLog = rhs._errorLog;
+    this->_pidLog = rhs._pidLog;
     this->_Events = rhs._Events;
     this->_Http = rhs._Http;
+    this->_vectorServer = rhs._vectorServer;
     return *this;
 }
 
@@ -384,8 +408,6 @@ std::string Config::parseBlocHttp() {
     std::string value = _pegParser.extractData('{');
     if (value.empty())
         value = _Http.parseBlocHttp();
-//    std::cout << "_vectorBlocServer size:" << " " << _Http._vectorBlocServer.size() << std::endl;
-//    std::cout << "_vectorBlocServer 0:" << " " <<_ << std::endl;
     return value;
 }
 
@@ -402,9 +424,6 @@ std::string Config::setWorkerProcesses() {
 }
 
 void Config::setDefaultValue() {
-//    std::map<std::string, std::string (Config::*)()>::iterator it = _mapTokenListAction.begin();
-    _workerProcess = 1;
-    _Events.setDefaultValue();
     _Http.setDefaultValue();
 }
 
@@ -412,9 +431,5 @@ void Config::setMapToken() {
     _mapTokenListAction["worker_processes"] = &Config::setWorkerProcesses;
     _mapTokenListAction["events"] = &Config::parseBlocEvent;
     _mapTokenListAction["http"] = &Config::parseBlocHttp;
-    _mapTokenListAction["types"] = &Config::parseBlocHttp;
 }
-
-
-
 

@@ -25,7 +25,10 @@ set(    EPOLL)
 set(    PEG
         6-PegParser/Sources/PegParser.class.cpp)
 
-set(    SOCKET)
+set(    SOCKET
+        7-Socket/Sources/serverSocket.class.cpp
+        7-Socket/Sources/Socket.Aclass.cpp
+        7-Socket/Sources/clientSocket.class.cpp)
 
 set(    EXCEPTION
         8-Exception/Sources/Exception.cpp)

@@ -27,7 +27,7 @@ _buffer(){
     set_map_content_type();
     set_map_token_information();
     set_map_token_methode();
-}//@todo manage buffer client_header_buffer_size client_body_buffer_size client_max_body_size
+}//@todo manage buffer
 
 httpRequest::~httpRequest() {}
 

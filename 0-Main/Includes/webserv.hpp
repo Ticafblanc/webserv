@@ -10,7 +10,7 @@
 //#include "4-Http/Includes/httpRequest.class.hpp"
 #include "5-Epoll/Includes/Epoll.class.hpp"
 //#include "6-PegParser/Includes/PegParser.class.hpp"
-#include "7-Socket/Includes/Socket.Aclass.hpp"
+#include "7-Socket/Includes/Socket.hpp"
 //#include "8-Exception/Includes/Exception.hpp"
 
 

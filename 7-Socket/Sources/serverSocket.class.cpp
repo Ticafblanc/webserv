@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Socket/Includes/serverSocket.class.hpp"
+#include "../Includes/serverSocket.class.hpp"
 
 /*
 *====================================================================================
@@ -19,8 +19,8 @@
 */
 serverSocket::serverSocket() {}
 
-serverSocket::serverSocket(blocServer &blocServer, string &ipAddr, int &port)
-: Socket(blocServer, ipAddr, port) {}
+serverSocket::serverSocket(Server &Server, string &ipAddr, int &port)
+: Socket(Server, ipAddr, port) {}
 
 serverSocket::~serverSocket() {}
 

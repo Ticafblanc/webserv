@@ -15,7 +15,7 @@
 #ifndef WEBSERV_SERVERSOCKET_CLASS_HPP
 # define WEBSERV_SERVERSOCKET_CLASS_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "Socket.Aclass.hpp"
 
 
 class serverSocket : public Socket{
@@ -95,7 +95,7 @@ public:
  * @param   configWebserv instance to build the serverSocket
  * @throw   none
  **/
-    serverSocket(blocServer& blocServer, string &ipAddr, int &port);
+    serverSocket(Server& Server, string &ipAddr, int &port);
 
 /**
  * Destructor of sever class

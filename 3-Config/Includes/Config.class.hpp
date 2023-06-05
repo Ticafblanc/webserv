@@ -18,6 +18,8 @@
 #include "0-Main/Includes/webserv.hpp"
 #include "6-PegParser/Includes/PegParser.class.hpp"
 
+struct Config;
+struct Server;
 
 /*
 *==========================================================================================================
@@ -42,7 +44,7 @@ struct Location {
  * @param   void
  * @throw   none
  **/
-    Location(configWebserv&);
+    Location(Config&);
 
 /**
 * Destructor of Location.class class
@@ -152,7 +154,7 @@ struct Location {
 */
 
 
-struct Listen {
+struct Listen : public serverSocket {
 
 
 /*
@@ -164,13 +166,13 @@ struct Listen {
 /**
  * Constructor of configServer.class class
  *
- * Listen(Config& config, std::string& input);
+ * Listen(Config& config);
  *
  * @param   input is a string reference extract befor;
  * @param   config is config webserv reference
  * @throw   none
  **/
-    Listen(configWebserv&, std::string&);
+    Listen(Server&);
 /**
  * Constructor of configServer.class class
  *
@@ -180,7 +182,7 @@ struct Listen {
  * @param   config is config webserv reference
  * @throw   none
  **/
-    Listen(configWebserv&, std::string);
+    Listen(Config&, std::string);
 
 /**
 * Destructor of Listen.class class
@@ -226,6 +228,7 @@ struct Listen {
  * @throw       none
  */
     std::string parseListenData();
+    std::string parseListenData(std::string&);
 
 
 /*
@@ -234,11 +237,7 @@ struct Listen {
 *====================================================================================
 */
 
-    configWebserv&          _config;
-    std::stringstream       _input;
-    std::string             _ipAddress;
-    int                     _port;
-    AbaseSocket           _socket;
+    Config&          _config;
 };
 
 
@@ -258,6 +257,14 @@ struct Server : public Epoll{
 *====================================================================================
 */
 
+/**
+ * Constructor of configServer.class class
+ *
+ * Server();
+ *
+ * @param   none
+ * @throw   none
+ **/
     Server();
 
 /**
@@ -268,7 +275,7 @@ struct Server : public Epoll{
  * @param   configWebserv&
  * @throw   none
  **/
-    Server(configWebserv&);
+    Server(Config&);
 
 /**
 * Destructor of Server.class class
@@ -381,23 +388,103 @@ struct Server : public Epoll{
  * @param       void
  * @throw       none
  */
-    void setDefaultValue();
+    void setDefaultValue(std::string addess);
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    configWebserv&                                          _config;
-    std::map<std::string, std::string (Server::*)()>   _mapTokenListAction;
-    std::vector<Listen>                                _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<std::string>                                _vectorServerName;// store all serverSocket name
-    std::string                                             _root;//path of repo defaut of serverSocket
-    std::map<std::string, Location>                    _mapBlocLocation;
-    int                                                        _epollInstance;
+    Config&                                             _config;
+    std::map<std::string, std::string (Server::*)()>    _mapTokenListAction;
+    std::vector<Listen>                                 _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<std::string>                            _vectorServerName;// store all serverSocket name
+    std::string                                         _root;//path of repo defaut of serverSocket
+    std::map<std::string, Location>                     _mapBlocLocation;
 };
 
 
+/*
+*==========================================================================================================
+*|                                                  bloc HTTP                                             |
+*==========================================================================================================
+*/
+
+
+
+struct Types {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of Types.class class
+ *
+ * Types(pegParser& pegParser);
+ *
+ * @param   peg_parser
+ * @throw   none
+ **/
+    Types(std::string pathFile);
+
+/**
+* Destructor of Types.class class
+*
+* Types.class.class();
+*
+* @throw   none
+**/
+    ~Types();
+
+/**
+ * Copy constructor of Types class
+ *
+ * Types(const Types &);
+ *
+ * @param   blocTypes instance to build the serverSocket
+ * @throw   none
+ **/
+    Types(Types&);
+
+/**
+ * Operator overload= of Types class
+ *
+ * Types(const Types &);
+ *
+ * @param   blocTypes instance const to copy the serverSocket
+ * @throw   none
+ **/
+    Types& operator=(const Types &);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Types.class class
+ *
+ * std::string parseBlocTypes();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string parseBlocTypes();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    PegParser                                                  _peg;
+    std::map<std::string, std::string>                         _mapMimeType;
+};
 
 /*
 *==========================================================================================================
@@ -424,7 +511,7 @@ struct Http {
  * @param   peg_parser
  * @throw   none
  **/
-    Http(configWebserv&);
+    Http(Config&);
 
 /**
 * Destructor of Http.class class
@@ -515,12 +602,12 @@ struct Http {
 *|                                     Member                                       |
 *====================================================================================
 */
-    configWebserv&                                          _config;
-    std::map<std::string, std::string (Http::*)()>     _mapTokenListAction;
-    std::map<const int, Server>                         _mapBlocServer;//no default value
-    int                                                     _selectBlocServer;
-    std::map<int, int>                                      _mapClientSocket;
-    int                                                     _numberMaxEvents;
+    Config&                                             _config;
+    std::map<std::string, std::string (Http::*)()>      _mapTokenListAction;
+    Types                                               _Types;
+    int                                                 _clientBodyBufferSize;
+    int                                                 _clientHeaderBufferSize;
+    int                                                 _clientMaxBodySize;
 };
 
 
@@ -551,7 +638,7 @@ struct Events {
  * @param   peg_parser &
  * @throw   none
  **/
-    Events(configWebserv&);
+    Events(Config&);
 
 /**
 * Destructor of Events.class class
@@ -620,27 +707,15 @@ struct Events {
  */
     void setMapToken();
 
-/**
- * Public methode of Events class
- *
- * void setDefaultValue();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setDefaultValue();
-
-
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    configWebserv&                                          _config;
+    Config&                                             _config;
     std::map<std::string, std::string (Events::*)()>    _mapTokenListAction;
-    int                                                     _workerConnections;//if not define default 10 else accept >o and < 11
+    int                                                 _workerConnections;//if not define default 10 else accept >o and < 11
 };
 
 
@@ -660,16 +735,6 @@ struct Config {
 *|                                  Member Fonction                                 |
 *====================================================================================
 */
-
-/**
- * Constructor of Config class
- *
- * Config();
- *
- * @param   void
- * @throw   none
- **/
-    Config();
 
 /**
  * Constructor of Config class
@@ -735,6 +800,7 @@ struct Config {
  */
     std::string parseBlocHttp();
 
+
 /**
  * Protected methode of Config struct
  *
@@ -775,8 +841,10 @@ struct Config {
     PegParser                                           _pegParser;
     std::map<std::string, std::string (Config::*)()>    _mapTokenListAction;
     int                                                 _workerProcess;
-    Events                                              _blocEvents;//required
-    Http                                                _blocHttp;//if not set as default
+    std::string                                         _errorLog;
+    std::string                                         _pidLog;
+    Events                                              _Events;
+    Http                                                _Http;
     std::vector<Server>                                 _vectorServer;
 };
 

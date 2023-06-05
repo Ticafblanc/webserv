@@ -15,7 +15,7 @@
 void handleExit(int sig) {
     (void) sig;
     //@todo manage the end by signal
-//    printLogFile("/usr/local/var/log/log_error.txt");
+//    printLogFile("/usr/local/var/logs/log_error.txt");
     std::cout << "exit by signal" << std::endl;
     exit(EXIT_SUCCESS);
 }
@@ -93,13 +93,13 @@ static int checkOption(int argc, char **argv){
 //                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 //                            std::string error("file descriptor inconnu => " );
 //                            error += intToString(it->_epoll.getEvents()->data.fd);
-//                            writeLogFile(error,"/webserv/config_content_server/for_var/log/log_error.txt");
+//                            writeLogFile(error,"/webserv/config_content_server/for_var/logs/log_error.txt");
 //                            close(it->_epoll.getEvents()->data.fd);//see if necessary to check fd before close
 //                        }
 //                    }
 //                }
 //            }catch (std::exception & e){
-////                writeLogFile(e.what(), "/webserv/config_content_server/for_var/log/log_error.txt");
+////                writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
 //            }
 //        }
 //    }
@@ -120,10 +120,10 @@ int main(int argc, char **argv, char **envp){
 //            launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {
-//            writeLogFile(e.what(), "/webserv/config_content_server/for_var/log/log_error.txt");
+//            writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
         }
     }
-//    printLogFile("/webserv/config_content_server/for_var/log/log_error.txt");
+//    printLogFile("/webserv/config_content_server/for_var/logs/log_error.txt");
     exit(EXIT_FAILURE);
 }
 

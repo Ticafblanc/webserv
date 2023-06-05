@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Socket/Includes/Socket.Aclass.hpp"
+#include "../Includes/Socket.Aclass.hpp"
 
 /*
 *====================================================================================
@@ -19,15 +19,15 @@
 */
 
 Socket::Socket()
-: epoll_event(), sockaddr_in(), _ipAddress(), _port(), _blocServer(*(new blocServer)) {}
+: epoll_event(), sockaddr_in(), _ipAddress(), _port(), _Server(*(new Server)) {}
 
-Socket::Socket(blocServer& blocServer, std::string & ipAddr, int & port)
-: epoll_event(), sockaddr_in(), _ipAddress(ipAddr), _port(port), _blocServer(blocServer){
+Socket::Socket(Server& Server, std::string & ipAddr, int & port)
+: epoll_event(), sockaddr_in(), _ipAddress(ipAddr), _port(port), _Server(Server){
     buildServerSocket();
 }
 
-Socket::Socket(blocServer& blocServer, epoll_event & event)
-: epoll_event(event), sockaddr_in(), _port(), _blocServer(blocServer){
+Socket::Socket(Server& Server, epoll_event & event)
+: epoll_event(event), sockaddr_in(), _port(), _blocServer(Server){
     buildClientSocket();
 }
 

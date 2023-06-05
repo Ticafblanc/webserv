@@ -15,7 +15,7 @@
 #ifndef WEBSERV_CLIENTSOCKET_CLASS_HPP
 # define WEBSERV_CLIENTSOCKET_CLASS_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "Socket.Aclass.hpp"
 
 
 class clientSocket : public Socket{
