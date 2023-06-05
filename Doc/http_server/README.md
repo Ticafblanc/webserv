@@ -13,9 +13,9 @@ In this tutorial, we will demonstrate how to build a http web serverSocket from 
     * 2.2 [Process Elements](https://github.com/Dungyichao/http_server/blob/master/README.md#22-process-elements)     
 3. [Implement the Code](https://github.com/Dungyichao/http_server/blob/master/README.md#3-implement-the-code)
     * 3.1 [Code Structure](https://github.com/Dungyichao/http_server/blob/master/README.md#31-code-structure)
-    * 3.2 [Parse the Request from the Client](https://github.com/Dungyichao/http_server/blob/master/README.md#32-parse-the-request-from-the-AbaseSocket) 
+    * 3.2 [Parse the Request from the Client](https://github.com/Dungyichao/http_server/blob/master/README.md#32-parse-the-request-from-the-Socket) 
     * 3.3 [Classify the Request](https://github.com/Dungyichao/http_server/blob/master/README.md#33-classify-the-request) 
-    * 3.4 [Reply to the Client](https://github.com/Dungyichao/http_server/blob/master/README.md#34-reply-to-the-AbaseSocket)   
+    * 3.4 [Reply to the Client](https://github.com/Dungyichao/http_server/blob/master/README.md#34-reply-to-the-Socket)   
     * 3.5 [Create Child Process to Handle Clients](https://github.com/Dungyichao/http_server/blob/master/README.md#35-create-child-process-to-handle-clients)  
 4. [Summary (with javascript)](https://github.com/Dungyichao/http_server/blob/master/README.md#4-summary)
 5. [Video Streaming Protocols](https://github.com/Dungyichao/http_server/blob/master/README.md#3-implement-the-code)
@@ -27,17 +27,17 @@ In this tutorial, we will demonstrate how to build a http web serverSocket from 
     * 6.1 [Web Remote Control Robot](https://github.com/Dungyichao/Web-Remote-Control-Robot)
 
 # 1. Basic Knowledge <br />
-In the internet world, there is always a serverSocket who can serve multiple clients. For example, Google, Netflix, Facebook... and so on are servers. People like us are AbaseSocket and we can use web browser (Chrome, Edge, Opera, Firefox....) to communicate with servers. <br />
+In the internet world, there is always a serverSocket who can serve multiple clients. For example, Google, Netflix, Facebook... and so on are servers. People like us are Socket and we can use web browser (Chrome, Edge, Opera, Firefox....) to communicate with servers. <br />
 
 <p align="center">
-<img src="/img/serverSocket-AbaseSocket-role.JPG" height="100%" width="100%">  
+<img src="/img/serverSocket-Socket-role.JPG" height="100%" width="100%">  
 </p>
 
 You can make a web serverSocket at your home and use your own laptop to access the serverSocket through LAN which stands for Local Area Network (having a Wi-Fi router can create a LAN at your home). However, if your html file includes some resources in WAN (Wide Area Network), then you need to be able to access the internet for displaying your html correctly.
 
 What you need is at least one PC or laptop (acts as serverSocket) running in Linux (
 [Ubuntu](https://ubuntu.com/desktop)
-or Debian) which should connect to the router. You can use cell phone as a AbaseSocket.  
+or Debian) which should connect to the router. You can use cell phone as a Socket.  
 
 # 2. Overview
 We are going to implement code for a http serverSocket on Ubuntu Desktop. Please follow the <b>Visual Studio Code</b> official website to create a project (
@@ -96,7 +96,7 @@ The following image is basically what we are going to implement in the code. We 
 <img src="/img/process_element1.jpg" height="90%" width="90%">  
 </p>
 
-The story is, the serverSocket keep listening any message it received, then we need to analyze what the useful information in the message by parsing it. The useful information we care about is the file name (with path) and file extension. The serverSocket then open the file according to the path and put the content of the file into a reply-message which we will later send to the AbaseSocket. Before sending the reply-message, we should first tell the AbaseSocket what kind of file content type we are going to send, maybe image file (.jpg, .png, ...) or txt file (.html, .doc, ...) and so on (refer to https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types), then we can send the reply-message (content of file) to the AbaseSocket. 
+The story is, the serverSocket keep listening any message it received, then we need to analyze what the useful information in the message by parsing it. The useful information we care about is the file name (with path) and file extension. The serverSocket then open the file according to the path and put the content of the file into a reply-message which we will later send to the Socket. Before sending the reply-message, we should first tell the Socket what kind of file content type we are going to send, maybe image file (.jpg, .png, ...) or txt file (.html, .doc, ...) and so on (refer to https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types), then we can send the reply-message (content of file) to the Socket. 
 
 # 3. Implement the Code
 The overall code can be viewed from the following link: https://github.com/Dungyichao/http_server/blob/master/src/helloworld.cpp
@@ -114,7 +114,7 @@ We keep looping through the following code in sequence, namely 1 --> 2 --> 3 -->
 </p>
 
 ## 3.2 Parse the Request from the Client
-Let's take a look at what the <b>very first</b> request information the AbaseSocket sends to you 
+Let's take a look at what the <b>very first</b> request information the Socket sends to you 
 <p align="center">
 <img src="/img/http_request_0.JPG" height="95%" width="95%">  
 </p>
@@ -125,7 +125,7 @@ At first glance, it contains useless information (maybe not true for Hacker), ho
 <p align="center">
 <img src="/img/http_request_js.JPG" height="95%" width="95%">  
 </p> 
-OK ! I think you nail it. The information between GET and HTTP/1.1. That is the file path which the AbaseSocket requires to display the website correctly on it's browser. <br /><br />
+OK ! I think you nail it. The information between GET and HTTP/1.1. That is the file path which the Socket requires to display the website correctly on it's browser. <br /><br />
 
 The <b>parse function</b> just retrieves the <b>path</b> and <b>file extension</b> (such as .jpg  .html  .css....) from a bunch of information. <br /> 
 ```c++
@@ -151,7 +151,7 @@ char* parse(char line[], const char symbol[])
 ## 3.3 Classify the Request 
 In 
 [section 2.2 Process Element](https://github.com/Dungyichao/http_server#22-process-elements)
- we mention that we need to tell the AbaseSocket what kind of content we are going to send in. The classification is just a bunch of <b>if else</b> logic detemination according to the file extension from the <b>parsed</b> information (section 3.2). I just list the partial code in the following to give you some concept.
+ we mention that we need to tell the Socket what kind of content we are going to send in. The classification is just a bunch of <b>if else</b> logic detemination according to the file extension from the <b>parsed</b> information (section 3.2). I just list the partial code in the following to give you some concept.
  
  ```c++
  if(strlen(parse_string) <= 1){
@@ -165,7 +165,7 @@ In
 else if ((parse_ext[0] == 'j' && parse_ext[1] == 'p' && parse_ext[2] == 'g') || 
 (parse_ext[0] == 'J' && parse_ext[1] == 'P' && parse_ext[2] == 'G'))
 {
-            //send image to AbaseSocket
+            //send image to 7-Socket
             char path_head[500] = ".";
             strcat(path_head, parse_string);
             strcat(copy_head, "Content-Type: image/jpeg\r\n\r\n");
@@ -197,15 +197,15 @@ else if (parse_ext[0] == 'i' && parse_ext[1] == 'c' && parse_ext[2] == 'o')
             send_message(new_socket, path_head, copy_head);
 }
  ```
- I know you are still wondering the very first request information I mentioned in section 3.2 which contains ```/``` such a useless information. Actually, it does give us a hint to send it our web page, namely ```index.html```. The AbaseSocket will receive the html file looks like the following
+ I know you are still wondering the very first request information I mentioned in section 3.2 which contains ```/``` such a useless information. Actually, it does give us a hint to send it our web page, namely ```index.html```. The Socket will receive the html file looks like the following
  
  <p align="center">
 <img src="/img/index_html.JPG" height="95%" width="95%">  
 </p>
 
-The AbaseSocket's web browser will read line by line and do whatever the html file tells it. When it reads until line 14 (in above image), the AbaseSocket will send request to the serverSocket to ask for ```vendor/fontawesome-free/css/all.min.css``` which is a css file. Server than ```parse``` the request, and then classify the request. 
+The Socket's web browser will read line by line and do whatever the html file tells it. When it reads until line 14 (in above image), the Socket will send request to the serverSocket to ask for ```vendor/fontawesome-free/css/all.min.css``` which is a css file. Server than ```parse``` the request, and then classify the request. 
 
-There are multiple file extension we need to take good care of, the following link shows you a list of file extension: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types . We need to first notify the AbaseSocket what kind of content we are going to send so that the AbaseSocket can receive the content accordingly. The notification message looks like the following:
+There are multiple file extension we need to take good care of, the following link shows you a list of file extension: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types . We need to first notify the Socket what kind of content we are going to send so that the Socket can receive the content accordingly. The notification message looks like the following:
 
 ```c++
 HTTP/1.1 200 Ok\r\n
@@ -213,7 +213,7 @@ Content-Type: text/html\r\n\r\n
 ```
 You need to replace the ```text/html``` with the proper MIME Type according to the file extension. 
 
-While writing this tutorial, a special file extension request from the AbaseSocket ```/favicon.ico```, however, I couldn't find out the file in my website at all (I also look into all html, css, js files). It turns out that every browser will automatically request for ```/favicon.ico``` which is merely an icon for displaying on the browser tab shown in the following. So what you need is just reply a .ico or .png file to the AbaseSocket.
+While writing this tutorial, a special file extension request from the Socket ```/favicon.ico```, however, I couldn't find out the file in my website at all (I also look into all html, css, js files). It turns out that every browser will automatically request for ```/favicon.ico``` which is merely an icon for displaying on the browser tab shown in the following. So what you need is just reply a .ico or .png file to the Socket.
  <p align="center">
 <img src="/img/ico.JPG" height="95%" width="95%">  
 </p>
@@ -290,7 +290,7 @@ Here we list out some common file extension and their MIME Type.
 </p>
  
 ## 3.4 Reply to the Client
-The following function first send notification message to the AbaseSocket and let it knows what kind of content we are going to send (section 3.3). We then open the file using ```open``` and retrieve information of the file (not the content) using ```fstat``` and store in ```stat object```. Lastly, we read the file content and send the content using ```sendfile```. Because some file might be too large to send in one message, thus, we need to send the content pices by pices (size = block_size).
+The following function first send notification message to the Socket and let it knows what kind of content we are going to send (section 3.3). We then open the file using ```open``` and retrieve information of the file (not the content) using ```fstat``` and store in ```stat object```. Lastly, we read the file content and send the content using ```sendfile```. Because some file might be too large to send in one message, thus, we need to send the content pices by pices (size = block_size).
 
 ```c++
 int send_message(int fd, char image_path[], char head[]){
@@ -352,7 +352,7 @@ You might not familiar with the above command, so the following link may help yo
 </p>
 
 ## 3.5 Create Child Process to Handle Clients
-In a real world serverSocket, we are not going to reply all connected AbaseSocket with only one process. Our serverSocket program will not have good performance when multiple clients connecting to us at once. So we will create child process whenever new AbaseSocket connected. Please read the tutorial [link](https://www.linuxhowtos.org/C_C++/AbaseSocket.htm) ([PDF](https://github.com/Dungyichao/http_server/blob/master/doc/Sockets%20Tutorial.pdf)) - Enhancements to the serverSocket code part. 
+In a real world serverSocket, we are not going to reply all connected Socket with only one process. Our serverSocket program will not have good performance when multiple clients connecting to us at once. So we will create child process whenever new Socket connected. Please read the tutorial [link](https://www.linuxhowtos.org/C_C++/Socket.htm) ([PDF](https://github.com/Dungyichao/http_server/blob/master/doc/Sockets%20Tutorial.pdf)) - Enhancements to the serverSocket code part. 
 
 We modifiy a little bit code from the tutorial link. Please see the following. We only shows the while loop part.
 ```c++
@@ -371,7 +371,7 @@ while (1)
    {
      //close(server_fd);    //We omint this part because it would cause error
      ......................................
-     This part is parsing the message from AbaseSocket, read path file, write file back to AbaseSocket
+     This part is parsing the message from Socket, read path file, write file back to Socket
      ...
      ....
      .....
@@ -485,7 +485,7 @@ Reference link: <br />
 https://www.cloudflare.com/learning/video/what-is-http-live-streaming/ <br />
 https://www.dacast.com/blog/hls-streaming-protocol/
 
-Streaming is a way of delivering visual and audio media to users over the Internet. It works by continually sending the media file to a user's device a little bit at a time instead of all at once. With streaming over HTTP, the standard request-response pattern does not apply. <b>The connection between AbaseSocket and serverSocket remains open for the duration of the stream</b>, and the serverSocket pushes video data to the AbaseSocket so that the AbaseSocket does not have to request every segment of video data. HLS use TCP (more reliable) rather than UDP (more faster) as trasport protocols. 
+Streaming is a way of delivering visual and audio media to users over the Internet. It works by continually sending the media file to a user's device a little bit at a time instead of all at once. With streaming over HTTP, the standard request-response pattern does not apply. <b>The connection between Socket and serverSocket remains open for the duration of the stream</b>, and the serverSocket pushes video data to the Socket so that the Socket does not have to request every segment of video data. HLS use TCP (more reliable) rather than UDP (more faster) as trasport protocols. 
 
 First, the HLS protocol chops up MP4 video content into short (10-second) chunks with the .ts file extension (MPEG2 Transport Stream). Next, an HTTP serverSocket stores those streams, and HTTP delivers these short clips to viewers on their devices. Some software serverSocket creates an M3U8 playlist file (e.g. manifest file) that serves as an index for the video chunks. Some .m3u8 and .ts information can be found in the following link [link1](https://nagendrabandi.com/download-m3u8ts-file/#:~:text=A%20M3U8%20stands%20for%20MP3,Flash%20video%20format%20(flv).&text=ts%20files%20are%20referenced%20in,M3U8%20playlist%20file%20index)([PDF](https://github.com/Dungyichao/http_server/blob/master/doc/How%20to%20download%20a%20m3u8.pdf)), [link2](https://datatracker.ietf.org/doc/html/rfc8216)
 
@@ -496,7 +496,7 @@ There are two way to do this project. Please go to the following [link1]( https:
 <p align="center">
 <img src="/img/rapivid_method.JPG" height="95%" width="95%">  
 </p>
-Rapivid can output segment video files in local folder, however, in option 1, if not using Nginx, when stdout pipe into GStreamer to generate streaming files, it’s .ts file keep growing which never split into segment. It only generate .m3u8 playlist file when you stop the process. It requires to go through Nginx with rtmp sink to generate proper segment .ts files with playlist .m3u8. So we change to the option 2, which use ffmpeg to generate proper segment .ts files with playlist .m3u8. Finally, we can use our handmade http serverSocket to send out the .m3u8 and .ts files from local folder to the AbaseSocket browser for streaming. We shows the steps for option 2 below. <br />
+Rapivid can output segment video files in local folder, however, in option 1, if not using Nginx, when stdout pipe into GStreamer to generate streaming files, it’s .ts file keep growing which never split into segment. It only generate .m3u8 playlist file when you stop the process. It requires to go through Nginx with rtmp sink to generate proper segment .ts files with playlist .m3u8. So we change to the option 2, which use ffmpeg to generate proper segment .ts files with playlist .m3u8. Finally, we can use our handmade http serverSocket to send out the .m3u8 and .ts files from local folder to the Socket browser for streaming. We shows the steps for option 2 below. <br />
 
 First we create the bash file
 ```bash
@@ -584,7 +584,7 @@ The following table shows how your configuration would affect the streaming late
 </table>
 </p>
 
-Segment_time means how long the .ts file (video length). Segment_wrap means how many .ts file will be kept. Segment_List_Size means how many .ts records will be kept in the .m3u8 which will affact AbaseSocket playback. Segment_wrap should be larger or equal to Segment_List_Size.
+Segment_time means how long the .ts file (video length). Segment_wrap means how many .ts file will be kept. Segment_List_Size means how many .ts records will be kept in the .m3u8 which will affact Socket playback. Segment_wrap should be larger or equal to Segment_List_Size.
 
 Make it executable:
 ```bash
@@ -627,7 +627,7 @@ $sudo kill -9 <pid>
 HLS is not a good idea for real-time streaming robot project. The latency is not acceptable if you try to remote control your robot. Therefore, we need someting more real time. MJPEG should be able to meet our requirement. MJPEG is mearly a series of JPEG files. A great open source project using C language called streamEye([link](https://github.com/ccrisan/streameye), [backup](https://github.com/Dungyichao/http_server/blob/master/Project/simple_streameye/streameye-master.zip)), and an online tutorial using Python language ([link](https://randomnerdtutorials.com/video-streaming-with-raspberry-pi-camera/), [PDF](https://github.com/Dungyichao/http_server/blob/master/doc/Tutorial%20-%20Video%20Streaming%20with%20Raspberry%20Pi%20Camera.pdf))  are a good starting point. The following project is based on these two online source.
 
 ### 5.2.1 MJPEG Streaming Project
-Let's take a look at the system structure of StreamEye. Python will be used to capture JPEG image file, and then output to StreamEye.o for further processing, and then act as a http serverSocket waiting AbaseSocket to connect and reply with a series of JPEG data.
+Let's take a look at the system structure of StreamEye. Python will be used to capture JPEG image file, and then output to StreamEye.o for further processing, and then act as a http serverSocket waiting Socket to connect and reply with a series of JPEG data.
 <p align="center">
 <img src="/img/streameye_system.JPG" height="75%" width="75%">  
 </p>

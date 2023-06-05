@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../Include/webserv.hpp"
-#include "../../Include/config_webserv.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
+#include "Config/Includes/config_webserv.class.hpp"
 
 #ifndef UNIT_TEST_UNIT_TEST_HPP
 # define UNIT_TEST_UNIT_TEST_HPP

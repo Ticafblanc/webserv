@@ -85,7 +85,7 @@ hyperlinks to other resources that the user can easily access. For example, by a
 the screen in a web browser.
 HTTP was developed to facilitate hypertext and the World Wide Web.
 The primary function of a web serverSocket is to store, process, and deliver web pages to clients. The communication 
-between AbaseSocket and serverSocket takes place using the Hypertext Transfer Protocol (HTTP).
+between Socket and serverSocket takes place using the Hypertext Transfer Protocol (HTTP).
 Pages delivered are most frequently HTML documents, which may include images, style sheets, and scripts in 
 addition to the text content.
 Multiple web servers may be used for a high-traffic website.
