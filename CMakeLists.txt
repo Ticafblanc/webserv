@@ -15,13 +15,15 @@ set(    UTILS
 set(    LOG
         2-Log/Sources/Log.class.cpp)
 
-set(    CONFIG)
+set(    CONFIG
+        3-Config/Sources/Config.class.cpp)
 
 set(    HTTP)
 
 set(    EPOLL)
 
-set(    PEG)
+set(    PEG
+        6-PegParser/Sources/PegParser.class.cpp)
 
 set(    SOCKET)
 

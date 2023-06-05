@@ -49,6 +49,19 @@ void Log::printLogFile() {
     logfile.close();
 }
 
+Log::LogException::LogException(const char * message)
+        : _message(message) {}
+
+Log::LogException::~LogException() throw() {}
+
+const char * Log::LogException::what() const throw() { return _message.c_str(); }
+
+Log::LogException::LogException(const LogException & other) : _message(other._message) {}
+
+Log::LogException &Log::LogException::operator=(const LogException &rhs) {
+    this->_message = rhs._message;
+    return *this;
+}
 
 
 

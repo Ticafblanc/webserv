@@ -31,7 +31,7 @@ protected:
 
     std::string     _ipAddress;
     int             _port;
-    blocServer&     _blocServer;
+    Server&     _blocServer;
 
 /*
 *====================================================================================
@@ -69,7 +69,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    Socket(blocServer& blocServer, string &ipAddr, int &port);
+    Socket(Server& blocServer, string &ipAddr, int &port);
 
 /**
  * Constructor of 7-Socket class
@@ -80,7 +80,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    Socket(blocServer& blocServer, epoll_event &event);
+    Socket(Server& blocServer, epoll_event &event);
 
 /**
  * Destructor of 7-Socket class

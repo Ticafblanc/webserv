@@ -79,7 +79,7 @@ static int checkOption(int argc, char **argv){
 
 //static void launcher(Config & config) {
 //    while(true) {
-//        for (std::vector<blocServer>::iterator it = config._vectorServer.begin();
+//        for (std::vector<Server>::iterator it = config._vectorServer.begin();
 //        it != config._vectorServer.end(); ++it) {
 //            try {
 //                EpollWait(200);
@@ -116,7 +116,7 @@ int main(int argc, char **argv, char **envp){
         signal(SIGHUP, handleReload);
         pathConfigFile = selectPath(argv, positionPathFileConfig);
         try {
-//            Config webserv(pathConfigFile, envp);//@todo add path to constructo after the test
+            Config webserv(pathConfigFile, envp);//@todo add path to constructo after the test
 //            launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {

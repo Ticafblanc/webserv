@@ -1,14 +1,33 @@
-//
-// Created by Matthis DoQuocBao on 2023-06-05.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Config.class.hpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/03/17 14:47:07 by mdoquocb          #+#    #+#             */
+/*   Updated: 2023/03/17 14:47:10 by mdoquocb         ###   ########.ca       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#ifndef WEBSERVER_CONFIG_CLASS_HPP
-#define WEBSERVER_CONFIG_CLASS_HPP
+#pragma once
+
+#ifndef WEBSERV_CONFIG_HPP
+#define WEBSERV_CONFIG_HPP
 
 #include "0-Main/Includes/webserv.hpp"
+#include "6-PegParser/Includes/PegParser.class.hpp"
 
 
-class Config {
+/*
+*==========================================================================================================
+*|                                                  bloc location                                         |
+*==========================================================================================================
+*/
+
+struct Location {
+
+
 /*
 *====================================================================================
 *|                                  Member Fonction                                 |
@@ -16,91 +35,85 @@ class Config {
 */
 
 /**
- * Constructor of 3-Config.class class
+ * Constructor of Location.class class
  *
- * 3-Config.class();
+ * Location(std::stringstream & webserv_config_file);
  *
  * @param   void
  * @throw   none
  **/
-    Config();
+    Location(configWebserv&);
 
 /**
- * Constructor of 3-Config.class class
- *
- * 3-Config.class(std::string &);
- *
- * @param   path_config_file is a std::string is a path to config file
- *          specified at start of webserv
- * @throw   none
- **/
-    Config(std::string &);
-
-/**
-* Destructor of 3-Config.class class
+* Destructor of Location.class class
 *
-* 3-Config.class @throw   none
+* Location.class.class();
+*
+* @throw   none
 **/
-    ~Config();
+    ~Location();
 
 /**
- * Copy constructor of 3-Config.class class
+ * Constructor of Location.class class
  *
- * 3-Config.class(3-Config.class &);
+ * Server(std::stringstream & webserv_config_file);
  *
- * @param   configWebserv instance to build the serverSocket
+ * @param   void
  * @throw   none
  **/
-    Config(Config &);
+    Location(const Location&);
 
 /**
- * Operator overload= of 3-Config.class class
- *
- * 3-Config.class& operator=(const 3-Config.class &);
- *
- * @param   configWebserv instance const to copy the serverSocket
- * @throw   none
- **/
-    Config& operator=(const Config &);
+* Destructor of Location.class class
+*
+* Server.class.class();
+*
+* @throw   none
+**/
+    Location& operator=(const Location&);
 
 /*
 *====================================================================================
-*|                                  Element access                                  |
+*|                                  Element access                                 |
 *====================================================================================
 */
 
 /**
- * Protected methode of 3-Config.class struct
+ * Public methode of Location.class class
  *
- * std::string parseBlocEvent();
+ * std::string parseBlocLocation();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string parseBlocLocation();
+
+/**
+ * Public methode of Location.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string setRoot();
+
+
+/**
+ * Public methode of Location.class class
+ *
+ * std::string addIndex();
  *
  * @returns     void
- * @param       void
+ * @param       name is an std::string contain name of serverSocket to add
+ * @throw       bloc_exception if name already exist
  */
-    std::string parseBlocEvent();
+    std::string addIndex();
 
 /**
- * Protected methode of 3-Config.class struct
- *
- * std::string parseBlocHttp();
- *
- * @returns     void
- * @param       void
- */
-    std::string parseBlocHttp();
-
-/**
- * Protected methode of 3-Config.class struct
- *
- * std::string setWorkerProcesses();
- *
- * @returns     std::string if error in data for this token
- * @param       void
- */
-    std::string setWorkerProcesses();
-
-/**
- * Public methode of 3-Config.class struct
+ * Public methode of Location struct
  *
  * void setMapToken();
  *
@@ -111,7 +124,7 @@ class Config {
     void setMapToken();
 
 /**
- * Public methode of 3-Config.class struct
+ * Public methode of Location class
  *
  * void setDefaultValue();
  *
@@ -126,14 +139,656 @@ class Config {
 *|                                     Member                                       |
 *====================================================================================
 */
-    pegParser                                                  _pegParser;
-    std::map<std::string, std::string (Config::*)()>    _mapTokenListAction;
-    int                                                        _workerProcess;
-    blocEvents                                                 _blocEvents;//required
-    blocHttp                                                   _blocHttp;//if not set as default
-    std::vector<blocServer>                                    _vectorServer;
-    std::map<int, Socket>                                _mapFdSocket;
+    configWebserv&                                             _config;
+    std::map<std::string, std::string (Location::*)()>     _mapTokenListAction;
+    std::string                                                 _root;//path of this location
+    std::vector<std::string>                                    _index;// set name of specific index file
 };
 
-setLogFile("/webserv/config_content_server/for_var/log/log_error.txt");//@todo add log
-#endif //WEBSERVER_CONFIG_CLASS_HPP
+/*
+*==========================================================================================================
+*|                                                  listen data                                           |
+*==========================================================================================================
+*/
+
+
+struct Listen {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of configServer.class class
+ *
+ * Listen(Config& config, std::string& input);
+ *
+ * @param   input is a string reference extract befor;
+ * @param   config is config webserv reference
+ * @throw   none
+ **/
+    Listen(configWebserv&, std::string&);
+/**
+ * Constructor of configServer.class class
+ *
+ * Listen(Config& config, std::string& default_input);
+ *
+ * @param   input is a default string ;
+ * @param   config is config webserv reference
+ * @throw   none
+ **/
+    Listen(configWebserv&, std::string);
+
+/**
+* Destructor of Listen.class class
+*
+* Listen*
+* @throw   none
+**/
+    ~Listen();
+
+/**
+ * Constructor of configServer.class class
+ *
+ * Listen(const Listen & Listen);
+ *
+ * @param   listenData &
+ * @throw   none
+ **/
+    Listen(const Listen&);
+
+/**
+* Destructor of Listen.class class
+*
+*  Listen& operator=(const Listen& Listen);
+*
+* @param   listenData&
+* @throw   none
+**/
+    Listen& operator=(const Listen&);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Listen.class class
+ *
+ * std::string parseListenData();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string parseListenData();
+
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+
+    configWebserv&          _config;
+    std::stringstream       _input;
+    std::string             _ipAddress;
+    int                     _port;
+    AbaseSocket           _socket;
+};
+
+
+/*
+*==========================================================================================================
+*|                                                  bloc serverSocket                                           |
+*==========================================================================================================
+*/
+
+
+struct Server : public Epoll{
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+    Server();
+
+/**
+ * Constructor of configServer.class class
+ *
+ * Server(pegParser& pegParser);
+ *
+ * @param   configWebserv&
+ * @throw   none
+ **/
+    Server(configWebserv&);
+
+/**
+* Destructor of Server.class class
+*
+* Server*
+* @throw   none
+**/
+    ~Server();
+
+/**
+ * Constructor of configServer.class class
+ *
+ * Server(const Server & Server);
+ *
+ * @param   blocServer &
+ * @throw   none
+ **/
+    Server(const Server&);
+
+/**
+* Destructor of Server.class class
+*
+*  Server& operator=(const Server& Server);
+*
+* @param   blocServer&
+* @throw   none
+**/
+    Server& operator=(const Server&);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+    virtual bool EpollWait(int  timeOut);
+/**
+ * Public methode of Server.class class
+ *
+ * std::string parseBlocServer();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string parseBlocServer();
+
+/**
+ * Public methode of Server.class class
+ *
+ * std::string addMultimapListen();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       bloc_exception if name already exist
+ */
+    std::string addVectorListen();
+
+/**
+ * Public methode of Server.class class
+ *
+ * std::string addVectorServerName();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addVectorServerName();
+
+/**
+ * Public methode of Server.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string setRoot();
+
+
+/**
+ * Public methode of Server.class class
+ *
+ * std::string addVectorBlocLocation();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addMapBlocLocation();
+
+/**
+ * Public methode of Config struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapToken();
+
+/**
+ * Public methode of Http class
+ *
+ * void setDefaultValue();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setDefaultValue();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (Server::*)()>   _mapTokenListAction;
+    std::vector<Listen>                                _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<std::string>                                _vectorServerName;// store all serverSocket name
+    std::string                                             _root;//path of repo defaut of serverSocket
+    std::map<std::string, Location>                    _mapBlocLocation;
+    int                                                        _epollInstance;
+};
+
+
+
+/*
+*==========================================================================================================
+*|                                                  bloc HTTP                                             |
+*==========================================================================================================
+*/
+
+
+
+struct Http {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of Http.class class
+ *
+ * Http(pegParser& pegParser);
+ *
+ * @param   peg_parser
+ * @throw   none
+ **/
+    Http(configWebserv&);
+
+/**
+* Destructor of Http.class class
+*
+* Http.class.class();
+*
+* @throw   none
+**/
+    ~Http();
+
+/**
+ * Copy constructor of Http class
+ *
+ * Http(const Http &);
+ *
+ * @param   blocHttp instance to build the serverSocket
+ * @throw   none
+ **/
+    Http(Http&);
+
+/**
+ * Operator overload= of Http class
+ *
+ * Http(const Http &);
+ *
+ * @param   blocHttp instance const to copy the serverSocket
+ * @throw   none
+ **/
+    Http& operator=(const Http &);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Http.class class
+ *
+ * std::string parseBlocHttp();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string parseBlocHttp();
+
+/**
+ * Public methode of Http.class class
+ *
+ * std::string addVectorBlocServer();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addVectorBlocServer();
+
+/**
+ * Public methode of Config struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapToken();
+
+/**
+ * Public methode of Http class
+ *
+ * void setDefaultValue();
+ *
+ * std::string ip =  "127.0.0.1";
+ * int port = 8081;
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setDefaultValue();
+
+
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (Http::*)()>     _mapTokenListAction;
+    std::map<const int, Server>                         _mapBlocServer;//no default value
+    int                                                     _selectBlocServer;
+    std::map<int, int>                                      _mapClientSocket;
+    int                                                     _numberMaxEvents;
+};
+
+
+
+/*
+*==========================================================================================================
+*|                                                  bloc events                                           |
+*==========================================================================================================
+*/
+
+
+
+
+struct Events {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of Events.class class
+ *
+ * Events(Config&);
+ *
+ * @param   peg_parser &
+ * @throw   none
+ **/
+    Events(configWebserv&);
+
+/**
+* Destructor of Events.class class
+*
+*   Events*
+* @throw   none
+**/
+    ~Events();
+
+/**
+ * Copy constructor of Events class
+ *
+ * Events(const Events &);
+ *
+ * @param   blocEvents instance to build the serverSocket
+ * @throw   none
+ **/
+    Events(Events &);
+
+/**
+ * Operator overload= of Events class
+ *
+ * Events(const Events &);
+ *
+ * @param   blocEvents instance const to copy the serverSocket
+ * @throw   none
+ **/
+    Events& operator=(const Events &);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Events class
+ *
+ * std::string parseBlocEvents() ;
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string parseBlocEvents() ;
+
+/**
+ * Public methode of Events class
+ *
+ * std::string setWorkerConnections() ;
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string setWorkerConnections() ;
+
+/**
+ * Public methode of Events struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapToken();
+
+/**
+ * Public methode of Events class
+ *
+ * void setDefaultValue();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setDefaultValue();
+
+
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    configWebserv&                                          _config;
+    std::map<std::string, std::string (Events::*)()>    _mapTokenListAction;
+    int                                                     _workerConnections;//if not define default 10 else accept >o and < 11
+};
+
+
+
+/*
+*==========================================================================================================
+*|                                                  Config Webserv                                        |
+*==========================================================================================================
+*/
+
+
+
+struct Config {
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of Config class
+ *
+ * Config();
+ *
+ * @param   void
+ * @throw   none
+ **/
+    Config();
+
+/**
+ * Constructor of Config class
+ *
+ * Config(std::string &);
+ *
+ * @param   path_config_file is a std::string is a path to config file
+ *          specified at start of webserv
+ * @throw   none
+ **/
+    Config(std::string &);
+
+/**
+* Destructor of Config class
+*
+* Config @throw   none
+**/
+    ~Config();
+
+/**
+ * Copy constructor of Config class
+ *
+ * Config(Config &);
+ *
+ * @param   configWebserv instance to build the serverSocket
+ * @throw   none
+ **/
+    Config(Config &);
+
+/**
+ * Operator overload= of Config class
+ *
+ * Config& operator=(const Config &);
+ *
+ * @param   configWebserv instance const to copy the serverSocket
+ * @throw   none
+ **/
+    Config& operator=(const Config &);
+
+/*
+*====================================================================================
+*|                                  Element access                                  |
+*====================================================================================
+*/
+
+/**
+ * Protected methode of Config struct
+ *
+ * std::string parseBlocEvent();
+ *
+ * @returns     void
+ * @param       void
+ */
+    std::string parseBlocEvent();
+
+/**
+ * Protected methode of Config struct
+ *
+ * std::string parseBlocHttp();
+ *
+ * @returns     void
+ * @param       void
+ */
+    std::string parseBlocHttp();
+
+/**
+ * Protected methode of Config struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setWorkerProcesses();
+
+/**
+ * Public methode of Config struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapToken();
+
+/**
+ * Public methode of Config struct
+ *
+ * void setDefaultValue();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setDefaultValue();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    PegParser                                           _pegParser;
+    std::map<std::string, std::string (Config::*)()>    _mapTokenListAction;
+    int                                                 _workerProcess;
+    Events                                              _blocEvents;//required
+    Http                                                _blocHttp;//if not set as default
+    std::vector<Server>                                 _vectorServer;
+};
+
+
+//        data.setType(SOCK_STREAM);
+//        data.setProtocol(0);
+//        data.setBacklog(10);
+//        data.setAddress(AF_INET, 8081);
+//        data.setLevel(SOL_SOCKET);
+//        data.setOptionName(SO_REUSEADDR);
+//        data.setOptionVal(1);
+//        serverSocket serv(data);
+
+
+#endif //WEBSERV_CONFIG_HPP

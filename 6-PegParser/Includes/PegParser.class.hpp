@@ -1,9 +1,9 @@
 #pragma once
 
-#ifndef WEBSERV_PEG_PARSER_HPP
-#define WEBSERV_PEG_PARSER_HPP
+#ifndef WEBSERV_PEGPARSER_HPP
+#define WEBSERV_PEGPARSER_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/Headers.hpp"
 
 class PegParser {
 
