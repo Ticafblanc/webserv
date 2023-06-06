@@ -11,16 +11,18 @@
 *====================================================================================
 */
 
-Epoll::Epoll() : _epollInstanceFd(), _maxEvents(10), _events(new epoll_event[_maxEvents]), _numberTriggeredEvents() {}
+Epoll::Epoll() : epoll_event(), _epollInstanceFd(), _maxEvents(10), _events(new epoll_event[_maxEvents]),
+_numberTriggeredEvents() {}
 
 Epoll::Epoll(std::vector<Socket> &sock, int maxEvents)
-: _epollInstanceFd(), _maxEvents(maxEvents), _events(new epoll_event[_maxEvents]), _numberTriggeredEvents() {
+: epoll_event(), _epollInstanceFd(), _maxEvents(maxEvents), _events(new epoll_event[_maxEvents]),
+_numberTriggeredEvents() {
     createEpollInstance(static_cast<int>(sock.size()));
     for (std::vector<Socket>::iterator it = sock.begin();
     it != sock.end() ; ++it) {
-        setEpollCtl(EPOLL_CTL_ADD, *it) ;
+        setEpollEvent(it->getSocket(), EPOLLIN);
+        setEpollCtl(EPOLL_CTL_ADD) ;
     }
-
 }
 
 Epoll::~Epoll() {
@@ -28,13 +30,12 @@ Epoll::~Epoll() {
 }
 
 Epoll::Epoll(const Epoll &other)
-: _epollInstanceFd(other._epollInstanceFd), _maxEvents(other._maxEvents), _events(other._events), _numberTriggeredEvents(other._numberTriggeredEvents) {
-
-
-}
+: epoll_event(other),  _epollInstanceFd(other._epollInstanceFd), _maxEvents(other._maxEvents),
+_events(other._events), _numberTriggeredEvents(other._numberTriggeredEvents) {}
 
 Epoll &Epoll::operator=(const Epoll &rhs) {
     if (this != &rhs) {
+        epoll_event::operator=(rhs);
         this->_epollInstanceFd = rhs._epollInstanceFd;
         this->_maxEvents = rhs._maxEvents;
         delete[] this->_events;
@@ -71,20 +72,23 @@ Epoll::epollException &Epoll::epollException::operator=(const Epoll::epollExcept
 *====================================================================================
 */
 
+void Epoll::setEpollEvent(int socket, int flag){
+    data.fd = socket;
+    events = flag;
+}
+
 void Epoll::createEpollInstance(int nbr) {
     _epollInstanceFd = epoll_create(nbr);
     if (_epollInstanceFd == -1)
         throw epollException(strerror(errno));
 }
 
-void Epoll::setEpollCtl(int  option, Socket & sock) const {
-//    epoll_event ev;
-//    ev.data.fd = sock.data.fd;
-//    ev.events = sock.events;
-    if (epoll_ctl(_epollInstanceFd, option, sock.data.fd, &sock) == -1){
+void Epoll::setEpollCtl(int  option){
+    if (epoll_ctl(_epollInstanceFd, option, data.fd, this) == -1){
 //        close (_epollInstanceFd);
         throw epollException(strerror(errno));
     }
+
 }
 
 bool Epoll::EpollWait(int timeOut) {
@@ -101,7 +105,7 @@ bool Epoll::EpollWait() {
     return (_numberTriggeredEvents > 0);
 }
 
-epoll_event *Epoll::getEvents() const {
+epoll_event *Epoll::getEvents()  {
     return _events;
 }
 

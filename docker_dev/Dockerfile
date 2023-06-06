@@ -30,8 +30,8 @@ RUN apt-get update \
     curl \
     && apt-get clean
 
-EXPOSE 8081
-
+EXPOSE 8081 \
+        8080
 #-p 0.0.0.0:8081:8081
 
 #set the webserv config content

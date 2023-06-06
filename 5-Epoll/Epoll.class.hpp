@@ -10,7 +10,7 @@
 #include "0-Main/Includes/Headers.hpp"
 #include "7-Socket/Socket.class.hpp"
 
-class Epoll {
+class Epoll :public epoll_event {
 
 /*>*******************************private section**********************************/
 
@@ -173,6 +173,28 @@ public:
 */
 
 /**
+ * Private methode of socket class
+ *
+ * set epollEvent instance with 7-Socket and type of event to follow
+ * before to add a epollEvent to 5-Epoll
+ *
+ * int setEpollEvent(int & socket_socket, struct epoll_event & event, int & events);
+ *
+ * @returns void
+ * @param   flag is int to add to the event
+ *          EPOLLIN the event occurs when data can be read from the file descriptor
+ *          EPOLLOUT the event occurs when data can be written to the file descriptor
+ *          EPOLLERR the event occurs when there is an error on the file descriptor
+ *          EPOLLRDHUP the event occurs when the connection is closed by the remote peer
+ *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
+ *          EPOLLET edge triggering mode
+ *          EPOLLONESHOT single trigger mode
+ *
+ * @throws  socket::socketException
+ * */
+    void setEpollEvent(int socket, int flag);
+
+/**
  * create an instance of 5-Epoll in _epollInstance and
  * return a file descriptor to new instance of 5-Epoll
  *
@@ -197,7 +219,7 @@ public:
  * @param   sock instance of 7-Socket
  * @throw   epollException
  * */
-    void setEpollCtl(int  option, Socket & sock) const;
+    void setEpollCtl(int  option);
 
 /**
  * wait un event in request connect or new event in 7-Socket already open
@@ -209,7 +231,7 @@ public:
  * @param   maxEvents is the maximum number of events to be returned
  * @param   timeOut time to wait event -1 until first event or >0
  * */
-    virtual bool EpollWait(int  timeOut);
+    bool EpollWait(int  timeOut);
     bool EpollWait();
 
 /**
@@ -221,7 +243,7 @@ public:
  * @param   void
  * @throw   none
  * */
-    epoll_event *getEvents() const;
+    epoll_event *getEvents();
 
 /**
  *  get number of triggred events

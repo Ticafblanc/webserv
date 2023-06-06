@@ -17,7 +17,7 @@
 
 #include "0-Main/Includes/Headers.hpp"
 
-class Socket : public epoll_event, public sockaddr_in{
+class Socket {
 
 /*>*******************************private section**********************************/
 
@@ -31,6 +31,9 @@ protected:
 
     std::string     _ipAddress;
     int             _port;
+    sockaddr_in     _sock;
+    int             _socket;
+
 
 /*
 *====================================================================================
@@ -292,7 +295,7 @@ public:
  *
  * @returns return the flag set in socket_socket
  * @param   Command  (cmd) for accessor 7-Socket :
- *          F_SETFD      Set the file descriptor flags to arg.
+ *          F_SETFl      Set the file descriptor flags to arg.
  *          F_GETFL      Get descriptor status flags, as described below (arg is ignored).
  *
  * @param   Flag for accessor 7-Socket :
@@ -309,27 +312,7 @@ public:
  * */
     void accessorSocketFlag(int  command, int  flag) const;
 
-/**
- * Private methode of socket class
- *
- * set epollEvent instance with 7-Socket and type of event to follow
- * before to add a epollEvent to 5-Epoll
- *
- * int setEpollEvent(int & socket_socket, struct epoll_event & event, int & events);
- *
- * @returns void
- * @param   flag is int to add to the event
- *          EPOLLIN the event occurs when data can be read from the file descriptor
- *          EPOLLOUT the event occurs when data can be written to the file descriptor
- *          EPOLLERR the event occurs when there is an error on the file descriptor
- *          EPOLLRDHUP the event occurs when the connection is closed by the remote peer
- *          EPOLLHUP the event occurs when the file descriptor is closed by the local peer
- *          EPOLLET edge triggering mode
- *          EPOLLONESHOT single trigger mode
- *
- * @throws  socket::socketException
- * */
-    void setEpollEvent(int flag);
+
 
     void acceptConnection();
 
