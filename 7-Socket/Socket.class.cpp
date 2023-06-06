@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Socket.Aclass.hpp"
+#include "7-Socket/Socket.class.hpp"
 
 /*
 *====================================================================================
@@ -19,32 +19,31 @@
 */
 
 Socket::Socket()
-: epoll_event(), sockaddr_in(), _ipAddress(), _port(), _Server(*(new Server)) {}
+: epoll_event(), sockaddr_in(), _ipAddress(), _port(){}
 
-Socket::Socket(Server& Server, std::string & ipAddr, int & port)
-: epoll_event(), sockaddr_in(), _ipAddress(ipAddr), _port(port), _Server(Server){
+Socket::Socket(std::string & ipAddr, int & port)
+: epoll_event(), sockaddr_in(), _ipAddress(ipAddr), _port(port){
     buildServerSocket();
 }
 
-Socket::Socket(Server& Server, epoll_event & event)
-: epoll_event(event), sockaddr_in(), _port(), _blocServer(Server){
+Socket::Socket(epoll_event & event)
+: epoll_event(event), sockaddr_in(), _port(){
     buildClientSocket();
 }
 
 Socket::~Socket() {
-    delete &_blocServer;
-    closeSocket();
+//    closeSocket();
 }
 
 Socket::Socket(const Socket &other)
-        : epoll_event(other), sockaddr_in(other), _port(), _blocServer(other._blocServer) {}
+        : epoll_event(other), sockaddr_in(other), _ipAddress(other._ipAddress), _port(other._port){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
         epoll_event::operator=(rhs);
         sockaddr_in::operator=(rhs);
-        delete &this->_blocServer;
-        this->_blocServer = rhs._blocServer;
+        this->_ipAddress = rhs._ipAddress;
+        this->_port = rhs._port;
     }
     return *this;
 }
@@ -108,7 +107,13 @@ void Socket::setSocketOption() {
 }
 
 void Socket::setBind() {
-    if (bind(data.fd, reinterpret_cast<struct sockaddr *>(this), sizeof(*this)) < 0){
+    sockaddr_in sok;
+    socklen_t  addressLen = sizeof(sok);
+    memset(&sok.sin_zero, 0, sizeof(sok.sin_zero));
+    sok.sin_family = sin_family;
+    sok.sin_addr.s_addr = sin_addr.s_addr;
+    sok.sin_port = sin_port;
+    if (bind(data.fd, reinterpret_cast<struct sockaddr *>(&sok), addressLen) < 0){
         close(data.fd);
         throw socketException(strerror(errno));
     }
@@ -162,15 +167,15 @@ void Socket::buildClientSocket() {
     getSockaddrIn();
     accessorSocketFlag(F_SETFL, O_NONBLOCK);
     setEpollEvent(EPOLLIN | EPOLLET);
-    _blocServer.setEpollCtl(EPOLL_CTL_ADD, *this);
-    _blocServer._config._mapFdSocket.insert(data.fd, *this);
-    _blocServer._maxEvents--;
+//    _blocServer.setEpollCtl(EPOLL_CTL_ADD, *this);
+//    _blocServer._config._mapFdSocket.insert(data.fd, *this);
+//    _blocServer._maxEvents--;
 }
 
 void Socket::closeSocket() const {
-    _blocServer._maxEvents++;
-    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
-    _blocServer._config._mapFdSocket.erase(data.fd);
+//    _blocServer._maxEvents++;
+//    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
+//    _blocServer._config._mapFdSocket.erase(data.fd);
     close(data.fd);
 }
 

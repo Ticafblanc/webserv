@@ -7,7 +7,8 @@
 #ifndef WEBSERVER_EPOLL_HPP
 #define WEBSERVER_EPOLL_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/Headers.hpp"
+#include "7-Socket/Socket.class.hpp"
 
 class Epoll {
 
@@ -60,7 +61,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    Epoll(std::vector<serverSocket> & sock, int maxEvents);
+    Epoll(std::vector<Socket> & sock, int maxEvents);
 
 /**
  * Copy constructor of 5-Epoll class

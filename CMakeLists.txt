@@ -13,22 +13,21 @@ set(    UTILS
         1-Utils/Sources/Utils.cpp)
 
 set(    LOG
-        2-Log/Sources/Log.class.cpp)
+        2-Log/Log.class.cpp)
 
 set(    CONFIG
-        3-Config/Sources/Config.class.cpp)
+        3-Config/Config.class.cpp)
 
 set(    HTTP)
 
-set(    EPOLL)
+set(    EPOLL
+        5-Epoll/Epoll.class.cpp)
 
 set(    PEG
-        6-PegParser/Sources/PegParser.class.cpp)
+        6-PegParser/PegParser.class.cpp)
 
 set(    SOCKET
-        7-Socket/Sources/serverSocket.class.cpp
-        7-Socket/Sources/Socket.Aclass.cpp
-        7-Socket/Sources/clientSocket.class.cpp)
+        7-Socket/Socket.class.cpp)
 
 set(    EXCEPTION
         8-Exception/Sources/Exception.cpp)

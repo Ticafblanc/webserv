@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../Includes/Config.class.hpp"
+#include "3-Config/Config.class.hpp"
 
 
 /*
@@ -76,16 +76,7 @@ void Location::setDefaultValue() {
 *==========================================================================================================
 */
 
-Listen::Listen(Server& server) : _config(server._config) {}
-
-Listen::Listen(Config& config, std::string & input)
-        : _config(config), _input(input), _ipAddress(), _port(0), _socket(<#initializer#>) {}
-
-Listen::Listen(Config& config, std::string defaultInput)
-        : _config(config), _input(defaultInput), _ipAddress(), _port(0), _socket(<#initializer#>) {
-    parseListenData();
-
-}
+Listen::Listen(Config& config) : _config(config), _ipAddress(), _port() {}
 
 Listen::~Listen() {}
 //todo manage close fd at end of programme
@@ -100,30 +91,27 @@ Listen::~Listen() {}
 //    int socket_isopen();
 
 Listen::Listen(const Listen& other)
-        : _config(other._config), _input(other._input.str()), _ipAddress(other._ipAddress),
-          _port(other._port), _serverSocket(other._serverSocket), _sockaddress(other._sockaddress),
-          _socket(<#initializer#>) {}
+        : _config(other._config), _ipAddress(other._ipAddress),
+          _port(other._port){}
 
 Listen &Listen::operator=(const Listen & rhs) {
     this->_config = rhs._config;
-    this->_input.str() = rhs._input.str();
     this->_ipAddress = rhs._ipAddress;
     this->_port = rhs._port;
-    this->_serverSocket = rhs._serverSocket;
-    this->_sockaddress = rhs._sockaddress;
     return *this;
 }
 
 std::string Listen::parseListenData() {
-    std::string port;
-    std::getline(_input >> std::ws, _ipAddress, ':');
-    _input >> port >> std::ws;
-    _port = std::atoi(port.c_str());
     //@todo check port and ip
     return std::string("");
 }
 
-std::string Listen::parseListenData(string &) {
+std::string Listen::parseListenData(std::string in) {
+    std::stringstream input(in);
+    std::string port;
+    std::getline(input >> std::ws, _ipAddress, ':');
+    input >> port >> std::ws;
+    _port = std::atoi(port.c_str());
     return std::string();
 }
 
@@ -134,26 +122,28 @@ std::string Listen::parseListenData(string &) {
 *==========================================================================================================
 */
 
-Server::Server() : _config(*(new Config) ) {}
+//Server::Server() : _config(*(new Config) ) {}
 
 Server::Server(Config&  config)
-        : _config(config), _vectorListen(), _vectorServerName(),
-          _root(), _mapBlocLocation(){
+:_config(config), _mapTokenListAction(), _vectorServerSocket(), _vectorServerName(),
+_root(), _mapBlocLocation(){
     setMapToken();
 }
 
 Server::~Server() {}
 
 Server::Server(const Server& other)
-        : _config(other._config), _vectorListen(other._vectorListen),
-          _vectorServerName(), _root(), _mapBlocLocation(){}
+        : _config(other._config), _mapTokenListAction(other._mapTokenListAction), _vectorServerSocket(other._vectorServerSocket),
+          _vectorServerName(other._vectorServerName), _root(other._root), _mapBlocLocation(other._mapBlocLocation){}
 
 Server &Server::operator=(const Server & rhs) {
-    this->_config = rhs._config;
-    this->_vectorListen = rhs._vectorListen;
-    this->_vectorServerName = rhs._vectorServerName;
-    this->_root = rhs._root;
-    this->_mapBlocLocation = rhs._mapBlocLocation;
+    if (this != &rhs) {
+        this->_mapTokenListAction = rhs._mapTokenListAction;
+        this->_vectorServerSocket = rhs._vectorServerSocket;
+        this->_vectorServerName = rhs._vectorServerName;
+        this->_root = rhs._root;
+        this->_mapBlocLocation = rhs._mapBlocLocation;
+    }
     return *this;
 }
 
@@ -188,7 +178,6 @@ std::string Server::setRoot(){
 }
 
 std::string Server::addMapBlocLocation() {
-    this->_numberTriggeredEvents = 0;
     std::string path = _config._pegParser.extractData('{');
     //@todo check path ....
     Location Location(_config);
@@ -201,7 +190,8 @@ std::string Server::addMapBlocLocation() {
 void Server::setDefaultValue(std::string address) {
     Listen lisdef(_config);
     lisdef.parseListenData(address);
-    _vectorListen.push_back(lisdef);
+    Socket sock1(lisdef._ipAddress, lisdef._port);
+    _vectorServerSocket.push_back(sock1);
     _vectorServerName.push_back("sever_name.com") ;
     _root = "/usr/local/var/www";
     Location locdef(_config);
@@ -215,9 +205,6 @@ void Server::setMapToken() {
     _mapTokenListAction["location"] =  &Server::addMapBlocLocation;
 }
 
-bool Server::EpollWait(int timeOut) {
-    return Epoll::EpollWait(timeOut);
-}
 
 /*
 *==========================================================================================================
@@ -226,7 +213,7 @@ bool Server::EpollWait(int timeOut) {
 */
 
 
-Types::Types(std::string pathFile) : _peg(pathFile), _mapMimeType(){
+Types::Types(std::string pathFile) : _peg(pathFile.c_str()), _mapMimeType(){
     parseBlocTypes();
 }
 
@@ -244,7 +231,7 @@ std::string Types::parseBlocTypes() {
     std::string value;
     std::string token;
 
-    while (!_peg.checkIsEmpty()) {
+    while (!_peg.checkIsEndOfBloc('}')) {
         value = _peg.extractData(0);
         token = _peg.extractData(';');
         _mapMimeType[token] = value;
@@ -258,8 +245,8 @@ std::string Types::parseBlocTypes() {
 *==========================================================================================================
 */
 
-
-Http::Http(Config& config) : _config(config), _mapTokenListAction(), _Types("conf/mime.types"),
+std::string path("/webserv/config_content_server/for_etc/webserv/conf/mime.types");
+Http::Http(Config& config) : _config(config), _mapTokenListAction(), _vecPairServerEpoll(), _Types(path),
 _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
     setMapToken();
 }
@@ -267,11 +254,13 @@ _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1
 Http::~Http() {}
 
 Http::Http(Http &other)
-        : _config(other._config), _mapTokenListAction(other._mapTokenListAction), _Types(other._Types),
+        : _config(other._config), _mapTokenListAction(other._mapTokenListAction),
+        _vecPairServerEpoll(other._vecPairServerEpoll), _Types(other._Types),
           _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){}
 
 Http &Http::operator=(const Http &rhs) {
     this->_mapTokenListAction = rhs._mapTokenListAction;
+    this->_vecPairServerEpoll = rhs._vecPairServerEpoll;
     this->_Types = rhs._Types;
     this->_clientBodyBufferSize = rhs._clientBodyBufferSize;
     this->_clientHeaderBufferSize = rhs._clientHeaderBufferSize;
@@ -291,18 +280,20 @@ std::string Http::addVectorBlocServer() {
     if (value.empty()) {
         Server buildBlocServer(_config);
         value = buildBlocServer.parseBlocServer();
-        _config._vectorServer.push_back(buildBlocServer);
+//        _config._vectorServer.push_back(buildBlocServer);
     }
     return value;
 }
 
 void Http::setDefaultValue() {
     Server Server1(_config);
-    Server1.setDefaultValue("127.0.0.1:8080");
-    _config._vectorServer.push_back(Server1);
+    Server1.setDefaultValue("0.0.0.0:8080");
+    Epoll epoll(Server1._vectorServerSocket, _config._Events._workerConnections);
+    _vecPairServerEpoll.push_back(std::make_pair(Server1, epoll));
     Server Server2(_config);
-    Server2.setDefaultValue("127.0.0.1:8081");
-    _config._vectorServer.push_back(Server2);
+    Server2.setDefaultValue("0.0.0.0:8081");
+    Epoll epoll2(Server2._vectorServerSocket, _config._Events._workerConnections);
+    _vecPairServerEpoll.push_back(std::make_pair(Server2, epoll2));
 }
 
 void Http::setMapToken() {
@@ -363,9 +354,13 @@ void Events::setMapToken() {
 *==========================================================================================================
 */
 
-Config::Config(std::string &pathConfigFile) : _pegParser(pathConfigFile.c_str(), "#"),
+//Config::Config() : _pegParser(), _mapTokenListAction(), _workerProcess(),
+//_errorLog("logs/error.logs"), _pidLog("logs/webserv.pid"), _Events(*this),
+//_Http(*this){}
+
+Config::Config(std::string &pathConfigFile, char ** envp) : _pegParser(/*pathConfigFile.c_str(), "#"*/),
 _mapTokenListAction(), _workerProcess(1), _errorLog("logs/error.logs"), _pidLog("logs/webserv.pid"),
-_Events(*this), _Http(*this), _vectorServer() {
+_Events(*this), _Http(*this), _enp(setEnvp(envp)) {
     if (!pathConfigFile.empty()) {
         setMapToken();
         while (!_pegParser.checkIsEmpty()) {
@@ -380,7 +375,7 @@ Config::~Config() {}
 Config::Config(Config & other)
         : _pegParser(other._pegParser),_mapTokenListAction(other._mapTokenListAction),
           _workerProcess(other._workerProcess), _errorLog(other._errorLog), _pidLog(other._pidLog),
-          _Events(other._Events), _Http(other._Http), _vectorServer(other._vectorServer){}
+          _Events(other._Events), _Http(other._Http){}
 
 Config &Config::operator=(const Config &rhs) {
     this->_pegParser = rhs._pegParser;
@@ -390,7 +385,6 @@ Config &Config::operator=(const Config &rhs) {
     this->_pidLog = rhs._pidLog;
     this->_Events = rhs._Events;
     this->_Http = rhs._Http;
-    this->_vectorServer = rhs._vectorServer;
     return *this;
 }
 
@@ -431,5 +425,20 @@ void Config::setMapToken() {
     _mapTokenListAction["worker_processes"] = &Config::setWorkerProcesses;
     _mapTokenListAction["events"] = &Config::parseBlocEvent;
     _mapTokenListAction["http"] = &Config::parseBlocHttp;
+}
+
+char** Config::setEnvp(char **envp){
+    if (envp) {
+        std::vector<char *> vecEnvp;
+        for (int i = 0; envp[i] != NULL; ++i) {
+            char * tmp = strdup(envp[i]);
+            vecEnvp.push_back(tmp);
+        }
+        vecEnvp.push_back(NULL);
+        char **newEnvp = new char *[vecEnvp.size()];
+        std::copy(vecEnvp.begin(), vecEnvp.end(), newEnvp);
+        return newEnvp;
+    }
+    return NULL;
 }
 

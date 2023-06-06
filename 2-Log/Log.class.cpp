@@ -3,7 +3,7 @@
 //
 
 
-#include "../Includes/Log.class.hpp"
+#include "2-Log/Log.class.hpp"
 
 Log::Log() {}
 

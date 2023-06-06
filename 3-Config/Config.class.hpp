@@ -15,8 +15,10 @@
 #ifndef WEBSERV_CONFIG_HPP
 #define WEBSERV_CONFIG_HPP
 
-#include "0-Main/Includes/webserv.hpp"
-#include "6-PegParser/Includes/PegParser.class.hpp"
+#include "0-Main/Includes/Headers.hpp"
+#include "5-Epoll/Epoll.class.hpp"
+#include "7-Socket/Socket.class.hpp"
+#include "6-PegParser/PegParser.class.hpp"
 
 struct Config;
 struct Server;
@@ -141,7 +143,7 @@ struct Location {
 *|                                     Member                                       |
 *====================================================================================
 */
-    configWebserv&                                             _config;
+    Config&                                                 _config;
     std::map<std::string, std::string (Location::*)()>     _mapTokenListAction;
     std::string                                                 _root;//path of this location
     std::vector<std::string>                                    _index;// set name of specific index file
@@ -154,7 +156,7 @@ struct Location {
 */
 
 
-struct Listen : public serverSocket {
+struct Listen {
 
 
 /*
@@ -172,17 +174,7 @@ struct Listen : public serverSocket {
  * @param   config is config webserv reference
  * @throw   none
  **/
-    Listen(Server&);
-/**
- * Constructor of configServer.class class
- *
- * Listen(Config& config, std::string& default_input);
- *
- * @param   input is a default string ;
- * @param   config is config webserv reference
- * @throw   none
- **/
-    Listen(Config&, std::string);
+    Listen(Config& config);
 
 /**
 * Destructor of Listen.class class
@@ -228,7 +220,7 @@ struct Listen : public serverSocket {
  * @throw       none
  */
     std::string parseListenData();
-    std::string parseListenData(std::string&);
+    std::string parseListenData(std::string in);
 
 
 /*
@@ -237,7 +229,9 @@ struct Listen : public serverSocket {
 *====================================================================================
 */
 
-    Config&          _config;
+    Config&         _config;
+    std::string     _ipAddress;
+    int             _port;
 };
 
 
@@ -248,7 +242,7 @@ struct Listen : public serverSocket {
 */
 
 
-struct Server : public Epoll{
+struct Server{
 
 
 /*
@@ -265,7 +259,7 @@ struct Server : public Epoll{
  * @param   none
  * @throw   none
  **/
-    Server();
+//    Server();
 
 /**
  * Constructor of configServer.class class
@@ -311,7 +305,7 @@ struct Server : public Epoll{
 *====================================================================================
 */
 
-    virtual bool EpollWait(int  timeOut);
+
 /**
  * Public methode of Server.class class
  *
@@ -397,7 +391,7 @@ struct Server : public Epoll{
 */
     Config&                                             _config;
     std::map<std::string, std::string (Server::*)()>    _mapTokenListAction;
-    std::vector<Listen>                                 _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<Socket>                                 _vectorServerSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                            _vectorServerName;// store all serverSocket name
     std::string                                         _root;//path of repo defaut of serverSocket
     std::map<std::string, Location>                     _mapBlocLocation;
@@ -604,6 +598,7 @@ struct Http {
 */
     Config&                                             _config;
     std::map<std::string, std::string (Http::*)()>      _mapTokenListAction;
+    std::vector<std::pair<Server, Epoll> >              _vecPairServerEpoll;
     Types                                               _Types;
     int                                                 _clientBodyBufferSize;
     int                                                 _clientHeaderBufferSize;
@@ -736,6 +731,7 @@ struct Config {
 *====================================================================================
 */
 
+//    Config();
 /**
  * Constructor of Config class
  *
@@ -745,7 +741,7 @@ struct Config {
  *          specified at start of webserv
  * @throw   none
  **/
-    Config(std::string &);
+    Config(std::string &, char ** envp);
 
 /**
 * Destructor of Config class
@@ -833,6 +829,18 @@ struct Config {
  */
     void setDefaultValue();
 
+
+/**
+ * Public methode of Config struct
+ *
+ * setEnvp(char **envp)
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    char** setEnvp(char **envp);
+
 /*
 *====================================================================================
 *|                                     Member                                       |
@@ -845,7 +853,7 @@ struct Config {
     std::string                                         _pidLog;
     Events                                              _Events;
     Http                                                _Http;
-    std::vector<Server>                                 _vectorServer;
+    char **                                             _enp;
 };
 
 

@@ -77,12 +77,16 @@ static int checkOption(int argc, char **argv){
     return 0;
 }
 
-//static void launcher(Config & config) {
-//    while(true) {
-//        for (std::vector<Server>::iterator it = config._vectorServer.begin();
-//        it != config._vectorServer.end(); ++it) {
-//            try {
-//                EpollWait(200);
+static void launcher(Config & config) {
+    (void)config;
+    while(true) {
+        for ( std::vector<std::pair<Server, Epoll> >::iterator it = config._Http._vecPairServerEpoll.begin();
+        it != config._Http._vecPairServerEpoll.end(); ++it) {
+            try {
+                std::cout << "fd = " << it->first._vectorServerSocket.begin()->data.fd << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
+                if(it->second.EpollWait(2000)) {
+                    std::cout << "event = " << it->second.getEvents()->data.fd << std::endl;
+                }
 //                if(it->EpollWait(200)){
 //                    for (int i = 0; i < it->getNumberTriggeredEvents(); ++i) {
 //                        std::map<int, Socket>::iterator tok = config._mapFdSocket.find(it->_epoll.getEvents()[i].data.fd);
@@ -98,12 +102,13 @@ static int checkOption(int argc, char **argv){
 //                        }
 //                    }
 //                }
-//            }catch (std::exception & e){
-////                writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
-//            }
-//        }
-//    }
-//}
+            }catch (std::exception & e){
+                std::cerr << e.what() << std::endl;
+//                writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
+            }
+        }
+    }
+}
 
 int main(int argc, char **argv, char **envp){
     (void)envp;
@@ -117,9 +122,10 @@ int main(int argc, char **argv, char **envp){
         pathConfigFile = selectPath(argv, positionPathFileConfig);
         try {
             Config webserv(pathConfigFile, envp);//@todo add path to constructo after the test
-//            launcher(webserv);//@todo manage thread
+            launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {
+            std::cerr << e.what() << std::endl;
 //            writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
         }
     }

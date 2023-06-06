@@ -15,7 +15,7 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/Headers.hpp"
 
 class Socket : public epoll_event, public sockaddr_in{
 
@@ -31,7 +31,6 @@ protected:
 
     std::string     _ipAddress;
     int             _port;
-    Server&         _Server;
 
 /*
 *====================================================================================
@@ -69,7 +68,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    Socket(Server& Server, string &ipAddr, int &port);
+    Socket(std::string &ipAddr, int &port);
 
 /**
  * Constructor of 7-Socket class
@@ -80,7 +79,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    Socket(Server& Server, epoll_event &event);
+    Socket(epoll_event &event);
 
 /**
  * Destructor of 7-Socket class
@@ -372,18 +371,6 @@ public:
  * @param   void
  * */
     void closeSocket() const;
-
-/**
- * Private methode of socket class
- *
- * virtual void manageEvent(epoll_event & event, 7-Socket & sock) = 0;
- *
- *
- * @returns void
- * @param   void
- * */
-    virtual void manageEvent(epoll_event & event) = 0;
-
 
 };
 

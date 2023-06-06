@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2023-06-02.
 //
 
-#include "5-Epoll/Includes/Epoll.class.hpp"
+#include "5-Epoll/Epoll.class.hpp"
 
 
 /*
@@ -13,10 +13,10 @@
 
 Epoll::Epoll() : _epollInstanceFd(), _maxEvents(10), _events(new epoll_event[_maxEvents]), _numberTriggeredEvents() {}
 
-Epoll::Epoll(std::vector<serverSocket> &sock, int maxEvents)
+Epoll::Epoll(std::vector<Socket> &sock, int maxEvents)
 : _epollInstanceFd(), _maxEvents(maxEvents), _events(new epoll_event[_maxEvents]), _numberTriggeredEvents() {
     createEpollInstance(static_cast<int>(sock.size()));
-    for (std::vector<serverSocket>::iterator it = sock.begin();
+    for (std::vector<Socket>::iterator it = sock.begin();
     it != sock.end() ; ++it) {
         setEpollCtl(EPOLL_CTL_ADD, *it) ;
     }
@@ -24,7 +24,7 @@ Epoll::Epoll(std::vector<serverSocket> &sock, int maxEvents)
 }
 
 Epoll::~Epoll() {
-    delete[] _events;
+//    delete[] _events;
 }
 
 Epoll::Epoll(const Epoll &other)
@@ -78,8 +78,11 @@ void Epoll::createEpollInstance(int nbr) {
 }
 
 void Epoll::setEpollCtl(int  option, Socket & sock) const {
-    if (epoll_ctl(_epollInstanceFd, option, sock.getSocket(), &sock) == -1){
-        close (_epollInstanceFd);
+//    epoll_event ev;
+//    ev.data.fd = sock.data.fd;
+//    ev.events = sock.events;
+    if (epoll_ctl(_epollInstanceFd, option, sock.data.fd, &sock) == -1){
+//        close (_epollInstanceFd);
         throw epollException(strerror(errno));
     }
 }
