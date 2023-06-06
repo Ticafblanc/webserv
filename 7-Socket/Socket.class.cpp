@@ -171,5 +171,9 @@ void Socket::closeSocket() const {
 }
 
 
+bool Socket::operator()(const Socket& socket) const {
+    return socket._socket == this->_socket;
+}
+
 
 

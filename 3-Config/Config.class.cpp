@@ -205,6 +205,22 @@ void Server::setMapToken() {
     _mapTokenListAction["location"] =  &Server::addMapBlocLocation;
 }
 
+void Server::manageEvent(epoll_event &event){
+    if (!isNewClient(event)){
+
+    }
+    //reponse request
+}
+
+
+bool Server::isNewClient(epoll_event &event){
+    std::vector<Socket>::iterator itSocket = std::find_if(_vectorServerSocket.begin(),
+                                                          _vectorServerSocket.end(),
+                                                          Socket(event));
+    if (itSocket != _vectorServerSocket.end()){
+        it->
+    }
+}
 
 /*
 *==========================================================================================================

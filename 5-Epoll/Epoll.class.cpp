@@ -20,8 +20,7 @@ _numberTriggeredEvents() {
     createEpollInstance(static_cast<int>(sock.size()));
     for (std::vector<Socket>::iterator it = sock.begin();
     it != sock.end() ; ++it) {
-        setEpollEvent(it->getSocket(), EPOLLIN);
-        setEpollCtl(EPOLL_CTL_ADD) ;
+        addSocket(it->getSocket());
     }
 }
 
@@ -113,5 +112,9 @@ int Epoll::getNumberTriggeredEvents() const {
     return _numberTriggeredEvents;
 }
 
+void Epoll::addSocket(int socket){
+    setEpollEvent(socket, EPOLLIN);
+    setEpollCtl(EPOLL_CTL_ADD) ;
+}
 
 

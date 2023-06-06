@@ -355,6 +355,15 @@ public:
  * */
     void closeSocket() const;
 
+/**
+ * Private methode of socket class
+ *
+ * bool operator()(const Socket& socket) const ;
+ *
+ * @returns void
+ * @param   socket instance
+ * */
+    bool operator()(const Socket& socket) const ;
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP

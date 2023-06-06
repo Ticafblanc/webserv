@@ -256,6 +256,16 @@ public:
  * */
     int getNumberTriggeredEvents() const;
 
+/**
+ * add socket to Epoll
+ *
+ * void addSocket(int socket);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void addSocket(int socket);
 };
 
 

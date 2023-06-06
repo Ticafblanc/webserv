@@ -384,6 +384,17 @@ struct Server{
  */
     void setDefaultValue(std::string addess);
 
+/**
+ * Public methode of Http class
+ *
+ * bool isNewClient(epoll_event &event);
+ *
+ * @returns     true is a new socket
+ * @param       event  check
+ * @throw       none
+ */
+    bool isNewClient(epoll_event &event);
+
 /*
 *====================================================================================
 *|                                     Member                                       |
@@ -395,6 +406,8 @@ struct Server{
     std::vector<std::string>                            _vectorServerName;// store all serverSocket name
     std::string                                         _root;//path of repo defaut of serverSocket
     std::map<std::string, Location>                     _mapBlocLocation;
+
+
 };
 
 

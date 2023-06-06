@@ -86,10 +86,13 @@ static void launcher(Config & config) {
                 std::cout << "fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
                 if(it->second.EpollWait(2000)) {
                     std::cout << "event = " << it->second.getEvents()->data.fd << std::endl;
+                    for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
+                        if (!it->first.isNewClient(it->second.getEvents()[i])){
+
+                        }
+                    }
                 }
-////                if(it->EpollWait(200)){
-////                    for (int i = 0; i < it->getNumberTriggeredEvents(); ++i) {
-////                        std::map<int, Socket>::iterator tok = config._mapFdSocket.find(it->_epoll.getEvents()[i].data.fd);
+////
 ////                        if (tok != config._mapFdSocket.end())
 ////                            tok->second.manageEvent(it->_epoll.getEvents()[i], tok->second);
 ////                        else {
