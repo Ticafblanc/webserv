@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   httpRequest.class.hpp                              :+:      :+:    :+:   */
+/*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -45,7 +45,7 @@
 *==========================================================================================================
 */
 
-class httpRequest {
+class HttpRequest {
 
 /*>*******************************private section**********************************/
 
@@ -56,7 +56,7 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    clientSocket&                                          _client;
+    Server&                                                _server;
     ssize_t                                                _bytes_exchange;
     std::string                                            _buffer;
 
@@ -78,8 +78,8 @@ private:
     std::string                                             _header_buffer;
 //    std::string                                             _body_buffer;
     std::vector<std::string>                                _vector_body_buffer_next;
-    std::map<std::string, std::string (httpRequest::*)()>  _mapTokenListActionMethode;
-    std::map<std::string, std::string (httpRequest::*)()>  _map_token_list_action_information;
+    std::map<std::string, std::string (HttpRequest::*)()>  _mapTokenListActionMethode;
+    std::map<std::string, std::string (HttpRequest::*)()>  _map_token_list_action_information;
 
 
 /*
@@ -102,7 +102,7 @@ private:
     void recvData();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * manage event like receive data
  *
@@ -130,7 +130,7 @@ private:
     void set_reply();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * add headers befor send
  *
@@ -143,7 +143,7 @@ private:
     void set_content();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * set headers befor send
  *
@@ -156,7 +156,7 @@ private:
     void set_header();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * add buffer to send
  *
@@ -169,7 +169,7 @@ private:
     std::string add_status_code();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * add buffer to send
  *
@@ -182,7 +182,7 @@ private:
     std::string add_content_info();
 
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * add buffer to send
  *
@@ -194,7 +194,7 @@ private:
  * */
     std::string add_connection();
 /**
- * Private methode of httpRequest class
+ * Private methode of HttpRequest class
  *
  * add buffer to send
  *
@@ -207,7 +207,7 @@ private:
     void set_buffer();
 
 /**
- * Public methode of httpRequest struct
+ * Public methode of HttpRequest struct
  *
  * void set_map_status_code();
  *
@@ -217,7 +217,7 @@ private:
  */
     void set_map_status_code();
 /**
- * Public methode of httpRequest struct
+ * Public methode of HttpRequest struct
  *
  * void set_map_content_type();
  *
@@ -228,7 +228,7 @@ private:
     void set_map_content_type();
 
 /**
- * Public methode of httpRequest struct
+ * Public methode of HttpRequest struct
  *
  * void set_map_token_methode();
  *
@@ -239,7 +239,7 @@ private:
     void set_map_token_methode();
 
 /**
- * Public methode of httpRequest struct
+ * Public methode of HttpRequest struct
  *
  * void set_map_token_information();
  *
@@ -250,7 +250,7 @@ private:
     void set_map_token_information();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string get_methode();
  *
@@ -261,7 +261,7 @@ private:
     std::string get_methode();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string post_methode();
  *
@@ -272,7 +272,7 @@ private:
     std::string post_methode();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string delete_methode();
  *
@@ -283,7 +283,7 @@ private:
     std::string delete_methode();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string extract_http_version();
  *
@@ -293,7 +293,7 @@ private:
  */
     std::string extract_unused_information();
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string extract_location();
  *
@@ -304,7 +304,7 @@ private:
     std::string extract_location();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string extract_http_version();
  *
@@ -315,7 +315,7 @@ private:
     std::string extract_http_version();
 
 /**
- * Protected methode of httpRequest class
+ * Protected methode of HttpRequest class
  *
  * std::string connection_information();
  *
@@ -336,43 +336,43 @@ public:
 */
 
 /**
- * Constructor of httpRequest class
+ * Constructor of HttpRequest class
  *
- * httpRequest(Server &  server);
+ * HttpRequest(Server &  server);
  *
  * @param   blocServer &
  * @throw   none
  **/
-    httpRequest(clientSocket & client);
+    HttpRequest(clientSocket & client);
 
 /**
-* Destructor of httpRequest class
+* Destructor of HttpRequest class
 *
-* httpRequest);
+* HttpRequest);
 *
 * @throw   none
 **/
-    ~httpRequest();
+    ~HttpRequest();
 
 /**
- * Copy constructor of httpRequest class
+ * Copy constructor of HttpRequest class
  *
- * httpRequest(const httpRequest &);
+ * HttpRequest(const HttpRequest &);
  *
  * @param   http_request instance to build the server
  * @throw   none
  **/
-    httpRequest(const httpRequest &);
+    HttpRequest(const HttpRequest &);
 
 /**
- * Operator overload= of httpRequest class
+ * Operator overload= of HttpRequest class
  *
- * httpRequest(const httpRequest &);
+ * HttpRequest(const HttpRequest &);
  *
  * @param   http_request instance const to copy the server
  * @throw   none
  **/
-    httpRequest& operator=(const httpRequest &);
+    HttpRequest& operator=(const HttpRequest &);
 
 /*
 *====================================================================================
@@ -414,7 +414,7 @@ public:
 
 
 /**
- * Class exception of httpRequest class
+ * Class exception of HttpRequest class
  *
  * class httpRequestException;
  *

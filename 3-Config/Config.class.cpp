@@ -124,20 +124,23 @@ std::string Listen::parseListenData(std::string in) {
 
 //Server::Server() : _config(*(new Config) ) {}
 
-Server::Server(Config&  config)
-:_config(config), _mapTokenListAction(), _vectorServerSocket(), _vectorServerName(),
-_root(), _mapBlocLocation(){
+Server::Server(Config &config)
+: _config(config), _epoll(*(new Epoll)), _mapTokenListAction(), _vectorServerSocket(),
+  _vectorServerName(), _root(), _mapBlocLocation() {
     setMapToken();
 }
 
-Server::~Server() {}
+Server::~Server() {
+//    delete[] &_epoll;
+}
 
 Server::Server(const Server& other)
-        : _config(other._config), _mapTokenListAction(other._mapTokenListAction), _vectorServerSocket(other._vectorServerSocket),
+        : _config(other._config), _epoll(other._epoll), _mapTokenListAction(other._mapTokenListAction), _vectorServerSocket(other._vectorServerSocket),
           _vectorServerName(other._vectorServerName), _root(other._root), _mapBlocLocation(other._mapBlocLocation){}
 
 Server &Server::operator=(const Server & rhs) {
     if (this != &rhs) {
+        this->_epoll = rhs._epoll;
         this->_mapTokenListAction = rhs._mapTokenListAction;
         this->_vectorServerSocket = rhs._vectorServerSocket;
         this->_vectorServerName = rhs._vectorServerName;
@@ -207,19 +210,45 @@ void Server::setMapToken() {
 
 void Server::manageEvent(epoll_event &event){
     if (!isNewClient(event)){
-
+        if (!isClient(event))
+            return;
     }
     //reponse request
 }
-
 
 bool Server::isNewClient(epoll_event &event){
     std::vector<Socket>::iterator itSocket = std::find_if(_vectorServerSocket.begin(),
                                                           _vectorServerSocket.end(),
                                                           Socket(event));
-    if (itSocket != _vectorServerSocket.end()){
-        it->
+    if (itSocket != _vectorServerSocket.end()) {
+        if ((!(event.events & EPOLLERR)) || (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)) {
+            Socket newClientSocket(event);
+            _epoll.addSocket(newClientSocket.getSocket());
+            _vectorClientSocket.push_back(newClientSocket);
+            return true;
+        } else {
+            std::cerr << "error event at connexion " << std::endl;
+        }
     }
+    return false;
+}
+
+bool Server::isClient(epoll_event &event) {
+    std::vector<Socket>::iterator itSocket = std::find_if(_vectorClientSocket.begin(),
+                                                          _vectorClientSocket.end(),
+                                                          Socket(event));
+    if (itSocket != _vectorServerSocket.end()) {
+        if ((!(event.events & EPOLLERR)) || (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)) {
+
+            return true;
+        } else {
+            close(itSocket->getSocket());
+            _epoll.removeSocket(itSocket->getSocket());
+            _vectorClientSocket.erase(itSocket);//@todo manage close socket
+        }
+
+    }
+    return false;
 }
 
 /*
@@ -305,10 +334,12 @@ void Http::setDefaultValue() {
     Server Server1(_config);
     Server1.setDefaultValue("0.0.0.0:8080");
     Epoll epoll(Server1._vectorServerSocket, _config._Events._workerConnections);
+    Server1._epoll = epoll;
     _vecPairServerEpoll.push_back(std::make_pair(Server1, epoll));
     Server Server2(_config);
     Server2.setDefaultValue("0.0.0.0:8081");
     Epoll epoll2(Server2._vectorServerSocket, _config._Events._workerConnections);
+    Server2._epoll = epoll2;
     _vecPairServerEpoll.push_back(std::make_pair(Server2, epoll2));
 }
 

@@ -266,6 +266,8 @@ public:
  * @throw   none
  * */
     void addSocket(int socket);
+
+    void removeSocket(int socket);
 };
 
 

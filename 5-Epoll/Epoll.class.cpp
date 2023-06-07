@@ -117,4 +117,9 @@ void Epoll::addSocket(int socket){
     setEpollCtl(EPOLL_CTL_ADD) ;
 }
 
+void Epoll::removeSocket(int socket){
+    setEpollEvent(socket, EPOLLIN);
+    setEpollCtl(EPOLL_CTL_DEL) ;
+}
+
 

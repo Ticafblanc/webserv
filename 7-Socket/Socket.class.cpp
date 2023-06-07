@@ -32,6 +32,9 @@ Socket::Socket(epoll_event & event)
 }
 
 Socket::~Socket() {
+    std::cout   << "erase client socket = "<< _socket
+                <<" ip address = "<< _ipAddress
+                << " port = "  << _port<< std::endl;
 //    closeSocket();
 }
 
@@ -90,6 +93,9 @@ void Socket::setSockaddrIn() {
 void Socket::getSockaddrIn() {
     _ipAddress = inet_ntoa(_sock.sin_addr);
     _port = ntohs(_sock.sin_port);
+    std::cout   << "add client socket = "<< _socket
+                <<" ip address = "<< _ipAddress
+                << " port = "  << _port<< std::endl;
 }
 
 void Socket::setSocket() {
@@ -131,8 +137,8 @@ void Socket::accessorSocketFlag(int command, int flag) const {
 }
 
 void Socket::acceptConnection() {
-    socklen_t  addressLen = sizeof(*this);
-    int fd = accept(_socket, reinterpret_cast<struct sockaddr *>(this), &addressLen);
+    socklen_t  addressLen = sizeof(_sock);
+    int fd = accept(_socket, reinterpret_cast<struct sockaddr *>(&_sock), &addressLen);
     if (fd == -1) {
         closeSocket();
         throw socketException(strerror(errno));
@@ -175,5 +181,12 @@ bool Socket::operator()(const Socket& socket) const {
     return socket._socket == this->_socket;
 }
 
+int Socket::getPort() const {
+    return _port;
+}
+
+const string &Socket::getIpAddress() const {
+    return _ipAddress;
+}
 
 

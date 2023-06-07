@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   httpRequest.class.cpp                              :+:      :+:    :+:   */
+/*   HttpRequest.class.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -11,16 +11,16 @@
 /* ************************************************************************** */
 
 
-#include "4-Http/Includes/httpRequest.class.hpp"
+#include "HttpRequest.class.hpp"
 
 
 /*
 *==========================================================================================================
-*|                                                  httpRequest                                          |
+*|                                                  HttpRequest                                          |
 *==========================================================================================================
 */
 
-httpRequest::httpRequest(clientSocket & client)
+HttpRequest::HttpRequest(clientSocket & client)
 : _client(client), _map_status_code(), _map_content_type(), _status_code(200), _content_type("html"),
 _buffer(){
     set_map_status_code();
@@ -29,11 +29,11 @@ _buffer(){
     set_map_token_methode();
 }//@todo manage buffer
 
-httpRequest::~httpRequest() {}
+HttpRequest::~HttpRequest() {}
 
-httpRequest::httpRequest(const httpRequest & other) : _client(other._client),  _status_code(other._status_code){}
+HttpRequest::HttpRequest(const HttpRequest & other) : _client(other._client), _status_code(other._status_code){}
 
-httpRequest &httpRequest::operator=(const httpRequest &rhs) {
+HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
     this->_client = rhs._client;
     this->_status_code = rhs._status_code;
     return *this;
@@ -45,7 +45,7 @@ httpRequest &httpRequest::operator=(const httpRequest &rhs) {
 *====================================================================================
 */
 
-void httpRequest::manageRequest() {
+void HttpRequest::manageRequest() {
     recvData();
     pegParser peg(_buffer);
     //@todo set in try
@@ -54,49 +54,49 @@ void httpRequest::manageRequest() {
     }
 }
 
-void httpRequest::recvData(){
+void HttpRequest::recvData(){
     char buffer[1024 + 1];//@todo update value
     _bytes_exchange = recv(_client.data.fd, buffer, 1024, 0);
     if (_bytes_exchange == 0 )//close connection
-        throw httpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException(strerror(errno));
     if (_bytes_exchange == -1)//bad request
-        throw httpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException(strerror(errno));
     if (_bytes_exchange > 1024)//check headrs befor throw
-        throw httpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException(strerror(errno));
     buffer[_bytes_exchange] ='\0';
     _buffer = buffer;
 //    std::cout << " client  >> " << client_socket<< " recv >>> \n"  << buffer << _buffer.size()<<bytes_received<< "\n"<< std::endl;
 }
 
-void httpRequest::send_data_client(int client_socket){
+void HttpRequest::send_data_client(int client_socket){
     std::cout << " client  >> " << client_socket << " send >>> \n" << _buffer << _buffer.find('\0')<<  "\n"<<std::endl;
 
     ssize_t bytes_send = send(client_socket, (void *)_buffer.data(), 764, 0);
     if (bytes_send == -1) {
-        throw httpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException(strerror(errno));
     }
     for (std::vector<std::string>::iterator buffer = _vector_body_buffer_next.begin();
          buffer != _vector_body_buffer_next.end(); ++buffer) {
         bytes_send = send(client_socket, (void *)_buffer.data(), _buffer.size(), 0);
         if (bytes_send == -1) {
-            throw httpRequest::httpRequestException(strerror(errno));
+            throw HttpRequest::httpRequestException(strerror(errno));
         }
     }
 }
 
-void httpRequest::set_reply() {
+void HttpRequest::set_reply() {
     set_content();
     set_header();
     set_buffer();
 }
 
-std::string httpRequest::add_status_code() {
+std::string HttpRequest::add_status_code() {
     std::string code(_map_status_code.find(_status_code)->second);
     code += "\r\n";
     return code;
 }
 
-std::string httpRequest::add_content_info() {
+std::string HttpRequest::add_content_info() {
     if(_content.empty())
         return std::string();
     std::string info("Content-Type: ");
@@ -109,13 +109,13 @@ std::string httpRequest::add_content_info() {
     return info;
 }
 
-std::string httpRequest::add_connection() {
+std::string HttpRequest::add_connection() {
     std::string connection("Connection: ");
     connection += _connection;
     return connection;
 }
 
-void httpRequest::set_header() {
+void HttpRequest::set_header() {
     std::string header_tmp;
     header_tmp += "HTTP/1.1 ";
     header_tmp += add_status_code();
@@ -129,19 +129,19 @@ void httpRequest::set_header() {
     header_tmp += "\r\n";
 
     if (header_tmp.size() > 1024)//@todo update value
-        throw httpRequest::httpRequestException("headers to large");
+        throw HttpRequest::httpRequestException("headers to large");
 //    std::fill(_header_buffer.begin(), _header_buffer.end(), '\0');
     _header_buffer = header_tmp;
 }
 
-void httpRequest::set_content() {
+void HttpRequest::set_content() {
 //    std::fill(_body_buffer.begin(), _body_buffer.end(), '\0');
 //    if (!_content.empty()) {
 //        _body_buffer.replace(0, _content.size(), _content);
 //    }
 }
 
-void httpRequest::set_buffer() {
+void HttpRequest::set_buffer() {
     _buffer = _header_buffer + _content;
 //    std::fill(_buffer.begin(), _buffer.end(), '\0');
 //    _buffer.replace(0, _header_buffer.find('\0'), _header_buffer);
@@ -152,7 +152,7 @@ void httpRequest::set_buffer() {
 
 
 
-void httpRequest::set_map_status_code() {
+void HttpRequest::set_map_status_code() {
 
     /**
      * https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
@@ -322,7 +322,7 @@ void httpRequest::set_map_status_code() {
     _map_status_code[505] = "HTTP Version Not Supported";
 }
 
-void httpRequest::set_map_content_type() {
+void HttpRequest::set_map_content_type() {
     _map_content_type["plain"] = "text/plain";
     _map_content_type["html"] = "text/html";
     _map_content_type["css"] = "text/css";
@@ -339,44 +339,44 @@ void httpRequest::set_map_content_type() {
     _map_content_type["form-data"] = "multipart/form-data";
 }
 
-void httpRequest::set_map_token_methode() {
-    _mapTokenListActionMethode["GET"] = &httpRequest::get_methode;
-    _mapTokenListActionMethode["POST"] = &httpRequest::post_methode;
-    _mapTokenListActionMethode["DELETE"] = &httpRequest::delete_methode;
+void HttpRequest::set_map_token_methode() {
+    _mapTokenListActionMethode["GET"] = &HttpRequest::get_methode;
+    _mapTokenListActionMethode["POST"] = &HttpRequest::post_methode;
+    _mapTokenListActionMethode["DELETE"] = &HttpRequest::delete_methode;
 }
 
-void httpRequest::set_map_token_information() {
-    _map_token_list_action_information["Host:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["User-Agent:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Accept:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Accept-Language:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Accept-Encoding:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Connection:"] = &httpRequest::connection_information;
-    _map_token_list_action_information["Upgrade-Insecure-Requests:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Dest:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Mode:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-Site:"] = &httpRequest::extract_unused_information;
-    _map_token_list_action_information["Sec-Fetch-User:"] = &httpRequest::extract_unused_information;
+void HttpRequest::set_map_token_information() {
+    _map_token_list_action_information["Host:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["User-Agent:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Accept:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Accept-Language:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Accept-Encoding:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Connection:"] = &HttpRequest::connection_information;
+    _map_token_list_action_information["Upgrade-Insecure-Requests:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Dest:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Mode:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-Site:"] = &HttpRequest::extract_unused_information;
+    _map_token_list_action_information["Sec-Fetch-User:"] = &HttpRequest::extract_unused_information;
 }
 
-std::string httpRequest::extract_unused_information() {
+std::string HttpRequest::extract_unused_information() {
     std::string http_version = peg.extract_data('\n');
     return std::string();
 }
 
-std::string httpRequest::extract_location() {
+std::string HttpRequest::extract_location() {
     return peg.extract_data(' ');
 }
 
-std::string httpRequest::extract_http_version() {
+std::string HttpRequest::extract_http_version() {
     std::string http_version = peg.extract_data('\n');
     http_version.resize(http_version.size() - 1);
     if (http_version != "HTTP/1.1")
-        throw httpRequest::httpRequestException("error version");
+        throw HttpRequest::httpRequestException("error version");
     return http_version;
 }
 
-std::string httpRequest::get_methode() {
+std::string HttpRequest::get_methode() {
     std::string location = extract_location();
     std::string http_version = extract_http_version();
     while (!peg.check_is_empty()) {
@@ -384,7 +384,7 @@ std::string httpRequest::get_methode() {
     }
     std::ifstream file("/usr/local/var/www/index.html");//location
     if (!file) {
-        throw httpRequest::httpRequestException("error location");
+        throw HttpRequest::httpRequestException("error location");
     }
     file.seekg(0, std::ios::end); // Se positionner à la fin du fichier
     _content.clear();
@@ -394,19 +394,19 @@ std::string httpRequest::get_methode() {
     return std::string();
 }
 
-std::string httpRequest::post_methode() {
+std::string HttpRequest::post_methode() {
     std::string location = extract_location();
     std::string http_version = extract_http_version();
     return std::string();
 }
 
-std::string httpRequest::delete_methode() {
+std::string HttpRequest::delete_methode() {
     std::string location = extract_location();
     std::string http_version = extract_http_version();
     return std::string();
 }
 
-std::string httpRequest::connection_information() {
+std::string HttpRequest::connection_information() {
     std::string connection = peg.extract_data('\n');
     _connection = connection.substr(0, connection.size() - 1);
 //    _connection = "close";
@@ -422,15 +422,15 @@ std::string httpRequest::connection_information() {
 *====================================================================================
 */
 
-httpRequest::httpRequestException::httpRequestException(const char * message) : _message(message) {}
+HttpRequest::httpRequestException::httpRequestException(const char * message) : _message(message) {}
 
-httpRequest::httpRequestException::~httpRequestException() throw() {}
+HttpRequest::httpRequestException::~httpRequestException() throw() {}
 
-const char * httpRequest::httpRequestException::what() const throw() { return _message.c_str(); }
+const char * HttpRequest::httpRequestException::what() const throw() { return _message.c_str(); }
 
-httpRequest::httpRequestException::httpRequestException(const httpRequest::httpRequestException & other) : _message(other._message) {}
+HttpRequest::httpRequestException::httpRequestException(const HttpRequest::httpRequestException & other) : _message(other._message) {}
 
-httpRequest::httpRequestException &httpRequest::httpRequestException::operator=(const httpRequest::httpRequestException &rhs) {
+HttpRequest::httpRequestException &HttpRequest::httpRequestException::operator=(const HttpRequest::httpRequestException &rhs) {
     this->_message = rhs._message;
     return *this;
 }

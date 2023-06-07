@@ -16,6 +16,7 @@
 #define WEBSERV_CONFIG_HPP
 
 #include "0-Main/Includes/Headers.hpp"
+//#include "4-Http/HttpRequest.class.hpp"
 #include "5-Epoll/Epoll.class.hpp"
 #include "7-Socket/Socket.class.hpp"
 #include "6-PegParser/PegParser.class.hpp"
@@ -269,7 +270,7 @@ struct Server{
  * @param   configWebserv&
  * @throw   none
  **/
-    Server(Config&);
+    Server(Config &);
 
 /**
 * Destructor of Server.class class
@@ -395,17 +396,34 @@ struct Server{
  */
     bool isNewClient(epoll_event &event);
 
+    bool isClient(epoll_event &event);
+
+
+/**
+ * Public methode of Http class
+ *
+ * void manageEvent(epoll_event &event);
+ *
+ * @returns     void
+ * @param       event to manage
+ * @throw       none
+ */
+    void manageEvent(epoll_event &event);
+
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
     Config&                                             _config;
+    Epoll&                                              _epoll;
     std::map<std::string, std::string (Server::*)()>    _mapTokenListAction;
     std::vector<Socket>                                 _vectorServerSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<Socket>                                 _vectorClientSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                            _vectorServerName;// store all serverSocket name
     std::string                                         _root;//path of repo defaut of serverSocket
     std::map<std::string, Location>                     _mapBlocLocation;
+
 
 
 };
@@ -612,6 +630,7 @@ struct Http {
     Config&                                             _config;
     std::map<std::string, std::string (Http::*)()>      _mapTokenListAction;
     std::vector<std::pair<Server, Epoll> >              _vecPairServerEpoll;
+//    HttpRequest                                         _Http;
     Types                                               _Types;
     int                                                 _clientBodyBufferSize;
     int                                                 _clientHeaderBufferSize;

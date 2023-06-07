@@ -364,6 +364,12 @@ public:
  * @param   socket instance
  * */
     bool operator()(const Socket& socket) const ;
+
+    int getPort() const;
+
+
+    const string &getIpAddress() const;
+
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP
