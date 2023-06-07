@@ -68,8 +68,7 @@ private:
     std::map<int, std::string>                             _map_status_code;
     ssize_t                                                _bytes_exchange;
     std::vector<std::string>                               _buffer;
-    std::map<std::string, std::string (HttpMessage::*)()>  _mapTokenListActionMethode;
-    std::map<std::string, std::string (HttpMessage::*)()>  _mapTokenListActionInformation;
+
 
 
 /*

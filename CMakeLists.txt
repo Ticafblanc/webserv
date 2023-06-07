@@ -16,7 +16,7 @@ set(    LOG
         2-Log/Log.class.cpp)
 
 set(    CONFIG
-        3-Config/Config.class.cpp)
+        3-Config/Config.class.cpp 3-Config/Code.cpp 3-Config/Header.cpp)
 
 set(    HTTP 4-Http/HttpMessage.class.cpp)
 
