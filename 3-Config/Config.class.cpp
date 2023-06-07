@@ -209,45 +209,24 @@ void Server::setMapToken() {
 }
 
 void Server::manageEvent(epoll_event &event){
-    if (!isNewClient(event)){
-        if (!isClient(event))
-            return;
+    if (checkEvent(event)){
+        Socket clientSocket(event);
+        clientSocket.buildClientSocket();
+        HttpMessage message(clientSocket, *this);
+        close(clientSocket.getSocket());
     }
-    //reponse request
+    close(event.data.fd);
 }
 
-bool Server::isNewClient(epoll_event &event){
+bool Server::checkEvent(epoll_event &event){
     std::vector<Socket>::iterator itSocket = std::find_if(_vectorServerSocket.begin(),
                                                           _vectorServerSocket.end(),
                                                           Socket(event));
-    if (itSocket != _vectorServerSocket.end()) {
-        if ((!(event.events & EPOLLERR)) || (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)) {
-            Socket newClientSocket(event);
-            _epoll.addSocket(newClientSocket.getSocket());
-            _vectorClientSocket.push_back(newClientSocket);
-            return true;
-        } else {
-            std::cerr << "error event at connexion " << std::endl;
-        }
-    }
-    return false;
-}
-
-bool Server::isClient(epoll_event &event) {
-    std::vector<Socket>::iterator itSocket = std::find_if(_vectorClientSocket.begin(),
-                                                          _vectorClientSocket.end(),
-                                                          Socket(event));
-    if (itSocket != _vectorServerSocket.end()) {
-        if ((!(event.events & EPOLLERR)) || (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)) {
-
-            return true;
-        } else {
-            close(itSocket->getSocket());
-            _epoll.removeSocket(itSocket->getSocket());
-            _vectorClientSocket.erase(itSocket);//@todo manage close socket
-        }
-
-    }
+    if (itSocket != _vectorServerSocket.end() && ((!(event.events & EPOLLERR)) ||
+    (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)))
+        return true;
+    else
+        std::cerr << "error event at connexion " << event.events << event.data.fd << std::endl;
     return false;
 }
 
@@ -286,13 +265,207 @@ std::string Types::parseBlocTypes() {
 
 /*
 *==========================================================================================================
+*|                                                  Status code                                           |
+*==========================================================================================================
+*/
+
+Code::Code() : _mapStatusCode(), _statusCode(200){
+    setStatusCode();
+}
+
+Code::~Code() {}
+
+Code::Code(Code &other) : _mapStatusCode(other._mapStatusCode){}
+
+Code &Code::operator=(const Code &rhs) {
+    this->_mapStatusCode = rhs._mapStatusCode;
+    return *this;
+}
+
+void Code::setStatusCode() {
+    /**
+     * https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+     */
+
+    /**
+     *  the server has received the client's request headers and is ready
+     * to receive the request body. It allows the client to proceed with sending the request.
+     */
+    _mapStatusCode[100] = "Continue";
+
+    /**
+     * the server agrees to switch to a different protocol, specified in the response's "Upgrade"
+     * header. For example, it can be used when a client requests an upgrade to the WebSocket protocol.
+     */
+    _mapStatusCode[101] = "Switching Protocols";
+
+    /**
+     * the server has received the client's request and is currently processing it, but the final
+     * response is not yet available.
+     */
+    _mapStatusCode[102] = "Processing";
+
+    /**
+     *  the client's request has been successfully processed, and the corresponding response is being returned.
+     */
+    _mapStatusCode[200] = "200 OK";
+
+    /**
+     * the request has been successfully processed and a new resource has been created as a result.
+     * For example, when a new record is created in a database.
+     */
+    _mapStatusCode[201] = "Created";
+
+    /**
+     * the request has been accepted for processing, but the processing is not yet complete.
+     * The final response may be returned later.
+     */
+    _mapStatusCode[202] = "Accepted";
+
+    /**
+     * the request has been successfully processed, but the response does not contain any content to be returned.
+     * For example, when a deletion request is successful but no additional response is needed.
+     */
+    _mapStatusCode[204] = "No Content";
+
+    /**
+     * the response contains only a portion of the requested resource. This typically occurs in
+     * the case of range requests, where the client requests only a specific part of the resource.
+     */
+    _mapStatusCode[206] = "Partial Content";
+
+    /**
+     * the response may contain multiple options, and the client needs to choose from them.
+     * For example, when a URL redirects to multiple other possible URLs.
+     */
+    _mapStatusCode[300] = "Multiple Choices";
+
+    /**
+     * the requested resource has been permanently moved to a new URL.
+     * The client is typically instructed to update its links and use the new URL.
+     */
+    _mapStatusCode[301] = "Moved Permanently";
+
+    /**
+     *  the requested resource has been temporarily moved to a different URL.
+     *  The client is typically instructed to follow the redirection.
+     */
+    _mapStatusCode[302] = "Found";
+
+    /**
+     * the requested resource has not been modified since the client's last request,
+     * and therefore the response is empty. The client can use the locally cached copy of the resource.
+     */
+    _mapStatusCode[304] = "Not Modified";
+
+    /**
+     *  the requested resource has been temporarily moved to a different URL.
+     *  The client is typically instructed to follow the redirection while maintaining
+     *  the original request method.
+     */
+    _mapStatusCode[307] = "Temporary Redirect";
+
+    /**
+     * the requested resource has been permanently moved to a new URL. The client is typically
+     * instructed to follow the redirection while maintaining the original request method.
+     */
+    _mapStatusCode[308] = "Permanent Redirect";
+
+    /**
+     * the client's request is incorrect or malformed and cannot be processed by the server.
+     */
+    _mapStatusCode[400] = "Bad Request";
+
+    /**
+     * authentication is required to access the requested resource, but the client has not
+     * provided valid credentials or is not authorized to access the resource.
+     */
+    _mapStatusCode[401] = " Unauthorized";
+
+    /**
+     * the client is not authorized to access the requested resource,
+     * even after successful authentication.
+     */
+    _mapStatusCode[403] = "Forbidden";
+
+    /**
+     * the requested resource could not be found on the server.
+     */
+    _mapStatusCode[404] = "Not Found";
+
+    /**
+     *  the request method used by the client is not allowed for the requested resource.
+     *  For example, if a client attempts to use a POST method for a resource accept only GET methode
+     */
+    _mapStatusCode[405] = "Method Not Allowed";
+
+    /**
+     * the request cannot be completed due to a conflict with the current state of the resource.
+     * For example, when there is a versioning conflict or a conflict between concurrent requests.
+     */
+    _mapStatusCode[409] = "Conflict";
+
+    /**
+     * the requested resource is no longer available on the server and there is no forwarding address.
+     * It is similar to a 404 error but indicates that the resource is permanently gone.
+     */
+    _mapStatusCode[410] = "Gone";
+
+    /**
+     * the client has sent too many requests within a given time frame and has exceeded the server's
+     * rate limiting policy. It is often used to prevent abuse or to ensure fair usage.
+     */
+    _mapStatusCode[429] = "Too Many Requests";
+
+    /**
+     * an unexpected error occurs on the server that prevents it from fulfilling the client's request.
+     * It indicates a server-side issue.
+     */
+    _mapStatusCode[500] = "Internal Server Error";
+
+    /**
+     * the server does not support the functionality required to fulfill the request.
+     * It typically indicates that the server lacks the capability to handle the requested method.
+     */
+    _mapStatusCode[501] = "Not Implemented";
+
+    /**
+     * the server acting as a gateway or proxy receives an invalid response from an upstream server.
+     */
+    _mapStatusCode[502] = "Bad Gateway";
+
+    /**
+     * the server is temporarily unable to handle the request due to being overloaded or undergoing maintenance.
+     * It indicates a temporary unavailability of the server.
+     */
+    _mapStatusCode[503] = "Service Unavailable";
+
+    /**
+     * the server acting as a gateway or proxy does not receive a timely response from an upstream server.
+     */
+    _mapStatusCode[504] = "Gateway Timeout";
+
+    /**
+     * the server does not support the HTTP protocol version used in the request.
+     */
+    _mapStatusCode[505] = "HTTP Version Not Supported";
+}
+
+std::string &Code::getStatusCode() {
+    return _mapStatusCode[_statusCode];
+}
+
+
+/*
+*==========================================================================================================
 *|                                                  Bloc http                                             |
 *==========================================================================================================
 */
 
 std::string path("/webserv/config_content_server/for_etc/webserv/conf/mime.types");
-Http::Http(Config& config) : _config(config), _mapTokenListAction(), _vecPairServerEpoll(), _Types(path),
-_clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
+Http::Http(Config& config) :
+        _config(config), _mapTokenListAction(), _vecPairServerEpoll(),  _http(config), _status_code(), _types(path),
+        _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
     setMapToken();
 }
 
@@ -300,13 +473,13 @@ Http::~Http() {}
 
 Http::Http(Http &other)
         : _config(other._config), _mapTokenListAction(other._mapTokenListAction),
-        _vecPairServerEpoll(other._vecPairServerEpoll), _Types(other._Types),
-          _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){}
+          _vecPairServerEpoll(other._vecPairServerEpoll), _http(other._http), _status_code(other._status_code),
+          _types(other._types), _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){}
 
 Http &Http::operator=(const Http &rhs) {
     this->_mapTokenListAction = rhs._mapTokenListAction;
     this->_vecPairServerEpoll = rhs._vecPairServerEpoll;
-    this->_Types = rhs._Types;
+    this->_types = rhs._types;
     this->_clientBodyBufferSize = rhs._clientBodyBufferSize;
     this->_clientHeaderBufferSize = rhs._clientHeaderBufferSize;
     this->_clientMaxBodySize = rhs._clientMaxBodySize;
@@ -405,24 +578,26 @@ void Events::setMapToken() {
 //_errorLog("logs/error.logs"), _pidLog("logs/webserv.pid"), _Events(*this),
 //_Http(*this){}
 
-Config::Config(std::string &pathConfigFile, char ** envp) : _pegParser(/*pathConfigFile.c_str(), "#"*/),
-_mapTokenListAction(), _workerProcess(1), _errorLog("logs/error.logs"), _pidLog("logs/webserv.pid"),
-_Events(*this), _Http(*this), _enp(setEnvp(envp)) {
-    if (!pathConfigFile.empty()) {
-        setMapToken();
-        while (!_pegParser.checkIsEmpty()) {
-            _pegParser.findToken(*this, _mapTokenListAction, 0);
-        }
-    }
-    setDefaultValue();
+Config::Config(std::string &pathConfigFile, char ** envp) : _pegParser(pathConfigFile.c_str(), "#"),
+_mapTokenListAction(), _workerProcess(1),
+_pathLog("/webserv/config_content_server/for_var/logs/error.logs"),
+_patherrorLog("/webserv/config_content_server/for_var/logs/error.logs"),
+_pathpidLog("/webserv/config_content_server/for_var/logs/webserv.pid"),
+_Events(*this), _Http(*this), _enp(setEnvp(envp)), _Log(), _errorLog(), _pidLog() {
+    _Log.setLog(_pathLog);
+    _errorLog.setLog(_patherrorLog);
+    _pidLog.setLog(_pathpidLog);
+    _pidLog.writeLogFile(intToString(getpid()));
+
 }
 
 Config::~Config() {}
 
 Config::Config(Config & other)
         : _pegParser(other._pegParser),_mapTokenListAction(other._mapTokenListAction),
-          _workerProcess(other._workerProcess), _errorLog(other._errorLog), _pidLog(other._pidLog),
-          _Events(other._Events), _Http(other._Http){}
+          _workerProcess(other._workerProcess), _pathLog(other._pathLog), _patherrorLog(other._patherrorLog),
+          _pathpidLog(other._pathpidLog), _Events(other._Events), _Http(other._Http),
+          _Log(other._Log), _errorLog(other._Log), _pidLog(other._Log){}
 
 Config &Config::operator=(const Config &rhs) {
     this->_pegParser = rhs._pegParser;
@@ -435,6 +610,13 @@ Config &Config::operator=(const Config &rhs) {
     return *this;
 }
 
+void Config::parseConfig() {
+    setMapToken();
+    while (!_pegParser.checkIsEmpty()) {
+        _pegParser.findToken(*this, _mapTokenListAction, 0);
+    }
+    setDefaultValue();
+}
 
 std::string Config::parseBlocEvent() {
     _mapTokenListAction.erase("events");
@@ -488,4 +670,5 @@ char** Config::setEnvp(char **envp){
     }
     return NULL;
 }
+
 

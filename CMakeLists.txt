@@ -18,7 +18,7 @@ set(    LOG
 set(    CONFIG
         3-Config/Config.class.cpp)
 
-set(    HTTP #[[4-Http/HttpRequest.class.cpp]])
+set(    HTTP 4-Http/HttpMessage.class.cpp)
 
 set(    EPOLL
         5-Epoll/Epoll.class.cpp)

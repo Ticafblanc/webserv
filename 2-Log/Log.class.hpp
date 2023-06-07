@@ -6,7 +6,7 @@
 #ifndef WEBSERVER_LOG_HPP
 #define WEBSERVER_LOG_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/headers.hpp"
 
 
 class Log {
@@ -174,6 +174,16 @@ class LogException : public std::exception {
 *|                                      Methode                                     |
 *====================================================================================
 */
+/**
+ * Public methode of Log class
+ *
+ * void writeLogFile(const std::string& message);
+ *
+ * @returns void
+ * @param message
+ * @throw LogException
+ */
+    void setLog(const string &pathToLogFile);
 
 /**
  * Public methode of Log class
@@ -202,6 +212,7 @@ class LogException : public std::exception {
 *|                                  Element access                                  |
 *====================================================================================
 */
+
 
 };
 

@@ -7,13 +7,6 @@
 
 Log::Log() {}
 
-Log::Log(const string &pathToLogFile) {
-    std::ofstream file(pathToLogFile.c_str(), std::ios::trunc);
-    if (!file.is_open())
-        throw LogException("fail to open file");
-    file.close();
-}
-
 Log::~Log() {}
 
 Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile) {}
@@ -23,6 +16,13 @@ Log &Log::operator=(const Log & rhs) {
     return *this;
 }
 
+void Log::setLog(const string &pathToLogFile) {
+    _pathToLogFile = pathToLogFile;
+    std::ofstream file(pathToLogFile.c_str(), std::ios::trunc);
+    if (!file.is_open())
+        throw LogException("fail to open file");
+    file.close();
+}
 
 void Log::writeLogFile(const std::string& message) {
 

@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   HttpRequest.class.hpp                              :+:      :+:    :+:   */
+/*   HttpMessage.class.hpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mdoquocb <mdoquocb@student.42quebec.com>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef WEBSERV_HTTP_REQUEST_HPP
-#define WEBSERV_HTTP_REQUEST_HPP
+#ifndef WEBSERV_HTTPMESSAGE_HPP
+#define WEBSERV_HTTPMESSAGE_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "3-Config/Config.class.hpp"
 //User-Agent : spécifie l'agent utilisateur (généralement le navigateur) qui envoie la requête
 //Accept : indique les types de contenu que le client peut accepter de la part du serveur
 //        Authorization : fournit des informations d'identification pour l'authentification du client
@@ -32,20 +32,27 @@
 //        send_data_client(new_client_socket,
 //                         set_html_content("/usr/local/var/www/webserv.com/accueille.html"));//@todo set server html root
 //        cgi_pass
-//if (request.disconection())
-//accept_disconnection(_server_events[position].data.fd);
-//send_data_client(_server_events[position].data.fd, request.reply());
-//int                         _stat_of_server;
-//std::map<int, std::string>  _status_code;
-//std::string data;
-//data = recv_data_client(_server_events[position].data.fd);
+
+//https://datatracker.ietf.org/doc/html/rfc2616#section-14.10
+
+
+class HttpMessage;
+
+struct  HttpHeader{
+    std::map<std::string, std::string>
+    HttpHeader() {
+
+    }
+};
+
+
 /*
 *==========================================================================================================
 *|                                                  http token                                        |
 *==========================================================================================================
 */
 
-class HttpRequest {
+class HttpMessage {
 
 /*>*******************************private section**********************************/
 
@@ -56,30 +63,13 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
+    Socket&                                                _socket;
     Server&                                                _server;
+    std::map<int, std::string>                             _map_status_code;
     ssize_t                                                _bytes_exchange;
-    std::string                                            _buffer;
-
-
-
-
-
-
-
-
-
-//    6-PegParser                                              peg;
-    std::map<int, std::string>                              _map_status_code;
-    std::map<std::string , std::string>                     _map_content_type;
-    int                                                     _status_code;
-    std::string                                             _content_type;
-    std::string                                             _connection;
-    std::string                                             _content;
-    std::string                                             _header_buffer;
-//    std::string                                             _body_buffer;
-    std::vector<std::string>                                _vector_body_buffer_next;
-    std::map<std::string, std::string (HttpRequest::*)()>  _mapTokenListActionMethode;
-    std::map<std::string, std::string (HttpRequest::*)()>  _map_token_list_action_information;
+    std::vector<std::string>                               _buffer;
+    std::map<std::string, std::string (HttpMessage::*)()>  _mapTokenListActionMethode;
+    std::map<std::string, std::string (HttpMessage::*)()>  _mapTokenListActionInformation;
 
 
 /*
@@ -102,7 +92,7 @@ private:
     void recvData();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * manage event like receive data
  *
@@ -130,7 +120,7 @@ private:
     void set_reply();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * add headers befor send
  *
@@ -143,7 +133,7 @@ private:
     void set_content();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * set headers befor send
  *
@@ -156,7 +146,7 @@ private:
     void set_header();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * add buffer to send
  *
@@ -169,7 +159,7 @@ private:
     std::string add_status_code();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * add buffer to send
  *
@@ -182,7 +172,7 @@ private:
     std::string add_content_info();
 
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * add buffer to send
  *
@@ -194,7 +184,7 @@ private:
  * */
     std::string add_connection();
 /**
- * Private methode of HttpRequest class
+ * Private methode of HttpMessage class
  *
  * add buffer to send
  *
@@ -207,7 +197,7 @@ private:
     void set_buffer();
 
 /**
- * Public methode of HttpRequest struct
+ * Public methode of HttpMessage struct
  *
  * void set_map_status_code();
  *
@@ -217,7 +207,7 @@ private:
  */
     void set_map_status_code();
 /**
- * Public methode of HttpRequest struct
+ * Public methode of HttpMessage struct
  *
  * void set_map_content_type();
  *
@@ -228,7 +218,7 @@ private:
     void set_map_content_type();
 
 /**
- * Public methode of HttpRequest struct
+ * Public methode of HttpMessage struct
  *
  * void set_map_token_methode();
  *
@@ -239,7 +229,7 @@ private:
     void set_map_token_methode();
 
 /**
- * Public methode of HttpRequest struct
+ * Public methode of HttpMessage struct
  *
  * void set_map_token_information();
  *
@@ -250,7 +240,7 @@ private:
     void set_map_token_information();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string get_methode();
  *
@@ -261,7 +251,7 @@ private:
     std::string get_methode();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string post_methode();
  *
@@ -272,7 +262,7 @@ private:
     std::string post_methode();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string delete_methode();
  *
@@ -283,7 +273,7 @@ private:
     std::string delete_methode();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string extract_http_version();
  *
@@ -293,7 +283,7 @@ private:
  */
     std::string extract_unused_information();
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string extract_location();
  *
@@ -304,7 +294,7 @@ private:
     std::string extract_location();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string extract_http_version();
  *
@@ -315,7 +305,7 @@ private:
     std::string extract_http_version();
 
 /**
- * Protected methode of HttpRequest class
+ * Protected methode of HttpMessage class
  *
  * std::string connection_information();
  *
@@ -336,43 +326,43 @@ public:
 */
 
 /**
- * Constructor of HttpRequest class
+ * Constructor of HttpMessage class
  *
- * HttpRequest(Server &  server);
+ * HttpMessage(Config & config);
  *
- * @param   blocServer &
+ * @param   config &
  * @throw   none
  **/
-    HttpRequest(clientSocket & client);
+    HttpMessage( Socket& socket, Server& server);
 
 /**
-* Destructor of HttpRequest class
+* Destructor of HttpMessage class
 *
-* HttpRequest);
+* HttpMessage);
 *
 * @throw   none
 **/
-    ~HttpRequest();
+    ~HttpMessage();
 
 /**
- * Copy constructor of HttpRequest class
+ * Copy constructor of HttpMessage class
  *
- * HttpRequest(const HttpRequest &);
+ * HttpMessage(const HttpMessage &);
  *
  * @param   http_request instance to build the server
  * @throw   none
  **/
-    HttpRequest(const HttpRequest &);
+    HttpMessage(const HttpMessage &);
 
 /**
- * Operator overload= of HttpRequest class
+ * Operator overload= of HttpMessage class
  *
- * HttpRequest(const HttpRequest &);
+ * HttpMessage(const HttpMessage &);
  *
  * @param   http_request instance const to copy the server
  * @throw   none
  **/
-    HttpRequest& operator=(const HttpRequest &);
+    HttpMessage& operator=(const HttpMessage &);
 
 /*
 *====================================================================================
@@ -414,60 +404,60 @@ public:
 
 
 /**
- * Class exception of HttpRequest class
+ * Class exception of HttpMessage class
  *
- * class httpRequestException;
+ * class httpMessageException;
  *
  * @inherit std::exception
  **/
-    class httpRequestException: public std::exception
+    class httpMessageException: public std::exception
     {
     public:
 
         /**
-         * Constructor of httpRequestException class
+         * Constructor of httpMessageException class
          *
-         * httpRequestException(server & server , const char * message);
+         * httpMessageException(server & server , const char * message);
          *
          * @param   server is a server reference to set the private _server
          *          to manage the close of server class
          *          message to store const char*
          * @throw   none
          **/
-        httpRequestException(const char * message);
+        httpMessageException(const char * message);
 
         /**
-         * Copy constructor of httpRequestException class
+         * Copy constructor of httpMessageException class
          *
-         * httpRequestException(httpRequestException &);
+         * httpMessageException(httpMessageException &);
          *
-         * @param   http_request_exception instance to build the httpRequestException
+         * @param   http_request_exception instance to build the httpMessageException
          *          http_request_socket in an int to close
          * @throw   none
          **/
-        httpRequestException(const httpRequestException &);
+        httpMessageException(const httpMessageException &);
 
         /**
-         * Operator overload= of httpRequestException class
+         * Operator overload= of httpMessageException class
          *
-         * operator=(const httpRequestException&);
+         * operator=(const httpMessageException&);
          *
-         * @param   http_request_exception instance const to copy the httpRequestException
+         * @param   http_request_exception instance const to copy the httpMessageException
          * @throw   none
          **/
-        httpRequestException& operator=(const httpRequestException &);
+        httpMessageException& operator=(const httpMessageException &);
 
         /**
-        * Destructor of httpRequestException class
+        * Destructor of httpMessageException class
         *
-        * virtual httpRequestException throw();
+        * virtual httpMessageException throw();
         *
         * @throw   none
         **/
-        virtual ~httpRequestException() throw();
+        virtual ~httpMessageException() throw();
 
         /**
-         * Public methode of httpRequestException
+         * Public methode of httpMessageException
          *
          * virtual const char * what() const throw();
          *

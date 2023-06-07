@@ -16,7 +16,9 @@
 #define WEBSERV_CONFIG_HPP
 
 #include "0-Main/Includes/Headers.hpp"
-//#include "4-Http/HttpRequest.class.hpp"
+#include "1-Utils/Includes/Utils.hpp"
+#include "2-Log/Log.class.hpp"
+#include "4-Http/HttpMessage.class.hpp"
 #include "5-Epoll/Epoll.class.hpp"
 #include "7-Socket/Socket.class.hpp"
 #include "6-PegParser/PegParser.class.hpp"
@@ -388,13 +390,13 @@ struct Server{
 /**
  * Public methode of Http class
  *
- * bool isNewClient(epoll_event &event);
+ * bool checkEvent(epoll_event &event);
  *
  * @returns     true is a new socket
  * @param       event  check
  * @throw       none
  */
-    bool isNewClient(epoll_event &event);
+    bool checkEvent(epoll_event &event);
 
     bool isClient(epoll_event &event);
 
@@ -419,7 +421,6 @@ struct Server{
     Epoll&                                              _epoll;
     std::map<std::string, std::string (Server::*)()>    _mapTokenListAction;
     std::vector<Socket>                                 _vectorServerSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<Socket>                                 _vectorClientSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
     std::vector<std::string>                            _vectorServerName;// store all serverSocket name
     std::string                                         _root;//path of repo defaut of serverSocket
     std::map<std::string, Location>                     _mapBlocLocation;
@@ -509,6 +510,91 @@ struct Types {
 */
     PegParser                                                  _peg;
     std::map<std::string, std::string>                         _mapMimeType;
+};
+
+struct Code {
+
+
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Constructor of Code.class class
+ *
+ * Code(pegParser& pegParser);
+ *
+ * @param   peg_parser
+ * @throw   none
+ **/
+    Code();
+
+/**
+* Destructor of Code.class class
+*
+* Code.class.class();
+*
+* @throw   none
+**/
+    ~Code();
+
+/**
+ * Copy constructor of Code class
+ *
+ * Code(const Code &);
+ *
+ * @param   blocCode instance to build the serverSocket
+ * @throw   none
+ **/
+    Code(Code&);
+
+/**
+ * Operator overload= of Code class
+ *
+ * Code(const Code &);
+ *
+ * @param   blocCode instance const to copy the serverSocket
+ * @throw   none
+ **/
+    Code& operator=(const Code &);
+
+/*
+*====================================================================================
+*|                                  Element access                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Code.class class
+ *
+ * std::string parseBlocCode();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    void setStatusCode();
+
+/**
+ * Public methode of Code.class class
+ *
+ * std::string & operator[](int code);
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string & getStatusCode();
+
+/*
+*====================================================================================
+*|                                     Member                                       |
+*====================================================================================
+*/
+    std::map<int, std::string>                         _mapStatusCode;
+    int                                                _statusCode;
 };
 
 /*
@@ -630,8 +716,10 @@ struct Http {
     Config&                                             _config;
     std::map<std::string, std::string (Http::*)()>      _mapTokenListAction;
     std::vector<std::pair<Server, Epoll> >              _vecPairServerEpoll;
-//    HttpRequest                                         _Http;
-    Types                                               _Types;
+    HttpMessage                                         _http;
+    int                                                 _status_code;
+    Types                                               _types;
+    Code                                                _code;
     int                                                 _clientBodyBufferSize;
     int                                                 _clientHeaderBufferSize;
     int                                                 _clientMaxBodySize;
@@ -881,11 +969,17 @@ struct Config {
     PegParser                                           _pegParser;
     std::map<std::string, std::string (Config::*)()>    _mapTokenListAction;
     int                                                 _workerProcess;
-    std::string                                         _errorLog;
-    std::string                                         _pidLog;
+    std::string                                         _pathLog;
+    std::string                                         _patherrorLog;
+    std::string                                         _pathpidLog;
     Events                                              _Events;
     Http                                                _Http;
     char **                                             _enp;
+    Log                                                 _Log;
+    Log                                                 _errorLog;
+    Log                                                 _pidLog;
+
+    void parseConfig();
 };
 
 

@@ -28,7 +28,7 @@ Socket::Socket(std::string & ipAddr, int & port)
 
 Socket::Socket(epoll_event & event)
 : _port(), _sock(), _socket(event.data.fd){
-    buildClientSocket();
+//    buildClientSocket();
 }
 
 Socket::~Socket() {

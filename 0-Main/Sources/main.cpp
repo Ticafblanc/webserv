@@ -111,7 +111,6 @@ static void launcher(Config & config) {
 }
 
 int main(int argc, char **argv, char **envp){
-    (void)envp;
     std::string pathConfigFile;
     int         positionPathFileConfig = checkOption(argc, argv);
 
@@ -120,16 +119,19 @@ int main(int argc, char **argv, char **envp){
         signal(SIGTERM, handleExit);
         signal(SIGHUP, handleReload);
         pathConfigFile = selectPath(argv, positionPathFileConfig);
+        Config webserv(pathConfigFile, envp);
         try {
-            Config webserv(pathConfigFile, envp);//@todo add path to constructo after the test
+            if(!pathConfigFile.empty())
+                webserv.parseConfig();
+            else
+                webserv.setDefaultValue();
             launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {
-            std::cerr << e.what() << std::endl;
-//            writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
+            webserv._errorLog.writeLogFile(e.what());
         }
+        webserv._errorLog.printLogFile();
     }
-//    printLogFile("/webserv/config_content_server/for_var/logs/log_error.txt");
     exit(EXIT_FAILURE);
 }
 

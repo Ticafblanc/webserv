@@ -12,6 +12,8 @@ PegParser::PegParser() : _stringStream(), _lineCommentCharacter(){}
 //    : _stringStream(), _lineCommentCharacter(lineCommentCharacter){}
 
 PegParser::PegParser(const char * path_file) : _stringStream(), _lineCommentCharacter() {
+    if (path_file == NULL || strlen(path_file) == 0)
+        return;
     std::ifstream       fileToParse(path_file);
 
     if (!fileToParse.is_open())
@@ -24,6 +26,8 @@ PegParser::PegParser(const char * path_file) : _stringStream(), _lineCommentChar
 
 PegParser::PegParser(const char *path_file , const std::string lineCommentCharacter)
     : _stringStream(), _lineCommentCharacter(lineCommentCharacter) {
+    if (path_file == NULL || strlen(path_file) == 0)
+        return;
     std::ifstream       fileToParse(path_file);
 
     if (!fileToParse.is_open())
