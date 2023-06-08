@@ -63,7 +63,7 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                                                _socket;
+int&                                                        _socket;
     Server&                                                _server;
     std::map<int, std::string>                             _map_status_code;
     ssize_t                                                _bytes_exchange;

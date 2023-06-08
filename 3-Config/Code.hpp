@@ -97,6 +97,7 @@ public:
  * @throw       none
  */
     std::string  getStatusCode() const;
+    int  getCode() const;
 
 /**
  * Public methode of Code.class class

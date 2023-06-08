@@ -78,9 +78,7 @@ static int checkOption(int argc, char **argv){
 }
 
 static void launcher(Config & config) {
-    (void)config;
-    int timeToWait;
-    while(true) {
+    while(config._Http._code.getCode()) {
         for ( std::vector<std::pair<Server, Epoll> >::iterator it = config._Http._vecPairServerEpoll.begin();
         it != config._Http._vecPairServerEpoll.end(); ++it) {
             try {

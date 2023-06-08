@@ -20,8 +20,8 @@
 *==========================================================================================================
 */
 
-HttpMessage::HttpMessage(Socket& socket, Server& server)
-: _socket(socket), _server(server), _status_code(200), _content_type("html"),
+HttpMessage::HttpMessage(int& socket, Server& server)
+: _socket(socket), _server(server)
 _buffer()
     set_map_status_code();
     set_map_content_type();

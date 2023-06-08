@@ -202,8 +202,14 @@ void Code::setStatusCode(int code) {
     _statusCode = code;
 }
 
+int Code::getCode() const {
+    return _statusCode;
+}
+
 void Code::setDefaultPage(int code, const std::string& pathToHtmlPage) {
     if (_mapStatusCode.find(code) != _mapStatusCode.end())
         *const_cast<std::string *>(&_mapStatusCode.at(_statusCode).second) = pathToHtmlPage;
     _mapStatusCode[code] = std::make_pair(intToString(code), pathToHtmlPage);
 }
+
+

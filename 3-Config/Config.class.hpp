@@ -645,7 +645,6 @@ struct Http {
     Config&                                             _config;
     std::map<std::string, std::string (Http::*)(std::string &)>      _mapTokenListAction;
     std::vector<std::pair<Server, Epoll> >              _vecPairServerEpoll;
-    int                                                 _status_code;
     Types                                               _types;
     Code                                                _code;
     int                                                 _clientBodyBufferSize;
