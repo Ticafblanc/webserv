@@ -5,9 +5,14 @@
 #ifndef WEBSERVER_CODE_HPP
 #define WEBSERVER_CODE_HPP
 
+#include "0-Main/Includes/Headers.hpp"
+#include "1-Utils/Includes/Utils.hpp"
 
-struct Code {
+class Code {
 
+/*>********************************public section**********************************/
+
+public:
 
 /*
 *====================================================================================
@@ -63,32 +68,75 @@ struct Code {
 /**
  * Public methode of Code.class class
  *
- * std::string parseBlocCode();
+ * void setStatusCode(int code);
  *
- * @returns     string contain error message
- * @param       void
+ * @returns     void
+ * @param       code
  * @throw       none
  */
-    void setStatusCode();
+    void setDefaultPage(int code, const std::string& pathToHtmlPage);
 
 /**
  * Public methode of Code.class class
  *
- * std::string & operator[](int code);
+ * void setStatusCode(int code);
+ *
+ * @returns     void
+ * @param       code
+ * @throw       none
+ */
+    void setStatusCode(int code);
+
+/**
+ * Public methode of Code.class class
+ *
+ * std::string  getStatusCode();
  *
  * @returns     string contain error message
  * @param       void
  * @throw       none
  */
-    std::string & getStatusCode();
+    std::string  getStatusCode() const;
+
+/**
+ * Public methode of Code.class class
+ *
+ * std::string & getStatusPage();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    const std::string & getStatusPage() const;
+
+
+/*>*******************************private section**********************************/
+
+private:
+/*
+*====================================================================================
+*|                                  Member Fonction                                 |
+*====================================================================================
+*/
+
+/**
+ * Public methode of Code.class class
+ *
+ * void buildStatusCode();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    void buildStatusCode();
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::map<int, std::string>                         _mapStatusCode;
-    int                                                _statusCode;
+    std::map<int, std::pair<const std::string, const std::string> >   _mapStatusCode;
+    int                                                                 _statusCode;
 };
 
 

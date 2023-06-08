@@ -38,14 +38,14 @@ Location &Location::operator=(const Location & rhs) {
 }
 
 
-std::string Location::parseBlocLocation() {
+std::string Location::parseBlocLocation(std::string &) {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
     setDefaultValue();
     return std::string("");
 }
 
-std::string Location::setRoot(){
+std::string Location::setRoot(std::string &){
     _mapTokenListAction.erase("root");
     _root = _config._pegParser.extractData(';');
     //@todo manage error
@@ -53,7 +53,7 @@ std::string Location::setRoot(){
 
 }
 
-std::string Location::addIndex() {
+std::string Location::addIndex(std::string &) {
     _mapTokenListAction.erase("index");
     std::string index = _config._pegParser.extractData(';');
     _index.push_back(index);
@@ -150,14 +150,14 @@ Server &Server::operator=(const Server & rhs) {
     return *this;
 }
 
-std::string Server::parseBlocServer() {
+std::string Server::parseBlocServer(std::string &) {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
 //    setDefaultValue();
     return std::string("");
 }
 
-std::string Server::addVectorListen(){
+std::string Server::addVectorListen(std::string &){
     _mapTokenListAction.erase("listen");
     std::string value = _config._pegParser.extractData(';');
     if (value.empty())
@@ -167,20 +167,20 @@ std::string Server::addVectorListen(){
     return value;
 }
 
-std::string Server::addVectorServerName(){
+std::string Server::addVectorServerName(std::string &){
     std::string server_name = _config._pegParser.extractData(';');
     _vectorServerName.push_back(server_name);
     return std::string("");
 }
 
-std::string Server::setRoot(){
+std::string Server::setRoot(std::string &){
     _mapTokenListAction.erase("root");
     _root = _config._pegParser.extractData(';');
     //@todo manage error
     return std::string("");
 }
 
-std::string Server::addMapBlocLocation() {
+std::string Server::addMapBlocLocation(std::string &) {
     std::string path = _config._pegParser.extractData('{');
     //@todo check path ....
     Location Location(_config);
@@ -208,11 +208,25 @@ void Server::setMapToken() {
     _mapTokenListAction["location"] =  &Server::addMapBlocLocation;
 }
 
-void Server::manageEvent(epoll_event &event){
+void Server::manageEventServer(epoll_event &event){
     if (checkEvent(event)){
         Socket clientSocket(event);
         clientSocket.buildClientSocket();
         HttpMessage message(clientSocket, *this);
+        message.sendToClient();
+        close(clientSocket.getSocket());
+    }
+    close(event.data.fd);
+}
+
+void Server::manageEventProxy(epoll_event &event){
+    if (checkEvent(event)){
+        Socket clientSocket(event);
+        clientSocket.buildClientSocket();
+        HttpMessage message(clientSocket, *this);
+        if (message.findServer())
+            message.sendToServer();
+        message.sendToClient();
         close(clientSocket.getSocket());
     }
     close(event.data.fd);
@@ -280,16 +294,16 @@ std::string Types::parseBlocTypes() {
 
 std::string path("/webserv/config_content_server/for_etc/webserv/conf/mime.types");
 Http::Http(Config& config) :
-        _config(config), _mapTokenListAction(), _vecPairServerEpoll(),  _http(config), _status_code(), _types(path),
-        _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
-    setMapToken();
+        _config(config), _mapTokenListAction(),  _vecPairServerEpoll(), _status_code(),
+        _types(path), _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){
+setMapToken();
 }
 
 Http::~Http() {}
 
 Http::Http(Http &other)
         : _config(other._config), _mapTokenListAction(other._mapTokenListAction),
-          _vecPairServerEpoll(other._vecPairServerEpoll), _http(other._http), _status_code(other._status_code),
+          _vecPairServerEpoll(other._vecPairServerEpoll),  _status_code(other._status_code),
           _types(other._types), _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024), _clientMaxBodySize(1048576){}
 
 Http &Http::operator=(const Http &rhs) {
@@ -302,14 +316,14 @@ Http &Http::operator=(const Http &rhs) {
     return *this;
 }
 
-std::string Http::parseBlocHttp() {
+std::string Http::parseBlocHttp(std::string &) {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
     setDefaultValue();
     return std::string("");
 }
 
-std::string Http::addVectorBlocServer() {
+std::string Http::addVectorBlocServer(std::string &) {
     std::string value = _config._pegParser.extractData('{');
     if (value.empty()) {
         Server buildBlocServer(_config);
@@ -320,6 +334,11 @@ std::string Http::addVectorBlocServer() {
 }
 
 void Http::setDefaultValue() {
+    Server serverProxy(_config);
+    serverProxy.setDefaultValue("0.0.0.0:80");
+    Epoll epollProxy(serverProxy._vectorServerSocket, _config._Events._workerConnections);
+    serverProxy._epoll = epollProxy;
+    _vecPairServerEpoll.push_back(std::make_pair(serverProxy, epollProxy));
     Server Server1(_config);
     Server1.setDefaultValue("0.0.0.0:8080");
     Epoll epoll(Server1._vectorServerSocket, _config._Events._workerConnections);
@@ -361,13 +380,13 @@ Events &Events::operator=(const Events &rhs) {
 }
 
 
-std::string Events::parseBlocEvents() {
+std::string Events::parseBlocEvents(std::string &) {
     while (!_config._pegParser.checkIsEndOfBloc('}'))
         _config._pegParser.findToken(*this, _mapTokenListAction, 0);
     return std::string("");
 }
 
-std::string Events::setWorkerConnections() {
+std::string Events::setWorkerConnections(std::string &) {
     _mapTokenListAction.erase("worker_connections");
     std::string value = _config._pegParser.extractData(';');
     char * end;//@todo to manage error
@@ -399,7 +418,7 @@ _mapTokenListAction(), _workerProcess(1),
 _pathLog("/webserv/config_content_server/for_var/logs/error.logs"),
 _patherrorLog("/webserv/config_content_server/for_var/logs/error.logs"),
 _pathpidLog("/webserv/config_content_server/for_var/logs/webserv.pid"),
-_Events(*this), _Http(*this), _enp(setEnvp(envp)), _Log(), _errorLog(), _pidLog() {
+_Events(*this), _Http(*this), _enp(setEnvp(envp)), _Log(), _errorLog(), _pidLog(){
     _Log.setLog(_pathLog);
     _errorLog.setLog(_patherrorLog);
     _pidLog.setLog(_pathpidLog);
@@ -434,23 +453,23 @@ void Config::parseConfig() {
     setDefaultValue();
 }
 
-std::string Config::parseBlocEvent() {
+std::string Config::parseBlocEvent(std::string & token) {
     _mapTokenListAction.erase("events");
     std::string value = _pegParser.extractData('{');
     if (value.empty())
-        value = _Events.parseBlocEvents();
+        value = _Events.parseBlocEvents(token);
     return value;
 }
 
-std::string Config::parseBlocHttp() {
+std::string Config::parseBlocHttp(std::string & token) {
     _mapTokenListAction.erase("http");
     std::string value = _pegParser.extractData('{');
     if (value.empty())
-        value = _Http.parseBlocHttp();
+        value = _Http.parseBlocHttp(token);
     return value;
 }
 
-std::string Config::setWorkerProcesses() {
+std::string Config::setWorkerProcesses(std::string & token) {
     _mapTokenListAction.erase("worker_processes");
     std::string value = _pegParser.extractData(';');
     char * end;//@todo to manage error

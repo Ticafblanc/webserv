@@ -79,14 +79,15 @@ static int checkOption(int argc, char **argv){
 
 static void launcher(Config & config) {
     (void)config;
+    int timeToWait;
     while(true) {
         for ( std::vector<std::pair<Server, Epoll> >::iterator it = config._Http._vecPairServerEpoll.begin();
         it != config._Http._vecPairServerEpoll.end(); ++it) {
             try {
-                std::cout << "fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
+                std::cout << "server fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
                 if(it->second.EpollWait(2000)) {
                     for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
-                        it->first.manageEvent(it->second.getEvents()[i]);
+                        it->first.manageEventServer(it->second.getEvents()[i]);
                     }
                 }
 ////

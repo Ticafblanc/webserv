@@ -267,6 +267,15 @@ public:
  * */
     void addSocket(int socket);
 
+/**
+ * add socket to Epoll
+ *
+ * void removeSocket(int socket);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
     void removeSocket(int socket);
 };
 

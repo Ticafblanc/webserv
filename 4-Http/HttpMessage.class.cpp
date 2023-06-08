@@ -117,7 +117,7 @@ std::string HttpMessage::add_connection() {
 
 void HttpMessage::set_header() {
     std::string header_tmp;
-    header_tmp += "HTTP/1.1 ";
+    header_tmp +=  ";
     header_tmp += add_status_code();
     header_tmp += add_content_info();
     header_tmp += "Cache-Control: no-cache, no-store, must-revalidate\r\n"
@@ -169,31 +169,6 @@ std::string HttpMessage::connection_information() {
 }
 
 
-
-void HttpMessage::set_map_token_methode() {
-    _mapTokenListActionMethode["GET"] = &HttpMessage::get_methode;
-    _mapTokenListActionMethode["POST"] = &HttpMessage::post_methode;
-    _mapTokenListActionMethode["DELETE"] = &HttpMessage::delete_methode;
-}
-
-
-
-std::string HttpMessage::extract_unused_information() {
-    std::string http_version = peg.extract_data('\n');
-    return std::string();
-}
-
-std::string HttpMessage::extract_location() {
-    return peg.extract_data(' ');
-}
-
-std::string HttpMessage::extract_http_version() {
-    std::string http_version = peg.extract_data('\n');
-    http_version.resize(http_version.size() - 1);
-    if (http_version != "HTTP/1.1")
-        throw HttpMessage::httpMessageException("error version");
-    return http_version;
-}
 
 std::string HttpMessage::get_methode() {
     std::string location = extract_location();

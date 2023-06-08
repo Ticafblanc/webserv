@@ -18,6 +18,7 @@
 #include "0-Main/Includes/Headers.hpp"
 #include "1-Utils/Includes/Utils.hpp"
 #include "2-Log/Log.class.hpp"
+#include "Code.hpp"
 #include "4-Http/HttpMessage.class.hpp"
 #include "5-Epoll/Epoll.class.hpp"
 #include "7-Socket/Socket.class.hpp"
@@ -94,7 +95,7 @@ struct Location {
  * @param       void
  * @throw       none
  */
-    std::string parseBlocLocation();
+    std::string parseBlocLocation(std::string &);
 
 /**
  * Public methode of Location.class class
@@ -105,7 +106,7 @@ struct Location {
  * @param       void
  * @throw       none
  */
-    std::string setRoot();
+    std::string setRoot(std::string &);
 
 
 /**
@@ -117,7 +118,7 @@ struct Location {
  * @param       name is an std::string contain name of serverSocket to add
  * @throw       bloc_exception if name already exist
  */
-    std::string addIndex();
+    std::string addIndex(std::string &);
 
 /**
  * Public methode of Location struct
@@ -147,7 +148,7 @@ struct Location {
 *====================================================================================
 */
     Config&                                                 _config;
-    std::map<std::string, std::string (Location::*)()>     _mapTokenListAction;
+    std::map<std::string, std::string (Location::*)(std::string &)>     _mapTokenListAction;
     std::string                                                 _root;//path of this location
     std::vector<std::string>                                    _index;// set name of specific index file
 };
@@ -318,7 +319,7 @@ struct Server{
  * @param       void
  * @throw       none
  */
-    std::string parseBlocServer();
+    std::string parseBlocServer(std::string &);
 
 /**
  * Public methode of Server.class class
@@ -329,7 +330,7 @@ struct Server{
  * @param       void
  * @throw       bloc_exception if name already exist
  */
-    std::string addVectorListen();
+    std::string addVectorListen(std::string &);
 
 /**
  * Public methode of Server.class class
@@ -340,7 +341,7 @@ struct Server{
  * @param       void
  * @throw       none
  */
-    std::string addVectorServerName();
+    std::string addVectorServerName(std::string &);
 
 /**
  * Public methode of Server.class class
@@ -351,7 +352,7 @@ struct Server{
  * @param       void
  * @throw       none
  */
-    std::string setRoot();
+    std::string setRoot(std::string &);
 
 
 /**
@@ -363,7 +364,7 @@ struct Server{
  * @param       void
  * @throw       none
  */
-    std::string addMapBlocLocation();
+    std::string addMapBlocLocation(std::string &);
 
 /**
  * Public methode of Config struct
@@ -404,26 +405,37 @@ struct Server{
 /**
  * Public methode of Http class
  *
- * void manageEvent(epoll_event &event);
+ * void manageEventServer(epoll_event &event);
  *
  * @returns     void
  * @param       event to manage
  * @throw       none
  */
-    void manageEvent(epoll_event &event);
+    void manageEventServer(epoll_event &event);
+
+/**
+ * Public methode of Http class
+ *
+ * void manageEventProxy(epoll_event &event);
+ *
+ * @returns     void
+ * @param       event to manage
+ * @throw       none
+ */
+    void manageEventProxy(epoll_event &event);
 
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config&                                             _config;
-    Epoll&                                              _epoll;
-    std::map<std::string, std::string (Server::*)()>    _mapTokenListAction;
-    std::vector<Socket>                                 _vectorServerSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<std::string>                            _vectorServerName;// store all serverSocket name
-    std::string                                         _root;//path of repo defaut of serverSocket
-    std::map<std::string, Location>                     _mapBlocLocation;
+    Config&                                                         _config;
+    Epoll&                                                          _epoll;
+    std::map<std::string, std::string (Server::*)(std::string &)>   _mapTokenListAction;
+    std::vector<Socket>                                             _vectorServerSocket;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
+    std::vector<std::string>                                        _vectorServerName;// store all serverSocket name
+    std::string                                                     _root;//path of repo defaut of serverSocket
+    std::map<std::string, Location>                                 _mapBlocLocation;
 
 
 
@@ -585,7 +597,7 @@ struct Http {
  * @param       void
  * @throw       none
  */
-    std::string parseBlocHttp();
+    std::string parseBlocHttp(std::string &);
 
 /**
  * Public methode of Http.class class
@@ -596,7 +608,7 @@ struct Http {
  * @param       void
  * @throw       none
  */
-    std::string addVectorBlocServer();
+    std::string addVectorBlocServer(std::string &);
 
 /**
  * Public methode of Config struct
@@ -631,9 +643,8 @@ struct Http {
 *====================================================================================
 */
     Config&                                             _config;
-    std::map<std::string, std::string (Http::*)()>      _mapTokenListAction;
+    std::map<std::string, std::string (Http::*)(std::string &)>      _mapTokenListAction;
     std::vector<std::pair<Server, Epoll> >              _vecPairServerEpoll;
-    HttpMessage                                         _http;
     int                                                 _status_code;
     Types                                               _types;
     Code                                                _code;
@@ -715,7 +726,7 @@ struct Events {
  * @param       void
  * @throw       none
  */
-    std::string parseBlocEvents() ;
+    std::string parseBlocEvents(std::string &) ;
 
 /**
  * Public methode of Events class
@@ -726,7 +737,7 @@ struct Events {
  * @param       void
  * @throw       none
  */
-    std::string setWorkerConnections() ;
+    std::string setWorkerConnections(std::string &) ;
 
 /**
  * Public methode of Events struct
@@ -746,7 +757,7 @@ struct Events {
 *====================================================================================
 */
     Config&                                             _config;
-    std::map<std::string, std::string (Events::*)()>    _mapTokenListAction;
+    std::map<std::string, std::string (Events::*)(std::string &)>    _mapTokenListAction;
     int                                                 _workerConnections;//if not define default 10 else accept >o and < 11
 };
 
@@ -821,7 +832,7 @@ struct Config {
  * @returns     void
  * @param       void
  */
-    std::string parseBlocEvent();
+    std::string parseBlocEvent(std::string &);
 
 /**
  * Protected methode of Config struct
@@ -831,7 +842,7 @@ struct Config {
  * @returns     void
  * @param       void
  */
-    std::string parseBlocHttp();
+    std::string parseBlocHttp(std::string &);
 
 
 /**
@@ -842,7 +853,7 @@ struct Config {
  * @returns     std::string if error in data for this token
  * @param       void
  */
-    std::string setWorkerProcesses();
+    std::string setWorkerProcesses(std::string &);
 
 /**
  * Public methode of Config struct
@@ -877,14 +888,14 @@ struct Config {
  * @throw       none
  */
     char** setEnvp(char **envp);
-
+    void parseConfig();
 /*
 *====================================================================================
 *|                                     Member                                       |
 *====================================================================================
 */
     PegParser                                           _pegParser;
-    std::map<std::string, std::string (Config::*)()>    _mapTokenListAction;
+    std::map<std::string, std::string (Config::*)(std::string &)>    _mapTokenListAction;
     int                                                 _workerProcess;
     std::string                                         _pathLog;
     std::string                                         _patherrorLog;
@@ -895,8 +906,6 @@ struct Config {
     Log                                                 _Log;
     Log                                                 _errorLog;
     Log                                                 _pidLog;
-
-    void parseConfig();
 };
 
 

@@ -131,18 +131,18 @@ public:
  */
 
     template<class T>
-    void findToken(T& base, std::map<std::string, std::string (T::*)()> & mapTokenListAction, char controlOperator) {
+    void findToken(T& base, std::map<std::string, std::string (T::*)(std::string&)> & mapTokenListAction, char controlOperator) {
         std::string token = extractData(controlOperator);
         if (token.find_first_not_of('\0') ==  std::string::npos)
             return;
-        typename std::map<std::string, std::string (T::*)()>::iterator it = mapTokenListAction.find(token);
+        typename std::map<std::string, std::string (T::*)(std::string&)>::iterator it = mapTokenListAction.find(token);
         if (it == mapTokenListAction.end() && !checkIsEmpty()) {
             syntaxException exception(token.c_str());
             exception.setErrorMessage("error token in ");
             throw exception;
         }
 
-        std::string result = (base.*(it->second))();
+        std::string result = (base.*(it->second))(token);
 
         if (!result.empty()) {
             syntaxException exception(result.c_str());
