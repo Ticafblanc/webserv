@@ -85,7 +85,12 @@ static void launcher(Config & config) {
                 std::cout << "server fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
                 if(it->second.EpollWait(2000)) {
                     for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
-                        it->first.manageEventServer(it->second.getEvents()[i]);
+                        std::pair<bool, Socket> sock = it->first.manageEventServer(it->second.getEvents()[i]);
+                        if (sock.first) {
+                            HttpMessage message(sock.second, it->first);
+                            close(sock.second.getSocket());
+                        } else
+                            close(it->second.getEvents()[i].data.fd);
                     }
                 }
 ////

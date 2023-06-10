@@ -345,6 +345,7 @@ public:
  * @param   void
  * */
     void buildClientSocket();
+
 /**
  * Private methode of socket class
  *

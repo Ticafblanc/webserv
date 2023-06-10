@@ -192,7 +192,7 @@ std::string Server::addMapBlocLocation(std::string &token) {
     std::string path = _config._pegParser.extractData('{');
     //@todo check path ....
     Location Location(_config);
-    Location.parseBlocLocation();
+    Location.parseBlocLocation(token);
     _mapBlocLocation.insert(std::make_pair(path, Location));
     path.clear();
     return path;
@@ -216,25 +216,27 @@ void Server::setMapToken() {
     _mapTokenListAction["location"] =  &Server::addMapBlocLocation;
 }
 
-void Server::manageEventServer(epoll_event &event){
+std::pair<bool, Socket> Server::manageEventServer(epoll_event &event){
     if (checkEvent(event)){
-        Socket clientSocket(event);
-        clientSocket.buildClientSocket();
-        HttpMessage message(clientSocket, *this);
-        message.sendToClient();
-        close(clientSocket.getSocket());
+        try {
+            Socket clientSocket(event);
+            clientSocket.buildClientSocket();
+            return std::make_pair(true, clientSocket);
+        }catch (std::exception& e){
+            _config._errorLog.writeLogFile(e.what());
+        }
     }
-    close(event.data.fd);
+    return std::make_pair(false, Socket());
 }
 
 void Server::manageEventProxy(epoll_event &event){
     if (checkEvent(event)){
         Socket clientSocket(event);
         clientSocket.buildClientSocket();
-        HttpMessage message(clientSocket, *this);
-        if (message.findServer())
-            message.sendToServer();
-        message.sendToClient();
+//        HttpMessage message(clientSocket, *this);
+//        if (message.findServer())
+//            message.sendToServer();
+//        message.sendToClient();
         close(clientSocket.getSocket());
     }
     close(event.data.fd);
@@ -425,7 +427,7 @@ void Events::setMapToken() {
 
 Config::Config(std::string &pathConfigFile, char ** envp) : _pegParser(pathConfigFile.c_str(), "#"),
 _mapTokenListAction(), _workerProcess(1),
-_pathLog("/webserv/config_content_server/for_var/logs/error.logs"),
+_pathLog("/webserv/config_content_server/for_var/logs/log.logs"),
 _patherrorLog("/webserv/config_content_server/for_var/logs/error.logs"),
 _pathpidLog("/webserv/config_content_server/for_var/logs/webserv.pid"),
 _Events(*this), _Http(*this), _enp(setEnvp(envp)), _Log(), _errorLog(), _pidLog(){

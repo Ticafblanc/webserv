@@ -136,7 +136,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    std::map<int, std::pair<const std::string, const std::string> >   _mapStatusCode;
+    std::map<int, std::pair<std::string, std::string> >   _mapStatusCode;
     int                                                                 _statusCode;
 };
 

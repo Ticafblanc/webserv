@@ -18,7 +18,10 @@ set(    LOG
 set(    CONFIG
         3-Config/Config.class.cpp 3-Config/Code.cpp )
 
-set(    HTTP 4-Http/HttpMessage.class.cpp 4-Http/Header.cpp)
+set(    HTTP 4-Http/HttpMessage.class.cpp
+        4-Http/HttpReponse.class.cpp
+        4-Http/HttpRequest.class.cpp
+        4-Http/Execute.class.cpp)
 
 set(    EPOLL
         5-Epoll/Epoll.class.cpp)

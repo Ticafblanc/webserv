@@ -1,50 +1,8 @@
 //
-// Created by Matthis DoQuocBao on 2023-06-07.
+// Created by Matthis DoQuocBao on 2023-06-09.
 //
 
-#include "Header.hpp"
-
-/*
-*====================================================================================
-*|                                       HeaderReponse                              |
-*====================================================================================
-*/
-
-HeaderReponse::HeaderReponse() : _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {}
-
-HeaderReponse::HeaderReponse(const HeaderReponse & other)
-: _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
-_mapHttpHeaders(other._mapHttpHeaders) {}
-
-HeaderReponse &HeaderReponse::operator=(const HeaderReponse & rhs) {
-    this->_startLineVersion = rhs._startLineVersion;
-    this->_startLineStatusCode = rhs._startLineStatusCode;
-    this->_mapHttpHeaders = rhs._mapHttpHeaders;
-    return *this;
-}
-
-void HeaderReponse::setStartLineStatusCode(std::string & statusCode) {
-    _startLineStatusCode = statusCode;
-}
-
-void HeaderReponse::setMapHttpHeaders(string &token, string &value) {
-    _mapHttpHeaders[token] = value;
-}
-
-const std::string &HeaderReponse::getHeaderReponse() {
-    _startLineVersion += " ";
-    _startLineVersion += _startLineStatusCode;
-    _startLineVersion += "\r\n";
-    for (std::map<std::string, std::string>::iterator  i = _mapHttpHeaders.begin();
-    i != _mapHttpHeaders.end(); ++i) {
-        _startLineVersion += i->first;
-        _startLineVersion += " ";
-        _startLineVersion += i->second;
-        _startLineVersion += "\r\n";
-    }
-    _startLineVersion += "\r\n";
-    return _startLineVersion;
-}
+#include "HttpRequest.class.hpp"
 /*
 *====================================================================================
 *|                                       HeaderRequest                                     |
@@ -52,10 +10,12 @@ const std::string &HeaderReponse::getHeaderReponse() {
 */
 
 HeaderRequest::HeaderRequest()
-: _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapTokenListAction(){}
+        : _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapHttpHeaders(), _mapTokenListAction(){
+    return;
+}
 
 HeaderRequest::HeaderRequest(string &message)
-: _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapTokenListAction(){
+        : _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(),_mapHttpHeaders(), _mapTokenListAction(){
     setMapTokenStartLine();
     _peg.findToken(*this, _mapTokenListAction, 0);
 }
@@ -68,7 +28,12 @@ HeaderRequest::HeaderRequest(const HeaderRequest &) {
 
 }
 
-HeaderRequest &HeaderRequest::operator=(const HeaderRequest &) {
+HeaderRequest &HeaderRequest::operator=(const HeaderRequest & rhs) {
+    this->_peg = rhs._peg;
+    this->_startLineMethode = rhs._startLineMethode;
+    this->_startLineURL = rhs._startLineURL;
+    this->_startLineVersion = rhs._startLineVersion;
+    this->_mapHttpHeaders = rhs._mapHttpHeaders;
     return *this;
 }
 
@@ -178,12 +143,16 @@ std::string HeaderRequest::addToStartLine(string & token) {
     _startLineMethode = token;
     _startLineURL = _peg.extractData(' ');
     _startLineVersion = _peg.extractData('\n');
-    _peg.findToken(*this, _mapTokenListAction, 0);
+    if (_startLineVersion != "HTTP/1.1\r")
+        throw HeaderRequest::headerException(strerror(errno));
+    setMapTokenInformation();
+    while(!_peg.checkIsEmpty())
+        _peg.findToken(*this, _mapTokenListAction, 0);
     return std::string();
 }
 
-std::string HeaderRequest::addToMapHttpHeader(string &token) {
-    _mapHttpHeaders[token] = _peg.extractData('\n');
+std::string HeaderRequest::addToMapHttpHeader(string& token) {
+    _mapHttpHeaders.insert(std::make_pair(token, _peg.extractData('\n')));
     return std::string();
 }
 
@@ -199,9 +168,121 @@ const string &HeaderRequest::getStartLineVersion() const {
     return _startLineVersion;
 }
 
-const std::map<std::string, std::string> &HeaderRequest::getMapHttpHeaders() const {
+const std::map<const std::string, const std::string> &HeaderRequest::getMapHttpHeaders() const {
     return _mapHttpHeaders;
+}
+
+HeaderRequest::headerException::headerException(const char * message) : _message(message) {}
+
+HeaderRequest::headerException::~headerException() throw() {}
+
+const char * HeaderRequest::headerException::what() const throw() { return _message.c_str(); }
+
+HeaderRequest::headerException::headerException(const HeaderRequest::headerException & other) : _message(other._message) {}
+
+HeaderRequest::headerException &HeaderRequest::headerException::operator=(const HeaderRequest::headerException &rhs) {
+    this->_message = rhs._message;
+    return *this;
 }
 
 
 
+
+
+HttpRequest::HttpRequest(Socket& socket, Server& server)
+        : _socket(socket), _server(server), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){
+    recvMessage();
+}
+
+HttpRequest::~HttpRequest() {}
+
+HttpRequest::HttpRequest(const HttpRequest & other)
+        : _socket(other._socket), _server(other._server), _bytesRecv(other._bytesRecv),
+          _contentLength(other._contentLength), _buffer(other._buffer), _headRequest(other._headRequest){}
+
+HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
+    this->_socket = rhs._socket;
+    this->_server = rhs._server;
+    this->_bytesRecv = rhs._bytesRecv;
+    this->_contentLength = rhs._contentLength;
+    this->_buffer = rhs._buffer;
+    this->_headRequest = rhs._headRequest;
+    return *this;
+}
+
+/*
+*====================================================================================
+*|                                       Methode                                    |
+*====================================================================================
+*/
+
+void HttpRequest::recvMessage() {
+    recvData();
+    _headRequest = HeaderRequest(_buffer[0]);
+    while(messageIsNotComplete()){
+        recvData();
+    }
+}
+
+void HttpRequest::recvData(){
+    char buffer[1024 + 1];//@todo update value
+    _bytesRecv += recv(_socket.getSocket(), buffer, 1024, 0);
+    checkBytesRecv();
+    buffer[_bytesRecv] ='\0';
+    _buffer.push_back(buffer);
+    std::cout << " client  >> " << _socket.getSocket() << " recv >>> \n" << buffer << _buffer.size() << _bytesRecv << "\n" << std::endl;
+}
+
+bool HttpRequest::messageIsNotComplete() {
+    if (_contentLength == 0) {
+        std::string contentLength = getValueHeader("Content-Length:");
+        if (!contentLength.empty())
+            _contentLength = std::atoi(contentLength.c_str());
+    }
+    return _bytesRecv < _contentLength;
+}
+
+
+void HttpRequest::checkBytesRecv() const {
+    if (_bytesRecv == 0 )//close connection
+        throw HttpRequest::httpRequestException(strerror(errno));
+    if (_bytesRecv == -1)//bad request
+        throw HttpRequest::httpRequestException(strerror(errno));
+    if (_bytesRecv > 1024)//check headrs befor throw
+        throw HttpRequest::httpRequestException(strerror(errno));
+}
+
+std::string HttpRequest::getValueHeader(const std::string & token) {
+    const std::_Rb_tree_const_iterator<std::pair<const std::basic_string<char>, const std::basic_string<char> > > it =
+            _headRequest.getMapHttpHeaders().find(token);
+    if (it != _headRequest.getMapHttpHeaders().end())
+        return it->second;
+    return std::string();
+}
+
+std::string HttpRequest::getMethode() {
+    return _headRequest.getStartLineMethode();
+}
+
+std::string HttpRequest::getUrl() {
+    return _headRequest.getStartLineUrl();
+}
+
+/*
+*====================================================================================
+*|                                  Member Expetion                                 |
+*====================================================================================
+*/
+
+HttpRequest::httpRequestException::httpRequestException(const char * message) : _message(message) {}
+
+HttpRequest::httpRequestException::~httpRequestException() throw() {}
+
+const char * HttpRequest::httpRequestException::what() const throw() { return _message.c_str(); }
+
+HttpRequest::httpRequestException::httpRequestException(const HttpRequest::httpRequestException & other) : _message(other._message) {}
+
+HttpRequest::httpRequestException &HttpRequest::httpRequestException::operator=(const HttpRequest::httpRequestException &rhs) {
+    this->_message = rhs._message;
+    return *this;
+}

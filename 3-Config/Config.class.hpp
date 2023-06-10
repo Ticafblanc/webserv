@@ -19,7 +19,6 @@
 #include "1-Utils/Includes/Utils.hpp"
 #include "2-Log/Log.class.hpp"
 #include "Code.hpp"
-#include "4-Http/HttpMessage.class.hpp"
 #include "5-Epoll/Epoll.class.hpp"
 #include "7-Socket/Socket.class.hpp"
 #include "6-PegParser/PegParser.class.hpp"
@@ -411,7 +410,7 @@ struct Server{
  * @param       event to manage
  * @throw       none
  */
-    void manageEventServer(epoll_event &event);
+    std::pair<bool, Socket> manageEventServer(epoll_event &event);
 
 /**
  * Public methode of Http class

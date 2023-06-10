@@ -4,14 +4,14 @@
 #define WEBSERV_HEADERS_HPP
 
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
 #include <iostream>
 #include <cstring>
 #include <string>
 #include <netinet/in.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <vector>
 #include <unistd.h>
