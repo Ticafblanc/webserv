@@ -16,6 +16,8 @@
 #define WEBSERV_SOCKET_HPP
 
 #include "0-Main/Includes/Headers.hpp"
+#include "3-Config/Server.class.hpp"
+#include "Token.hpp"
 
 class Socket {
 
@@ -28,12 +30,14 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-
-    std::string     _ipAddress;
-    int             _port;
-    sockaddr_in     _sock;
-    int             _socket;
-
+    Token                                               _token;
+    std::string                                         _saveToken;
+    std::string                                         _ipAddress;
+    int                                                 _port;
+    sockaddr_in                                         _sock;
+    int                                                 _socket;
+    std::vector<std::pair<std::string, std::string> >   _vectorServerNameToken;
+    std::map<std::string, Server>                       _mapTokenServer;
 
 /*
 *====================================================================================
@@ -66,7 +70,7 @@ public:
 /**
  * Constructor of 7-Socket class
  *
- * 7-Socket(Server& Server, string &ipAddr, int &port);
+ * 7-Socket(Server.class& Server.class, string &ipAddr, int &port);
  *
  * @param   void
  * @throw   none
@@ -76,7 +80,7 @@ public:
 /**
  * Constructor of 7-Socket class
  *
- * 7-Socket(Server& Server, epoll_event &event);
+ * 7-Socket(Server.class& Server.class, epoll_event &event);
  *
  * @param   sockaddr instance to sockaddres_in
  * @param   event instance to epoll_event
@@ -110,6 +114,16 @@ public:
  * @throw   none
  **/
     Socket& operator=(const Socket &);
+
+/**
+ * Operator overload= of 7-Socket class
+ *
+ * operator=(const 7-Socket&);
+ *
+ * @param   socket instance const to copy the 7-Socket
+ * @throw   none
+ **/
+    bool operator==(const Socket &);
 
 
 /*
@@ -335,6 +349,16 @@ public:
  * @param   void
  * */
     void buildServerSocket();
+
+/**
+ * Private methode of socket class
+ *
+ * void buildServerSocket();
+ *
+ * @returns void
+ * @param   void
+ * */
+    void addServer(Server & server);
 
 /**
  * Private methode of socket class

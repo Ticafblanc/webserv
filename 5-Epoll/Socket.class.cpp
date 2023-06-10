@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "7-Socket/Socket.class.hpp"
+#include "Socket.class.hpp"
 
 /*
 *====================================================================================
@@ -19,15 +19,13 @@
 */
 
 Socket::Socket()
-: _ipAddress(), _port(), _sock(), _socket(){}
+: _token(), _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(){}
 
 Socket::Socket(std::string & ipAddr, int & port)
-: _ipAddress(ipAddr), _port(port), _sock(), _socket(){
-    buildServerSocket();
-}
+: _token(), _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(){}
 
 Socket::Socket(epoll_event & event)
-: _port(), _sock(), _socket(event.data.fd){
+: _token(), _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(){
 //    buildClientSocket();
 }
 
@@ -40,7 +38,7 @@ Socket::~Socket() {
 
 Socket::Socket(const Socket &other)
         : _ipAddress(other._ipAddress), _port(other._port),
-          _sock(other._sock), _socket(other._socket){}
+          _sock(other._sock), _socket(other._socket), _vectorServerNameToken(other._vectorServerNameToken){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
@@ -48,6 +46,7 @@ Socket& Socket::operator=(const Socket& rhs){
         this->_port = rhs._port;
         this->_sock = rhs._sock;
         this->_socket = rhs._socket;
+        this->_vectorServerNameToken = rhs._vectorServerNameToken;
     }
     return *this;
 }
@@ -151,12 +150,14 @@ int Socket::getSocket() const {
 }
 
 void Socket::buildServerSocket() {
-    setSockaddrIn();
-    setSocket();
-    setSocketOption();
-    setBind();
-    setListen(10);
-    accessorSocketFlag(F_SETFL, O_NONBLOCK);
+    if (_socket == 0) {
+        setSockaddrIn();
+        setSocket();
+        setSocketOption();
+        setBind();
+        setListen(10);
+        accessorSocketFlag(F_SETFL, O_NONBLOCK);
+    }
 }
 
 void Socket::buildClientSocket() {
@@ -165,14 +166,14 @@ void Socket::buildClientSocket() {
     accessorSocketFlag(F_SETFL, O_NONBLOCK);
 //    setEpollEvent(EPOLLIN | EPOLLET);
 //    _blocServer.setEpollCtl(EPOLL_CTL_ADD, *this);
-//    _blocServer._config._mapFdSocket.insert(data.fd, *this);
+//    _blocServer._peg._mapFdSocket.insert(data.fd, *this);
 //    _blocServer._maxEvents--;
 }
 
 void Socket::closeSocket() const {
 //    _blocServer._maxEvents++;
 //    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
-//    _blocServer._config._mapFdSocket.erase(data.fd);
+//    _blocServer._peg._mapFdSocket.erase(data.fd);
     close(_socket);
 }
 
@@ -187,6 +188,22 @@ int Socket::getPort() const {
 
 const string &Socket::getIpAddress() const {
     return _ipAddress;
+}
+
+void Socket::addServer(Server &server) {
+    _saveToken = _token.generateToken();
+    for(std::vector<std::string>::iterator it = server.getVectorServerName().begin();
+    it != server.getVectorServerName().end(); ++it){
+        _vectorServerNameToken.push_back(std::make_pair(*it, _saveToken));
+    }
+    _mapTokenServer.insert(std::make_pair(_saveToken, server));
+}
+
+bool Socket::operator==(const Socket & rhs) {
+    if ((this->_ipAddress == "0.0.0.0" && this->_port == rhs._port) ||
+    (this->_ipAddress == rhs._ipAddress && this->_port == rhs._port))
+        return true;
+    return false;
 }
 
 

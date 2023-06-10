@@ -96,7 +96,7 @@ public:
  * @param   other is 6-PegParser to copy
  * @throw   none
  **/
-    PegParser(PegParser &);
+    PegParser(const PegParser &);
 
 /**
  * Constructor of 6-PegParser.class

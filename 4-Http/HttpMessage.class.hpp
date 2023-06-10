@@ -13,7 +13,7 @@
 #ifndef WEBSERV_HTTPMESSAGE_HPP
 #define WEBSERV_HTTPMESSAGE_HPP
 
-#include "3-Config/Config.class.hpp"
+#include "3-Config/ConfigFile.class.hpp"
 #include "HttpRequest.class.hpp"
 #include "Execute.class.hpp"
 #include "HttpReponse.class.hpp"
@@ -88,7 +88,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpMessage( Socket& socket, Server& server);
+    HttpMessage(Socket& socket, Server& server);
 
 /**
 * Destructor of HttpMessage class

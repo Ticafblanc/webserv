@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "0-Main/Includes/webserv.hpp"
+#include "3-Config/ConfigFile.class.hpp"
 
 void handleExit(int sig) {
     (void) sig;
@@ -77,22 +78,19 @@ static int checkOption(int argc, char **argv){
     return 0;
 }
 
-static void launcher(Config & config) {
-    while(config._Http._code.getCode()) {
-        for ( std::vector<std::pair<Server, Epoll> >::iterator it = config._Http._vecPairServerEpoll.begin();
-        it != config._Http._vecPairServerEpoll.end(); ++it) {
-            try {
-                std::cout << "server fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
-                if(it->second.EpollWait(2000)) {
-                    for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
-                        std::pair<bool, Socket> sock = it->first.manageEventServer(it->second.getEvents()[i]);
-                        if (sock.first) {
-                            HttpMessage message(sock.second, it->first);
-                            close(sock.second.getSocket());
-                        } else
-                            close(it->second.getEvents()[i].data.fd);
-                    }
-                }
+static void launcher(Config & config, Epoll & EpollRun) {
+    while(true) {
+        EpollRun.EpollWait();
+        std::cout << "server fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
+        for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
+        std::pair<bool, Socket> sock = it->first.manageEventServer(it->second.getEvents()[i]);
+        if (sock.first) {
+        HttpMessage message(sock.second, it->first);
+            close(sock.second.getSocket());
+                } else
+                    close(it->second.getEvents()[i].data.fd);
+            }
+        }
 ////
 ////                        if (tok != config._mapFdSocket.end())
 ////                            tok->second.manageEvent(it->_epoll.getEvents()[i], tok->second);
@@ -126,15 +124,13 @@ int main(int argc, char **argv, char **envp){
         Config webserv(pathConfigFile, envp);
         try {
             if(!pathConfigFile.empty())
-                webserv.parseConfig();
-            else
-                webserv.setDefaultValue();
-            launcher(webserv);//@todo manage thread
+                ConfigFile extractConfigFile(webserv);
+            launcher(webserv, webserv.vecEpoll[0]);//@todo manage thread
         }
         catch (const std::exception &e) {
-            webserv._errorLog.writeLogFile(e.what());
+            webserv.errorLog.writeLogFile(e.what());
         }
-        webserv._errorLog.printLogFile();
+        webserv.errorLog.printLogFile();
     }
     exit(EXIT_FAILURE);
 }

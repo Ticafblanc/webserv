@@ -36,9 +36,7 @@ RUN apt-get update \
 
 USER Ticafblanc
 
-RUN echo "127.0.0.1       webserv.local" | sudo tee -a /etc/hosts
-
-EXPOSE 80
+EXPOSE 80 8080 8081
 #-p 0.0.0.0:80:80
 
 #set the webserv config content

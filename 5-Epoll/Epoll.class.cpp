@@ -11,26 +11,17 @@
 *====================================================================================
 */
 
-Epoll::Epoll() : epoll_event(), _epollInstanceFd(), _maxEvents(10), _events(new epoll_event[_maxEvents]),
-_numberTriggeredEvents() {}
-
-Epoll::Epoll(std::vector<Socket> &sock, int maxEvents)
-: epoll_event(), _epollInstanceFd(), _maxEvents(maxEvents), _events(new epoll_event[_maxEvents]),
-_numberTriggeredEvents() {
-    createEpollInstance(static_cast<int>(sock.size()));
-    for (std::vector<Socket>::iterator it = sock.begin();
-    it != sock.end() ; ++it) {
-        addSocket(it->getSocket());
-    }
-}
+Epoll::Epoll(int maxEvents)
+: epoll_event(), _token(), _mapFdSocket(), _epollInstanceFd(), _maxEvents(maxEvents),
+_events(new epoll_event[_maxEvents]),_numberTriggeredEvents() {}
 
 Epoll::~Epoll() {
 //    delete[] _events;
 }
 
 Epoll::Epoll(const Epoll &other)
-: epoll_event(other),  _epollInstanceFd(other._epollInstanceFd), _maxEvents(other._maxEvents),
-_events(other._events), _numberTriggeredEvents(other._numberTriggeredEvents) {}
+: epoll_event(other), _token(other._token), _mapFdSocket(), _epollInstanceFd(other._epollInstanceFd),
+_maxEvents(other._maxEvents), _events(other._events), _numberTriggeredEvents(other._numberTriggeredEvents) {}
 
 Epoll &Epoll::operator=(const Epoll &rhs) {
     if (this != &rhs) {
@@ -112,14 +103,57 @@ int Epoll::getNumberTriggeredEvents() const {
     return _numberTriggeredEvents;
 }
 
-void Epoll::addSocket(int socket){
-    setEpollEvent(socket, EPOLLIN);
+void Epoll::addSocket(Socket & socket){
+    setEpollEvent(socket.getSocket(), EPOLLIN);
     setEpollCtl(EPOLL_CTL_ADD) ;
 }
 
-void Epoll::removeSocket(int socket){
-    setEpollEvent(socket, EPOLLIN);
+void Epoll::removeSocket(Socket & socket){
+    setEpollEvent(socket.getSocket(), EPOLLIN);
     setEpollCtl(EPOLL_CTL_DEL) ;
 }
 
+void Epoll::launchEpoll(){
+    createEpollInstance(_mapFdSocket.size());
+    for (std::map<int, Socket>::iterator it = _mapFdSocket.begin();
+         it != _mapFdSocket.end(); ++it) {
+        addSocket(it->second);
+    }
+}
 
+void Epoll::addServer(Server &server) {
+    for (std::vector<Listen>::iterator it = server.getVectorListen().begin();
+            it != server.getVectorListen().end(); ++it) {
+        std::pair<std::string, int> data = it->getDataListen();
+        Socket sock(data.first, data.second);
+        Socket& newSocket = sock;
+        for(std::map<int, Socket>::iterator sockIt = _mapFdSocket.begin();
+        sockIt != _mapFdSocket.end(); ++sockIt){
+            if (sockIt->second == newSocket){
+                newSocket = sockIt->second;
+                break;
+            }
+        }
+        newSocket.addServer(server);
+        try {
+            newSocket.buildServerSocket();
+        }catch (std::exception & e){
+            std::cerr << e.what()<<std::endl;
+            continue;
+        }
+        _mapFdSocket.insert(std::make_pair(newSocket.getSocket(), newSocket));
+    }
+}
+
+
+//bool Server::checkEvent(epoll_event &event){
+//    std::vector<Socket>::iterator itSocket = std::find_if(_vectorServerSocket.begin(),
+//                                                          _vectorServerSocket.end(),
+//                                                          Socket(event));
+//    if (itSocket != _vectorServerSocket.end() && ((!(event.events & EPOLLERR)) ||
+//                                                  (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)))
+//        return true;
+//    else
+//        std::cerr << "error event at connexion " << event.events << event.data.fd << std::endl;
+//    return false;
+//}

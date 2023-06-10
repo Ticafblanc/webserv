@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2023-06-07.
 //
 
-#include "Code.hpp"
+#include "Code.class.hpp"
 
 Code::Code() : _mapStatusCode(), _statusCode(200){
     buildStatusCode();
@@ -10,7 +10,7 @@ Code::Code() : _mapStatusCode(), _statusCode(200){
 
 Code::~Code() {}
 
-Code::Code(Code &other) : _mapStatusCode(other._mapStatusCode), _statusCode(other._statusCode){}
+Code::Code(const Code &other) : _mapStatusCode(other._mapStatusCode), _statusCode(other._statusCode){}
 
 Code &Code::operator=(const Code &rhs) {
     this->_mapStatusCode = rhs._mapStatusCode;
@@ -157,7 +157,7 @@ void Code::buildStatusCode() {
      * an unexpected error occurs on the server that prevents it from fulfilling the client's request.
      * It indicates a server-side issue.
      */
-    _mapStatusCode[500] = std::make_pair("Internal Server Error", "usr/local/var/www/html/500.html");
+    _mapStatusCode[500] = std::make_pair("Internal Server.class Error", "usr/local/var/www/html/500.html");
 
     /**
      * the server does not support the functionality required to fulfill the request.

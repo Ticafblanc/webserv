@@ -2,8 +2,8 @@
 // Created by Matthis DoQuocBao on 2023-06-07.
 //
 
-#ifndef WEBSERVER_CODE_HPP
-#define WEBSERVER_CODE_HPP
+#ifndef WEBSERVER_CODE_CLASS_HPP
+#define WEBSERVER_CODE_CLASS_HPP
 
 #include "0-Main/Includes/Headers.hpp"
 #include "1-Utils/Includes/Utils.hpp"
@@ -21,9 +21,9 @@ public:
 */
 
 /**
- * Constructor of Code.class class
+ * Constructor of Code.class.class class
  *
- * Code(pegParser& pegParser);
+ * Code.class(pegParser& pegParser);
  *
  * @param   peg_parser
  * @throw   none
@@ -31,28 +31,28 @@ public:
     Code();
 
 /**
-* Destructor of Code.class class
+* Destructor of Code.class.class class
 *
-* Code.class.class();
+* Code.class.class.class();
 *
 * @throw   none
 **/
     ~Code();
 
 /**
- * Copy constructor of Code class
+ * Copy constructor of Code.class class
  *
- * Code(const Code &);
+ * Code.class(const Code.class &);
  *
  * @param   blocCode instance to build the serverSocket
  * @throw   none
  **/
-    Code(Code&);
+    Code(const Code&);
 
 /**
- * Operator overload= of Code class
+ * Operator overload= of Code.class class
  *
- * Code(const Code &);
+ * Code.class(const Code.class &);
  *
  * @param   blocCode instance const to copy the serverSocket
  * @throw   none
@@ -66,7 +66,7 @@ public:
 */
 
 /**
- * Public methode of Code.class class
+ * Public methode of Code.class.class class
  *
  * void setStatusCode(int code);
  *
@@ -77,7 +77,7 @@ public:
     void setDefaultPage(int code, const std::string& pathToHtmlPage);
 
 /**
- * Public methode of Code.class class
+ * Public methode of Code.class.class class
  *
  * void setStatusCode(int code);
  *
@@ -88,7 +88,7 @@ public:
     void setStatusCode(int code);
 
 /**
- * Public methode of Code.class class
+ * Public methode of Code.class.class class
  *
  * std::string  getStatusCode();
  *
@@ -100,7 +100,7 @@ public:
     int  getCode() const;
 
 /**
- * Public methode of Code.class class
+ * Public methode of Code.class.class class
  *
  * std::string & getStatusPage();
  *
@@ -121,7 +121,7 @@ private:
 */
 
 /**
- * Public methode of Code.class class
+ * Public methode of Code.class.class class
  *
  * void buildStatusCode();
  *
@@ -137,8 +137,8 @@ private:
 *====================================================================================
 */
     std::map<int, std::pair<std::string, std::string> >   _mapStatusCode;
-    int                                                                 _statusCode;
+    int                                                   _statusCode;
 };
 
 
-#endif //WEBSERVER_CODE_HPP
+#endif //WEBSERVER_CODE_CLASS_HPP

@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_HTTPREQUEST_CLASS_HPP
 #define WEBSERVER_HTTPREQUEST_CLASS_HPP
 
-#include "3-Config/Config.class.hpp"
+#include "3-Config/ConfigFile.class.hpp"
 
 class HeaderRequest {
 

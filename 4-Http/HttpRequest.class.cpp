@@ -70,7 +70,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["Content-Encoding:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Language:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Length:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Location:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Content-Location.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-MD5:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Range:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Type:"] = &HeaderRequest::addToMapHttpHeader;
@@ -96,7 +96,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["IM (Instance Manipulation):"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Last-Modified:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Link:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Location:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Location.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Lock-Token:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Max-Forwards:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["MIME-Version:"] = &HeaderRequest::addToMapHttpHeader;
@@ -112,7 +112,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["Range:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Referer:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Retry-After:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Server:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Server.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Set-Cookie:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Sec-Fetch-Dest:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Sec-Fetch-Mode:"] = &HeaderRequest::addToMapHttpHeader;

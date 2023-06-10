@@ -47,7 +47,7 @@ PegParser::PegParser(const string & stringToParse, const std::string lineComment
 
 PegParser::~PegParser() { }
 
-PegParser::PegParser(PegParser & other) : _stringStream(){
+PegParser::PegParser(const PegParser & other) : _stringStream(){
     *this = other;
 }
 

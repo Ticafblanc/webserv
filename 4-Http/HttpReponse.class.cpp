@@ -13,7 +13,7 @@ HeaderReponse::HeaderReponse(Execute & execute, Server& server)
         : _execute(execute), _server(server), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {
     addStatusCode();
     addDate();
-    addHttpHeaders("Server:", "webserv/1.0 (ubuntu)");
+    addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
     addContentInfo();
     addConnectionClose();
 }
@@ -44,7 +44,7 @@ void HeaderReponse::addDate() {
     std::tm* timeInfo = std::gmtime(&now);
     char buffer[80];
     std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeInfo);
-    addHttpHeaders("Code:", buffer);
+    addHttpHeaders("Code.class:", buffer);
 }
 
 void HeaderReponse::addContentInfo() {

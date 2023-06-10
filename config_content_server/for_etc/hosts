@@ -1,32 +1,4 @@
 127.0.0.1       webserv.local
-127.0.0.1       status100.local
-127.0.0.1       status101.local
-127.0.0.1       status102.local
-127.0.0.1       status200.local
-127.0.0.1       status201.local
-127.0.0.1       status202.local
-127.0.0.1       status204.local
-127.0.0.1       status206.local
-127.0.0.1       status300.local
-127.0.0.1       status301.local
-127.0.0.1       status302.local
-127.0.0.1       status304.local
-127.0.0.1       status307.local
-127.0.0.1       status308.local
-127.0.0.1       status400.local
-127.0.0.1       status401.local
-127.0.0.1       status403.local
-127.0.0.1       status404.local
-127.0.0.1       status405.locaend l
-127.0.0.1       status409.local
-127.0.0.1       status410.local
-127.0.0.1       status429.local
-127.0.0.1       status500.local
-127.0.0.1       status501.local
-127.0.0.1       status502.local
-127.0.0.1       status503.local
-127.0.0.1       status504.local
-127.0.0.1       status505.local
 127.0.0.1       localhost
 ::1     localhost ip6-localhost ip6-loopback
 fe00::0 ip6-localnet
