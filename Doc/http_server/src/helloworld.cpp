@@ -1,4 +1,4 @@
-// Server side C program to demonstrate Socket programming
+// Server side C program to demonstrate 7-Socket programming
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>

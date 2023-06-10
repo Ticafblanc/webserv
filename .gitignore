@@ -5,5 +5,7 @@ maintest.cpp
 localtest.conf
 a.out
 Bin
-build
 .cache
+build
+cmake-build-debug-docker/
+cmake-build-debug/

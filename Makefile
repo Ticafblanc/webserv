@@ -46,7 +46,7 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 
 CC = c++
 
-CC_FLAGS = -std=c++98 -Wall -Wextra -Werror
+CC_FLAGS = -pedantic -std=c++98  -Wall -Wextra -Werror
 
 CL = rm -rf
 
@@ -89,11 +89,17 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@echo $(BLUE) $(notdir $@) is created !!
 
 $(BIN): title directory $(OBJ)
-		@$(CC) $(OBJ) -o $(BIN)
+		@$(CC) $(OBJ) $(INC_FLAGS) -o $(BIN)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
 		@./$(BIN)
+
+test_filer: all
+		@./$(BIN) -t
+
+#HTTP = http://127.0.0.1:8081/
+#curl: curl --http1.1 -v $(HTTP)
 
 
 title: 

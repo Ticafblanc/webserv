@@ -2,23 +2,53 @@ cmake_minimum_required(VERSION 3.22.1)
 project(webserver)
 
 set(CMAKE_CXX_STANDARD 98)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror -g")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+
 include_directories(SYSTEM ./)
 
-set(WEBSERV Sources/main.cpp Sources/init.cpp Sources/server.class.cpp Sources/data_server.class.cpp Sources/Parser.class.cpp Sources/Route.class.cpp)
-set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp)
-set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)
+set(    MAIN
+        0-Main/Sources/main.cpp)
 
-add_library(webservlib ${WEBSERV})
-target_link_libraries(webservlib)
+set(    UTILS
+        1-Utils/Sources/Utils.cpp)
 
-enable_testing()
+set(    LOG
+        2-Log/Log.class.cpp)
 
-add_executable(webserv ${WEBSERV})
-add_executable(unitTestInit ${UNIT_TEST_INIT})
-target_link_libraries(unitTestInit webservlib)
-add_executable(unitTestLauncher ${UNIT_TEST_LAUNCHER})
-target_link_libraries(unitTestLauncher webservlib)
+set(    CONFIG
+        3-Config/Config.class.cpp 3-Config/Code.cpp )
 
-add_test(NAME initTest COMMAND unitTestInit)
-add_test(NAME launcherTest COMMAND unitTestLauncher)
+set(    HTTP 4-Http/HttpMessage.class.cpp
+        4-Http/HttpReponse.class.cpp
+        4-Http/HttpRequest.class.cpp
+        4-Http/Execute.class.cpp)
+
+set(    EPOLL
+        5-Epoll/Epoll.class.cpp)
+
+set(    PEG
+        6-PegParser/PegParser.class.cpp)
+
+set(    SOCKET
+        7-Socket/Socket.class.cpp)
+
+set(    EXCEPTION
+        8-Exception/Sources/Exception.cpp)
+
+#set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp Sources/serverSocket.class.cpp)
+#set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)
+
+#add_library(webservlib ${MAIN} ${UTILS} ${LOG} ${CONFIG} ${HTTP} ${EPOLL} ${PEG} ${SOCKET} ${EXCEPTION})
+#target_link_libraries(webservlib)
+
+#enable_testing()
+
+add_executable(webserv ${MAIN} ${UTILS} ${LOG} ${CONFIG} ${HTTP} ${EPOLL} ${PEG} ${SOCKET} ${EXCEPTION})
+
+#add_executable(unitTestInit ${UNIT_TEST_INIT})
+#target_link_libraries(unitTestInit webservlib)
+#add_executable(unitTestLauncher ${UNIT_TEST_LAUNCHER})
+#target_link_libraries(unitTestLauncher webservlib)
+
+#add_test(NAME initTest COMMAND unitTestInit)
+#add_test(NAME launcherTest COMMAND unitTestLauncher)
