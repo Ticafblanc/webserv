@@ -33,8 +33,6 @@ std::string Http::addVectorBlocServer(std::string &token) {
     if (value.empty()) {
         Server buildBlocServer(_config);
         value = buildBlocServer.parseBlocServer(token);
-        _config.vecEpoll.back().addServer(buildBlocServer);
-//        _peg._vectorServer.push_back(buildBlocServer);
     }
     return value;
 }

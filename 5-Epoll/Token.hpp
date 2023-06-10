@@ -20,6 +20,7 @@ public:
     Token& operator=(const Token& token);
 
     const std::string & generateToken();
-    bool checkToken(const std::string & token);
+    void removeToken(const string &token);
+    std::pair<bool, std::vector<std::string>::iterator> checkToken(const std::string & token);
 };
 #endif //WEBSERVER_TOKEN_HPP

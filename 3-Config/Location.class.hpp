@@ -27,7 +27,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    explicit Location(Config&);
+    explicit Location(Config& config, ConfigServer& configServer, std::string & uri);
 
 /**
 * Destructor of Location.class.class class
@@ -119,9 +119,9 @@ private:
 *====================================================================================
 */
     Config&                                                             _config;
+    ConfigServer&                                                       _configServer;
+    ConfigLocation                                                      _configLoaction;
     std::map<std::string, std::string (Location::*)(std::string &)>     _mapTokenListAction;
-    std::string                                                         _root;//path of this location
-    std::vector<std::string>                                            _index;// set name of specific index file
 };
 
 

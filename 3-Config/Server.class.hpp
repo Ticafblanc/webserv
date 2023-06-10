@@ -98,7 +98,6 @@ public:
  * @throw       none
  */
     std::string addVectorServerName(std::string &);
-    std::vector<std::string> & getVectorServerName();
 
 /**
  * Public methode of Server.class.class class
@@ -134,28 +133,6 @@ public:
  */
     void setMapToken();
 
-/**
- * Public methode of Http class
- *
- * void setDefaultValue();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setDefaultValue();
-
-/**
- * Public methode of Http class
- *
- * const std::vector<Listen>& getVectorListen() const ;
- *
- * @returns     void
- * @param       event to manage
- * @throw       none
- */
-    std::vector<Listen>& getVectorListen() ;
-
 /*>*******************************private section**********************************/
 
 private:
@@ -166,13 +143,8 @@ private:
 *====================================================================================
 */
     Config&                                                         _config;
+    ConfigServer                                                    _configServer;
     std::map<std::string, std::string (Server::*)(std::string &)>   _mapTokenListAction;
-    std::vector<Listen>                                             _vectorListen;// link each ipaddress valid !! with port the port is required not th ip address if not ip addres or 0.0.0.0 define ip to INADDR_ANY
-    std::vector<std::string>                                        _vectorServerName;// store all serverSocket name
-    std::string                                                     _root;//path of repo defaut of serverSocket
-    std::map<std::string, Location>                                 _mapBlocLocation;
-
-
 
 };
 

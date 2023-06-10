@@ -9,7 +9,7 @@ const std::string &Token::generateToken() {
     const int length = 10;
     std::string token = _vectorToken[0];
 
-    while(checkToken(token)) {
+    while(checkToken(token).first) {
         srand(time(NULL));
 
         for (int i = 0; i < length; ++i) {
@@ -21,13 +21,13 @@ const std::string &Token::generateToken() {
     return _vectorToken.back();
 }
 
-bool Token::checkToken(const string &token) {
+std::pair<bool, std::vector<std::string>::iterator> Token::checkToken(const string &token) {
     for(std::vector<std::string>::iterator it = _vectorToken.begin();
     it != _vectorToken.end(); ++it){
         if (*it == token)
-            return false;
+            return std::make_pair(false, it);
     }
-    return true;
+    return std::make_pair(true, _vectorToken.end());
 }
 
 Token::Token() : _vectorToken() {}
@@ -41,4 +41,10 @@ Token &Token::operator=(const Token &rhs) {
         this->_vectorToken = rhs._vectorToken;
     }
     return *this;
+}
+
+void Token::removeToken(const string &token) {
+    std::pair<bool, std::vector<std::string>::iterator> check = checkToken(token);
+    if (!check.first)
+        _vectorToken.erase(check.second);
 }

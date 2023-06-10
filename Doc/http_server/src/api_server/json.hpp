@@ -19632,7 +19632,7 @@ class basic_json
     `"iterators out of range"`
 
     @complexity The complexity depends on the type:
-    - objects: `logs(size()) + std::distance(first, last)`
+    - objects: `log(size()) + std::distance(first, last)`
     - arrays: linear in the distance between @a first and @a last, plus linear
       in the distance between @a last and end of the container
     - strings and binary: linear in the length of the member
@@ -19736,7 +19736,7 @@ class basic_json
     @throw type_error.307 when called on a type other than JSON object;
     example: `"cannot use erase() with null"`
 
-    @complexity `logs(size()) + count(key)`
+    @complexity `log(size()) + count(key)`
 
     @liveexample{The example shows the effect of `erase()`.,erase__key_type}
 
@@ -20809,7 +20809,7 @@ class basic_json
     @throw type_error.308 when called on a type other than JSON object or
     null; example: `"cannot use push_back() with number"`
 
-    @complexity Logarithmic in the size of the container, O(logs(`size()`)).
+    @complexity Logarithmic in the size of the container, O(log(`size()`)).
 
     @liveexample{The example shows how `push_back()` and `+=` can be used to
     add elements to a JSON object. Note how the `null` value was silently
@@ -20963,7 +20963,7 @@ class basic_json
     @throw type_error.311 when called on a type other than JSON object or
     null; example: `"cannot use emplace() with number"`
 
-    @complexity Logarithmic in the size of the container, O(logs(`size()`)).
+    @complexity Logarithmic in the size of the container, O(log(`size()`)).
 
     @liveexample{The example shows how `emplace()` can be used to add elements
     to a JSON object. Note how the `null` value was silently converted to a
@@ -21227,7 +21227,7 @@ class basic_json
     @throw invalid_iterator.210 if @a first and @a last do not belong to the
     same JSON value; example: `"iterators do not fit"`
 
-    @complexity Logarithmic: `O(N*logs(size() + N))`, where `N` is the number
+    @complexity Logarithmic: `O(N*log(size() + N))`, where `N` is the number
     of elements to insert.
 
     @liveexample{The example shows how `insert()` is used.,insert__range_object}
@@ -21267,7 +21267,7 @@ class basic_json
     @throw type_error.312 if called on JSON values other than objects; example:
     `"cannot use update() with string"`
 
-    @complexity O(N*logs(size() + N)), where N is the number of elements to
+    @complexity O(N*log(size() + N)), where N is the number of elements to
                 insert.
 
     @liveexample{The example shows how `update()` is used.,update}
@@ -21318,7 +21318,7 @@ class basic_json
     @throw invalid_iterator.210 if @a first and @a last do not belong to the
     same JSON value; example: `"iterators do not fit"`
 
-    @complexity O(N*logs(size() + N)), where N is the number of elements to
+    @complexity O(N*log(size() + N)), where N is the number of elements to
                 insert.
 
     @liveexample{The example shows how `update()` is used__range.,update}

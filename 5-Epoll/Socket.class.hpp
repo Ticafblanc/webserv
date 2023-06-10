@@ -15,9 +15,8 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-#include "0-Main/Includes/Headers.hpp"
-#include "3-Config/Server.class.hpp"
-#include "Token.hpp"
+#include "0-Main/Includes/webserv.hpp"
+
 
 class Socket {
 
@@ -30,14 +29,11 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Token                                               _token;
-    std::string                                         _saveToken;
     std::string                                         _ipAddress;
     int                                                 _port;
     sockaddr_in                                         _sock;
     int                                                 _socket;
-    std::vector<std::pair<std::string, std::string> >   _vectorServerNameToken;
-    std::map<std::string, Server>                       _mapTokenServer;
+    std::map<std::string, std::string>                  _mapServerNameToken;
 
 /*
 *====================================================================================
@@ -75,7 +71,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    Socket(std::string &ipAddr, int &port);
+    Socket(const std::string &ipAddr, const int &port);
 
 /**
  * Constructor of 7-Socket class
@@ -154,7 +150,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        socketException(const char * message);
+        explicit socketException(const char * message);
 
         /**
          * Copy constructor of socketException class
@@ -353,12 +349,12 @@ public:
 /**
  * Private methode of socket class
  *
- * void buildServerSocket();
+ * void addServerName(const std::string & name, const std::string & token);
  *
  * @returns void
  * @param   void
  * */
-    void addServer(Server & server);
+    void addServerName(std::vector<std::string> & name, const std::string & token);
 
 /**
  * Private methode of socket class

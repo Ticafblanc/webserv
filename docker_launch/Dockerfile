@@ -35,8 +35,8 @@ COPY ../ /webserv/
 
 #compile project
 RUN make && mv Bin/webserv /usr/local/bin/webserv \
-    && mv /webserv/config_content_server/for_etc/* /usr/local/etc/ \
-    && mv config_content_server/for_var/* /usr/local/var/
+    && mv /webserv/config_content_server/etc/* /usr/local/etc/ \
+    && mv config_content_server/var/* /usr/local/var/
 
 
 # Exposition of port 80

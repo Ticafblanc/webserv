@@ -28,7 +28,7 @@ public:
  * @param   config is config webserv reference
  * @throw   none
  **/
-    explicit Listen(Config& config);
+    explicit Listen(Config& config, ConfigServer& configServer);
 
 /**
 * Destructor of Listen.class class
@@ -74,17 +74,9 @@ public:
  * @throw       none
  */
     std::string parseListenData();
+
     std::string parseListenData(std::string in);
-/**
- * Public methode of Http class
- *
- * const std::vector<Listen>& getVectorListen() const ;
- *
- * @returns     void
- * @param       event to manage
- * @throw       none
- */
-    std::pair<std::string, int> getDataListen() ;
+
 
 
 /*>*******************************private section**********************************/
@@ -97,9 +89,9 @@ private:
 *====================================================================================
 */
 
-    Config&         _config;
-    std::string     _ipAddress;
-    int             _port;
+    Config&                 _config;
+    ConfigServer&           _configServer;
+
 };
 
 

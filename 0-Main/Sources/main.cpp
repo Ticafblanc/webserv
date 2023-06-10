@@ -16,7 +16,7 @@
 void handleExit(int sig) {
     (void) sig;
     //@todo manage the end by signal
-//    printLogFile("/usr/local/var/logs/log_error.txt");
+//    printLogFile("/usr/local/var/log/log_error.txt");
     std::cout << "exit by signal" << std::endl;
     exit(EXIT_SUCCESS);
 }
@@ -79,6 +79,7 @@ static int checkOption(int argc, char **argv){
 }
 
 static void launcher(Config & config, Epoll & EpollRun) {
+    EpollRun.launchEpoll();
     while(true) {
         try {
             EpollRun.EpollWait();

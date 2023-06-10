@@ -7,9 +7,7 @@
 #ifndef WEBSERVER_EPOLL_HPP
 #define WEBSERVER_EPOLL_HPP
 
-#include "0-Main/Includes/Headers.hpp"
-//#include "Socket.class.hpp"
-//#include "3-Config/Server.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
 
 class Epoll :public epoll_event {
 
@@ -22,10 +20,9 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Token                                           _token;
+    Config&                                         _config;
     std::map<int, Socket>                           _mapFdSocket;
     int                                             _epollInstanceFd;
-    int                                             _maxEvents;
     epoll_event*                                    _events;
     int                                             _numberTriggeredEvents;
 
@@ -53,7 +50,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    Epoll(int maxEvents);
+    explicit Epoll(Config& config);
 
 /**
  * Copy constructor of 5-Epoll class
@@ -226,27 +223,6 @@ public:
     bool EpollWait(int  timeOut);
     bool EpollWait();
 
-/**
- *  get epoll_event instance
- *
- * epoll_event *getEvents() const;
- *
- * @returns epoll_event *
- * @param   void
- * @throw   none
- * */
-    epoll_event *getEvents();
-
-/**
- *  get number of triggred events
- *
- * int getNumberTriggeredEvents() const;
- *
- * @returns int of number of triggered events
- * @param   void
- * @throw   none
- * */
-    int getNumberTriggeredEvents() const;
 
 /**
  * add socket to Epoll
@@ -257,7 +233,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void addServer(Server & sever);
+    void addConfigServer(ConfigServer & server);
 
 
 /**
@@ -269,7 +245,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void addSocket(Socket & socket);
+    void addSocket(int socket);
 
 /**
  * add socket to Epoll
@@ -280,7 +256,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void removeSocket(Socket & socket);
+    void removeSocket(int socket);
 
 /**
  * add socket to Epoll
@@ -292,6 +268,17 @@ public:
  * @throw   none
  * */
     void launchEpoll();
+
+/**
+ * add socket to Epoll
+ *
+ * void manageEvent();
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void manageEvent();
 };
 
 

@@ -19,14 +19,14 @@
 */
 
 Socket::Socket()
-: _token(), _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(){}
+: _ipAddress(), _port(), _sock(), _socket(0), _mapServerNameToken(){}
 
-Socket::Socket(std::string & ipAddr, int & port)
-: _token(), _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(){}
+Socket::Socket(const std::string & ipAddr, const int & port)
+: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _mapServerNameToken(){}
 
 Socket::Socket(epoll_event & event)
-: _token(), _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(){
-//    buildClientSocket();
+: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _mapServerNameToken(){
+    buildClientSocket();
 }
 
 Socket::~Socket() {
@@ -38,7 +38,7 @@ Socket::~Socket() {
 
 Socket::Socket(const Socket &other)
         : _ipAddress(other._ipAddress), _port(other._port),
-          _sock(other._sock), _socket(other._socket), _vectorServerNameToken(other._vectorServerNameToken){}
+          _sock(other._sock), _socket(other._socket), _mapServerNameToken(other._mapServerNameToken){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
@@ -46,7 +46,7 @@ Socket& Socket::operator=(const Socket& rhs){
         this->_port = rhs._port;
         this->_sock = rhs._sock;
         this->_socket = rhs._socket;
-        this->_vectorServerNameToken = rhs._vectorServerNameToken;
+        this->_mapServerNameToken = rhs._mapServerNameToken;
     }
     return *this;
 }
@@ -190,13 +190,12 @@ const string &Socket::getIpAddress() const {
     return _ipAddress;
 }
 
-void Socket::addServer(Server &server) {
-    _saveToken = _token.generateToken();
-    for(std::vector<std::string>::iterator it = server.getVectorServerName().begin();
-    it != server.getVectorServerName().end(); ++it){
-        _vectorServerNameToken.push_back(std::make_pair(*it, _saveToken));
+void Socket::addServerName( std::vector<std::string> & name, const std::string & token){
+    for ( std::vector<std::string>::iterator it = name.begin();
+          it != name.end(); ++it) {
+        if (_mapServerNameToken.find(*it) == _mapServerNameToken.end())
+            _mapServerNameToken[*it] = token;
     }
-    _mapTokenServer.insert(std::make_pair(_saveToken, server));
 }
 
 bool Socket::operator==(const Socket & rhs) {
