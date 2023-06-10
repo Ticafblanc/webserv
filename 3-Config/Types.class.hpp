@@ -64,6 +64,17 @@ public:
 *====================================================================================
 */
 
+/**
+ * Public methode of Types.class class
+ *
+ * onst std::map<std::string, std::string> & getMime();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    const std::map<std::string, std::string> & getMime();
+
 /*>*******************************private section**********************************/
 
 private:

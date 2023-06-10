@@ -30,3 +30,7 @@ std::string Types::parseBlocTypes() {
     }
     return std::string();
 }
+
+const std::map<std::string, std::string> &Types::getMime() {
+    return _mapMimeType;
+}

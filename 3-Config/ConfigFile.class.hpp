@@ -16,6 +16,8 @@
 #define WEBSERV_CONFIG_HPP
 
 #include "0-Main/Includes/webserv.hpp"
+#include "3-Config/Http.class.hpp"
+#include "3-Config/Events.class.hpp"
 
 class ConfigFile {
 
@@ -136,14 +138,10 @@ private:
 *====================================================================================
 */
 
-    Config&                                             _config;
-
+    Config&                                                             _config;
     std::map<std::string, std::string (ConfigFile::*)(std::string &)>   _mapTokenListAction;
-    std::string                                         _pathLog;
-    std::string                                         _patherrorLog;
-    std::string                                         _pathpidLog;
-    Events                                              _Events;
-    Http                                                _Http;
+    Events                                                              _Events;
+    Http                                                                _Http;
 
 
 };
