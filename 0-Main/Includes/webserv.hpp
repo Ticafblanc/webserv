@@ -11,7 +11,7 @@
 #include "3-Config/Code.class.hpp"
 #include "3-Config/Types.class.hpp"
 #include "6-PegParser/PegParser.class.hpp"
-#include "5-Epoll/Epoll.class.hpp"
+#include "4-Http/HttpMessage.class.hpp"
 //#include "8-Exception/Includes/Exception.hpp"
 
 //__FILE_NAME__
@@ -40,6 +40,7 @@ struct ConfigServer{
     explicit ConfigServer(const std::string & tok)
     : token(tok), listen(), name(), root(), index(){}
 
+    virtual ~ConfigServer() {}
 
     std::string                             token;
     std::map<std::string, int>              listen;
@@ -57,13 +58,11 @@ struct Config {
       errorLog("/webserv/var/log/error.log"),
       pidLog("/webserv/var/log/pid.log"),
       workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
-      clientMaxBodySize(1048576), vecEpoll(),
+      clientMaxBodySize(1048576),
       mapMimeType(Types("/webserv/config_content_server/etc/webserv/conf/mime.types").getMime()),
       code() {
-        Epoll epoll(*this);
         ConfigServer serv;
-        epoll.addConfigServer(serv);
-        vecEpoll.push_back(epoll);
+        addConfigServer(serv);
     }
 
     Config(const std::string & pathToConfigFile, char **env)
@@ -72,11 +71,34 @@ struct Config {
     errorLog("/webserv/config_content_server/var/log/error.log"),
     pidLog("/webserv/config_content_server/var/log/webserv.pid"),
     workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
-    clientMaxBodySize(1048576), vecEpoll(),
+    clientMaxBodySize(1048576),
     mapMimeType(Types("/webserv/config_content_server/etc/webserv/conf/mime.types").getMime()),
     code(), mapConfigServer() {}
 
     virtual ~Config() {}
+
+    void addConfigServer(ConfigServer & server) {
+        for ( std::map<std::string, int>::iterator it = server.listen.begin();
+              it != server.listen.end(); ++it) {
+            Socket sock(it->first, it->second);
+            Socket& newSocket = sock;
+            for(std::map<int, Socket>::iterator sockIt = mapFdSocket.begin();
+                sockIt != mapFdSocket.end(); ++sockIt){
+                if (sockIt->second == newSocket){
+                    newSocket = sockIt->second;
+                    break;
+                }
+            }
+            newSocket.addServerName(server.name, server.token);
+            try {
+                newSocket.buildServerSocket();
+            }catch (std::exception & e){
+                std::cerr << e.what()<<std::endl;
+                continue;
+            }
+            mapFdSocket.insert(std::make_pair(newSocket.getSocket(), newSocket));
+        }
+    }
 
     PegParser                                           pegParser;
     Token                                               token;
@@ -89,7 +111,7 @@ struct Config {
     int                                                 clientBodyBufferSize;
     int                                                 clientHeaderBufferSize;
     int                                                 clientMaxBodySize;
-    std::vector<Epoll>                                  vecEpoll;
+    std::map<int, Socket>                               mapFdSocket;
     std::map<std::string, std::string>                  mapMimeType;
     Code                                                code;
     std::map<std::string, ConfigServer>                 mapConfigServer;

@@ -12,7 +12,7 @@
 */
 
 Epoll::Epoll(Config& config)
-: epoll_event(), _config(config), _mapFdSocket(), _epollInstanceFd(),
+: epoll_event(), _config(config), _epollInstanceFd(),
 _events(new epoll_event[config.workerConnections]),_numberTriggeredEvents() {}
 
 Epoll::~Epoll() {
@@ -20,7 +20,7 @@ Epoll::~Epoll() {
 }
 
 Epoll::Epoll(const Epoll &other)
-: epoll_event(other), _config(other._config),  _mapFdSocket(other._mapFdSocket), _epollInstanceFd(other._epollInstanceFd),
+: epoll_event(other), _config(other._config), _epollInstanceFd(other._epollInstanceFd),
  _events(other._events), _numberTriggeredEvents(other._numberTriggeredEvents) {}
 
 Epoll &Epoll::operator=(const Epoll &rhs) {
@@ -95,14 +95,6 @@ bool Epoll::EpollWait() {
     return (_numberTriggeredEvents > 0);
 }
 
-epoll_event *Epoll::getEvents()  {
-    return _events;
-}
-
-int Epoll::getNumberTriggeredEvents() const {
-    return _numberTriggeredEvents;
-}
-
 void Epoll::addSocket(int socket){
     setEpollEvent(socket, EPOLLIN);
     setEpollCtl(EPOLL_CTL_ADD) ;
@@ -114,48 +106,30 @@ void Epoll::removeSocket(int socket){
 }
 
 void Epoll::launchEpoll(){
-    createEpollInstance(_mapFdSocket.size());
-    for (std::map<int, Socket>::iterator it = _mapFdSocket.begin();
-         it != _mapFdSocket.end(); ++it) {
+    createEpollInstance(_config.mapFdSocket.size());
+    for (std::map<int, Socket>::iterator it = _config.mapFdSocket.begin();
+         it != _config.mapFdSocket.end(); ++it) {
         addSocket(it->first);
-    }
-}
-
-void Epoll::addConfigServer(ConfigServer & server) {
-    for ( std::map<std::string, int>::iterator it = server.listen.begin();
-         it != server.listen.end(); ++it) {
-        Socket sock(it->first, it->second);
-        Socket& newSocket = sock;
-        for(std::map<int, Socket>::iterator sockIt = _mapFdSocket.begin();
-            sockIt != _mapFdSocket.end(); ++sockIt){
-            if (sockIt->second == newSocket){
-                newSocket = sockIt->second;
-                break;
-            }
-        }
-        newSocket.addServerName(server.name, server.token);
-        try {
-            newSocket.buildServerSocket();
-        }catch (std::exception & e){
-            std::cerr << e.what()<<std::endl;
-            continue;
-        }
-        _mapFdSocket.insert(std::make_pair(newSocket.getSocket(), newSocket));
     }
 }
 
 void Epoll::manageEvent() {
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
-        std::map<int, Socket>::iterator it = _mapFdSocket.find(_events[i].data.fd);
-        if (it != _mapFdSocket.end()) {
-            try {
-                Socket newClient(_events[i]);
-                Http
-            }catch (std::exception & e){
-                std::cerr << e.what() << std::endl;
+        if ((!(_events[i].events & EPOLLERR)) ||(!(_events[i].events & EPOLLHUP)) || (_events[i].events & EPOLLIN)) {
+            std::map<int, Socket>::iterator it = _config.mapFdSocket.find(_events[i].data.fd);
+            if (it != _config.mapFdSocket.end()) {
+                try {
+                    Socket newClient(_events[i]);
+                    HttpMessage message(*it, newClient, _config)
+                } catch (std::exception &e) {
+                    _config.errorLog.writeLogFile(e.what());
+                    std::cerr << e.what() << std::endl;
+                }
             }
+        } else{
+            _config.errorLog.writeLogFile(intToString(_events[i].data.fd));
+            close(_events[i].data.fd);
         }
-
 
     }
 

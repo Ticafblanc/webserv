@@ -13,7 +13,7 @@
 #ifndef WEBSERV_HTTPMESSAGE_HPP
 #define WEBSERV_HTTPMESSAGE_HPP
 
-#include "3-Config/ConfigFile.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
 #include "HttpRequest.class.hpp"
 #include "Execute.class.hpp"
 #include "HttpReponse.class.hpp"
@@ -56,11 +56,13 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                         _socket;
-    Server&                         _server;
+    Socket&                         _server;
+    Socket&                         _client;
+    Config&                         _config;
     HttpRequest                     _request;
     Execute                         _execute;
     HttpReponse                     _reponse;
+    std::string                     _serverToken;
 
 /*
 *====================================================================================
@@ -88,7 +90,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpMessage(Socket& socket, Server& server);
+    HttpMessage(Socket& server, Socket& client, Config& config);
 
 /**
 * Destructor of HttpMessage class
@@ -125,7 +127,18 @@ public:
 *====================================================================================
 */
 
-
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void findTokenServer();
 
 /*
 *====================================================================================

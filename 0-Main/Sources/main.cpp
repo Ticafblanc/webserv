@@ -12,6 +12,7 @@
 
 #include "0-Main/Includes/webserv.hpp"
 #include "3-Config/ConfigFile.class.hpp"
+#include "5-Epoll/Epoll.class.cpp"
 
 void handleExit(int sig) {
     (void) sig;
@@ -78,11 +79,12 @@ static int checkOption(int argc, char **argv){
     return 0;
 }
 
-static void launcher(Config & config, Epoll & EpollRun) {
-    EpollRun.launchEpoll();
+static void launcher(Config & config) {
+    Epoll epoll(config);
+    epoll.launchEpoll();
     while(true) {
         try {
-            EpollRun.EpollWait();
+            epoll.EpollWait();
         }catch (std::exception & e){
             std::cerr << e.what() << std::endl;
             config.errorLog.writeLogFile(e.what());
@@ -103,10 +105,10 @@ int main(int argc, char **argv, char **envp){
             if(!pathConfigFile.empty()){
                 Config webserv(pathConfigFile, envp);
                 ConfigFile extractConfigFile(webserv);
-                launcher(webserv, webserv.vecEpoll[0]);//@todo manage thread
+                launcher(webserv);//@todo manage thread
             } else{
                 Config webserv(envp);
-                launcher(webserv, webserv.vecEpoll[0]);//@todo manage thread
+                launcher(webserv);//@todo manage thread
             }
         }
         catch (const std::exception &e) {

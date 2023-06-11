@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_HTTPREPONSE_CLASS_HPP
 #define WEBSERVER_HTTPREPONSE_CLASS_HPP
 
-#include "Execute.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
 
 class HeaderReponse {
 
@@ -20,7 +20,7 @@ private:
 */
 
     Execute&                                                                _execute;
-    Server&                                                                 _server;
+    Config&                                                                 _config;
     std::string                                                             _startLineVersion;
     std::string                                                             _startLineStatusCode;
     std::map<std::string, std::string>                                      _mapHttpHeaders;
@@ -60,7 +60,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HeaderReponse(Execute & execute, Server & server);
+    HeaderReponse(Execute & execute, Config& config);
 
 /**
  * Copy constructor of HeaderReponse class
@@ -87,9 +87,11 @@ public:
 *|                                  Element access                                  |
 *====================================================================================
 */
+    void buildHeader();
 
     const std::string & getHeaderReponse();
 
+    void buildHeaderStatus();
 };
 
 
@@ -103,9 +105,9 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Server&                         _server;
     Socket&                         _socket;
     Execute&                        _execute;
+    Config&                         _config;
     ssize_t                         _bytesSend;
     std::vector<std::string>        _buffer;
     HeaderReponse                   _headReponse;
@@ -116,18 +118,7 @@ private:
 *====================================================================================
 */
 
-/**
- * Private methode of HttpReponse.class class
- *
- * manage event like receive message
- *
- *     void sendMessage();
- *
- * @returns void
- * @param   void
- * @throws  http_request::http_request_exception
- * */
-    void sendMessage();
+
 
 /**
  * Private methode of server class
@@ -169,7 +160,7 @@ private:
  * */
     bool messageIsNotComplete();
 
-
+    void chunckMessage();
 /*>********************************public section**********************************/
 
 public:
@@ -188,7 +179,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpReponse(Socket& socket, Execute & execute, Server& server);
+    HttpReponse(Socket& socket, Execute & execute, Config & config);
 
 /**
 * Destructor of HttpReponse.class class
@@ -225,6 +216,32 @@ public:
 *====================================================================================
 */
 
+
+/**
+ * Private methode of HttpReponse.class class
+ *
+ * manage event like receive message
+ *
+ *     void sendMessage();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void sendMessage();
+
+/**
+ * Private methode of HttpReponse.class class
+ *
+ * manage event like receive message
+ *
+ *     void sendMessage();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void sendStatusPage();
 
 /*
 *====================================================================================
@@ -302,7 +319,7 @@ public:
         std::string     _message;
     };
 
-    void chunckMessage();
+
 };
 
 

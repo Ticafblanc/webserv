@@ -21,7 +21,6 @@ protected:
 *====================================================================================
 */
     Config&                                         _config;
-    std::map<int, Socket>                           _mapFdSocket;
     int                                             _epollInstanceFd;
     epoll_event*                                    _events;
     int                                             _numberTriggeredEvents;

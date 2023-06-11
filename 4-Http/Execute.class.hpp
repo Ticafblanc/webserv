@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_EXECUTE_HPP
 #define WEBSERVER_EXECUTE_HPP
 
-#include "HttpRequest.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
 
 class Execute {
 
@@ -19,9 +19,11 @@ private:
 *====================================================================================
 */
     HttpRequest&                                _httpRequest;
+    Config&                                     _config;
     std::map<std::string, void (Execute::*)()>  _mapMethode;
     std::string                                 _reponse;
     std::string                                 _contentType;
+    std::string                                 _tokenServer;
 
 /*
 *====================================================================================
@@ -29,36 +31,7 @@ private:
 *====================================================================================
 */
 
-/**
- * Operator overload= of Execute.class class
- *
- * Execute.class(const Execute.class &);
- *
- * @param   http_request instance const to copy the server
- * @throw   none
- **/
-    void buildMapMethode();
 
-/**
- * Operator overload= of Execute.class class
- *
- * Execute.class(const Execute.class &);
- *
- * @param   http_request instance const to copy the server
- * @throw   none
- **/
-    void selectLocation();
-
-/**
- * Protected methode of HttpReponse.class class
- *
- * std::string post_methode();
- *
- * @returns     std::string containt error to throw
- * @param       void
- * @throw       none
- */
-    void selectMethode();
 /**
  * Protected methode of HttpReponse.class class
  *
@@ -113,7 +86,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    Execute(HttpRequest& httpRequest);
+    Execute(HttpRequest& httpRequest, Config & config);
 
 /**
 * Destructor of Execute.class class
@@ -150,6 +123,48 @@ public:
 *|                                  Element access                                  |
 *====================================================================================
 */
+
+/**
+ * Operator overload= of Execute.class class
+ *
+ * Execute.class(const Execute.class &);
+ *
+ * @param   http_request instance const to copy the server
+ * @throw   none
+ **/
+    void buildMapMethode();
+/**
+ * Protected methode of HttpReponse.class class
+ *
+ * std::string delete_methode();
+ *
+ * @returns     std::string containt error to throw
+ * @param       void
+ * @throw       none
+ */
+    void executeRequest(std::string & tokenServer);
+
+
+/**
+ * Operator overload= of Execute.class class
+ *
+ * Execute.class(const Execute.class &);
+ *
+ * @param   http_request instance const to copy the server
+ * @throw   none
+ **/
+    void selectLocation();
+
+/**
+ * Protected methode of HttpReponse.class class
+ *
+ * std::string post_methode();
+ *
+ * @returns     std::string containt error to throw
+ * @param       void
+ * @throw       none
+ */
+    void selectMethode();
 
 /**
  * Protected methode of HttpReponse.class class

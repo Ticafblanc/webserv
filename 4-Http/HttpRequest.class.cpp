@@ -189,20 +189,18 @@ HeaderRequest::headerException &HeaderRequest::headerException::operator=(const 
 
 
 
-HttpRequest::HttpRequest(Socket& socket, Server& server)
-        : _socket(socket), _server(server), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){
-    recvMessage();
-}
+HttpRequest::HttpRequest(Socket& socket, Config& config)
+        : _socket(socket), _config(config), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){}
 
 HttpRequest::~HttpRequest() {}
 
 HttpRequest::HttpRequest(const HttpRequest & other)
-        : _socket(other._socket), _server(other._server), _bytesRecv(other._bytesRecv),
+        : _socket(other._socket), _config(other._config), _bytesRecv(other._bytesRecv),
           _contentLength(other._contentLength), _buffer(other._buffer), _headRequest(other._headRequest){}
 
 HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
     this->_socket = rhs._socket;
-    this->_server = rhs._server;
+    this->_config = rhs._config;
     this->_bytesRecv = rhs._bytesRecv;
     this->_contentLength = rhs._contentLength;
     this->_buffer = rhs._buffer;

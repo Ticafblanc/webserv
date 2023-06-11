@@ -9,8 +9,22 @@
 *====================================================================================
 */
 
-HeaderReponse::HeaderReponse(Execute & execute, Server& server)
-        : _execute(execute), _server(server), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {
+HeaderReponse::HeaderReponse(Execute & execute, Config& config)
+        : _execute(execute), _config(config), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {}
+
+HeaderReponse::HeaderReponse(const HeaderReponse & other)
+        : _execute(other._execute), _config(other._config), _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
+          _mapHttpHeaders(other._mapHttpHeaders) {}
+
+HeaderReponse &HeaderReponse::operator=(const HeaderReponse & rhs) {
+    this->_execute = rhs._execute;
+    this->_startLineVersion = rhs._startLineVersion;
+    this->_startLineStatusCode = rhs._startLineStatusCode;
+    this->_mapHttpHeaders = rhs._mapHttpHeaders;
+    return *this;
+}
+
+void HeaderReponse::buildHeader() {
     addStatusCode();
     addDate();
     addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
@@ -18,21 +32,17 @@ HeaderReponse::HeaderReponse(Execute & execute, Server& server)
     addConnectionClose();
 }
 
-HeaderReponse::HeaderReponse(const HeaderReponse & other)
-        : _execute(other._execute), _server(other._server), _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
-          _mapHttpHeaders(other._mapHttpHeaders) {}
-
-HeaderReponse &HeaderReponse::operator=(const HeaderReponse & rhs) {
-    this->_execute = rhs._execute;
-    this->_server = rhs._server;
-    this->_startLineVersion = rhs._startLineVersion;
-    this->_startLineStatusCode = rhs._startLineStatusCode;
-    this->_mapHttpHeaders = rhs._mapHttpHeaders;
-    return *this;
+void HeaderReponse::buildHeaderStatus() {
+    addStatusCode();
+    addDate();
+    addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
+    addHttpHeaders("Content-Type:", _execute.getContentType());
+    addHttpHeaders("Content-Length:", intToString(_execute.getReponse().size()));
+    addConnectionClose();
 }
 
 void HeaderReponse::addStatusCode() {
-    _startLineStatusCode = _server._config._Http._code.getStatusCode();
+    _startLineStatusCode = _config.code.getStatusCode();
 }
 
 void HeaderReponse::addHttpHeaders(const std::string& token, const std::string& value) {
@@ -74,25 +84,19 @@ const std::string &HeaderReponse::getHeaderReponse() {
 }
 
 
-
-
-
-HttpReponse::HttpReponse(Socket& socket, Execute & execute, Server& server)
-        : _server(server), _socket(socket), _execute(execute), _bytesSend(), _buffer(), _headReponse(execute, server){
-    chunckMessage();
-    sendMessage();
-}
+HttpReponse::HttpReponse(Socket& socket, Execute & execute, Config& config)
+        : _socket(socket), _execute(execute), _config(config), _bytesSend(), _buffer(), _headReponse(execute, _config){}
 
 HttpReponse::~HttpReponse() {}
 
 HttpReponse::HttpReponse(const HttpReponse & other)
-        : _server(other._server),_socket(other._socket), _execute(other._execute), _bytesSend(other._bytesSend), _buffer(other._buffer),
+        : _socket(other._socket), _execute(other._execute), _config(other._config), _bytesSend(other._bytesSend), _buffer(other._buffer),
           _headReponse(other._headReponse) {}
 
 HttpReponse &HttpReponse::operator=(const HttpReponse &rhs) {
-    this->_server = rhs._server;
     this->_socket = rhs._socket;
     this->_execute = rhs._execute;
+    this->_config = rhs._config;
     this->_bytesSend = rhs._bytesSend;
     this->_buffer = rhs._buffer;
     this->_headReponse = rhs._headReponse;
@@ -105,9 +109,13 @@ HttpReponse &HttpReponse::operator=(const HttpReponse &rhs) {
 *====================================================================================
 */
 
+void HttpReponse::sendStatusPage() {
 
+}
 
 void HttpReponse::sendMessage() {
+    _headReponse.buildHeader();
+    chunckMessage();
     for(std::vector<std::string>::iterator it = _buffer.begin();
     it != _buffer.end(); ++it){
         sendData(*it);

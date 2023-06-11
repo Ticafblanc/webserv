@@ -4,19 +4,19 @@
 
 #include "Execute.class.hpp"
 
-Execute::Execute(HttpRequest& httpRequest)
-        : _httpRequest(httpRequest), _mapMethode(), _reponse(), _contentType(){
+Execute::Execute(HttpRequest& httpRequest, Config & config)
+        : _httpRequest(httpRequest), _config(config), _mapMethode(), _reponse(), _contentType(){
     buildMapMethode();
-    selectMethode();
 }
 
 Execute::~Execute() {}
 
 Execute::Execute(const Execute & other)
-        : _httpRequest(other._httpRequest){}
+        : _httpRequest(other._httpRequest), _config(other._config){}
 
 Execute &Execute::operator=(const Execute &rhs) {
     this->_httpRequest = rhs._httpRequest;
+    this->_config = rhs._config;
     return *this;
 }
 
@@ -25,6 +25,7 @@ void Execute::buildMapMethode(){
     _mapMethode["POST"] = &Execute::POSTmethode;
     _mapMethode["DELETE"] = &Execute::DELETEmethode;
 }
+
 
 void Execute::selectMethode() {
     (this->*_mapMethode[_httpRequest.getMethode()])();
@@ -115,12 +116,20 @@ std::string Execute::getContentType() {
 }
 
 
+
+
 /*
 *====================================================================================
 *|                                       Methode                                    |
 *====================================================================================
 */
 
+
+void Execute::executeRequest(std::string & tokenServer) {
+    _tokenServer = tokenServer;
+    selectMethode();
+
+}
 
 
 /*
