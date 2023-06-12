@@ -39,12 +39,13 @@ const char * selectPath(char **argv, int positionPathFileConfig){
         return argv[positionPathFileConfig];
 }
 
-static void checkFile(int argc, char **argv){
+static void checkFile(int argc, char **argv, char ** envp){
     int positionPathFileConfig = (argc == 2) ? 0 : 2;
     std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
     try {
-//        Config testConfigFile(pathConfigFile);
+        Config webserv(pathConfigFile, envp);
+        ConfigFile extractConfigFile(webserv);
     }
     catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -56,7 +57,7 @@ static void checkFile(int argc, char **argv){
 
 }
 
-static int checkOption(int argc, char **argv){
+static int checkOption(int argc, char **argv, char ** envp){
     if (argc > 3){
         std::cerr << "too many arguments" << std::endl;
         return -1;
@@ -66,7 +67,7 @@ static int checkOption(int argc, char **argv){
             if (argv[1][1] == 's')
                 (void)argv;//@todo webserv -s (stop quit reopen reload) SIGINT, SIGTERM shutdown SIGHUP reload
             else if (argv[1][1] == 't')
-                checkFile(argc, argv);
+                checkFile(argc, argv, envp);
             else if (argv[1][1] == 'd')
                 return 3;
             else if (argv[1][1] == 'c' && argc == 3)
@@ -94,7 +95,7 @@ static void launcher(Config & config) {
 
 int main(int argc, char **argv, char **envp){
     std::string pathConfigFile;
-    int         positionPathFileConfig = checkOption(argc, argv);
+    int         positionPathFileConfig = checkOption(argc, argv, envp);
 
     if (positionPathFileConfig != -1) {
         signal(SIGINT, handleExit);

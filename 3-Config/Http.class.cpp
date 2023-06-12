@@ -8,7 +8,7 @@ Http::Http(Config& config)
 : _config(config), _mapTokenListAction() {
     setMapToken();
 }
-
+//@todo add body size
 Http::~Http() {}
 
 Http::Http(const Http &other)

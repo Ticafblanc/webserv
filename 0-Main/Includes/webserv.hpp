@@ -60,20 +60,20 @@ struct Config {
       workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
       clientMaxBodySize(1048576), mapFdServer(), mapFdClient(),
       mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
-      code() {
+      code(), mapConfigServer(), root("/webserv/var/www/defaut.com") {
         ConfigServer serv;
         addConfigServer(serv);
     }
 
     Config(const std::string & pathToConfigFile, char **env)
     : pegParser(pathToConfigFile.c_str(), "#"), envp(setEnvp(env)),
-    accessLog("/webserv/config_content_server/var/log/log_info.log"),
-    errorLog("/webserv/config_content_server/var/log/error.log"),
-    pidLog("/webserv/config_content_server/var/log/webserv.pid"),
+    accessLog("/webserv/var/log/log_info.log"),
+    errorLog("/webserv/var/log/error.log"),
+    pidLog("/webserv/var/log/webserv.pid"),
     workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
     clientMaxBodySize(1048576), mapFdServer(), mapFdClient(),
-    mapMimeType(Types("/webserv/config_content_server/etc/webserv/conf/mime.types").getMime()),
-    code(), mapConfigServer() {}
+    mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
+    code(), mapConfigServer(), root("/webserv/var/www/defaut.com") {}
 
     virtual ~Config() {}
 
@@ -116,6 +116,7 @@ struct Config {
     std::map<std::string, std::string>                  mapMimeType;
     Code                                                code;
     std::map<std::string, ConfigServer>                 mapConfigServer;
+    std::string                                         root;
 };
 
 #endif

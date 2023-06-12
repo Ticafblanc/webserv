@@ -77,7 +77,41 @@ public:
 
     std::string parseListenData(std::string in);
 
+/**
+ * private function of config_webserv.class
+ *
+ * check if the _input member is valid
+ * is a valid ip address.
+ *
+ * @return std::string of an error message
+ * @param none
+ * @throws none
+ */
+    std::string check_input();
 
+/**
+ * private function of config_webserv.class
+ *
+ * check if the ip address pass in the function
+ * is a valid ip address.
+ *
+ * @return none
+ * @param ip_address is a stringstream, error is a string for the error message if an error occur
+ * @throws none
+ */
+    std::string check_ip(std::string, std::string &);
+
+/**
+ * private function of config_webserv.class
+ *
+ * check if the ip address pass in the function
+ * is a valid ip address.
+ *
+ * @return none
+ * @param port is a stringstream, error is a string for the error message if an error occur
+ * @throws none
+ */
+    void check_port(std::string, std::string &);
 
 /*>*******************************private section**********************************/
 

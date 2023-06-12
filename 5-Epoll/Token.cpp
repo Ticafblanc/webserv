@@ -7,16 +7,16 @@
 const std::string &Token::generateToken() {
     const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const int length = 10;
-    std::string token = _vectorToken[0];
+    std::string token;
 
-    while(checkToken(token).first) {
+     do {
         srand(time(NULL));
 
         for (int i = 0; i < length; ++i) {
             int index = rand() % characters.length();
             token += characters[index];
         }
-    }
+    }while(!checkToken(token).first);
     _vectorToken.push_back(token);
     return _vectorToken.back();
 }
