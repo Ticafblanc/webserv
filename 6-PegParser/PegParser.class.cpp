@@ -20,7 +20,7 @@ PegParser::PegParser(const char * path_file) : _stringStream(), _lineCommentChar
         throw syntaxException(strerror(errno));
     std::copy(std::istreambuf_iterator<char>(fileToParse),
               std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(_stringStream));
-    std::cout << _stringStream.str() << std::endl;
+//    std::cout << _stringStream.str() << std::endl;
     fileToParse.close();
 }
 

@@ -15,14 +15,29 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/Headers.hpp"
 
+struct SocketClient{
+    SocketClient(int server);
+
+    virtual ~SocketClient();
+
+    SocketClient(const SocketClient& other);
+
+    SocketClient& operator=(const SocketClient& rhs);
+
+    int                                                 _server;
+    bool                                                _connection;
+    std::string                                         _content;
+    std::string                                         _contentType;
+    std::string                                         _serverToken;
+};
 
 class Socket {
 
 /*>*******************************private section**********************************/
 
-protected:
+private:
 
 /*
 *====================================================================================
@@ -34,6 +49,9 @@ protected:
     sockaddr_in                                         _sock;
     int                                                 _socket;
     std::map<std::string, std::string>                  _mapServerNameToken;
+    /*client section*/
+    SocketClient                                        _client;
+
 
 /*
 *====================================================================================
@@ -82,7 +100,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    Socket(epoll_event &event);
+    explicit Socket(epoll_event &event);
 
 /**
  * Destructor of 7-Socket class
@@ -359,6 +377,16 @@ public:
 /**
  * Private methode of socket class
  *
+ * const std::string & findServerName(const std::string & token);
+ *
+ * @returns void
+ * @param   void
+ * */
+    std::string findServerName(const std::string & token);
+
+/**
+ * Private methode of socket class
+ *
  * void buildClientSocket();
  *
  * @returns void
@@ -390,6 +418,9 @@ public:
 
 
     const string &getIpAddress() const;
+
+    SocketClient &getclient() ;
+
 
 };
 

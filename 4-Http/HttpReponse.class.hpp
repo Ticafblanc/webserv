@@ -6,6 +6,7 @@
 #define WEBSERVER_HTTPREPONSE_CLASS_HPP
 
 #include "0-Main/Includes/webserv.hpp"
+#include "Execute.class.hpp"
 
 class HeaderReponse {
 
@@ -19,7 +20,7 @@ private:
 *====================================================================================
 */
 
-    Execute&                                                                _execute;
+    SocketClient&                                                           _client;
     Config&                                                                 _config;
     std::string                                                             _startLineVersion;
     std::string                                                             _startLineStatusCode;
@@ -60,7 +61,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HeaderReponse(Execute & execute, Config& config);
+    HeaderReponse(SocketClient & client, Config& config);
 
 /**
  * Copy constructor of HeaderReponse class
@@ -105,8 +106,7 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                         _socket;
-    Execute&                        _execute;
+    Socket&                         _client;
     Config&                         _config;
     ssize_t                         _bytesSend;
     std::vector<std::string>        _buffer;
@@ -179,7 +179,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpReponse(Socket& socket, Execute & execute, Config & config);
+    HttpReponse(Socket& client, Config & config);
 
 /**
 * Destructor of HttpReponse.class class

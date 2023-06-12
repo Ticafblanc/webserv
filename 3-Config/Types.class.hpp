@@ -5,7 +5,8 @@
 #ifndef WEBSERVER_TYPES_HPP
 #define WEBSERVER_TYPES_HPP
 
-#include "0-Main/Includes/webserv.hpp"
+#include "0-Main/Includes/Headers.hpp"
+#include "6-PegParser/PegParser.class.hpp"
 
 class Types {
 

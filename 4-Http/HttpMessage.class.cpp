@@ -19,39 +19,28 @@
 *==========================================================================================================
 */
 
-HttpMessage::HttpMessage(Socket& server, Socket& client, Config& config)
-: _server(server),
-  _client(client),
+HttpMessage::HttpMessage(Socket& client, Config& config)
+: _client(client),
   _config(config),
   _request(_client, config),
-  _execute(_request, config),
-  _reponse(_client, _execute, config) {
-    try {
-        _request.recvMessage();
-        findTokenServer();
-        _execute.executeRequest(_serverToken);
-        _reponse.sendMessage();
-    }catch (std::exception & e){
-        _config.errorLog.writeLogFile(e.what());
-        std::cerr << e.what() << std::endl;
-    }
-
+  _execute(_request, config, _client){
+    _request.recvMessage();
+    findTokenServer();
+    _execute.executeRequest(_serverToken);
 }
 
 HttpMessage::~HttpMessage() {}
 
 HttpMessage::HttpMessage(const HttpMessage & other)
-: _server(other._server), _client(other._client), _config(other._config),
-_request(other._request), _execute(other._execute), _reponse(other._reponse){}
+: _client(other._client), _config(other._config),
+_request(other._request), _execute(other._execute){}
 
 HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
     if (this != &rhs) {
         this->_client = rhs._client;
-        this->_server = rhs._server;
         this->_config = rhs._config;
         this->_request = rhs._request;
         this->_execute = rhs._execute;
-        this->_reponse = rhs._reponse;
     }
     return *this;
 }
@@ -61,16 +50,17 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 *|                                       Methode                                    |
 *====================================================================================
 */
+
+
 void HttpMessage::findTokenServer() {
-    _serverToken = _request.getValueHeader("Host:");
-    if (_serverToken.empty())
+    std::string serverName = _request.getValueHeader("Host:");
+    if (serverName.empty())
         throw HttpMessage::httpMessageException("no host");
     else{
-        std::map<std::string, ConfigServer>::iterator it = _config.mapConfigServer.find(_serverToken);
-        if (it == _config.mapConfigServer.end())
+        Socket & server = _config.mapFdServer.at(_client.getclient()._server);
+        if ((_serverToken = server.findServerName(serverName)).empty())
             throw HttpMessage::httpMessageException("404 not found");
     }
-
 }
 
 

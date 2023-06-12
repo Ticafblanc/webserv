@@ -4,19 +4,20 @@
 
 #include "Execute.class.hpp"
 
-Execute::Execute(HttpRequest& httpRequest, Config & config)
-        : _httpRequest(httpRequest), _config(config), _mapMethode(), _reponse(), _contentType(){
+Execute::Execute(HttpRequest& httpRequest, Config & config, Socket& client)
+        : _httpRequest(httpRequest), _config(config), _mapMethode(), _client(client){
     buildMapMethode();
 }
 
 Execute::~Execute() {}
 
 Execute::Execute(const Execute & other)
-        : _httpRequest(other._httpRequest), _config(other._config){}
+        : _httpRequest(other._httpRequest), _config(other._config), _client(other._client){}
 
 Execute &Execute::operator=(const Execute &rhs) {
     this->_httpRequest = rhs._httpRequest;
     this->_config = rhs._config;
+    this->_client = rhs._client;
     return *this;
 }
 
@@ -37,33 +38,41 @@ void Execute::selectLocation() {
 void Execute::GETmethode() {
    std::string url = _httpRequest.getUrl();
    selectLocation();
+    std::ifstream logfile("/webserv/var/www/default.com/index.html");
+    if (!logfile.is_open())
+        throw Execute::executeException(strerror(errno));
+    std::string line;
+    while (std::getline(logfile, line)) {
+        _client.getclient()._content += line;
+    }
+    logfile.close();
    //todo find location
    //vald methode"/usr/local/var/www/index.html"
    //build _reponse
-   _reponse = "<!DOCTYPE html>\n"
-              "<html>\n"
-              "<head>\n"
-              "<title>Welcome to nginx!</title>\n"
-              "<style>\n"
-              "html { color-scheme: light dark; }\n"
-              "body { width: 35em; margin: 0 auto;\n"
-              "font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
-              "</style>\n"
-              "</head>\n"
-              "<body>\n"
-              "<h1>Welcome to nginx!</h1>\n"
-              "<p>If you see this page, the nginx web serverSocket is successfully installed and\n"
-              "working. Further configuration is required.</p>\n"
-              "\n"
-              "<p>For online documentation and support please refer to\n"
-              "<a href=\"http://nginx.org/\">nginx.org</a>.<br/>\n"
-              "Commercial support is available at\n"
-              "<a href=\"http://nginx.com/\">nginx.com</a>.</p>\n"
-              "\n"
-              "<p><em>Thank you for using nginx.</em></p>\n"
-              "</body>\n"
-              "</html>";
-    _contentType = "text/html";
+//   _client.getclient()._content = "<!DOCTYPE html>\n"
+//              "<html>\n"
+//              "<head>\n"
+//              "<title>Welcome to nginx!</title>\n"
+//              "<style>\n"
+//              "html { color-scheme: light dark; }\n"
+//              "body { width: 35em; margin: 0 auto;\n"
+//              "font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
+//              "</style>\n"
+//              "</head>\n"
+//              "<body>\n"
+//              "<h1>Welcome to nginx!</h1>\n"
+//              "<p>If you see this page, the nginx web serverSocket is successfully installed and\n"
+//              "working. Further configuration is required.</p>\n"
+//              "\n"
+//              "<p>For online documentation and support please refer to\n"
+//              "<a href=\"http://nginx.org/\">nginx.org</a>.<br/>\n"
+//              "Commercial support is available at\n"
+//              "<a href=\"http://nginx.com/\">nginx.com</a>.</p>\n"
+//              "\n"
+//              "<p><em>Thank you for using nginx.</em></p>\n"
+//              "</body>\n"
+//              "</html>";
+    _client.getclient()._contentType = "text/html";
 }
 
 void Execute::POSTmethode() {
@@ -72,7 +81,7 @@ void Execute::POSTmethode() {
     //vald methode
     //execute request
     //build reponse
-    _reponse = "<!DOCTYPE html>\n"
+    _client.getclient()._content = "<!DOCTYPE html>\n"
                "<html>\n"
                "<head>\n"
                "<title>Welcome to nginx!</title>\n"
@@ -95,7 +104,7 @@ void Execute::POSTmethode() {
                "<p><em>Thank you for using nginx.</em></p>\n"
                "</body>\n"
                "</html>";
-    _contentType = "text/html";
+    _client.getclient()._contentType = "text/html";
 
 }
 
@@ -108,11 +117,11 @@ void Execute::DELETEmethode() {
 }
 
 std::string Execute::getReponse() {
-    return _reponse;
+    return _client.getclient()._content;
 }
 
 std::string Execute::getContentType() {
-    return _contentType;
+    return _client.getclient()._contentType;
 }
 
 

@@ -7,6 +7,10 @@
 
 Log::Log() {}
 
+Log::Log(const string &pathToLogFile) : _pathToLogFile(pathToLogFile){
+    setLog(pathToLogFile);
+}
+
 Log::~Log() {}
 
 Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile) {}
@@ -48,6 +52,8 @@ void Log::printLogFile() {
     }
     logfile.close();
 }
+
+
 
 Log::LogException::LogException(const char * message)
         : _message(message) {}

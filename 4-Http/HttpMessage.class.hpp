@@ -56,12 +56,10 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                         _server;
     Socket&                         _client;
     Config&                         _config;
     HttpRequest                     _request;
     Execute                         _execute;
-    HttpReponse                     _reponse;
     std::string                     _serverToken;
 
 /*
@@ -90,7 +88,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpMessage(Socket& server, Socket& client, Config& config);
+    HttpMessage(Socket& client, Config& config);
 
 /**
 * Destructor of HttpMessage class

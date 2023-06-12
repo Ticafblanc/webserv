@@ -9,15 +9,15 @@
 *====================================================================================
 */
 
-HeaderReponse::HeaderReponse(Execute & execute, Config& config)
-        : _execute(execute), _config(config), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {}
+HeaderReponse::HeaderReponse(SocketClient & client, Config& config)
+        : _client(client), _config(config), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {}
 
 HeaderReponse::HeaderReponse(const HeaderReponse & other)
-        : _execute(other._execute), _config(other._config), _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
+        : _client(other._client), _config(other._config), _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
           _mapHttpHeaders(other._mapHttpHeaders) {}
 
 HeaderReponse &HeaderReponse::operator=(const HeaderReponse & rhs) {
-    this->_execute = rhs._execute;
+    this->_client = rhs._client;
     this->_startLineVersion = rhs._startLineVersion;
     this->_startLineStatusCode = rhs._startLineStatusCode;
     this->_mapHttpHeaders = rhs._mapHttpHeaders;
@@ -36,8 +36,8 @@ void HeaderReponse::buildHeaderStatus() {
     addStatusCode();
     addDate();
     addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
-    addHttpHeaders("Content-Type:", _execute.getContentType());
-    addHttpHeaders("Content-Length:", intToString(_execute.getReponse().size()));
+    addHttpHeaders("Content-Type:", _client._contentType);
+    addHttpHeaders("Content-Length:", intToString(_client._content.size()));
     addConnectionClose();
 }
 
@@ -58,9 +58,9 @@ void HeaderReponse::addDate() {
 }
 
 void HeaderReponse::addContentInfo() {
-    if (!_execute.getReponse().empty()) {
-        addHttpHeaders("Content-Type:", _execute.getContentType());
-        addHttpHeaders("Content-Length:", intToString(_execute.getReponse().size()));
+    if (!_client._content.empty()) {
+        addHttpHeaders("Content-Type:", _client._contentType);
+        addHttpHeaders("Content-Length:", intToString(_client._content.size()));
     }
 }
 
@@ -84,18 +84,18 @@ const std::string &HeaderReponse::getHeaderReponse() {
 }
 
 
-HttpReponse::HttpReponse(Socket& socket, Execute & execute, Config& config)
-        : _socket(socket), _execute(execute), _config(config), _bytesSend(), _buffer(), _headReponse(execute, _config){}
+HttpReponse::HttpReponse(Socket& client, Config& config)
+        : _client(client),  _config(config), _bytesSend(), _buffer(),
+        _headReponse(client.getclient(), _config){}
 
 HttpReponse::~HttpReponse() {}
 
 HttpReponse::HttpReponse(const HttpReponse & other)
-        : _socket(other._socket), _execute(other._execute), _config(other._config), _bytesSend(other._bytesSend), _buffer(other._buffer),
-          _headReponse(other._headReponse) {}
+        : _client(other._client), _config(other._config), _bytesSend(other._bytesSend),
+        _buffer(other._buffer), _headReponse(other._headReponse) {}
 
 HttpReponse &HttpReponse::operator=(const HttpReponse &rhs) {
-    this->_socket = rhs._socket;
-    this->_execute = rhs._execute;
+    this->_client = rhs._client;
     this->_config = rhs._config;
     this->_bytesSend = rhs._bytesSend;
     this->_buffer = rhs._buffer;
@@ -114,6 +114,7 @@ void HttpReponse::sendStatusPage() {
 }
 
 void HttpReponse::sendMessage() {
+//    std::cout << "send" << std::endl;
     _headReponse.buildHeader();
     chunckMessage();
     for(std::vector<std::string>::iterator it = _buffer.begin();
@@ -123,21 +124,21 @@ void HttpReponse::sendMessage() {
 }
 
 bool HttpReponse::messageIsNotComplete() {
-    return _bytesSend < (ssize_t) _execute.getReponse().size();
+    return _bytesSend < (ssize_t) _client.getclient()._content.size();
 }
 
 
 void HttpReponse::checkBytesSend() {
     if (_bytesSend == 0 )//close connection
-        throw HttpReponse::httpReponseException(strerror(errno));
+        throw HttpReponse::httpReponseException("send close connection");
     if (_bytesSend == -1)//bad request
-        throw HttpReponse::httpReponseException(strerror(errno));
+        throw HttpReponse::httpReponseException("send bad request");
     if (_bytesSend > 1024)//check headrs befor throw
-        throw HttpReponse::httpReponseException(strerror(errno));
+        throw HttpReponse::httpReponseException("send size error");
 }
 
 void HttpReponse::chunckMessage() {
-    std::string buffer = _headReponse.getHeaderReponse() + _execute.getReponse();
+    std::string buffer = _headReponse.getHeaderReponse() + _client.getclient()._content;
     size_t Pos = 0;
 
     while (Pos < buffer.size()) {
@@ -147,9 +148,9 @@ void HttpReponse::chunckMessage() {
 }
 
 void HttpReponse::sendData(const std::string& message){
-    _bytesSend += send(_socket.getSocket(), message.data(), 1024, 0);
+    _bytesSend = send(_client.getSocket(), message.data(), 1024, 0);
     checkBytesSend();
-    std::cout << " client  >> " << _socket.getSocket() << " send >>> \n" << message <<  "\n"<<std::endl;
+//    std::cout << " client  >> " << _client.getSocket() << " send >>> \n" << message <<  "\n"<<std::endl;
 }
 
 

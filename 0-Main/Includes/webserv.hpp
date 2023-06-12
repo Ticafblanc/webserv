@@ -11,7 +11,6 @@
 #include "3-Config/Code.class.hpp"
 #include "3-Config/Types.class.hpp"
 #include "6-PegParser/PegParser.class.hpp"
-#include "4-Http/HttpMessage.class.hpp"
 //#include "8-Exception/Includes/Exception.hpp"
 
 //__FILE_NAME__
@@ -20,6 +19,7 @@
 
 struct ConfigLocation{
     ConfigLocation() : uri("/"), root(), index(), autoindex(){}
+
     explicit ConfigLocation(const std::string & uriw) : uri(uriw), root(), index(), autoindex(){}
     std::string                             uri;
     std::string                             root;
@@ -32,7 +32,7 @@ struct ConfigServer{
     : token("default server"), listen(), name(), root("/webserv/var/www/defaut.com"),
     index("index.html"){
         listen.insert(std::make_pair("0.0.0.0", 80));
-        name.push_back("defaut.com");
+        name.push_back("webserv.local");
         ConfigLocation loc;
         location.insert(std::make_pair(loc.uri, loc));
     }
@@ -58,8 +58,8 @@ struct Config {
       errorLog("/webserv/var/log/error.log"),
       pidLog("/webserv/var/log/pid.log"),
       workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
-      clientMaxBodySize(1048576),
-      mapMimeType(Types("/webserv/config_content_server/etc/webserv/conf/mime.types").getMime()),
+      clientMaxBodySize(1048576), mapFdServer(), mapFdClient(),
+      mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
       code() {
         ConfigServer serv;
         addConfigServer(serv);
@@ -71,7 +71,7 @@ struct Config {
     errorLog("/webserv/config_content_server/var/log/error.log"),
     pidLog("/webserv/config_content_server/var/log/webserv.pid"),
     workerProcess(1), workerConnections(10), clientBodyBufferSize(8192), clientHeaderBufferSize(1024),
-    clientMaxBodySize(1048576),
+    clientMaxBodySize(1048576), mapFdServer(), mapFdClient(),
     mapMimeType(Types("/webserv/config_content_server/etc/webserv/conf/mime.types").getMime()),
     code(), mapConfigServer() {}
 
@@ -82,8 +82,8 @@ struct Config {
               it != server.listen.end(); ++it) {
             Socket sock(it->first, it->second);
             Socket& newSocket = sock;
-            for(std::map<int, Socket>::iterator sockIt = mapFdSocket.begin();
-                sockIt != mapFdSocket.end(); ++sockIt){
+            for(std::map<int, Socket>::iterator sockIt = mapFdServer.begin();
+                sockIt != mapFdServer.end(); ++sockIt){
                 if (sockIt->second == newSocket){
                     newSocket = sockIt->second;
                     break;
@@ -96,7 +96,7 @@ struct Config {
                 std::cerr << e.what()<<std::endl;
                 continue;
             }
-            mapFdSocket.insert(std::make_pair(newSocket.getSocket(), newSocket));
+            mapFdServer.insert(std::make_pair(newSocket.getSocket(), newSocket));
         }
     }
 
@@ -111,7 +111,8 @@ struct Config {
     int                                                 clientBodyBufferSize;
     int                                                 clientHeaderBufferSize;
     int                                                 clientMaxBodySize;
-    std::map<int, Socket>                               mapFdSocket;
+    std::map<int, Socket>                               mapFdServer;
+    std::map<int, Socket>                               mapFdClient;
     std::map<std::string, std::string>                  mapMimeType;
     Code                                                code;
     std::map<std::string, ConfigServer>                 mapConfigServer;

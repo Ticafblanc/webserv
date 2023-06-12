@@ -12,7 +12,7 @@
 
 #include "0-Main/Includes/webserv.hpp"
 #include "3-Config/ConfigFile.class.hpp"
-#include "5-Epoll/Epoll.class.cpp"
+#include "5-Epoll/Epoll.class.hpp"
 
 void handleExit(int sig) {
     (void) sig;

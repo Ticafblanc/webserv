@@ -8,6 +8,7 @@
 #define WEBSERVER_EPOLL_HPP
 
 #include "0-Main/Includes/webserv.hpp"
+#include "4-Http/HttpMessage.class.hpp"
 
 class Epoll :public epoll_event {
 
@@ -226,25 +227,24 @@ public:
 /**
  * add socket to Epoll
  *
- *  void addServer(Server.class & sever);
- *
- * @returns void
- * @param   int socket
- * @throw   none
- * */
-    void addConfigServer(ConfigServer & server);
-
-
-/**
- * add socket to Epoll
- *
  * void addSocket(std::string & ipAddr, int & port);
  *
  * @returns void
  * @param   int socket
  * @throw   none
  * */
-    void addSocket(int socket);
+    void addSocket(int socket, int events);
+
+    /**
+ * add socket to Epoll
+ *
+ *  void modSocket(int socket, int events);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void modSocket(int socket, int events);
 
 /**
  * add socket to Epoll
@@ -278,6 +278,40 @@ public:
  * @throw   none
  * */
     void manageEvent();
+
+/**
+ * add socket to Epoll
+ *
+ *  void addConnexion();
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void addConnexion(int numberTrigged);
+
+/**
+ * add socket to Epoll
+ *
+ *  void removeConnexion(Socket& client, int numberTrigged);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void removeConnexionClient(Socket& client);
+    void removeConnexionServer(Socket& server);
+
+/**
+ * add socket to Epoll
+ *
+ *  void selectEvent(Socket& client, int numberTrigged);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void selectEvent(Socket& client, int numberTrigged);
 };
 
 

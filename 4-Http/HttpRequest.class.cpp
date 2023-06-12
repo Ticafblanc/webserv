@@ -143,7 +143,8 @@ std::string HeaderRequest::addToStartLine(string & token) {
     _startLineMethode = token;
     _startLineURL = _peg.extractData(' ');
     _startLineVersion = _peg.extractData('\n');
-    if (_startLineVersion != "HTTP/1.1\r")
+    _startLineVersion.erase(_startLineVersion.size() - 1);
+    if (_startLineVersion != "HTTP/1.1")
         throw HeaderRequest::headerException(strerror(errno));
     setMapTokenInformation();
     while(!_peg.checkIsEmpty())
@@ -152,7 +153,9 @@ std::string HeaderRequest::addToStartLine(string & token) {
 }
 
 std::string HeaderRequest::addToMapHttpHeader(string& token) {
-    _mapHttpHeaders.insert(std::make_pair(token, _peg.extractData('\n')));
+    std::string data = _peg.extractData('\n');
+    data.erase(data.size() - 1);
+    _mapHttpHeaders.insert(std::make_pair(token, data));
     return std::string();
 }
 
@@ -215,6 +218,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
 */
 
 void HttpRequest::recvMessage() {
+//    std::cout <<"recv message" << std::endl;
     recvData();
     _headRequest = HeaderRequest(_buffer[0]);
     while(messageIsNotComplete()){
@@ -224,11 +228,12 @@ void HttpRequest::recvMessage() {
 
 void HttpRequest::recvData(){
     char buffer[1024 + 1];//@todo update value
+    usleep(100000);
     _bytesRecv += recv(_socket.getSocket(), buffer, 1024, 0);
     checkBytesRecv();
     buffer[_bytesRecv] ='\0';
     _buffer.push_back(buffer);
-    std::cout << " client  >> " << _socket.getSocket() << " recv >>> \n" << buffer << _buffer.size() << _bytesRecv << "\n" << std::endl;
+//    std::cout << " client  >> " << _socket.getSocket() << " recv >>> \n" << buffer << "\nbuffer size = " <<_buffer.size() << "\nbytes recv = " <<_bytesRecv << "\n" << std::endl;
 }
 
 bool HttpRequest::messageIsNotComplete() {
@@ -243,11 +248,14 @@ bool HttpRequest::messageIsNotComplete() {
 
 void HttpRequest::checkBytesRecv() const {
     if (_bytesRecv == 0 )//close connection
-        throw HttpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException("recv close connection");
     if (_bytesRecv == -1)//bad request
-        throw HttpRequest::httpRequestException(strerror(errno));
+    {
+        std::cerr << strerror(errno);
+        throw HttpRequest::httpRequestException("recv bad request");
+    }
     if (_bytesRecv > 1024)//check headrs befor throw
-        throw HttpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException("recv to long");
 }
 
 std::string HttpRequest::getValueHeader(const std::string & token) {

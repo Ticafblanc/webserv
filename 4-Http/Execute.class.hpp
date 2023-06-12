@@ -6,6 +6,7 @@
 #define WEBSERVER_EXECUTE_HPP
 
 #include "0-Main/Includes/webserv.hpp"
+#include "HttpRequest.class.hpp"
 
 class Execute {
 
@@ -21,9 +22,8 @@ private:
     HttpRequest&                                _httpRequest;
     Config&                                     _config;
     std::map<std::string, void (Execute::*)()>  _mapMethode;
-    std::string                                 _reponse;
-    std::string                                 _contentType;
     std::string                                 _tokenServer;
+    Socket&                                     _client;
 
 /*
 *====================================================================================
@@ -86,7 +86,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    Execute(HttpRequest& httpRequest, Config & config);
+    Execute(HttpRequest& httpRequest, Config & config, Socket& client);
 
 /**
 * Destructor of Execute.class class

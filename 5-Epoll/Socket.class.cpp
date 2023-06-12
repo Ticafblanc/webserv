@@ -19,26 +19,30 @@
 */
 
 Socket::Socket()
-: _ipAddress(), _port(), _sock(), _socket(0), _mapServerNameToken(){}
+:  _ipAddress(), _port(), _sock(), _socket(0), _mapServerNameToken(),
+  _client(0){}
 
 Socket::Socket(const std::string & ipAddr, const int & port)
-: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _mapServerNameToken(){}
+: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _mapServerNameToken(),
+  _client(0){}
 
 Socket::Socket(epoll_event & event)
-: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _mapServerNameToken(){
+: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _mapServerNameToken(),
+  _client(event.data.fd){
     buildClientSocket();
 }
 
 Socket::~Socket() {
-    std::cout   << "erase client socket = "<< _socket
-                <<" ip address = "<< _ipAddress
-                << " port = "  << _port<< std::endl;
+//    std::cout   << "erase client socket = "<< _socket
+//                <<" ip address = "<< _ipAddress
+//                << " port = "  << _port<< std::endl;
 //    closeSocket();
 }
 
 Socket::Socket(const Socket &other)
         : _ipAddress(other._ipAddress), _port(other._port),
-          _sock(other._sock), _socket(other._socket), _mapServerNameToken(other._mapServerNameToken){}
+          _sock(other._sock), _socket(other._socket), _mapServerNameToken(other._mapServerNameToken),
+          _client(other._client){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
@@ -47,6 +51,7 @@ Socket& Socket::operator=(const Socket& rhs){
         this->_sock = rhs._sock;
         this->_socket = rhs._socket;
         this->_mapServerNameToken = rhs._mapServerNameToken;
+        this->_client = rhs._client;
     }
     return *this;
 }
@@ -164,8 +169,7 @@ void Socket::buildClientSocket() {
     acceptConnection();
     getSockaddrIn();
     accessorSocketFlag(F_SETFL, O_NONBLOCK);
-//    setEpollEvent(EPOLLIN | EPOLLET);
-//    _blocServer.setEpollCtl(EPOLL_CTL_ADD, *this);
+
 //    _blocServer._peg._mapFdSocket.insert(data.fd, *this);
 //    _blocServer._maxEvents--;
 }
@@ -205,4 +209,34 @@ bool Socket::operator==(const Socket & rhs) {
     return false;
 }
 
+std::string  Socket::findServerName(const string &serverName) {
+    std::map<std::string, std::string>::iterator it = _mapServerNameToken.find(serverName);
+    if (it != _mapServerNameToken.end())
+        return it->second;
+    return NULL;
+}
 
+SocketClient &Socket::getclient() {
+    return _client;
+}
+
+
+SocketClient::SocketClient(int server)
+        : _server(server), _connection(true), _content(), _contentType(), _serverToken() {}
+
+SocketClient::~SocketClient() {}
+
+SocketClient::SocketClient(const SocketClient &other) :
+_server(other._server), _connection(other._connection), _content(other._content),
+_contentType(other._contentType), _serverToken(other._serverToken){}
+
+SocketClient &SocketClient::operator=(const SocketClient &rhs) {
+    if (this != &rhs){
+        this->_server = rhs._server;
+        this->_connection = rhs._connection;
+        this->_content = rhs._content;
+        this->_contentType = rhs._contentType;
+        this->_serverToken = rhs._serverToken;
+    }
+    return *this;
+}
