@@ -7,8 +7,8 @@
 #ifndef WEBSERVER_EPOLL_HPP
 #define WEBSERVER_EPOLL_HPP
 
-#include "0-Main/Includes/Headers.hpp"
-#include "7-Socket/Socket.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
+#include "4-Http/HttpMessage.class.hpp"
 
 class Epoll :public epoll_event {
 
@@ -21,11 +21,10 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-
-    int                                     _epollInstanceFd;
-    int                                     _maxEvents;
-    epoll_event                             *_events;
-    int                                     _numberTriggeredEvents;
+    Config&                                         _config;
+    int                                             _epollInstanceFd;
+    epoll_event*                                    _events;
+    int                                             _numberTriggeredEvents;
 
 /*
 *====================================================================================
@@ -46,22 +45,12 @@ public:
 /**
  * Constructor of 5-Epoll class
  *
- * 5-Epoll();
- *
- * @param   void
- * @throw   none
- **/
-    Epoll();
-
-/**
- * Constructor of 5-Epoll class
- *
  * 5-Epoll(const vector<5-Epoll> & socket);
  *
  * @param   void
  * @throw   none
  **/
-    Epoll(std::vector<Socket> & sock, int maxEvents);
+    explicit Epoll(Config& config);
 
 /**
  * Copy constructor of 5-Epoll class
@@ -234,38 +223,28 @@ public:
     bool EpollWait(int  timeOut);
     bool EpollWait();
 
-/**
- *  get epoll_event instance
- *
- * epoll_event *getEvents() const;
- *
- * @returns epoll_event *
- * @param   void
- * @throw   none
- * */
-    epoll_event *getEvents();
-
-/**
- *  get number of triggred events
- *
- * int getNumberTriggeredEvents() const;
- *
- * @returns int of number of triggered events
- * @param   void
- * @throw   none
- * */
-    int getNumberTriggeredEvents() const;
 
 /**
  * add socket to Epoll
  *
- * void addSocket(int socket);
+ * void addSocket(std::string & ipAddr, int & port);
  *
  * @returns void
  * @param   int socket
  * @throw   none
  * */
-    void addSocket(int socket);
+    void addSocket(int socket, int events);
+
+    /**
+ * add socket to Epoll
+ *
+ *  void modSocket(int socket, int events);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void modSocket(int socket, int events);
 
 /**
  * add socket to Epoll
@@ -277,6 +256,62 @@ public:
  * @throw   none
  * */
     void removeSocket(int socket);
+
+/**
+ * add socket to Epoll
+ *
+ * void launchEpoll();
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void launchEpoll();
+
+/**
+ * add socket to Epoll
+ *
+ * void manageEvent();
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void manageEvent();
+
+/**
+ * add socket to Epoll
+ *
+ *  void addConnexion();
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void addConnexion(int numberTrigged);
+
+/**
+ * add socket to Epoll
+ *
+ *  void removeConnexion(Socket& client, int numberTrigged);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void removeConnexionClient(Socket& client);
+    void removeConnexionServer(Socket& server);
+
+/**
+ * add socket to Epoll
+ *
+ *  void selectEvent(Socket& client, int numberTrigged);
+ *
+ * @returns void
+ * @param   int socket
+ * @throw   none
+ * */
+    void selectEvent(Socket& client, int numberTrigged);
 };
 
 

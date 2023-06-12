@@ -16,7 +16,14 @@ set(    LOG
         2-Log/Log.class.cpp)
 
 set(    CONFIG
-        3-Config/Config.class.cpp 3-Config/Code.cpp )
+        3-Config/ConfigFile.class.cpp
+        3-Config/Code.class.cpp
+        3-Config/Server.class.cpp
+        3-Config/Events.class.cpp
+        3-Config/Http.class.cpp
+        3-Config/Types.class.cpp
+        3-Config/Listen.class.cpp
+        3-Config/Location.class.cpp)
 
 set(    HTTP 4-Http/HttpMessage.class.cpp
         4-Http/HttpReponse.class.cpp
@@ -24,16 +31,17 @@ set(    HTTP 4-Http/HttpMessage.class.cpp
         4-Http/Execute.class.cpp)
 
 set(    EPOLL
-        5-Epoll/Epoll.class.cpp)
+        5-Epoll/Epoll.class.cpp
+        5-Epoll/Token.cpp)
 
 set(    PEG
         6-PegParser/PegParser.class.cpp)
 
 set(    SOCKET
-        7-Socket/Socket.class.cpp)
+        5-Epoll/Socket.class.cpp)
 
 set(    EXCEPTION
-        8-Exception/Sources/Exception.cpp)
+        8-Exception/Sources/Exception.cpp )
 
 #set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp Sources/serverSocket.class.cpp)
 #set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)

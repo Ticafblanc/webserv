@@ -60,7 +60,7 @@ public:
  * @param   pathToLogFile
  * @throw   none
  **/
-    Log(const std::string &pathToLogFile);
+    explicit Log(const std::string &pathToLogFile);
 
 /**
  * Destructor of Log class

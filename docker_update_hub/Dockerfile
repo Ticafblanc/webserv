@@ -26,8 +26,8 @@ RUN cd /webserv \
     && mv Bin/webserv /usr/local/bin/webserv \
     && rm -rf /usr/local/etc/webserv \
     && rm -rf /usr/local/var/www \
-    && mv ${path_to_config_content_sever}/for_etc/* /usr/local/etc/ \
-    && mv ${path_to_config_content_sever}/for_var/* /usr/local/var/
+    && mv ${path_to_config_content_sever}/etc/* /usr/local/etc/ \
+    && mv ${path_to_config_content_sever}/var/* /usr/local/var/
 
 RUN rm -rf /webserv
 

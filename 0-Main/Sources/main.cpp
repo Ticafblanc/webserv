@@ -11,11 +11,13 @@
 /* ************************************************************************** */
 
 #include "0-Main/Includes/webserv.hpp"
+#include "3-Config/ConfigFile.class.hpp"
+#include "5-Epoll/Epoll.class.hpp"
 
 void handleExit(int sig) {
     (void) sig;
     //@todo manage the end by signal
-//    printLogFile("/usr/local/var/logs/log_error.txt");
+//    printLogFile("/usr/local/var/log/log_error.txt");
     std::cout << "exit by signal" << std::endl;
     exit(EXIT_SUCCESS);
 }
@@ -78,38 +80,14 @@ static int checkOption(int argc, char **argv){
 }
 
 static void launcher(Config & config) {
-    while(config._Http._code.getCode()) {
-        for ( std::vector<std::pair<Server, Epoll> >::iterator it = config._Http._vecPairServerEpoll.begin();
-        it != config._Http._vecPairServerEpoll.end(); ++it) {
-            try {
-                std::cout << "server fd = " << it->first._vectorServerSocket.begin()->getSocket() << " event = " << it->second.getEvents()->data.fd << " nb event = " <<it->second.getNumberTriggeredEvents()<< std::endl;
-                if(it->second.EpollWait(2000)) {
-                    for (int i = 0; i < it->second.getNumberTriggeredEvents(); ++i) {
-                        std::pair<bool, Socket> sock = it->first.manageEventServer(it->second.getEvents()[i]);
-                        if (sock.first) {
-                            HttpMessage message(sock.second, it->first);
-                            close(sock.second.getSocket());
-                        } else
-                            close(it->second.getEvents()[i].data.fd);
-                    }
-                }
-////
-////                        if (tok != config._mapFdSocket.end())
-////                            tok->second.manageEvent(it->_epoll.getEvents()[i], tok->second);
-////                        else {
-////                            if (it->getEvents()[i].data.fd == 0)
-////                                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-////                            std::string error("file descriptor inconnu => " );
-////                            error += intToString(it->_epoll.getEvents()->data.fd);
-////                            writeLogFile(error,"/webserv/config_content_server/for_var/logs/log_error.txt");
-////                            close(it->_epoll.getEvents()->data.fd);//see if necessary to check fd before close
-////                        }
-////                    }
-////                }
-            }catch (std::exception & e){
-                std::cerr << e.what() << std::endl;
-//                writeLogFile(e.what(), "/webserv/config_content_server/for_var/logs/log_error.txt");
-            }
+    Epoll epoll(config);
+    epoll.launchEpoll();
+    while(true) {
+        try {
+            epoll.EpollWait();
+        }catch (std::exception & e){
+            std::cerr << e.what() << std::endl;
+            config.errorLog.writeLogFile(e.what());
         }
     }
 }
@@ -123,18 +101,19 @@ int main(int argc, char **argv, char **envp){
         signal(SIGTERM, handleExit);
         signal(SIGHUP, handleReload);
         pathConfigFile = selectPath(argv, positionPathFileConfig);
-        Config webserv(pathConfigFile, envp);
         try {
-            if(!pathConfigFile.empty())
-                webserv.parseConfig();
-            else
-                webserv.setDefaultValue();
-            launcher(webserv);//@todo manage thread
+            if(!pathConfigFile.empty()){
+                Config webserv(pathConfigFile, envp);
+                ConfigFile extractConfigFile(webserv);
+                launcher(webserv);//@todo manage thread
+            } else{
+                Config webserv(envp);
+                launcher(webserv);//@todo manage thread
+            }
         }
         catch (const std::exception &e) {
-            webserv._errorLog.writeLogFile(e.what());
+            std::cout << "Config error on => " << e.what() << std::endl;
         }
-        webserv._errorLog.printLogFile();
     }
     exit(EXIT_FAILURE);
 }

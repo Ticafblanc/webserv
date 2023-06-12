@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_HTTPREQUEST_CLASS_HPP
 #define WEBSERVER_HTTPREQUEST_CLASS_HPP
 
-#include "3-Config/Config.class.hpp"
+#include "0-Main/Includes/webserv.hpp"
 
 class HeaderRequest {
 
@@ -23,7 +23,7 @@ private:
     std::string                                                         _startLineMethode;
     std::string                                                         _startLineURL;
     std::string                                                         _startLineVersion;
-    std::map<const std::string, const std::string>                                  _mapHttpHeaders;
+    std::map<const std::string, const std::string>                      _mapHttpHeaders;
     std::map<std::string, std::string (HeaderRequest::*)(std::string &)>       _mapTokenListAction;
 
 /*
@@ -65,7 +65,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HeaderRequest(std::string& message);
+    explicit HeaderRequest(std::string& message);
 
 /**
 * Destructor of HeaderRequest class
@@ -136,7 +136,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        headerException(const char * message);
+        explicit headerException(const char * message);
 
         /**
          * Copy constructor of headerException class
@@ -183,6 +183,7 @@ public:
     private:
         std::string     _message;
     };
+
 };
 
 class HttpRequest {
@@ -196,7 +197,7 @@ private:
 *====================================================================================
 */
     Socket&                         _socket;
-    Server&                         _server;
+    Config&                         _config;
     ssize_t                         _bytesRecv;
     ssize_t                         _contentLength;
     std::vector<std::string>        _buffer;
@@ -209,18 +210,7 @@ private:
 *====================================================================================
 */
 
-/**
- * Private methode of HttpRequest.class class
- *
- * manage event like receive message
- *
- *     void recvMessage();
- *
- * @returns void
- * @param   void
- * @throws  http_request::http_request_exception
- * */
-    void recvMessage();
+
 
 /**
  * Private methode of server class
@@ -281,7 +271,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpRequest(Socket& socket, Server& server);
+    explicit HttpRequest(Socket& socket, Config& config);
 
 /**
 * Destructor of HttpRequest.class class
@@ -357,6 +347,19 @@ public:
  * */
     std::string getUrl();
 
+/**
+ * Private methode of HttpRequest.class class
+ *
+ * manage event like receive message
+ *
+ *     void recvMessage();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void recvMessage();
+
 /*
 *====================================================================================
 *|                                  Class Exception                                 |
@@ -385,7 +388,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        httpRequestException(const char * message);
+        explicit httpRequestException(const char * message);
 
         /**
          * Copy constructor of httpRequestException class

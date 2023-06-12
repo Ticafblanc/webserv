@@ -19,24 +19,29 @@
 *==========================================================================================================
 */
 
-HttpMessage::HttpMessage(Socket& socket, Server& server)
-: _socket(socket),
-_server(server),
-_request(socket, server),
-_execute(_request),
-_reponse(socket, _execute, server) {}
+HttpMessage::HttpMessage(Socket& client, Config& config)
+: _client(client),
+  _config(config),
+  _request(_client, config),
+  _execute(_request, config, _client){
+    _request.recvMessage();
+    findTokenServer();
+    _execute.executeRequest(_serverToken);
+}
 
 HttpMessage::~HttpMessage() {}
 
 HttpMessage::HttpMessage(const HttpMessage & other)
-: _socket(other._socket), _server(other._server), _request(other._request), _execute(other._execute), _reponse(other._reponse){}
+: _client(other._client), _config(other._config),
+_request(other._request), _execute(other._execute){}
 
 HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
-    this->_socket = rhs._socket;
-    this->_server = rhs._server;
-    this->_request = rhs._request;
-    this->_execute = rhs._execute;
-    this->_reponse = rhs._reponse;
+    if (this != &rhs) {
+        this->_client = rhs._client;
+        this->_config = rhs._config;
+        this->_request = rhs._request;
+        this->_execute = rhs._execute;
+    }
     return *this;
 }
 
@@ -45,6 +50,18 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 *|                                       Methode                                    |
 *====================================================================================
 */
+
+
+void HttpMessage::findTokenServer() {
+    std::string serverName = _request.getValueHeader("Host:");
+    if (serverName.empty())
+        throw HttpMessage::httpMessageException("no host");
+    else{
+        Socket & server = _config.mapFdServer.at(_client.getclient()._server);
+        if ((_serverToken = server.findServerName(serverName)).empty())
+            throw HttpMessage::httpMessageException("404 not found");
+    }
+}
 
 
 /*

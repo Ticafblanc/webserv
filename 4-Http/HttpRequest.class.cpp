@@ -70,7 +70,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["Content-Encoding:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Language:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Length:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Location:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Content-Location.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-MD5:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Range:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Content-Type:"] = &HeaderRequest::addToMapHttpHeader;
@@ -96,7 +96,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["IM (Instance Manipulation):"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Last-Modified:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Link:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Location:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Location.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Lock-Token:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Max-Forwards:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["MIME-Version:"] = &HeaderRequest::addToMapHttpHeader;
@@ -112,7 +112,7 @@ void HeaderRequest::setMapTokenInformation() {
     _mapTokenListAction["Range:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Referer:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Retry-After:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Server:"] = &HeaderRequest::addToMapHttpHeader;
+    _mapTokenListAction["Server.class:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Set-Cookie:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Sec-Fetch-Dest:"] = &HeaderRequest::addToMapHttpHeader;
     _mapTokenListAction["Sec-Fetch-Mode:"] = &HeaderRequest::addToMapHttpHeader;
@@ -143,7 +143,8 @@ std::string HeaderRequest::addToStartLine(string & token) {
     _startLineMethode = token;
     _startLineURL = _peg.extractData(' ');
     _startLineVersion = _peg.extractData('\n');
-    if (_startLineVersion != "HTTP/1.1\r")
+    _startLineVersion.erase(_startLineVersion.size() - 1);
+    if (_startLineVersion != "HTTP/1.1")
         throw HeaderRequest::headerException(strerror(errno));
     setMapTokenInformation();
     while(!_peg.checkIsEmpty())
@@ -152,7 +153,9 @@ std::string HeaderRequest::addToStartLine(string & token) {
 }
 
 std::string HeaderRequest::addToMapHttpHeader(string& token) {
-    _mapHttpHeaders.insert(std::make_pair(token, _peg.extractData('\n')));
+    std::string data = _peg.extractData('\n');
+    data.erase(data.size() - 1);
+    _mapHttpHeaders.insert(std::make_pair(token, data));
     return std::string();
 }
 
@@ -189,20 +192,18 @@ HeaderRequest::headerException &HeaderRequest::headerException::operator=(const 
 
 
 
-HttpRequest::HttpRequest(Socket& socket, Server& server)
-        : _socket(socket), _server(server), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){
-    recvMessage();
-}
+HttpRequest::HttpRequest(Socket& socket, Config& config)
+        : _socket(socket), _config(config), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){}
 
 HttpRequest::~HttpRequest() {}
 
 HttpRequest::HttpRequest(const HttpRequest & other)
-        : _socket(other._socket), _server(other._server), _bytesRecv(other._bytesRecv),
+        : _socket(other._socket), _config(other._config), _bytesRecv(other._bytesRecv),
           _contentLength(other._contentLength), _buffer(other._buffer), _headRequest(other._headRequest){}
 
 HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
     this->_socket = rhs._socket;
-    this->_server = rhs._server;
+    this->_config = rhs._config;
     this->_bytesRecv = rhs._bytesRecv;
     this->_contentLength = rhs._contentLength;
     this->_buffer = rhs._buffer;
@@ -217,6 +218,7 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
 */
 
 void HttpRequest::recvMessage() {
+//    std::cout <<"recv message" << std::endl;
     recvData();
     _headRequest = HeaderRequest(_buffer[0]);
     while(messageIsNotComplete()){
@@ -226,11 +228,12 @@ void HttpRequest::recvMessage() {
 
 void HttpRequest::recvData(){
     char buffer[1024 + 1];//@todo update value
+    usleep(100000);
     _bytesRecv += recv(_socket.getSocket(), buffer, 1024, 0);
     checkBytesRecv();
     buffer[_bytesRecv] ='\0';
     _buffer.push_back(buffer);
-    std::cout << " client  >> " << _socket.getSocket() << " recv >>> \n" << buffer << _buffer.size() << _bytesRecv << "\n" << std::endl;
+//    std::cout << " client  >> " << _socket.getSocket() << " recv >>> \n" << buffer << "\nbuffer size = " <<_buffer.size() << "\nbytes recv = " <<_bytesRecv << "\n" << std::endl;
 }
 
 bool HttpRequest::messageIsNotComplete() {
@@ -245,11 +248,14 @@ bool HttpRequest::messageIsNotComplete() {
 
 void HttpRequest::checkBytesRecv() const {
     if (_bytesRecv == 0 )//close connection
-        throw HttpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException("recv close connection");
     if (_bytesRecv == -1)//bad request
-        throw HttpRequest::httpRequestException(strerror(errno));
+    {
+        std::cerr << strerror(errno);
+        throw HttpRequest::httpRequestException("recv bad request");
+    }
     if (_bytesRecv > 1024)//check headrs befor throw
-        throw HttpRequest::httpRequestException(strerror(errno));
+        throw HttpRequest::httpRequestException("recv to long");
 }
 
 std::string HttpRequest::getValueHeader(const std::string & token) {

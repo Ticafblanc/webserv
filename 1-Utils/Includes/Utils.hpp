@@ -8,5 +8,6 @@
 #include "0-Main/Includes/Headers.hpp"
 
 std::string intToString(int number);
+char** setEnvp(char **envp);
 
 #endif //WEBSERVER_UTILS_HPP
