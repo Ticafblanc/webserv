@@ -19,7 +19,6 @@ Events &Events::operator=(const Events &rhs) {
     return *this;
 }
 
-
 std::string Events::parseBlocEvents(std::string &token) {
     (void)token;
     while (!_config.pegParser.checkIsEndOfBloc('}'))
@@ -31,9 +30,9 @@ std::string Events::setWorkerConnections(std::string &token) {
     (void)token;
     _mapTokenListAction.erase("worker_connections");
     std::string value = _config.pegParser.extractData(';');
-    char * end;//@todo to manage error
+    char * end;
     const long val = std::strtol(value.c_str(), &end, 10);
-    if (val < 10 || val > 20)
+    if (end == value.c_str() || val < 10 || val > 20)
         return value;
     _config.workerConnections = static_cast<int>(val);
     value.clear();

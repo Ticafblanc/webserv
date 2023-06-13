@@ -29,7 +29,7 @@ public:
  * @param   config is config webserv reference
  * @throw   none
  **/
-    explicit Listen(Config& config, ConfigServer& configServer);
+    explicit Listen(Config& config);
 
 /**
 * Destructor of Listen.class class
@@ -74,9 +74,7 @@ public:
  * @param       void
  * @throw       none
  */
-    std::string parseListenData();
-
-    std::string parseListenData(std::string in);
+    std::string parseListenData(const std::string &input);
 
 /**
  * private function of config_webserv.class
@@ -100,7 +98,7 @@ public:
  * @param ip_address is a stringstream, error is a string for the error message if an error occur
  * @throws none
  */
-    std::string check_ip(std::string, std::string &);
+    void check_ip(std::string, std::string &);
 
 /**
  * private function of config_webserv.class
@@ -125,8 +123,9 @@ private:
 */
 
     Config&                 _config;
-    ConfigServer&           _configServer;
-
+    std::stringstream       _input;
+    std::string             _ipAddress;
+    int                     _port;
 };
 
 

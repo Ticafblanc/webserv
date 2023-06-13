@@ -45,7 +45,7 @@ public:
      *          message to store const char*
      * @throw   none
      **/
-    Exception(const char *message);
+    explicit Exception(const char *message);
 
     /**
      * Copy constructor of Exception class

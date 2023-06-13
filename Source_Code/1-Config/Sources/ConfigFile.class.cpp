@@ -39,6 +39,8 @@ void ConfigFile::parseConfigFile() {
     while (!_config.pegParser.checkIsEmpty()) {
         _config.pegParser.findToken(*this, _mapTokenListAction, 0);
     }
+    if (_config.mapTokenUriConfig.empty())
+        throw Exception("No listen");
 }
 
 std::string ConfigFile::parseBlocEvent(std::string & token) {
@@ -50,10 +52,7 @@ std::string ConfigFile::parseBlocEvent(std::string & token) {
 }
 
 std::string ConfigFile::parseBlocHttp(std::string & token) {
-    if (_mapTokenListAction.find("events") != _mapTokenListAction.end())
-        _mapTokenListAction.erase("events");
-    if (_mapTokenListAction.find("worker_processes") != _mapTokenListAction.end())
-        _mapTokenListAction.erase("worker_processes");
+    clearToken();
     std::string value = _config.pegParser.extractData('{');
     if (value.empty())
         value = _Http.parseBlocHttp(token);
@@ -61,10 +60,7 @@ std::string ConfigFile::parseBlocHttp(std::string & token) {
 }
 
 std::string ConfigFile::parseBlocServer(std::string & token) {
-    if (_mapTokenListAction.find("events") != _mapTokenListAction.end())
-        _mapTokenListAction.erase("events");
-    if (_mapTokenListAction.find("worker_processes") != _mapTokenListAction.end())
-        _mapTokenListAction.erase("worker_processes");
+    clearToken();
     std::string value = _config.pegParser.extractData('{');
     if (value.empty())
         value = _Http.parseBlocHttp(token);
@@ -75,25 +71,77 @@ std::string ConfigFile::setWorkerProcesses(std::string & token) {
     (void)token;
     _mapTokenListAction.erase("worker_processes");
     std::string value = _config.pegParser.extractData(';');
-    char * end;//@todo to manage error
+    char * end;
     const long val = std::strtol(value.c_str(), &end, 10);
-    if (val < 1 || val > 4)
+    if (end == value.c_str() || val < 1 || val > 4)
         return value;
     _config.workerProcess = static_cast<int>(val);
     value.clear();
     return value;
 }
 
+std::string ConfigFile::setclientBodyBufferSize(std::string & token) {
+    (void)token;
+    _mapTokenListAction.erase("client_body_buffer_size");
+    std::string value = _config.pegParser.extractData(';');
+    char * end;
+    const long val = std::strtol(value.c_str(), &end, 10);
+    if (end == value.c_str() || val < 1024 || val > 8192)
+        return value;
+    _config.clientBodyBufferSize = static_cast<int>(val);
+    value.clear();
+    return value;
+}
+
+std::string ConfigFile::setclientHeaderBufferSize(std::string & token) {
+    (void)token;
+    _mapTokenListAction.erase("client_header_buffer_size");
+    std::string value = _config.pegParser.extractData(';');
+    char * end;
+    const long val = std::strtol(value.c_str(), &end, 10);
+    if (end == value.c_str() || val < 512 || val > 1024)
+        return value;
+    _config.clientHeaderBufferSize = static_cast<int>(val);
+    value.clear();
+    return value;
+}
+
+std::string ConfigFile::setclientMaxBodySize(std::string & token) {
+    (void)token;
+    _mapTokenListAction.erase("client_header_buffer_size");
+    std::string value = _config.pegParser.extractData(';');
+    char * end;
+    const long val = std::strtol(value.c_str(), &end, 10);
+    if (end == value.c_str() || val < 500000 || val > 1048576)
+        return value;
+    _config.clientMaxBodySize = static_cast<int>(val);
+    value.clear();
+    return value;
+}
 
 void ConfigFile::setMapToken() {
     _mapTokenListAction["worker_processes"] = &ConfigFile::setWorkerProcesses;
-    _mapTokenListAction["client_body_buffer_size"] = &ConfigFile::setWorkerProcesses;
-    _mapTokenListAction["client_header_buffer_size"] = &ConfigFile::setWorkerProcesses;
-    _mapTokenListAction["client_max_body_size"] = &ConfigFile::setWorkerProcesses;
+    _mapTokenListAction["client_body_buffer_size"] = &ConfigFile::setclientBodyBufferSize;
+    _mapTokenListAction["client_header_buffer_size"] = &ConfigFile::setclientHeaderBufferSize;
+    _mapTokenListAction["client_max_body_size"] = &ConfigFile::setclientMaxBodySize;
     _mapTokenListAction["events"] = &ConfigFile::parseBlocEvent;
     _mapTokenListAction["http"] = &ConfigFile::parseBlocHttp;
     _mapTokenListAction["server"] = &ConfigFile::parseBlocServer;
 }
+
+void ConfigFile::clearToken() {
+    if (_mapTokenListAction.find("events") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("events");
+    if (_mapTokenListAction.find("worker_processes") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("worker_processes");
+    if (_mapTokenListAction.find("client_body_buffer_size") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("client_body_buffer_size");
+    if (_mapTokenListAction.find("client_header_buffer_size") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("client_header_buffer_size");
+    if (_mapTokenListAction.find("client_max_body_size") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("client_max_body_size");
+}
+
 
 
 

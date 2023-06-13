@@ -4,44 +4,57 @@
 
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
-Listen::Listen(Config& config, ConfigServer& configServer)
-: _config(config), _configServer(configServer){}
+Listen::Listen(Config& config)
+: _config(config), _input(), _ipAddress(), _port(){}
 
 Listen::~Listen() {}
-//todo manage close fd at end of programme
-/*check if file descriptor is open
- * if process fail throw serverSocket::socket_exception();
- */
-//    int fd_isopen();
-
-/*check if AbaseSocket  is open
- * if process fail throw serverSocket::socket_exception();
- */
-//    int socket_isopen();
 
 Listen::Listen(const Listen& other)
-        : _config(other._config), _configServer(other._configServer) {}
+: _config(other._config), _input(other._input),
+_ipAddress(other._ipAddress), _port(other._port){}
 
 Listen &Listen::operator=(const Listen & rhs) {
-    this->_config = rhs._config;
+    if (this != &rhs) {
+        this->_config = rhs._config;
+        this->_input = rhs._input;
+        this->_ipAddress = rhs._ipAddress;
+        this->_port = rhs._port;
+    }
     return *this;
 }
 
-std::string Listen::parseListenData() {
-    //@todo check port and ip
-    return std::string("");
+std::string Listen::parseListenData(const std::string &input) {
+    _input.str() = input;
+    std::string error = check_input();
+    if (error.empty()){
+        Socket newSock(_ipAddress, _port);
+        for(std::map<int, Socket>::iterator sockIt = _config.mapFdServer.begin();
+            sockIt != _config.mapFdServer.end(); ++sockIt){
+            if (sockIt->second == newSock){
+                return error;
+            }
+        }
+        newSock.buildServerSocket();
+        _config.mapFdServer.insert(std::make_pair(newSock.getSocket(), newSock));
+    }
+    return error;
 }
 
-std::string Listen::parseListenData(std::string in) {
-    std::stringstream input(in);
-    std::string ip;
-    std::string portStr;
-    int         portInt;
-    std::getline(input >> std::ws, ip, ':');
-    input >> portStr >> std::ws;
-    portInt = std::atoi(portStr.c_str());
-    _configServer.listen[ip] = portInt;
-    return std::string();
+std::string Listen::check_input() {
+    std::string error;
+    std::string ip_address;
+    std::string port;
+
+    if (_input.str().find(':') != std::string::npos)
+    {
+        std::getline(_input, ip_address, ':');
+        check_ip(ip_address, error);
+        if (!error.empty())
+            return error;
+    }
+    std::getline(_input, port);
+    check_port(port, error);
+    return error;
 }
 
 static bool check_ip_limit(unsigned int val, unsigned int min, unsigned int max, std::string &error)
@@ -183,14 +196,15 @@ void    Listen::check_port(std::string port, std::string &error) {
     _port = port_int;
 }
 
-std::string Listen::check_ip(std::string ip_address, std::string &error) {
+void Listen::check_ip(std::string ip_address, std::string &error) {
     std::vector<unsigned int> segment_vec;
     std::stringstream ip_ss(ip_address);
     std::string segment;
 
     if (ip_address == "INADDR_ANY")
     {
-        return "0.0.0.0";
+        _ipAddress = "0.0.0.0";
+        return ;
     }
     if (!check_ip_format(ip_address, error))
         return;
@@ -209,42 +223,9 @@ std::string Listen::check_ip(std::string ip_address, std::string &error) {
                 return;
             }
         }
-        return ip_address;
+        _ipAddress = ip_address;
     }
 }
 
-std::string Listen::check_input() {
-    std::string error;
-    std::string ip_address;
-    std::string port;
 
-    if (_input.str().find(':') != std::string::npos)
-    {
-        std::getline(_input, ip_address, ':');
-        check_ip(ip_address, error);
-        if (!error.empty())
-            return error;
-    }
-    std::getline(_input, port);
-    check_port(port, error);
-    return error;
-}
 
-for ( std::map<std::string, int>::iterator it = server.listen.begin();
-it != server.listen.end(); ++it) {
-Socket sock(it->first, it->second);
-Socket& newSocket = sock;
-for(std::map<int, Socket>::iterator sockIt = mapFdServer.begin();
-sockIt != mapFdServer.end(); ++sockIt){
-if (sockIt->second == newSocket){
-newSocket = sockIt->second;
-break;
-}
-}
-newSocket.addServerName(server.name, server.token);
-try {
-newSocket.buildServerSocket();
-}catch (std::exception & e){
-std::cerr << e.what()<<std::endl;
-continue;
-}mapFdServer.insert(std::make_pair(newSocket.getSocket(), newSocket));
