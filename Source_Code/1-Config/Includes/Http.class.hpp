@@ -8,6 +8,8 @@
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/1-Config/Includes/Server.class.hpp>
+#include <Source_Code/1-Config/Includes/Listen.class.hpp>
+#include <Source_Code/4-Utils/Includes/Utils.hpp>
 
 class Http {
 
@@ -82,6 +84,36 @@ public:
 
 private:
 
+    /**
+ * Protected methode of Http struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientBodyBufferSize(std::string &);
+
+    /**
+ * Protected methode of Http struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientHeaderBufferSize(std::string &);
+
+    /**
+ * Protected methode of Http struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientMaxBodySize(std::string &);
+
 /**
  * Public methode of Http.class class
  *
@@ -94,6 +126,17 @@ private:
     std::string addVectorBlocServer(std::string &);
 
 /**
+ * Public methode of Http.class class
+ *
+ * std::string addVectorBlocServer();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addVectorListen(std::string &token);
+
+/**
  * Public methode of Config struct
  *
  * void setMapToken();
@@ -104,6 +147,17 @@ private:
  */
     void setMapToken();
 
+/**
+ * Public methode of Http struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void clearToken();
+
 
 /*
 *====================================================================================
@@ -111,6 +165,10 @@ private:
 *====================================================================================
 */
     Config                                                              _config;
+    ConfigBase&                                                         _configBase;
     std::map<std::string, std::string (Http::*)(std::string &)>         _mapTokenListAction;
+    bool                                                                _haveChild;
+
+
 };
 #endif //WEBSERVER_HTTPCLASS_HPP

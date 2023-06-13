@@ -121,6 +121,36 @@ private:
  */
     std::string setWorkerProcesses(std::string &);
 
+    /**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientBodyBufferSize(std::string &);
+
+    /**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientHeaderBufferSize(std::string &);
+
+    /**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setclientMaxBodySize(std::string &);
+
 /**
  * Public methode of ConfigFile struct
  *
@@ -131,6 +161,16 @@ private:
  * @throw       none
  */
     void setMapToken();
+/**
+ * Public methode of ConfigFile struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void clearToken();
 
 /**
  * Public methode of ConfigFile struct

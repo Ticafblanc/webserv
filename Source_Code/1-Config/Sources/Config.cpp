@@ -56,13 +56,15 @@ ConfigBase & ConfigBase::operator=(const ConfigBase & rhs){
 }
 
 void ConfigBase::addConfigBase(Config & server) {
-    std::map<std::string, std::map<std::string, Config> >::iterator it = mapTokenUriConfig.find(server._tok);
-    if (it != mapTokenUriConfig.end()){
-        it->second.insert(std::make_pair(server._uri, server));
-    } else {
-        std::map<std::string, Config> map;
-        map.insert(std::make_pair(server._uri, server));
-        mapTokenUriConfig.insert(std::make_pair(server._tok, map));
+    if (!server.listen.empty()) {
+        std::map<std::string, std::map<std::string, Config> >::iterator it = mapTokenUriConfig.find(server._tok);
+        if (it != mapTokenUriConfig.end()) {
+            it->second.insert(std::make_pair(server._uri, server));
+        } else {
+            std::map<std::string, Config> map;
+            map.insert(std::make_pair(server._uri, server));
+            mapTokenUriConfig.insert(std::make_pair(server._tok, map));
+        }
     }
 }
 
