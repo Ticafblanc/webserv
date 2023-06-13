@@ -4,7 +4,7 @@
 
 #include <Source_Code/1-Config/Includes/Http.class.hpp>
 
-Http::Http(Config& config)
+Http::Http(ConfigBase & config)
 : _config(config), _mapTokenListAction() {
     setMapToken();
 }

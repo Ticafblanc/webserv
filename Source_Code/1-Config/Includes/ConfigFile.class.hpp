@@ -17,8 +17,9 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/1-Config/Includes/Http.class.hpp>
 #include <Source_Code/1-Config/Includes/Events.class.hpp>
+#include <Source_Code/1-Config/Includes/Http.class.hpp>
+#include <Source_Code/1-Config/Includes/Server.class.hpp>
 
 class ConfigFile {
 
@@ -41,7 +42,7 @@ public:
  *          specified at start of webserv
  * @throw   none
  **/
-    explicit ConfigFile(Config & config);
+    explicit ConfigFile(ConfigBase & config);
 
 /**
 * Destructor of ConfigFile class
@@ -100,6 +101,15 @@ private:
  */
     std::string parseBlocHttp(std::string &);
 
+/**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string parseBlocHttp();
+ *
+ * @returns     void
+ * @param       void
+ */
+    std::string parseBlocServer(std::string &);
 
 /**
  * Protected methode of ConfigFile struct
@@ -139,10 +149,11 @@ private:
 *====================================================================================
 */
 
-    Config&                                                             _config;
+    ConfigBase&                                                         _config;
     std::map<std::string, std::string (ConfigFile::*)(std::string &)>   _mapTokenListAction;
     Events                                                              _Events;
     Http                                                                _Http;
+    Server                                                              _server;
 
 
 };

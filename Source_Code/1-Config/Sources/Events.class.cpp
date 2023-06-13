@@ -4,7 +4,7 @@
 
 #include <Source_Code/1-Config/Includes/Events.class.hpp>
 
-Events::Events(Config &config): _config(config), _mapTokenListAction() {
+Events::Events(ConfigBase &config): _config(config), _mapTokenListAction() {
     setMapToken();
 }
 

@@ -11,7 +11,7 @@
 *====================================================================================
 */
 
-Epoll::Epoll(Config& config)
+Epoll::Epoll(ConfigBase& config)
 : epoll_event(), _config(config), _epollInstanceFd(),
 _events(new epoll_event[config.workerConnections]),_numberTriggeredEvents() {}
 

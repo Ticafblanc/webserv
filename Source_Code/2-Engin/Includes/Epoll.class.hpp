@@ -9,6 +9,8 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
 
 class Epoll :public epoll_event {
 
@@ -21,7 +23,7 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Config&                                         _config;
+    ConfigBase&                                     _config;
     int                                             _epollInstanceFd;
     epoll_event*                                    _events;
     int                                             _numberTriggeredEvents;
@@ -50,7 +52,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    explicit Epoll(Config& config);
+    explicit Epoll(ConfigBase& config);
 
 /**
  * Copy constructor of 2-Engin class

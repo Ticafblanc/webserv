@@ -30,7 +30,7 @@ public:
  * @param   peg_parser
  * @throw   none
  **/
-    explicit Http(Config&);
+    explicit Http(ConfigBase & config);
 
 /**
 * Destructor of Http.class class
@@ -110,7 +110,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config&                                                             _config;
+    Config                                                              _config;
     std::map<std::string, std::string (Http::*)(std::string &)>         _mapTokenListAction;
 };
 #endif //WEBSERVER_HTTPCLASS_HPP

@@ -29,7 +29,7 @@ public:
  * @param   peg_parser &
  * @throw   none
  **/
-    explicit Events(Config & config);
+    explicit Events(ConfigBase & config);
 
 /**
 * Destructor of Events.class class
@@ -108,7 +108,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config&                                                         _config;
+    ConfigBase&                                                         _config;
     std::map<std::string, std::string (Events::*)(std::string &)>   _mapTokenListAction;
 };
 

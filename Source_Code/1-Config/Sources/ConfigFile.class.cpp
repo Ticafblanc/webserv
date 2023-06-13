@@ -13,15 +13,16 @@
 #include <Source_Code/1-Config/Includes/ConfigFile.class.hpp>
 
 
-ConfigFile::ConfigFile(Config & config)
-: _config(config), _mapTokenListAction(), _Events(config), _Http(config){
+ConfigFile::ConfigFile(ConfigBase & config)
+: _config(config), _mapTokenListAction(), _Events(config), _Http(_config), _server(_config){
     parseConfigFile();
 }
 
 ConfigFile::~ConfigFile() {}
 
 ConfigFile::ConfigFile(const ConfigFile & other)
-: _config(other._config), _mapTokenListAction(other._mapTokenListAction), _Events(other._Events), _Http(other._Http) {}
+: _config(other._config), _mapTokenListAction(other._mapTokenListAction),
+_Events(other._Events), _Http(other._Http) , _server(_config) {}
 
 ConfigFile &ConfigFile::operator=(const ConfigFile &rhs) {
     if (this != &rhs) {
@@ -49,7 +50,21 @@ std::string ConfigFile::parseBlocEvent(std::string & token) {
 }
 
 std::string ConfigFile::parseBlocHttp(std::string & token) {
-    _mapTokenListAction.erase("http");
+    if (_mapTokenListAction.find("events") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("events");
+    if (_mapTokenListAction.find("worker_processes") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("worker_processes");
+    std::string value = _config.pegParser.extractData('{');
+    if (value.empty())
+        value = _Http.parseBlocHttp(token);
+    return value;
+}
+
+std::string ConfigFile::parseBlocServer(std::string & token) {
+    if (_mapTokenListAction.find("events") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("events");
+    if (_mapTokenListAction.find("worker_processes") != _mapTokenListAction.end())
+        _mapTokenListAction.erase("worker_processes");
     std::string value = _config.pegParser.extractData('{');
     if (value.empty())
         value = _Http.parseBlocHttp(token);
@@ -72,8 +87,12 @@ std::string ConfigFile::setWorkerProcesses(std::string & token) {
 
 void ConfigFile::setMapToken() {
     _mapTokenListAction["worker_processes"] = &ConfigFile::setWorkerProcesses;
+    _mapTokenListAction["client_body_buffer_size"] = &ConfigFile::setWorkerProcesses;
+    _mapTokenListAction["client_header_buffer_size"] = &ConfigFile::setWorkerProcesses;
+    _mapTokenListAction["client_max_body_size"] = &ConfigFile::setWorkerProcesses;
     _mapTokenListAction["events"] = &ConfigFile::parseBlocEvent;
     _mapTokenListAction["http"] = &ConfigFile::parseBlocHttp;
+    _mapTokenListAction["server"] = &ConfigFile::parseBlocServer;
 }
 
 

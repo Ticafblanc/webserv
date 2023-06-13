@@ -60,7 +60,9 @@ void ConfigBase::addConfigBase(Config & server) {
     if (it != mapTokenUriConfig.end()){
         it->second.insert(std::make_pair(server._uri, server));
     } else {
-        mapTokenUriConfig.insert(std::make_pair(server._tok, std::make_pair(server._uri, server)));
+        std::map<std::string, Config> map;
+        map.insert(std::make_pair(server._uri, server));
+        mapTokenUriConfig.insert(std::make_pair(server._tok, map));
     }
 }
 
