@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 # set image release  Ubuntu 20.04 LTS
-FROM ubuntu:latest
+FROM ubuntu:latest as baseUbuntu
 
 # set a new docker
 RUN apt-get update \
@@ -36,10 +36,19 @@ RUN apt-get update \
 
 USER Ticafblanc
 
-EXPOSE 80 8080 8081
-#-p 0.0.0.0:80:80
+#define wrorkdir
+WORKDIR /webserv
 
-#set the webserv config content
-COPY ../Docker_build/etc/ /usr/local/etc/
+#copy repo
+COPY . /webserv/
+COPY /Docker_build/etc /usr/local/etc/
+COPY /Docker_build/var /usr/local/var/
 
-COPY ../Docker_build/var/ /usr/local/var/
+#compile project
+RUN make && mv Bin/webserv /usr/local/bin/webserv
+
+#allowed ports 1024 => 49151
+EXPOSE 8080 8081 4242
+
+CMD ["/bin/bash"]
+

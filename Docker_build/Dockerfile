@@ -11,7 +11,7 @@
 # **************************************************************************** #
 
 # set image release  Ubuntu 20.04 LTS
-FROM ubuntu:latest
+FROM ubuntu:latest as baseUbuntu
 
 # set a new docker
 RUN apt-get update \
@@ -29,17 +29,25 @@ RUN apt-get update \
     valgrind \
     net-tools \
     curl \
-    && apt-get clean \
-    && useradd -m Ticablanc  \
-    && echo 'Ticablanc ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
-#    && usermod -aG sudo Ticafblanc
+    && apt-get clean
 
-USER Ticafblanc
+#define wrorkdir
+WORKDIR /webserv
 
-EXPOSE 80 8080 8081
-#-p 0.0.0.0:80:80
+#copy repo
+COPY .. /webserv/
+COPY etc /usr/local/etc/
+COPY var /usr/local/var/
 
-#set the webserv config content
-COPY ../Docker_build/etc/ /usr/local/etc/
+#compile project
+RUN make && mv Bin/webserv /usr/local/bin/webserv
 
-COPY ../Docker_build/var/ /usr/local/var/
+FROM alpine:3.18
+
+RUN	apk update && apk upgrade && apk add --no-cache
+
+COPY etc /usr/local/etc/
+COPY var /usr/local/var/
+
+COPY --from=baseUbuntu /usr/local/bin/webserv /usr/local/bin/webserv
+

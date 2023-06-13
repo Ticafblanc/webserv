@@ -7,41 +7,37 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 include_directories(SYSTEM ./)
 
 set(    MAIN
-        0-Main/Sources/main.cpp 0-Main/Sources/Config.cpp)
-
-set(    UTILS
-        1-Utils/Sources/Utils.cpp)
-
-set(    LOG
-        2-Log/Log.class.cpp)
+        Source_Code/0-Main/Sources/main.cpp
+        Source_Code/0-Main/Sources/Exception.cpp)
 
 set(    CONFIG
-        3-Config/ConfigFile.class.cpp
-        3-Config/Code.class.cpp
-        3-Config/Server.class.cpp
-        3-Config/Events.class.cpp
-        3-Config/Http.class.cpp
-        3-Config/Types.class.cpp
-        3-Config/Listen.class.cpp
-        3-Config/Location.class.cpp)
+        Source_Code/1-Config/Sources/Config.cpp
+        Source_Code/1-Config/Sources/ConfigFile.class.cpp
+        Source_Code/1-Config/Sources/Code.class.cpp
+        Source_Code/1-Config/Sources/Server.class.cpp
+        Source_Code/1-Config/Sources/Events.class.cpp
+        Source_Code/1-Config/Sources/Http.class.cpp
+        Source_Code/1-Config/Sources/Types.class.cpp
+        Source_Code/1-Config/Sources/Listen.class.cpp
+        Source_Code/1-Config/Sources/Location.class.cpp
+        Source_Code/1-Config/Sources/Log.class.cpp)
 
-set(    HTTP 4-Http/HttpMessage.class.cpp
-        4-Http/HttpReponse.class.cpp
-        4-Http/HttpRequest.class.cpp
-        4-Http/Execute.class.cpp)
+set(    ENGIN
+        Source_Code/2-Engin/Sources/Epoll.class.cpp
+        Source_Code/2-Engin/Sources/Socket.class.cpp
+        Source_Code/2-Engin/Sources/Token.cpp)
 
-set(    EPOLL
-        5-Epoll/Epoll.class.cpp
-        5-Epoll/Token.cpp)
+set(    MESSAGE
+        Source_Code/3-Message/Sources/HttpMessage.class.cpp
+        Source_Code/3-Message/Sources/HttpReponse.class.cpp
+        Source_Code/3-Message/Sources/HttpRequest.class.cpp
+        Source_Code/3-Message/Sources/Execute.class.cpp)
 
-set(    PEG
-        6-PegParser/PegParser.class.cpp)
+set(    UTILS
+        Source_Code/4-Utils/Sources/PegParser.class.cpp
+        Source_Code/4-Utils/Sources/Utils.cpp)
 
-set(    SOCKET
-        5-Epoll/Socket.class.cpp)
 
-set(    EXCEPTION
-        8-Exception/Sources/Exception.cpp )
 
 #set(UNIT_TEST_INIT Unit_test/Sources/unitTestInit.cpp Sources/serverSocket.class.cpp)
 #set(UNIT_TEST_LAUNCHER Unit_test/Sources/unitTestLauncher.cpp)
@@ -51,7 +47,7 @@ set(    EXCEPTION
 
 #enable_testing()
 
-add_executable(webserv ${MAIN} ${UTILS} ${LOG} ${CONFIG} ${HTTP} ${EPOLL} ${PEG} ${SOCKET} ${EXCEPTION})
+add_executable(webserv ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})
 
 #add_executable(unitTestInit ${UNIT_TEST_INIT})
 #target_link_libraries(unitTestInit webservlib)
