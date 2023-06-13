@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 include_directories(SYSTEM ./)
 
 set(    MAIN
-        0-Main/Sources/main.cpp)
+        0-Main/Sources/main.cpp 0-Main/Sources/Config.cpp)
 
 set(    UTILS
         1-Utils/Sources/Utils.cpp)

@@ -27,7 +27,7 @@ std::string Server::parseBlocServer(std::string &token) {
     (void)token;
     while (!_config.pegParser.checkIsEndOfBloc('}'))
         _config.pegParser.findToken(*this, _mapTokenListAction, 0);
-    _config.mapConfigServer.insert(std::make_pair(_configServer.token, _configServer));
+    _config.mapTokenConfig.insert(std::make_pair(_configServer.token, _configServer));
     _config.addConfigServer(_configServer);
     return std::string("");
 }

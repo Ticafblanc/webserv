@@ -33,14 +33,19 @@
 #include <ctime>
 #include <limits>
 
+//#include "8-Exception/Includes/Exception.hpp"
+
+//__FILE_NAME__
+// __LINE__
+//__PRETTY_FUNCTION__
 
 
-using std::string;
-using std::vector;
-using std::exception;
-using std::cout;
-using std::cerr;
-using std::endl;
+//using std::string;
+//using std::vector;
+//using std::exception;
+//using std::cout;
+//using std::cerr;
+//using std::endl;
 
 
 #endif

@@ -230,3 +230,21 @@ std::string Listen::check_input() {
     return error;
 }
 
+for ( std::map<std::string, int>::iterator it = server.listen.begin();
+it != server.listen.end(); ++it) {
+Socket sock(it->first, it->second);
+Socket& newSocket = sock;
+for(std::map<int, Socket>::iterator sockIt = mapFdServer.begin();
+sockIt != mapFdServer.end(); ++sockIt){
+if (sockIt->second == newSocket){
+newSocket = sockIt->second;
+break;
+}
+}
+newSocket.addServerName(server.name, server.token);
+try {
+newSocket.buildServerSocket();
+}catch (std::exception & e){
+std::cerr << e.what()<<std::endl;
+continue;
+}mapFdServer.insert(std::make_pair(newSocket.getSocket(), newSocket));
