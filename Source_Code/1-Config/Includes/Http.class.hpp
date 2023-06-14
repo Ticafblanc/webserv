@@ -51,7 +51,7 @@ public:
  * @param   blocHttp instance to build the serverSocket
  * @throw   none
  **/
-    Http(const Http&);
+    Http(Http&);
 
 /**
  * Operator overload= of Http class
@@ -123,7 +123,7 @@ private:
  * @param       void
  * @throw       none
  */
-    std::string addVectorBlocServer(std::string &);
+    std::string parseBlocServer(std::string &);
 
 /**
  * Public methode of Http.class class
@@ -135,6 +135,17 @@ private:
  * @throw       none
  */
     std::string addVectorListen(std::string &token);
+
+/**
+ * Public methode of Http.class class
+ *
+ * std::string addIndex(std::string &token);
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addIndex(std::string &token);
 
 /**
  * Public methode of Config struct
@@ -164,11 +175,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config                                                              _config;
-    ConfigBase&                                                         _configBase;
+    ConfigBase                                                          _configBase;
     std::map<std::string, std::string (Http::*)(std::string &)>         _mapTokenListAction;
-    bool                                                                _haveChild;
-
-
 };
 #endif //WEBSERVER_HTTPCLASS_HPP

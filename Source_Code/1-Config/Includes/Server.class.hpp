@@ -30,7 +30,7 @@ public:
  * @param   configWebserv&
  * @throw   none
  **/
-    explicit Server(Config &);
+    explicit Server(ConfigBase &);
 
 /**
 * Destructor of Server.class.class class
@@ -103,6 +103,17 @@ public:
 /**
  * Public methode of Server.class.class class
  *
+ * std::string addVectorServerName();
+ *
+ * @returns     string contain error message
+ * @param       void
+ * @throw       none
+ */
+    std::string addIndex(std::string &);
+
+/**
+ * Public methode of Server.class.class class
+ *
  * std::string setRoot();
  *
  * @returns     string contain error message
@@ -121,7 +132,7 @@ public:
  * @param       void
  * @throw       none
  */
-    std::string addMapBlocLocation(std::string &);
+    std::string parseBlocLocation(std::string &);
 
 /**
  * Public methode of Config struct
@@ -134,6 +145,17 @@ public:
  */
     void setMapToken();
 
+/**
+ * Public methode of Config struct
+ *
+ * void clearToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void clearToken();
+
 /*>*******************************private section**********************************/
 
 private:
@@ -143,10 +165,8 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config&                                                         _config;
-    ConfigServer                                                    _configServer;
+    Config                                                          _config;
     std::map<std::string, std::string (Server::*)(std::string &)>   _mapTokenListAction;
-
 };
 
 

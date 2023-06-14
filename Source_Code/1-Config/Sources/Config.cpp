@@ -6,29 +6,33 @@
 
 
 ConfigBase::ConfigBase(const std::string & pathToConfigBaseFile, char **env)
-        : workerProcess(1), workerConnections(10),
-          clientBodyBufferSize(8192), clientHeaderBufferSize(1024),clientMaxBodySize(1048576),
-          listen(), name(1,"localhost"), index("index.html"),
-          root("/webserv/var/www/defaut.com"), code(),
-          mapFdServer(), mapTokenUriConfig(), mapFdClient(),
-          mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
-          accessLog("/webserv/var/log/log_info.log"),
-          errorLog("/webserv/var/log/error.log"),
-          pidLog("/webserv/var/log/webserv.pid"),
-          pegParser(pathToConfigBaseFile.c_str(), "#"), token(),envp(setEnvp(env)) {}//@todo add free envp
+: workerProcess(1), workerConnections(10),
+  clientBodyBufferSize(8192), clientHeaderBufferSize(1024),clientMaxBodySize(1048576),
+  listen(), index(), root("/webserv/var/www/defaut.com"), code(),
+  mapFdServer(), mapTokenUriConfig(), mapFdClient(),
+  mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
+  accessLog("/webserv/var/log/log_info.log"),
+  errorLog("/webserv/var/log/error.log"),
+  pidLog("/webserv/var/log/webserv.pid"),
+  pegParser(pathToConfigBaseFile.c_str(), "#"), token(),envp(setEnvp(env)),
+  configBase(*this) {
+   index.insert("localhost");
+}//@todo add free envp
 
-ConfigBase::~ConfigBase() {}
+ConfigBase::~ConfigBase() {
+    delete envp;
+}
 
-ConfigBase::ConfigBase(const ConfigBase & other)
-        : workerProcess(other.workerProcess), workerConnections(other.workerConnections),
-          clientBodyBufferSize(other.clientBodyBufferSize),
-          clientHeaderBufferSize(other.clientHeaderBufferSize),
-          clientMaxBodySize(other.clientMaxBodySize),
-          listen(other.listen), name(other.name), index(other.index), root(other.root), code(other.code),
-          mapFdServer(other.mapFdServer),
-          mapFdClient(other.mapFdClient), mapMimeType(other.mapMimeType),
-          accessLog(other.accessLog), errorLog(other.errorLog), pidLog(other.pidLog),
-          pegParser(other.pegParser), token(other.token),envp(other.envp){}
+ConfigBase::ConfigBase(ConfigBase & other)
+: workerProcess(other.workerProcess), workerConnections(other.workerConnections),
+  clientBodyBufferSize(other.clientBodyBufferSize),
+  clientHeaderBufferSize(other.clientHeaderBufferSize),
+  clientMaxBodySize(other.clientMaxBodySize),
+  listen(other.listen),index(other.index), root(other.root), code(other.code),
+  mapFdServer(other.mapFdServer),
+  mapFdClient(other.mapFdClient), mapMimeType(other.mapMimeType),
+  accessLog(other.accessLog), errorLog(other.errorLog), pidLog(other.pidLog),
+  pegParser(other.pegParser), token(other.token),envp(other.envp), configBase(other){}
 
 ConfigBase & ConfigBase::operator=(const ConfigBase & rhs){
     if (this != &rhs){
@@ -38,7 +42,6 @@ ConfigBase & ConfigBase::operator=(const ConfigBase & rhs){
         this->clientHeaderBufferSize = rhs.clientHeaderBufferSize;
         this->clientMaxBodySize = rhs.clientMaxBodySize;
         this->listen = rhs.listen;
-        this->name = rhs.name;
         this->index = rhs.index;
         this->root = rhs.root;
         this->code = rhs.code;
@@ -52,6 +55,7 @@ ConfigBase & ConfigBase::operator=(const ConfigBase & rhs){
         this->pegParser = rhs.pegParser;
         this->token = rhs.token;
         this->envp = rhs.envp;
+        this->configBase = rhs.configBase;
     }
 }
 
@@ -68,22 +72,33 @@ void ConfigBase::addConfigBase(Config & server) {
     }
 }
 
+void ConfigBase::addIndex(std::vector<std::string> & value) {
+    if (!value.empty()) {
+        for (std::vector<std::string>::iterator it = value.begin();
+        it != value.end() ; ++it) {
+            if (index.find(*it) != index.end())
+                index.insert(*it);
+        }
+    }
+}
 
 Config::Config(ConfigBase & config)
-: ConfigBase(config), _configBase(config),_tok(config.token.generateToken()), _uri("/"), _info(),
+: ConfigBase(config), _tok(config.token.generateToken()),
+_name(), _uri(), _info(),
 _allowMethods(7), _return(), _cgiPass(), _autoindex(false){}
 
 Config::~Config() {}
 
 Config::Config(const Config & other)
-        : ConfigBase(other), _configBase(other._configBase), _tok(other._tok), _uri(other._uri), _info(), _allowMethods(other._allowMethods),
-          _return(other._return), _cgiPass(), _autoindex(other._autoindex) {}
+    : ConfigBase((ConfigBase &) other), _tok(other._tok), _name(other._name), _uri(other._uri),
+      _info(), _allowMethods(other._allowMethods), _return(other._return), _cgiPass(),
+      _autoindex(other._autoindex) {}
 
 Config & Config::operator=(const Config & rhs){
     if (this != &rhs){
-        Config::operator=(rhs);
-        this->_configBase = rhs._configBase;
+        ConfigBase::operator=(rhs);
         this->_tok = rhs._tok;
+        this->_name = rhs._name;
         this->_uri = rhs._uri;
         this->_info = rhs._info;
         this->_allowMethods = rhs._allowMethods;
@@ -93,3 +108,14 @@ Config & Config::operator=(const Config & rhs){
     }
     return *this;
 }
+
+void Config::addName(std::vector<std::string> & value) {
+    if (!value.empty()) {
+        for (std::vector<std::string>::iterator it = value.begin();
+             it != value.end() ; ++it) {
+            if (_name.find(*it) != _name.end())
+                _name.insert(*it);
+        }
+    }
+}
+

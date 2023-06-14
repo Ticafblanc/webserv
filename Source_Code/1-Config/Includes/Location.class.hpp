@@ -28,7 +28,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    explicit Location(Config& config, ConfigServer& configServer, std::string & uri);
+    explicit Location(Config& config);
 
 /**
 * Destructor of Location.class.class class
@@ -99,6 +99,61 @@ public:
     std::string addIndex(std::string &);
 
 /**
+ * Public methode of Location.class.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string setAllowMethods(std::string &);
+
+/**
+ * Public methode of Location.class.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string setReturn(std::string &);
+
+/**
+ * Public methode of Location.class.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string setCgiPass(std::string &);
+
+/**
+ * Public methode of Location.class.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    std::string setAutoIndex(std::string &);
+
+/**
+ * Public methode of Location.class.class class
+ *
+ * std::string setRoot();
+ *
+ * @returns     std::vector<std::string>& contain all names of serverSocket
+ * @param       void
+ * @throw       none
+ */
+    void addVecInfo(const std::string& token, void* v);
+
+/**
  * Public methode of Location.class struct
  *
  * void setMapToken();
@@ -119,9 +174,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-    Config&                                                             _config;
-    ConfigServer&                                                       _configServer;
-    ConfigLocation                                                      _configLoaction;
+    Config                                                              _config;
     std::map<std::string, std::string (Location::*)(std::string &)>     _mapTokenListAction;
 };
 

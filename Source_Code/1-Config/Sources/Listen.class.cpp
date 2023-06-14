@@ -4,7 +4,7 @@
 
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
-Listen::Listen(Config& config)
+Listen::Listen(ConfigBase& config)
 : _config(config), _input(), _ipAddress(), _port(){}
 
 Listen::~Listen() {}

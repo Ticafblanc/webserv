@@ -74,7 +74,40 @@ public:
  * @param       code
  * @throw       none
  */
+    void setNewCode(int code, const std::string& status, const std::string& pathToHtmlPage);
+
+/**
+ * Public methode of Code.class.class class
+ *
+ * void setStatusCode(int code);
+ *
+ * @returns     void
+ * @param       code
+ * @throw       none
+ */
+    bool FindCode(int code);
+
+/**
+ * Public methode of Code.class.class class
+ *
+ * void setStatusCode(int code);
+ *
+ * @returns     void
+ * @param       code
+ * @throw       none
+ */
     void setDefaultPage(int code, const std::string& pathToHtmlPage);
+
+/**
+ * Public methode of Code.class.class class
+ *
+ * void setStatusCode(int code);
+ *
+ * @returns     void
+ * @param       code
+ * @throw       none
+ */
+    void setStatus(int code, const std::string& status);
 
 /**
  * Public methode of Code.class.class class

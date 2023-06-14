@@ -22,11 +22,12 @@ struct ConfigBase {
 
     virtual ~ConfigBase() ;
 
-    ConfigBase(const ConfigBase & other);
+    ConfigBase(ConfigBase & other);
 
     ConfigBase & operator=(const ConfigBase & rhs);
 
     void addConfigBase(Config & server) ;
+    void addIndex(std::vector<std::string> & value) ;
 
     /*data config for each bloc*/
     int                                                             workerProcess;
@@ -35,8 +36,7 @@ struct ConfigBase {
     int                                                             clientHeaderBufferSize;
     int                                                             clientMaxBodySize;
     std::map<std::string, int>                                      listen;
-    std::vector<std::string>                                        name;
-    std::string                                                     index;
+    std::set<std::string>                                           index;
     std::string                                                     root;
     Code                                                            code;
 
@@ -53,14 +53,14 @@ struct ConfigBase {
     PegParser                                                       pegParser;
     Token                                                           token;
     char **                                                         envp;
-
+    ConfigBase&                                                     configBase;
 };
 
 union info {
-    int*                                     _allowMethods;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
-    std::pair<int, std::string>*             _return;//return code [text]; text == uri or custom code
-    std::string*                             _cgiPass;// /path=>>cgi
-    bool*                                    _autoindex;//on/off
+    int*                                     _allowMethodsP;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
+    std::pair<int, std::string>*             _returnP;//return code [text]; text == uri or custom code
+    std::string*                             _cgiPassP;// /path=>>cgi
+    bool*                                    _autoindexP;//on/off
 };
 
 struct Config : public ConfigBase {
@@ -73,14 +73,17 @@ struct Config : public ConfigBase {
 
     Config & operator=(const Config & rhs);
 
-    ConfigBase&                             _configBase;
-    std::string                             _tok;
-    std::string                             _uri;// "/..."
-    std::vector<info>                       _info;
-    int                                     _allowMethods;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
-    std::pair<int, std::string>             _return;//return code [text]; text == uri or custom code
-    std::string                             _cgiPass;// /path=>>cgi
-    bool                                    _autoindex;//on/off
+    void addName(std::vector<std::string> & value) ;
+
+    std::string                                     _tok;
+    std::set<std::string>                           _name;
+
+    std::string                                     _uri;// "/..."
+    std::vector<std::pair<std::string , void*> >    _info;
+    int                                             _allowMethods;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
+    int                                             _return;//return code [text]; text == uri or custom code
+    std::string                                     _cgiPass;// /path=>>cgi
+    bool                                            _autoindex;//on/off
 };
 
 
