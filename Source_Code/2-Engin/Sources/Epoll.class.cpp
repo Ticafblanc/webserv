@@ -11,9 +11,9 @@
 *====================================================================================
 */
 
-Epoll::Epoll(ConfigBase& config)
+Epoll::Epoll(Config& config)
 : epoll_event(), _config(config), _epollInstanceFd(),
-_events(new epoll_event[config.workerConnections]),_numberTriggeredEvents() {}
+_events(new epoll_event[config._workerConnections]),_numberTriggeredEvents() {}
 
 Epoll::~Epoll() {
 //    delete[] _events;
@@ -115,9 +115,9 @@ void Epoll::removeSocket(int socket){
 }
 
 void Epoll::launchEpoll(){
-    createEpollInstance(_config.mapFdServer.size());
-    for (std::map<int, Socket>::iterator it = _config.mapFdServer.begin();
-         it != _config.mapFdServer.end(); ++it) {
+    createEpollInstance(_config._mapFdSocket.size());
+    for (std::map<int, Socket>::iterator it = _config._mapFdSocket.begin();
+         it != _config._mapFdSocket.end(); ++it) {
         addSocket(it->first, EPOLLIN);
     }
 }
@@ -130,7 +130,7 @@ void Epoll::manageEvent() {
         if (it != _config.mapFdServer.end()) {
             addConnexion(i);
         }else {
-            it = _config.mapFdClient.find(_events[i].data.fd);
+            it = _config.mapFdClient.find(_events[i].data.fd);//add check ip
             if (it != _config.mapFdServer.end()) {
                 selectEvent(it->second, i);
             } else {

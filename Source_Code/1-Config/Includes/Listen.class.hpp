@@ -29,7 +29,7 @@ public:
  * @param   config is config webserv reference
  * @throw   none
  **/
-    explicit Listen(ConfigBase& config);
+    explicit Listen(Config& config);
 
 /**
 * Destructor of Listen.class class
@@ -122,7 +122,7 @@ private:
 *====================================================================================
 */
 
-    ConfigBase&             _config;
+    Config&             _config;
     std::stringstream       _input;
     std::string             _ipAddress;
     int                     _port;

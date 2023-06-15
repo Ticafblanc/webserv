@@ -7,7 +7,7 @@
 
 Log::Log() {}
 
-Log::Log(const string &pathToLogFile) : _pathToLogFile(pathToLogFile){
+Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile){
     setLog(pathToLogFile);
 }
 
@@ -20,7 +20,7 @@ Log &Log::operator=(const Log & rhs) {
     return *this;
 }
 
-void Log::setLog(const string &pathToLogFile) {
+void Log::setLog(const std::string &pathToLogFile) {
     _pathToLogFile = pathToLogFile;
     std::ofstream file(pathToLogFile.c_str(), std::ios::trunc);
     if (!file.is_open())

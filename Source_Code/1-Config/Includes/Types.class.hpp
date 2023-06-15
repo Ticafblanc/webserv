@@ -6,7 +6,7 @@
 #define WEBSERVER_TYPES_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
-#include <Source_Code/4-Utils/Includes/PegParser.class.hpp>
+#include <Source_Code/4-Utils/Includes/PegParser.class.tpp>
 
 class Types {
 
@@ -96,7 +96,7 @@ private:
 *|                                     Member                                       |
 *====================================================================================
 */
-        PegParser                                                  _peg;
+        PegParser<std::string>                                     _peg;
         std::map<std::string, std::string>                         _mapMimeType;
 };
 

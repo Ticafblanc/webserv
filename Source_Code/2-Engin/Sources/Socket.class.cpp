@@ -190,7 +190,7 @@ int Socket::getPort() const {
     return _port;
 }
 
-const string &Socket::getIpAddress() const {
+const std::string &Socket::getIpAddress() const {
     return _ipAddress;
 }
 

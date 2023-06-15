@@ -4,7 +4,7 @@
 
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
-Listen::Listen(ConfigBase& config)
+Listen::Listen(Config& config)
 : _config(config), _input(), _ipAddress(), _port(){}
 
 Listen::~Listen() {}
@@ -28,14 +28,14 @@ std::string Listen::parseListenData(const std::string &input) {
     std::string error = check_input();
     if (error.empty()){
         Socket newSock(_ipAddress, _port);
-        for(std::map<int, Socket>::iterator sockIt = _config.mapFdServer.begin();
-            sockIt != _config.mapFdServer.end(); ++sockIt){
+        for(std::map<int, Socket>::iterator sockIt = _config._mapFdSocket.begin();
+            sockIt != _config._mapFdSocket.end(); ++sockIt){
             if (sockIt->second == newSock){
                 return error;
             }
         }
         newSock.buildServerSocket();
-        _config.mapFdServer.insert(std::make_pair(newSock.getSocket(), newSock));
+        _config._mapFdSocket.insert(std::make_pair(newSock.getSocket(), newSock));
     }
     return error;
 }

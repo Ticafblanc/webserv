@@ -45,8 +45,10 @@ static void checkFile(int argc, char **argv, char ** envp){
     std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
     try {
-        ConfigBase webserv(pathConfigFile, envp);
-        ConfigFile extractConfigFile(webserv);
+        PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+        Token     token;
+        Config webserv(token, envp);
+        ConfigFile extractConfigFile(webserv, peg);
     }
     catch (const std::exception &e) {
         std::cout << e.what() << std::endl;
@@ -79,7 +81,7 @@ static int checkOption(int argc, char **argv, char ** envp){
     return 0;
 }
 
-static void launcher(ConfigBase & config) {
+static void launcher(Config & config) {
     Epoll epoll(config);
     epoll.launchEpoll();
     while(true) {
@@ -87,7 +89,7 @@ static void launcher(ConfigBase & config) {
             epoll.EpollWait();
         }catch (std::exception & e){
             std::cerr << e.what() << std::endl;
-            config.errorLog.writeLogFile(e.what());
+            config._errorLog.writeLogFile(e.what());
         }
     }
 }
@@ -102,8 +104,10 @@ int main(int argc, char **argv, char **envp){
         signal(SIGHUP, handleReload);
         pathConfigFile = selectPath(argv, positionPathFileConfig);
         try {
-            ConfigBase webserv(pathConfigFile, envp);
-            ConfigFile extractConfigFile(webserv);
+            PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+            Token     token;
+            Config webserv(token, envp);
+            ConfigFile extractConfigFile(webserv, peg);
             launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {
