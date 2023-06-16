@@ -8,22 +8,22 @@
 Config::Config(Token & token, char **env)
 : _workerProcess(1), _workerConnections(10),
   _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024),_clientMaxBodySize(1048576),
-  _listen(), _name(), _index(), _root("/webserv/var/www/defaut.com"), _allowMethods(7),
+  _name(), _index(), _root("/webserv/Docker_build/var/www/defaut.com"), _uri(), _allowMethods(7),
   _return(), _cgiPass(), _autoindex(false), _code(),
-  _mapFdSocket(), _mapTokenConfig(),
-  _mapMimeType(Types("/webserv/etc/webserv/conf/mime.types").getMime()),
-  _accessLog("/webserv/var/log/log_info.log"),
-  _errorLog("/webserv/var/log/error.log"),
-  _pidLog("/webserv/var/log/webserv.pid"),
+  _mapFdSocket(), _mapTokenVectorUriConfig(),
+  _mapMimeType(Types("/webserv/Docker_build/etc/webserv/conf/mime.types").getMime()),
+  _accessLog("/webserv/Docker_build/var/log/access.log"),
+  _errorLog("/webserv/Docker_build/var/log/error.log"),
+  _pidLog("/webserv/Docker_build/var/log/webserv.pid"),
   _token(token), _tok(), _envp(setEnvp(env)),
   _configBase(*this) {
-    _name.insert("localhost");
+    _name.push_back("localhost");
     _index.insert("index.html");
-    _pidLog.writeLogFile(intToString(getpid()));
+    _pidLog.writePidLogFile(intToString(getpid()));
 }//@todo add free envp
 
 Config::~Config() {
-    delete _envp;
+//    delete _envp;
 }
 
 Config::Config(const Config & other)
@@ -31,11 +31,11 @@ Config::Config(const Config & other)
   _clientBodyBufferSize(other._clientBodyBufferSize),
   _clientHeaderBufferSize(other._clientHeaderBufferSize),
   _clientMaxBodySize(other._clientMaxBodySize),
-  _listen(other._listen), _name(other._name), _index(other._index), _root(other._root),
-  _allowMethods(other._allowMethods), _return(other._return), _cgiPass(other._cgiPass),
+  _name(other._name), _index(other._index), _root(other._root), _uri(),
+  _allowMethods(other._allowMethods), _return(), _cgiPass(),
   _autoindex(other._autoindex), _code(other._code),
-  _mapFdSocket(other._mapFdSocket), _mapTokenConfig(other._mapTokenConfig),
-  _mapMimeType(other._mapMimeType),
+  _mapFdSocket(), _mapTokenVectorUriConfig(),
+  _mapMimeType(),
   _accessLog(other._accessLog), _errorLog(other._errorLog), _pidLog(other._pidLog),
   _token(other._token), _tok(other._tok), _envp(other._envp), _configBase(const_cast<Config &>(other)){}
 
@@ -46,17 +46,16 @@ Config & Config::operator=(const Config & rhs){
         this->_clientBodyBufferSize = rhs._clientBodyBufferSize;
         this->_clientHeaderBufferSize = rhs._clientHeaderBufferSize;
         this->_clientMaxBodySize = rhs._clientMaxBodySize;
-        this->_listen = rhs._listen;
         this->_name = rhs._name;
         this->_index = rhs._index;
         this->_root = rhs._root;
+        this->_uri = rhs._uri;
         this->_allowMethods = rhs._allowMethods;
         this->_return = rhs._return;
         this->_cgiPass = rhs._cgiPass;
         this->_autoindex = rhs._autoindex;
         this->_code = rhs._code;
         this->_mapFdSocket = rhs._mapFdSocket;
-        this->_mapTokenConfig = rhs._mapTokenConfig;
         this->_mapMimeType = rhs._mapMimeType;
         this->_accessLog = rhs._accessLog;
         this->_errorLog = rhs._errorLog;
@@ -69,8 +68,11 @@ Config & Config::operator=(const Config & rhs){
 }
 
 void Config::addChild(const Config & child) {
-    if (!child._tok.empty()) {
-        _mapTokenConfig.insert(std::make_pair(child._tok, child));
+    if (_mapTokenVectorUriConfig.find(child._tok) != _mapTokenVectorUriConfig.end()) {
+        _mapTokenVectorUriConfig.find(child._tok)->second.push_back(std::make_pair(child._uri, child));
+    }
+    else if (!child._tok.empty()) {
+        _mapTokenVectorUriConfig[child._tok] = std::vector<std::pair<std::string, Config> >(1, std::make_pair(child._uri, child));
     }
 }
 

@@ -48,7 +48,7 @@ private:
     int                                                 _port;
     sockaddr_in                                         _sock;
     int                                                 _socket;
-    std::map<std::string, std::string>                  _mapServerNameToken;
+    std::vector<std::pair<std::string, std::string> >   _vectorServerNameToken;
     /*client section*/
     SocketClient                                        _client;
 
@@ -421,7 +421,7 @@ public:
 
     SocketClient &getclient() ;
 
-
+    std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP

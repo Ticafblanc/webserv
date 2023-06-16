@@ -9,7 +9,7 @@
 
 class Token {
 private:
-    std::vector<std::string> _vectorToken;
+    std::vector<std::string>                      _vectorToken;
 public:
     Token();
 

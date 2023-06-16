@@ -43,7 +43,7 @@ void HeaderReponse::buildHeaderStatus() {
 }
 
 void HeaderReponse::addStatusCode() {
-    _startLineStatusCode = _config.code.getStatusCode();
+    _startLineStatusCode = _config._code.getStatusCode();
 }
 
 void HeaderReponse::addHttpHeaders(const std::string& token, const std::string& value) {

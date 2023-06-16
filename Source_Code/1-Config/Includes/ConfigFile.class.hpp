@@ -17,7 +17,7 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/4-Utils/Includes/PegParser.class.tpp>
+#include <Source_Code/4-Utils/Template/PegParser.class.tpp>
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
 class ConfigFile {
@@ -25,6 +25,8 @@ class ConfigFile {
 /*>********************************public section**********************************/
 
 public:
+
+    Config*                                                             _parent;
 
 /*
 *====================================================================================
@@ -112,7 +114,7 @@ private:
  * @param       void
  * @throw       none
  */
-    void parseBloc();
+    void parseBloc(std::string & id);
 
 /**
  * Protected methode of ConfigFile struct
@@ -339,7 +341,9 @@ private:
 
     Config&                                                             _config;
     PegParser<ConfigFile>&                                              _peg;
-    Config*                                                             _parent;
+    std::string                                                         _id;
+
+    void printData();
 };
 
 

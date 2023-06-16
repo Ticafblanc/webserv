@@ -7,16 +7,17 @@
 
 Log::Log() {}
 
-Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile){
+Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile), _indent(){
     setLog(pathToLogFile);
 }
 
 Log::~Log() {}
 
-Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile) {}
+Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile), _indent(other._indent){}
 
 Log &Log::operator=(const Log & rhs) {
     this->_pathToLogFile = rhs._pathToLogFile;
+    this->_indent = rhs._indent;
     return *this;
 }
 
@@ -29,7 +30,6 @@ void Log::setLog(const std::string &pathToLogFile) {
 }
 
 void Log::writeLogFile(const std::string& message) {
-
     std::time_t timestamp = std::time(NULL);
 
     std::string timestampStr = std::ctime(&timestamp);
@@ -38,7 +38,15 @@ void Log::writeLogFile(const std::string& message) {
     std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
     if (!logfile.is_open())
         throw LogException("fail to open file");
-    logfile << "[" << timestampStr << "] " << message << std::endl;
+    logfile << "[" << timestampStr << "] " << _indent << message << std::endl;
+    logfile.close();
+}
+
+void Log::writePidLogFile(const std::string& message) {
+    std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
+    if (!logfile.is_open())
+        throw LogException("fail to open file");
+    logfile << _indent << message << std::endl;
     logfile.close();
 }
 
@@ -53,7 +61,13 @@ void Log::printLogFile() {
     logfile.close();
 }
 
+void Log::addIndent() {
+    _indent += "\t";
+}
 
+void Log::removeIndent() {
+    _indent.erase(0, 1);
+}
 
 Log::LogException::LogException(const char * message)
         : _message(message) {}

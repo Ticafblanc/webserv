@@ -35,10 +35,10 @@ struct Config {
     int                                                             _clientBodyBufferSize;
     int                                                             _clientHeaderBufferSize;
     int                                                             _clientMaxBodySize;
-    std::map<std::string, int>                                      _listen;
-    std::set<std::string>                                           _name;
+    std::vector<std::string>                                        _name;
     std::set<std::string>                                           _index;
     std::string                                                     _root;
+    std::string                                                     _uri;
     int                                                             _allowMethods;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
     int                                                             _return;//return code [text]; text == uri or custom code
     std::string                                                     _cgiPass;// /path=>>cgi
@@ -46,9 +46,9 @@ struct Config {
     Code                                                            _code;//code class
 
     /*data to store config*/
-    std::map<int, Socket>                                           _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
-    std::map<std::string, Config>                                   _mapTokenConfig;//map id token and config child
-    std::map<std::string, std::string>                              _mapMimeType;//mime type data
+    std::map<int, Socket>                                                   _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
+    std::map<std::string, std::vector<std::pair<std::string, Config> > >    _mapTokenVectorUriConfig;//map id token and config child
+    std::map<std::string, std::string>                                      _mapMimeType;//mime type data
 
     /*environnement de travail*/
     Log                                                             _accessLog;//store access
