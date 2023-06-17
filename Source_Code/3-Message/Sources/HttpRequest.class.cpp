@@ -10,14 +10,14 @@
 */
 
 HeaderRequest::HeaderRequest()
-        : _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapHttpHeaders(), _mapTokenListAction(){
+        : _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapHttpHeaders(){
     return;
 }
 
 HeaderRequest::HeaderRequest(std::string &message)
-        : _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(),_mapHttpHeaders(), _mapTokenListAction(){
+        : _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(),_mapHttpHeaders(){
     setMapTokenStartLine();
-    _peg.findToken(*this, _mapTokenListAction, 0);
+    _peg.findToken(*this, 0);
 }
 
 HeaderRequest::~HeaderRequest() {
@@ -38,105 +38,105 @@ HeaderRequest &HeaderRequest::operator=(const HeaderRequest & rhs) {
 }
 
 void HeaderRequest::setMapTokenStartLine() {
-    _mapTokenListAction["GET"] = &HeaderRequest::addToStartLine;
-    _mapTokenListAction["POST"] = &HeaderRequest::addToStartLine;
-    _mapTokenListAction["DELETE"] = &HeaderRequest::addToStartLine;
+    _peg.setMapToken("GET", &HeaderRequest::addToStartLine);
+    _peg.setMapToken("POST", &HeaderRequest::addToStartLine);
+    _peg.setMapToken("DELETE", &HeaderRequest::addToStartLine);
 }
 
 void HeaderRequest::setMapTokenInformation() {
-    _mapTokenListAction.clear();
-    _mapTokenListAction["Accept:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Charset:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Datetime:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Encoding:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Language:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Patch:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Accept-Ranges:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Allow-Credentials:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Allow-Headers:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Allow-Methods:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Allow-Origin:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Expose-Headers:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Max-Age:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Request-Method:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Access-Control-Request-Headers:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Age:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Allow:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Alt-Svc:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Authorization:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Cache-Control:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Connection:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Disposition:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Encoding:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Language:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Length:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Location.class:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-MD5:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Range:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Content-Type:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Cookie:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["DASL:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Date:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["DAV:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Depth:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Destination:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["DNT (Do Not Track):"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["ETag:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Expect:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Expires:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Forwarded:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["From:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Host:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If-Match:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If-Modified-Since:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If-None-Match:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If-Range:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["If-Unmodified-Since:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["IM (Instance Manipulation):"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Last-Modified:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Link:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Location.class:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Lock-Token:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Max-Forwards:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["MIME-Version:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Origin:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Overwrite:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["P3P (Platform for Privacy Preferences):"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Pragma:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Prefer:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Preference-Applied:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Proxy-Authenticate:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Proxy-Authorization:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Proxy-Connection:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Range:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Referer:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Retry-After:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Server.class:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Set-Cookie:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Sec-Fetch-Dest:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Sec-Fetch-Mode:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Sec-Fetch-Site:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Sec-Fetch-User:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["SLUG:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["SOAPAction:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Status-URI:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Strict-Transport-Security:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["TE:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Timeout:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Trailer:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Transfer-Encoding:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Upgrade:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["User-Agent:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Upgrade-Insecure-Requests:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Variant-Vary:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Vary:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["Via:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["WWW-Authenticate:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["X-Forwarded-For:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["X-Forwarded-Proto:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["X-Frame-Options:"] = &HeaderRequest::addToMapHttpHeader;
-    _mapTokenListAction["X-XSS-Protection:"] = &HeaderRequest::addToMapHttpHeader;
+    _peg.clearMapToken();
+    _peg.setMapToken("Accept:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Charset:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Datetime:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Encoding:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Language:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Patch:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Accept-Ranges:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Allow-Credentials:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Allow-Headers:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Allow-Methods:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Allow-Origin:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Expose-Headers:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Max-Age:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Request-Method:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Access-Control-Request-Headers:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Age:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Allow:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Alt-Svc:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Authorization:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Cache-Control:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Connection:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Disposition:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Encoding:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Language:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Length:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Location.class:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-MD5:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Range:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Content-Type:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Cookie:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("DASL:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Date:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("DAV:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Depth:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Destination:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("DNT (Do Not Track):", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("ETag:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Expect:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Expires:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Forwarded:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("From:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Host:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If-Match:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If-Modified-Since:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If-None-Match:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If-Range:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("If-Unmodified-Since:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("IM (Instance Manipulation):", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Last-Modified:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Link:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Location.class:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Lock-Token:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Max-Forwards:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("MIME-Version:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Origin:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Overwrite:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("P3P (Platform for Privacy Preferences):", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Pragma:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Prefer:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Preference-Applied:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Proxy-Authenticate:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Proxy-Authorization:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Proxy-Connection:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Range:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Referer:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Retry-After:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Server.class:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Set-Cookie:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Sec-Fetch-Dest:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Sec-Fetch-Mode:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Sec-Fetch-Site:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Sec-Fetch-User:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("SLUG:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("SOAPAction:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Status-URI:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Strict-Transport-Security:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("TE:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Timeout:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Trailer:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Transfer-Encoding:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Upgrade:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("User-Agent:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Upgrade-Insecure-Requests:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Variant-Vary:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Vary:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("Via:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("WWW-Authenticate:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("X-Forwarded-For:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("X-Forwarded-Proto:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("X-Frame-Options:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("X-XSS-Protection:", &HeaderRequest::addToMapHttpHeader);
 }
 
 std::string HeaderRequest::addToStartLine(std::string & token) {
@@ -148,7 +148,7 @@ std::string HeaderRequest::addToStartLine(std::string & token) {
         throw HeaderRequest::headerException(strerror(errno));
     setMapTokenInformation();
     while(!_peg.checkIsEmpty())
-        _peg.findToken(*this, _mapTokenListAction, 0);
+        _peg.findToken(*this,  0);
     return std::string();
 }
 

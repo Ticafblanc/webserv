@@ -7,7 +7,6 @@
 #define WEBSERVER_LOG_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
-#include <Source_Code/1-Config/Includes/Config.hpp>
 
 
 class Log {
@@ -23,8 +22,11 @@ private:
 *====================================================================================
 */
 
-    std::string _pathToLogFile;
-    std::fstream _LogFile;
+    std::string     _pathToLogFile;
+//    std::fstream    _LogFile;
+    std::string     _indent;
+public:
+
 
 /*
 *====================================================================================
@@ -207,7 +209,8 @@ class LogException : public std::exception {
  * @throw LogException
  */
     void printLogFile();
-
+    void addIndent();
+    void removeIndent();
 /*
 *====================================================================================
 *|                                  Element access                                  |
@@ -215,6 +218,7 @@ class LogException : public std::exception {
 */
 
 
+    void writePidLogFile(const std::string &message);
 };
 
 

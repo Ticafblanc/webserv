@@ -1,0 +1,58 @@
+	
+
+				#### Config File ####
+
+
+	worker processes = 1
+		####events####
+		worker connection = 10
+		####http####
+			####server####
+			name = defaut.com
+			root = /var
+			index = index.html
+			error page = 404 /index.html
+			error page = 410 /index.html
+			error page = 429 /index.html
+				####location####
+				allow methods = GET POST DELETEconf = 7
+				auto index = on
+				####location####
+				allow methods = GET POST DELETEconf = 7
+	
+
+				#### Config data ####
+
+
+	Socket fd => 3
+	ipaddress => 0.0.0.0 port => 80
+		server name => localhost = Token => ncWkYvTVQh
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => defaut.com = Token => ncWkYvTVQh
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0

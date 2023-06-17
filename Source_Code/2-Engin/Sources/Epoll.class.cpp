@@ -11,9 +11,9 @@
 *====================================================================================
 */
 
-Epoll::Epoll(ConfigBase& config)
+Epoll::Epoll(Config& config)
 : epoll_event(), _config(config), _epollInstanceFd(),
-_events(new epoll_event[config.workerConnections]),_numberTriggeredEvents() {}
+_events(new epoll_event[config._workerConnections]),_numberTriggeredEvents() {}
 
 Epoll::~Epoll() {
 //    delete[] _events;
@@ -82,7 +82,7 @@ void Epoll::setEpollCtl(int  option){
 }
 
 bool Epoll::EpollWait(int timeOut) {
-    _numberTriggeredEvents = epoll_wait(_epollInstanceFd, _events, _config.workerConnections, timeOut);
+    _numberTriggeredEvents = epoll_wait(_epollInstanceFd, _events, _config._workerConnections, timeOut);
     if ( _numberTriggeredEvents == -1)
         throw epollException(strerror(errno));
     manageEvent();
@@ -91,7 +91,7 @@ bool Epoll::EpollWait(int timeOut) {
 
 bool Epoll::EpollWait() {
 //    std::cout << " Epoll Wait !!" << std::endl;
-    _numberTriggeredEvents = epoll_wait(_epollInstanceFd, _events, _config.workerConnections, -1);
+    _numberTriggeredEvents = epoll_wait(_epollInstanceFd, _events, _config._workerConnections, -1);
     if ( _numberTriggeredEvents == -1)
         throw epollException(strerror(errno));
     manageEvent();
@@ -115,9 +115,9 @@ void Epoll::removeSocket(int socket){
 }
 
 void Epoll::launchEpoll(){
-    createEpollInstance(_config.mapFdServer.size());
-    for (std::map<int, Socket>::iterator it = _config.mapFdServer.begin();
-         it != _config.mapFdServer.end(); ++it) {
+    createEpollInstance(_config._mapFdSocket.size());
+    for (std::map<int, Socket>::iterator it = _config._mapFdSocket.begin();
+         it != _config._mapFdSocket.end(); ++it) {
         addSocket(it->first, EPOLLIN);
     }
 }
@@ -126,12 +126,12 @@ void Epoll::manageEvent() {
     std::map<int, Socket>::iterator it;
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
 //        std::cout << "event fd => " << _events[i].data.fd << " events" << _events[i].events  <<std::endl;
-        it = _config.mapFdServer.find(_events[i].data.fd);
-        if (it != _config.mapFdServer.end()) {
+        it = _config._mapFdSocket.find(_events[i].data.fd);
+        if (it != _config._mapFdSocket.end()) {
             addConnexion(i);
         }else {
-            it = _config.mapFdClient.find(_events[i].data.fd);
-            if (it != _config.mapFdServer.end()) {
+            it = _config._mapFdSocket.find(_events[i].data.fd);//add check ip//
+            if (it != _config._mapFdSocket.end()) {
                 selectEvent(it->second, i);
             } else {
                 close(_events[i].data.fd);
@@ -147,9 +147,9 @@ void Epoll::addConnexion(int numberTrigged) {
         try {
             Socket newClient(_events[numberTrigged]);
             addSocket(newClient.getSocket(), EPOLLIN);
-            _config.mapFdClient.insert(std::make_pair(newClient.getSocket(), newClient));
+            _config._mapFdSocket.insert(std::make_pair(newClient.getSocket(), newClient));//
         } catch (std::exception &e) {
-            _config.errorLog.writeLogFile(e.what());
+            _config._errorLog.writeLogFile(e.what());
             std::cerr << e.what() << std::endl;
         }
     } else {
@@ -159,12 +159,12 @@ void Epoll::addConnexion(int numberTrigged) {
 
 void Epoll::removeConnexionClient(Socket &client) {
     removeSocket(client.getSocket());
-    _config.mapFdClient.erase(client.getSocket());
+    _config._mapFdSocket.erase(client.getSocket());//
 }
 
 void Epoll::removeConnexionServer(Socket &server) {
     removeSocket(server.getSocket());
-    _config.mapFdServer.erase(server.getSocket());
+    _config._mapFdSocket.erase(server.getSocket());
 }
 
 void Epoll::selectEvent(Socket &client, int numberTrigged) {
@@ -183,7 +183,7 @@ void Epoll::selectEvent(Socket &client, int numberTrigged) {
                 removeConnexionClient(client);
             }
         }catch (std::exception & e){
-            _config.errorLog.writeLogFile(e.what());
+            _config._errorLog.writeLogFile(e.what());
             std::cerr << e.what() << std::endl;
         }
         if (!client.getclient()._connection){

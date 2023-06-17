@@ -23,7 +23,7 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-    ConfigBase&                                     _config;
+    Config&                                     _config;
     int                                             _epollInstanceFd;
     epoll_event*                                    _events;
     int                                             _numberTriggeredEvents;
@@ -52,7 +52,7 @@ public:
  * @param   void
  * @throw   none
  **/
-    explicit Epoll(ConfigBase& config);
+    explicit Epoll(Config& config);
 
 /**
  * Copy constructor of 2-Engin class

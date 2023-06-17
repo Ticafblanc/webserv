@@ -20,12 +20,11 @@ private:
 *====================================================================================
 */
 
-    PegParser                                                           _peg;
+    PegParser<HeaderRequest>                                            _peg;
     std::string                                                         _startLineMethode;
     std::string                                                         _startLineURL;
     std::string                                                         _startLineVersion;
     std::map<const std::string, const std::string>                      _mapHttpHeaders;
-    std::map<std::string, std::string (HeaderRequest::*)(std::string &)>       _mapTokenListAction;
 
 /*
 *====================================================================================

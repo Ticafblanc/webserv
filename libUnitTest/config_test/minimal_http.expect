@@ -1,0 +1,14 @@
+
+
+				#### Config File ####
+
+
+		####http####
+
+
+				#### Config data ####
+
+
+	Socket fd => 4
+	ipaddress => 0.0.0.0 port => 80
+		server name =>  = Token =>

@@ -35,7 +35,7 @@ private:
 
     void addStatusCode();
 
-    void addHttpHeaders(const string &token, const string &value);
+    void addHttpHeaders(const std::string &token, const std::string &value);
 
     void addDate();
 

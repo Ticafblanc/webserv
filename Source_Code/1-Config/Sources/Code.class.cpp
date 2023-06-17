@@ -207,9 +207,23 @@ int Code::getCode() const {
 }
 
 void Code::setDefaultPage(int code, const std::string& pathToHtmlPage) {
-    if (_mapStatusCode.find(code) != _mapStatusCode.end())
-        *const_cast<std::string *>(&_mapStatusCode.at(_statusCode).second) = pathToHtmlPage;
-    _mapStatusCode[code] = std::make_pair(intToString(code), pathToHtmlPage);
+    if (FindCode(code))
+        *const_cast<std::string *>(&_mapStatusCode.at(code).second) = pathToHtmlPage;
+}
+
+void Code::setStatus(int code, const std::string& status) {
+    if (FindCode(code))
+        *const_cast<std::string *>(&_mapStatusCode.at(_statusCode).first) = status;
+}
+
+void Code::setNewCode(int code, const std::string &status, const std::string &pathToHtmlPage) {
+    if (!FindCode(code)){
+        _mapStatusCode[code] = std::make_pair(status, pathToHtmlPage);
+    }
+}
+
+bool Code::FindCode(int code) {
+    return _mapStatusCode.find(code) != _mapStatusCode.end();
 }
 
 

@@ -17,15 +17,16 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/1-Config/Includes/Events.class.hpp>
-#include <Source_Code/1-Config/Includes/Http.class.hpp>
-#include <Source_Code/1-Config/Includes/Server.class.hpp>
+#include <Source_Code/4-Utils/Template/PegParser.class.tpp>
+#include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
 class ConfigFile {
 
 /*>********************************public section**********************************/
 
 public:
+
+    Config*                                                             _parent;
 
 /*
 *====================================================================================
@@ -42,34 +43,46 @@ public:
  *          specified at start of webserv
  * @throw   none
  **/
-    explicit ConfigFile(ConfigBase & config);
+    ConfigFile(Config & config, PegParser<ConfigFile>& peg);
 
 /**
+ * Constructor of ConfigFile class
+ *
+ * ConfigFile(Config & config, std::string & pathToConfigFile, char ** envp);
+ *
+ * @param   path_config_file is a std::string is a path to config file
+ *          specified at start of webserv
+ * @throw   none
+ **/
+    ConfigFile(ConfigFile& configFile, Config * config);
+
+
+    /**
 * Destructor of ConfigFile class
 *
 * ConfigFile @throw   none
 **/
-    ~ConfigFile();
-
-/**
- * Copy constructor of ConfigFile class
- *
- * ConfigFile(ConfigFile &);
- *
- * @param   configWebserv instance to build the serverSocket
- * @throw   none
- **/
-    ConfigFile(const ConfigFile &);
-
-/**
- * Operator overload= of ConfigFile class
- *
- * ConfigFile& operator=(const ConfigFile &);
- *
- * @param   configWebserv instance const to copy the serverSocket
- * @throw   none
- **/
-    ConfigFile& operator=(const ConfigFile &);
+    virtual ~ConfigFile();
+//
+///**
+// * Copy constructor of ConfigFile class
+// *
+// * ConfigFile(ConfigFile &);
+// *
+// * @param   configWebserv instance to build the serverSocket
+// * @throw   none
+// **/
+//    ConfigFile(const ConfigFile &);
+//
+///**
+// * Operator overload= of ConfigFile class
+// *
+// * ConfigFile& operator=(const ConfigFile &);
+// *
+// * @param   configWebserv instance const to copy the serverSocket
+// * @throw   none
+// **/
+//    ConfigFile& operator=(const ConfigFile &);
 
 
 /*>*******************************private section**********************************/
@@ -82,34 +95,36 @@ private:
 */
 
 /**
- * Protected methode of ConfigFile struct
+ * Public methode of ConfigFile struct
  *
- * std::string parseBlocEvent();
+ * void parseFile();
  *
  * @returns     void
  * @param       void
+ * @throw       none
  */
-    std::string parseBlocEvent(std::string &);
+    void parseFile();
+
+/**
+ * Public methode of ConfigFile struct
+ *
+ * void parseFile();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void parseBloc(std::string & id);
 
 /**
  * Protected methode of ConfigFile struct
  *
- * std::string parseBlocHttp();
+ * std::string blocToken(std::string & token);
  *
  * @returns     void
  * @param       void
  */
-    std::string parseBlocHttp(std::string &);
-
-/**
- * Protected methode of ConfigFile struct
- *
- * std::string parseBlocHttp();
- *
- * @returns     void
- * @param       void
- */
-    std::string parseBlocServer(std::string &);
+    std::string blocToken(std::string & token);
 
 /**
  * Protected methode of ConfigFile struct
@@ -121,7 +136,7 @@ private:
  */
     std::string setWorkerProcesses(std::string &);
 
-    /**
+/**
  * Protected methode of ConfigFile struct
  *
  * std::string setWorkerProcesses();
@@ -129,27 +144,128 @@ private:
  * @returns     std::string if error in data for this token
  * @param       void
  */
-    std::string setclientBodyBufferSize(std::string &);
+    std::string setClientBodyBufferSize(std::string &);
+
+/**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setClientHeaderBufferSize(std::string &);
+
+/**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setClientMaxBodySize(std::string &);
+
+/**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string setWorkerProcesses();
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string setWorkerConnections(std::string &);
+
+/**
+ * Protected methode of ConfigFile struct
+ *
+ * std::string addVectorListen(std::string &);
+ *
+ * @returns     std::string if error in data for this token
+ * @param       void
+ */
+    std::string addVectorListen(std::string &);
 
     /**
  * Protected methode of ConfigFile struct
  *
- * std::string setWorkerProcesses();
+ * sstd::string addIndex(std::string &);
  *
  * @returns     std::string if error in data for this token
  * @param       void
  */
-    std::string setclientHeaderBufferSize(std::string &);
+    std::string addIndex(std::string &);
 
     /**
- * Protected methode of ConfigFile struct
- *
- * std::string setWorkerProcesses();
- *
- * @returns     std::string if error in data for this token
- * @param       void
- */
-    std::string setclientMaxBodySize(std::string &);
+* Protected methode of ConfigFile struct
+*
+* std::string addVectorServerName(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string addVectorServerName(std::string &);
+
+    /**
+* Protected methode of ConfigFile struct
+*
+* std::string setRoot(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setRoot(std::string &);
+
+    /**
+* Protected methode of ConfigFile struct
+*
+* std::string setAllowMethods(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setAllowMethods(std::string &);
+
+
+/**
+* Protected methode of ConfigFile struct
+*
+* std::string setAutoIndex(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setAutoIndex(std::string &);
+
+/**
+* Protected methode of ConfigFile struct
+*
+* std::string setErrorPage(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setErrorPage(std::string &);
+
+/**
+* Protected methode of ConfigFile struct
+*
+* std::string setReturn(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setReturn(std::string &);
+
+/**
+* Protected methode of ConfigFile struct
+*
+* std::string setReturn(std::string &);
+*
+* @returns     std::string if error in data for this token
+* @param       void
+*/
+    std::string setCgiPass(std::string &);
 
 /**
  * Public methode of ConfigFile struct
@@ -160,7 +276,7 @@ private:
  * @param       void
  * @throw       none
  */
-    void setMapToken();
+    void setMapToken(const std::string & token);
 /**
  * Public methode of ConfigFile struct
  *
@@ -170,18 +286,52 @@ private:
  * @param       void
  * @throw       none
  */
-    void clearToken();
+    void setMapTokenEvents();
 
 /**
  * Public methode of ConfigFile struct
  *
- * void parseConfigFile();
+ * void setMapToken();
  *
  * @returns     void
  * @param       void
  * @throw       none
  */
-    void parseConfigFile();
+    void setMapTokenHttp();
+
+/**
+ * Public methode of ConfigFile struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapTokenFile();
+
+
+    /**
+ * Public methode of ConfigFile struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapTokenServer();
+
+    /**
+ * Public methode of ConfigFile struct
+ *
+ * void setMapToken();
+ *
+ * @returns     void
+ * @param       void
+ * @throw       none
+ */
+    void setMapTokenLocation();
 
 /*
 *====================================================================================
@@ -189,13 +339,11 @@ private:
 *====================================================================================
 */
 
-    ConfigBase&                                                         _config;
-    std::map<std::string, std::string (ConfigFile::*)(std::string &)>   _mapTokenListAction;
-    Events                                                              _Events;
-    Http                                                                _Http;
-    Server                                                              _server;
+    Config&                                                             _config;
+    PegParser<ConfigFile>&                                              _peg;
+    std::string                                                         _id;
 
-
+    void printData();
 };
 
 

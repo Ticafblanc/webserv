@@ -4,38 +4,42 @@
 
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>
 
-Listen::Listen(Config& config)
-: _config(config), _input(), _ipAddress(), _port(){}
+Listen::Listen(Config& config, Config& configBase)
+: _config(config), _configBase(configBase), _input(), _ipAddress(), _port(){}
 
 Listen::~Listen() {}
 
-Listen::Listen(const Listen& other)
-: _config(other._config), _input(other._input),
-_ipAddress(other._ipAddress), _port(other._port){}
-
-Listen &Listen::operator=(const Listen & rhs) {
-    if (this != &rhs) {
-        this->_config = rhs._config;
-        this->_input = rhs._input;
-        this->_ipAddress = rhs._ipAddress;
-        this->_port = rhs._port;
-    }
-    return *this;
-}
+//Listen::Listen(const Listen& other)
+//: _config(other._config), _input(other._input),
+//_ipAddress(other._ipAddress), _port(other._port){}
+//
+//Listen &Listen::operator=(const Listen & rhs) {
+//    if (this != &rhs) {
+//        this->_config = rhs._config;
+//        this->_input = rhs._input;
+//        this->_ipAddress = rhs._ipAddress;
+//        this->_port = rhs._port;
+//    }
+//    return *this;
+//}
 
 std::string Listen::parseListenData(const std::string &input) {
-    _input.str() = input;
+    _input.str(input);
     std::string error = check_input();
     if (error.empty()){
         Socket newSock(_ipAddress, _port);
-        for(std::map<int, Socket>::iterator sockIt = _config.mapFdServer.begin();
-            sockIt != _config.mapFdServer.end(); ++sockIt){
-            if (sockIt->second == newSock){
-                return error;
+        if (!_configBase._mapFdSocket.empty()) {
+            for (std::map<int, Socket>::iterator sockIt = _configBase._mapFdSocket.begin();
+                 sockIt != _configBase._mapFdSocket.end(); ++sockIt) {
+                if (sockIt->second == newSock) {
+                    newSock.addToken(_config._tok);
+                    return error;
+                }
             }
         }
         newSock.buildServerSocket();
-        _config.mapFdServer.insert(std::make_pair(newSock.getSocket(), newSock));
+        newSock.addToken(_config._tok);
+        _configBase._mapFdSocket.insert(std::make_pair(newSock.getSocket(), newSock));
     }
     return error;
 }
@@ -51,6 +55,9 @@ std::string Listen::check_input() {
         check_ip(ip_address, error);
         if (!error.empty())
             return error;
+    } else {
+        _ipAddress = "0.0.0.0";
+        _input.seekg(0);
     }
     std::getline(_input, port);
     check_port(port, error);
@@ -188,7 +195,7 @@ void    Listen::check_port(std::string port, std::string &error) {
         return;
     }
     port_int = std::atoi(port.c_str());
-    if (port_int < 1024 || port_int > 49151)
+    if (port_int != 80 && (port_int < 1024 || port_int > 49151))
     {
         error = "Port is out of range.";
         return;
@@ -204,6 +211,11 @@ void Listen::check_ip(std::string ip_address, std::string &error) {
     if (ip_address == "INADDR_ANY")
     {
         _ipAddress = "0.0.0.0";
+        return ;
+    }
+    else if (ip_address == "localhost")
+    {
+        _ipAddress = "127.0.0.1";
         return ;
     }
     if (!check_ip_format(ip_address, error))

@@ -57,7 +57,7 @@ void HttpMessage::findTokenServer() {
     if (serverName.empty())
         throw HttpMessage::httpMessageException("no host");
     else{
-        Socket & server = _config.mapFdServer.at(_client.getclient()._server);
+        Socket & server = _config._mapFdSocket.at(_client.getclient()._server);
         if ((_serverToken = server.findServerName(serverName)).empty())
             throw HttpMessage::httpMessageException("404 not found");
     }
