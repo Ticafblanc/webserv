@@ -1,5 +1,4 @@
-1
-
+	
 
 				#### Config File ####
 
@@ -10,7 +9,7 @@
 		####http####
 			####server####
 			name = defaut.com
-			root = /var/www/defaut.com
+			root = /var
 			index = index.html
 			error page = 404 /index.html
 			error page = 410 /index.html
@@ -20,25 +19,40 @@
 				auto index = on
 				####location####
 				allow methods = GET POST DELETEconf = 7
-
+	
 
 				#### Config data ####
 
 
-	Socket fd => 4
+	Socket fd => 3
 	ipaddress => 0.0.0.0 port => 80
-		server name => localhost = Token => IdArPpBjxn
-		uri => /
+		server name => localhost = Token => ncWkYvTVQh
+		uri => / 
 		index => index.html
-		root => /var/www/defaut.com
+		root => /var
 		allow method => 7
-		cgi =>
+		cgi => 
 		autoIndex => true
 		return => 0
-		uri => /
+		uri => / 
 		index => index.html
-		root => /var/www/defaut.com
+		root => /var
 		allow method => 7
-		cgi =>
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => defaut.com = Token => ncWkYvTVQh
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => / 
+		index => index.html
+		root => /var
+		allow method => 7
+		cgi => 
 		autoIndex => false
 		return => 0

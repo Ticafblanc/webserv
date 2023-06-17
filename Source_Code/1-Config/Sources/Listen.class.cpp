@@ -32,12 +32,13 @@ std::string Listen::parseListenData(const std::string &input) {
             for (std::map<int, Socket>::iterator sockIt = _configBase._mapFdSocket.begin();
                  sockIt != _configBase._mapFdSocket.end(); ++sockIt) {
                 if (sockIt->second == newSock) {
+                    newSock.addToken(_config._tok);
                     return error;
                 }
             }
         }
         newSock.buildServerSocket();
-        newSock.addServerName(_config._name, _config._tok);
+        newSock.addToken(_config._tok);
         _configBase._mapFdSocket.insert(std::make_pair(newSock.getSocket(), newSock));
     }
     return error;
@@ -210,6 +211,11 @@ void Listen::check_ip(std::string ip_address, std::string &error) {
     if (ip_address == "INADDR_ANY")
     {
         _ipAddress = "0.0.0.0";
+        return ;
+    }
+    else if (ip_address == "localhost")
+    {
+        _ipAddress = "127.0.0.1";
         return ;
     }
     if (!check_ip_format(ip_address, error))

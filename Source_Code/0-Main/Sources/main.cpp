@@ -45,7 +45,7 @@ static void checkFile(int argc, char **argv, char ** envp){
     std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
     try {
-        PegParser<ConfigFile> peg("/webserv/Docker_build/etc/webserv/webserv.conf", "#");
+        PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
         Token     token;
         Config webserv(token, envp);
         ConfigFile extractConfigFile(webserv, peg);

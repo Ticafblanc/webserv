@@ -422,6 +422,8 @@ public:
     SocketClient &getclient() ;
 
     std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
+
+    void addToken(const std::string &token);
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP

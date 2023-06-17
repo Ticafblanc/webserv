@@ -90,6 +90,7 @@ std::string ConfigFile::blocToken(std::string & token) {
             else
                 _config._uri = configFile._config._uri = value;
             _parent->addChild(configFile._config);
+            _parent->addServerName(configFile._config);
         }
         setMapToken(_id);
         return "";
@@ -215,7 +216,7 @@ std::string ConfigFile::setRoot(std::string &token){
     if (root.empty())
         return std::string("no value at root");
     struct stat statBuf;
-    if (stat(root.c_str(), &statBuf) != 0)
+    if (stat(root.c_str(), &statBuf) == 0)
         _config._root = root;
     else
         return "Path not found => " + root;
@@ -273,15 +274,19 @@ std::string ConfigFile::setErrorPage(std::string &token){
             line = "value in code invalid for return => " + line;
             return line;
         }
+        line.clear();
         value >> line >> std::ws;
         if (value.eof()) {
-            _config._code.setDefaultPage((int)code, line);
-            _config._pidLog.writePidLogFile("error page = " + value.str());
-            return std::string();
+            if (!line.empty()) {
+                _config._code.setDefaultPage((int) code, line);
+                _config._pidLog.writePidLogFile("error page = " + value.str());
+                return "";
+            }
+            return "no index to set" ;
         }
-        return std::string("to much value in error page");
+        return "to much value in error page";
     }
-    return std::string("no value at error page");;
+    return "no value at error page";
 }
 
 std::string ConfigFile::setReturn(std::string & token) {
@@ -370,6 +375,15 @@ void ConfigFile::setMapTokenHttp() {
 }
 
 void ConfigFile::setMapTokenServer() {
+    _peg.clearMapToken();
+    _peg.setMapToken("listen", &ConfigFile::addVectorListen);
+    _peg.setMapToken("server_name", &ConfigFile::addVectorServerName);
+    _peg.setMapToken("root", &ConfigFile::setRoot);
+    _peg.setMapToken("index", &ConfigFile::addIndex);
+    _peg.setMapToken("error_page", &ConfigFile::setErrorPage);
+    _peg.setMapToken("autoindex", &ConfigFile::setAutoIndex);
+    _peg.setMapToken("allowed_methods", &ConfigFile::setAllowMethods);
+    _peg.setMapToken("server", &ConfigFile::blocToken);
     _peg.setMapToken("location", &ConfigFile::blocToken);
 }
 

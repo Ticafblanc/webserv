@@ -86,6 +86,13 @@ void Config::addToSet(std::vector<std::string> & value, std::set<std::string> & 
     }
 }
 
+void Config::addServerName(Config &child) {
+    for (std::map<int, Socket>::iterator sockIt = _mapFdSocket.begin();
+         sockIt != _mapFdSocket.end(); ++sockIt) {
+        sockIt->second.addServerName(child._name, child._tok);
+    }
+}
+
 
 
 

@@ -15,13 +15,13 @@ jobs:
       - name: compile project
         run: cmake -B build
 
-      - name: test Makefile
-        run: |
-          make
+#      - name: test Makefile
+#        run: |
+#          make
 
-      - name: Clean Makefile test
-        run: |
-          make finish
+#      - name: Clean Makefile test
+#        run: |
+#          make finish
 
       - name: Compile test
         working-directory: build

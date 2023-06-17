@@ -27,6 +27,8 @@ struct Config {
 
     void addChild(const Config & child);
 
+    void addServerName(Config & child);
+
     void addToSet(std::vector<std::string> & value, std::set<std::string> & conf);
 
     /*data config for each bloc*/

@@ -194,12 +194,24 @@ const std::string &Socket::getIpAddress() const {
     return _ipAddress;
 }
 
+void Socket::addToken( const std::string & token){
+    _vectorServerNameToken.push_back(std::make_pair(token , token));
+}
+
 void Socket::addServerName( std::vector<std::string> & name, const std::string & token){
-    for ( std::vector<std::string>::iterator it = name.begin();
-          it != name.end(); ++it) {
-        if (findServerName(*it).empty())
-            _vectorServerNameToken.push_back(std::make_pair(*it, token));
+    for ( std::vector<std::pair<std::string, std::string> >::iterator it = _vectorServerNameToken.begin();
+          it != _vectorServerNameToken.end(); ++it) {
+        if (it->first == token){
+            _vectorServerNameToken.erase(it);
+            for ( std::vector<std::string>::iterator itName = name.begin();
+                  itName != name.end(); ++itName) {
+                if (findServerName(*itName).empty())
+                    _vectorServerNameToken.push_back(std::make_pair(*itName, token));
+            }
+            return;
+        }
     }
+
 }
 
 bool Socket::operator==(const Socket & rhs) {

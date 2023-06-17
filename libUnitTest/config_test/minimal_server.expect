@@ -1,0 +1,21 @@
+
+
+				#### Config File ####
+
+
+		####server####
+
+
+				#### Config data ####
+
+
+	Socket fd => 34
+	ipaddress => 0.0.0.0 port => 80
+		server name => localhost = Token => rEiv1hujDSsdfa
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/defaut.com
+		allow method => 7
+		cgi =>
+		autoIndex => false
+		return => 0
