@@ -49,7 +49,11 @@ function(test_fail_conf RUN input_file error status)
 
     add_test(NAME ${RUN} COMMAND webserv -t ../${TEST_DIR}/${input_file} )
 
-    set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "${error}\n${status}")
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
+        set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "(?i)${error}\n${status}")
+    else()
+        set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "${error}\n${status}")
+    endif()
 
 endfunction()
 
