@@ -32,7 +32,7 @@ jobs:
 
       - name: Run tests and print output
         run: |
-            cd build
+#            cd build
             output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
             echo "Test output: $output"
             echo "$output" | grep -E "No IP:PORT to listen
