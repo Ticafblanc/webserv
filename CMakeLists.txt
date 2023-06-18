@@ -50,14 +50,14 @@ function(test_fail_conf RUN input_file error status)
     add_test(NAME ${RUN} COMMAND webserv -t ../${TEST_DIR}/${input_file} )
 
 #    if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.20")
-        set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "(?i)${error}\n${status}")
+        set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "${error}\n${status}")
 #    else()
 #        set_tests_properties(${RUN} PROPERTIES PASS_REGULAR_EXPRESSION "${error}\n${status}")
 #    endif()
 
 endfunction()
 
-test_Fail_conf(run_minimal_empty minimal_empty.conf
+test_fail_conf(run_minimal_empty minimal_empty.conf
         "No IP:PORT to listen" "webserv: configuration file ../libUnitTest/config_test/minimal_empty.conf test failed")
 test_fail_conf(run_wrongWorkerProcessMin_error wrongWorkerProcessMin_error.conf
         "value invalid in invalide data for worker processes => 0" "webserv: configuration file ../libUnitTest/config_test/wrongWorkerProcessMin_error.conf test failed")
