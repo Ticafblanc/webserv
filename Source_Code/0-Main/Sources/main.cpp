@@ -51,7 +51,7 @@ static void checkFile(int argc, char **argv, char ** envp){
         ConfigFile extractConfigFile(webserv, peg);
     }
     catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << e.what() << " coucou" <<  std::endl;
         std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
         exit(EXIT_FAILURE);
     }
