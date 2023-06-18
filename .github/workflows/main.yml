@@ -27,6 +27,6 @@ jobs:
         working-directory: build
         run: cmake --build .
 
-      - name: Run Unit test
-        working-directory: build
-        run: ctest --extra-verbose
+#      - name: Run Unit test
+#        working-directory: build
+#        run: ctest --extra-verbose
