@@ -6,8 +6,9 @@ on:
 
 jobs:
   build:
-    runs-on: ticafblanc/webserv-env-dev:latest
-
+    runs-on: ubuntu-latest
+    container:
+      image: ticafblanc/webserv-env-dev:latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
