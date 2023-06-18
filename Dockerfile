@@ -37,18 +37,18 @@ RUN apt-get update \
 USER Ticafblanc
 
 #define wrorkdir
-#WORKDIR /webserv
+WORKDIR /webserv
 
 #copy repo
-#COPY . /webserv/
+COPY . /webserv/
 COPY /Docker_build/etc /usr/local/etc/
 COPY /Docker_build/var /usr/local/var/
 
 #compile project
-#RUN make && mv Bin/webserv /usr/local/bin/webserv
+RUN make && mv Bin/webserv /usr/local/bin/webserv
 
 #allowed ports 1024 => 49151
 EXPOSE 8080 8081 4242
 
-#CMD ["/bin/bash"]
-CMD ["webserv"]
+CMD ["/bin/bash"]
+

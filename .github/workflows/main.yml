@@ -27,6 +27,14 @@ jobs:
         working-directory: build
         run: cmake --build .
 
+      - name: Run tests and print output
+        run: |
+            output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
+            echo "Test output: $output"
+            echo "$output" | grep -E "No IP:PORT to listen
+          
+#            webserv: configuration file ../libUnitTest/config_test/minimal_empty.conf test failed"
+
       - name: Run Unit test
         working-directory: build
         run: ctest
