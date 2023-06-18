@@ -51,7 +51,7 @@ static void checkFile(int argc, char **argv, char ** envp){
         ConfigFile extractConfigFile(webserv, peg);
     }
     catch (const std::exception &e) {
-        std::cerr << e.what() << " coucou" <<  std::endl;
+        std::cerr << e.what() << std::endl;
         std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
         exit(EXIT_FAILURE);
     }
@@ -97,7 +97,6 @@ static void launcher(Config & config) {
 int main(int argc, char **argv, char **envp){
     std::string pathConfigFile;
     int         positionPathFileConfig = checkOption(argc, argv, envp);
-    system("ls");
 
    if (positionPathFileConfig != -1) {
         signal(SIGINT, handleExit);

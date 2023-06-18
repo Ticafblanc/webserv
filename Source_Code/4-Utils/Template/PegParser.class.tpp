@@ -63,6 +63,7 @@ public:
         if (path_file == NULL || strlen(path_file) == 0)
             return;
         std::ifstream       fileToParse(path_file);
+        std::cerr << path_file << fileToParse.is_open() <<std::endl;
 
         if (!fileToParse.is_open())
             throw syntaxException(strerror(errno));
