@@ -27,21 +27,6 @@ jobs:
         working-directory: build
         run: cmake --build .
 
-      - name: Run tests file
-        working-directory: build
-        run: |
-          cat /home/runner/work/webserv/webserv/libUnitTest/config_test/minimal_empty.conf
-
-      - name: Run tests and print output
-        working-directory: build
-        run: |
-            pwd
-            output=$(./webserv -t /home/runner/work/webserv/webserv/libUnitTest/config_test/minimal_empty.conf)
-            echo "Test output: $output"
-            echo "$output" | grep -E "No IP:PORT to listen
-          
-#            webserv: configuration file ../libUnitTest/config_test/minimal_empty.conf test failed"
-
       - name: Run Unit test
         working-directory: build
         run: ctest --extra-verbose

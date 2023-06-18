@@ -21,7 +21,7 @@
 
 	Socket fd => 4
 	ipaddress => 127.0.0.1 port => 8080
-		server name => localhost = Token => kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -31,7 +31,7 @@
 		return => 0
 	Socket fd => 5
 	ipaddress => 127.0.0.1 port => 8081
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -41,7 +41,7 @@
 		return => 0
 	Socket fd => 6
 	ipaddress => 127.0.0.1 port => 8082
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -51,7 +51,7 @@
 		return => 0
 	Socket fd => 7
 	ipaddress => 127.0.0.1 port => 2020
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -61,7 +61,7 @@
 		return => 0
 	Socket fd => 8
 	ipaddress => 0.0.0.0 port => 3030
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -71,7 +71,7 @@
 		return => 0
 	Socket fd => 9
 	ipaddress => 0.0.0.0 port => 3031
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
@@ -81,7 +81,7 @@
 		return => 0
 	Socket fd => 10
 	ipaddress => 0.0.0.0 port => 3032
-		server name => localhost = Token => kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7kOj8R8lkd7
+		server name => localhost = Token => j7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1hj7fvbfoB1h
 		uri => /
 		index => index.html
 		root => /webserv/Docker_build/var/www/defaut.com
