@@ -27,6 +27,11 @@ jobs:
         working-directory: build
         run: cmake --build .
 
+      - name: Run tests file
+        working-directory: build
+        run: |
+          cat ../libUnitTest/config_test/minimal_empty.conf
+
       - name: Run tests and print output
         working-directory: build
         run: |
