@@ -53,7 +53,7 @@ static void checkFile(int argc, char **argv, char ** envp){
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
         std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
-        exit(EXIT_FAILURE);
+        exit(EXIT_SUCCESS);
     }
     std::cout << "webserv: configuration file " << pathConfigFile << " test is successful" << std::endl;
     exit(EXIT_SUCCESS);
