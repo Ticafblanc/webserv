@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ticafblanc/webserv-env-dev:latest
+      options: --user root
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
