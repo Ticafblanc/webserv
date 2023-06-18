@@ -33,7 +33,6 @@ jobs:
       - name: Run tests and print output
         run: |
             ls -l
-            cd libUnitTest/config_test && ls -l
             cd build && ls -l
             cd ../libUnitTest/config_test/ && ls -l 
             output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
