@@ -27,6 +27,9 @@ jobs:
         working-directory: build
         run: cmake --build .
 
+      - name: List files in current directory
+        run: ls -l
+
       - name: Run tests and print output
         run: |
             output=$(./build/webserv -t ../libUnitTest/config_test/minimal_empty.conf)
