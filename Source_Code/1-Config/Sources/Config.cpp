@@ -8,7 +8,7 @@
 Config::Config(Token & token, char **env)
 : _workerProcess(1), _workerConnections(10),
   _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024),_clientMaxBodySize(1048576),
-  _name(), _index(), _root("/webserv/Docker_build/var/www/defaut.com"), _uri(), _allowMethods(7),
+  _name(), _index(), _root("/webserv/Docker_build/var/www/default.com"), _uri(), _allowMethods(7),
   _return(), _cgiPass(), _autoindex(false), _code(),
   _mapFdSocket(), _mapTokenVectorUriConfig(),
   _mapMimeType(Types("/webserv/Docker_build/etc/webserv/conf/mime.types").getMime()),

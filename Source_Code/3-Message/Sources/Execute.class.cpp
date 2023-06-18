@@ -46,32 +46,8 @@ void Execute::GETmethode() {
         _client.getclient()._content += line;
     }
     logfile.close();
-   //todo find location
-   //vald methode"/usr/local/var/www/index.html"
-   //build _reponse
-//   _client.getclient()._content = "<!DOCTYPE html>\n"
-//              "<html>\n"
-//              "<head>\n"
-//              "<title>Welcome to nginx!</title>\n"
-//              "<style>\n"
-//              "html { color-scheme: light dark; }\n"
-//              "body { width: 35em; margin: 0 auto;\n"
-//              "font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
-//              "</style>\n"
-//              "</head>\n"
-//              "<body>\n"
-//              "<h1>Welcome to nginx!</h1>\n"
-//              "<p>If you see this page, the nginx web serverSocket is successfully installed and\n"
-//              "working. Further configuration is required.</p>\n"
-//              "\n"
-//              "<p>For online documentation and support please refer to\n"
-//              "<a href=\"http://nginx.org/\">nginx.org</a>.<br/>\n"
-//              "Commercial support is available at\n"
-//              "<a href=\"http://nginx.com/\">nginx.com</a>.</p>\n"
-//              "\n"
-//              "<p><em>Thank you for using nginx.</em></p>\n"
-//              "</body>\n"
-//              "</html>";
+
+
     _client.getclient()._contentType = "text/html";
 }
 
@@ -135,8 +111,32 @@ std::string Execute::getContentType() {
 
 
 void Execute::executeRequest(std::string & tokenServer) {
-    _tokenServer = tokenServer;
-    selectMethode();
+    try {
+        if (tokenServer.empty())
+            throw 404;
+        _tokenServer = tokenServer;
+        selectMethode();
+    }
+    catch (int & error){
+        _client.getclient()._content = "<!DOCTYPE html>\n"
+        "<html>\n"
+        "<head>\n"
+        "<title>"+ _config._code.getStatusCode(error) +"</title>\n"
+        "<style>\n"
+        "html { color-scheme: light dark; }\n"
+        "body { width: 35em; margin: 0 auto;\n"
+        "font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
+        "</style>\n"
+        "</head>\n"
+        "<body>\n"
+        "<h1>" + _config._code.getStatusCode(error) + "</h1>\n"
+        "<p>Sorry</p>\n"
+        "</body>\n"
+        "</html>";
+        _client.getclient()._contentType = "text/html";
+    }
+
+
 
 }
 

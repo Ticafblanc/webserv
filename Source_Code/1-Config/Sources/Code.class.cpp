@@ -187,15 +187,15 @@ void Code::buildStatusCode() {
     _mapStatusCode[505] = std::make_pair("HTTP Version Not Supported", "usr/local/var/www/html/505.html");
 }
 
-std::string Code::getStatusCode() const {
-    std::string status(intToString(_statusCode));
+std::string Code::getStatusCode(int statusCode) const {
+    std::string status(intToString(statusCode));
     status += " ";
-    status += _mapStatusCode.at(_statusCode).first;
+    status += _mapStatusCode.at(statusCode).first;
     return status;
 }
 
-const std::string & Code::getStatusPage() const {
-    return _mapStatusCode.at(_statusCode).second;
+const std::string & Code::getStatusPage(int statusCode) const {
+    return _mapStatusCode.at(statusCode).second;
 }
 
 void Code::setStatusCode(int code) {

@@ -24,9 +24,20 @@ HttpMessage::HttpMessage(Socket& client, Config& config)
   _config(config),
   _request(_client, config),
   _execute(_request, config, _client){
-    _request.recvMessage();
-    findTokenServer();
-    _execute.executeRequest(_serverToken);
+    try {
+        _request.recvMessage();
+        findTokenServer();
+        _execute.executeRequest(_serverToken);
+    }
+    catch (int & error){
+        _client.getclient()._content ="<!DOCTYPE html>\n"
+        "<html><head><title>"+ _config._code.getStatusCode(error) + "</title></head>"
+        "<body><h1>" + _config._code.getStatusCode(error) + "</h1><p>Sorry</p></body></html>";
+        _client.getclient()._contentType = "text/html";
+    }
+
+
+
 }
 
 HttpMessage::~HttpMessage() {}
@@ -58,8 +69,7 @@ void HttpMessage::findTokenServer() {
         throw HttpMessage::httpMessageException("no host");
     else{
         Socket & server = _config._mapFdSocket.at(_client.getclient()._server);
-        if ((_serverToken = server.findServerName(serverName)).empty())
-            throw HttpMessage::httpMessageException("404 not found");
+        _serverToken = server.findServerName(serverName);
     }
 }
 

@@ -101,6 +101,7 @@ bool Epoll::EpollWait() {
 void Epoll::addSocket(int socket, int events){
     setEpollEvent(socket, events);
     setEpollCtl(EPOLL_CTL_ADD) ;
+    _config._accessLog.writeLogFile("add client socket = " + intToString(socket));
 }
 
 void Epoll::modSocket(int socket, int events){
@@ -125,18 +126,14 @@ void Epoll::launchEpoll(){
 void Epoll::manageEvent() {
     std::map<int, Socket>::iterator it;
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
-//        std::cout << "event fd => " << _events[i].data.fd << " events" << _events[i].events  <<std::endl;
+        std::cout << "event fd => " << _events[i].data.fd << " events" << _events[i].events  <<std::endl;
         it = _config._mapFdSocket.find(_events[i].data.fd);
-        if (it != _config._mapFdSocket.end()) {
-            addConnexion(i);
-        }else {
-            it = _config._mapFdSocket.find(_events[i].data.fd);//add check ip//
-            if (it != _config._mapFdSocket.end()) {
+        if (it != _config._mapFdSocket.end() && (it->second.getclient()._server == 0))
+                addConnexion(i);
+        else if (it != _config._mapFdSocket.end() && it->second.checkSocket(_events[i].data.fd))
                 selectEvent(it->second, i);
-            } else {
-                close(_events[i].data.fd);
-            }
-        }
+        else
+            close(_events[i].data.fd);
     }
 
 }
@@ -146,14 +143,12 @@ void Epoll::addConnexion(int numberTrigged) {
     || (!(_events[numberTrigged].events & EPOLLRDHUP)) || (_events[numberTrigged].events & EPOLLIN)) {
         try {
             Socket newClient(_events[numberTrigged]);
-            addSocket(newClient.getSocket(), EPOLLIN);
+            addSocket(newClient.getSocket(), EPOLLIN | EPOLLET);
             _config._mapFdSocket.insert(std::make_pair(newClient.getSocket(), newClient));//
         } catch (std::exception &e) {
             _config._errorLog.writeLogFile(e.what());
             std::cerr << e.what() << std::endl;
         }
-    } else {
-        close(_events[numberTrigged].data.fd);
     }
 }
 
@@ -185,6 +180,11 @@ void Epoll::selectEvent(Socket &client, int numberTrigged) {
         }catch (std::exception & e){
             _config._errorLog.writeLogFile(e.what());
             std::cerr << e.what() << std::endl;
+            client.getclient()._content ="<!DOCTYPE html>\n"
+            "<html><head><title>"+ _config._code.getStatusCode(error) + "</title></head>"
+            "<body><h1>" + _config._code.getStatusCode(error) + "</h1><p>Sorry</p></body></html>";
+            client.getclient()._contentType = "text/html";
+            removeConnexionClient(client);
         }
         if (!client.getclient()._connection){
             removeConnexionClient(client);

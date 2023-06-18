@@ -28,6 +28,7 @@ struct SocketClient{
 
     int                                                 _server;
     bool                                                _connection;
+    int                                                 _statusCode;
     std::string                                         _content;
     std::string                                         _contentType;
     std::string                                         _serverToken;
@@ -424,6 +425,8 @@ public:
     std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
 
     void addToken(const std::string &token);
+
+    bool checkSocket(int fd);
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP

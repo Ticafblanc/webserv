@@ -97,9 +97,13 @@ void Socket::setSockaddrIn() {
 void Socket::getSockaddrIn() {
     _ipAddress = inet_ntoa(_sock.sin_addr);
     _port = ntohs(_sock.sin_port);
-    std::cout   << "add client socket = "<< _socket
-                <<" ip address = "<< _ipAddress
-                << " port = "  << _port<< std::endl;
+}
+
+bool Socket::checkSocket(int fd){
+    struct sockaddr_in address;
+    socklen_t address_length = sizeof(address);
+    getsockname(fd, reinterpret_cast<struct sockaddr*>(&address), &address_length);
+    return ((_sock.sin_addr.s_addr == address.sin_addr.s_addr) && (_sock.sin_port == address.sin_port));
 }
 
 void Socket::setSocket() {
@@ -162,6 +166,7 @@ void Socket::buildServerSocket() {
         setBind();
         setListen(10);
         accessorSocketFlag(F_SETFL, O_NONBLOCK);
+
     }
 }
 
@@ -240,18 +245,19 @@ std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameTo
 
 
 SocketClient::SocketClient(int server)
-        : _server(server), _connection(true), _content(), _contentType(), _serverToken() {}
+        : _server(server), _connection(true),_statusCode(0), _content(), _contentType(), _serverToken() {}
 
 SocketClient::~SocketClient() {}
 
 SocketClient::SocketClient(const SocketClient &other) :
-_server(other._server), _connection(other._connection), _content(other._content),
+_server(other._server), _connection(other._connection), _statusCode(other._statusCode), _content(other._content),
 _contentType(other._contentType), _serverToken(other._serverToken){}
 
 SocketClient &SocketClient::operator=(const SocketClient &rhs) {
     if (this != &rhs){
         this->_server = rhs._server;
         this->_connection = rhs._connection;
+        this->_statusCode = rhs._statusCode;
         this->_content = rhs._content;
         this->_contentType = rhs._contentType;
         this->_serverToken = rhs._serverToken;

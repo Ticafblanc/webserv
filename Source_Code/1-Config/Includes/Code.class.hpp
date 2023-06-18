@@ -129,7 +129,7 @@ public:
  * @param       void
  * @throw       none
  */
-    std::string  getStatusCode() const;
+    std::string  getStatusCode(int statusCode) const;
     int  getCode() const;
 
 /**
@@ -141,7 +141,7 @@ public:
  * @param       void
  * @throw       none
  */
-    const std::string & getStatusPage() const;
+    const std::string & getStatusPage(int statusCode) const;
 
 
 /*>*******************************private section**********************************/
