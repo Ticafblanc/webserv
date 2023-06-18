@@ -28,7 +28,7 @@ jobs:
         run: cmake --build .
 
       - name: List files in current directory
-        run: ls -l
+        run: cd build && ls -l
 
       - name: Run tests and print output
         run: |
