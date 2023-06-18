@@ -29,7 +29,7 @@ jobs:
 
       - name: Run tests and print output
         run: |
-            output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
+            output=$(./build/webserv -t ../libUnitTest/config_test/minimal_empty.conf)
             echo "Test output: $output"
             echo "$output" | grep -E "No IP:PORT to listen
           
