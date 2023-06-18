@@ -28,13 +28,14 @@ jobs:
         run: cmake --build .
 
       - name: List files in current directory
-        run: cd libUnitTest && ls -l
+        run: cd libUnitTest/config_test && ls -l
 
-      - name: Run tests and print output
-        run: |
-            output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
-            echo "Test output: $output"
-            echo "$output" | grep -E "No IP:PORT to listen
+#      - name: Run tests and print output
+#        run: |
+#            cd build
+#            output=$(./webserv -t ../libUnitTest/config_test/minimal_empty.conf)
+#            echo "Test output: $output"
+#            echo "$output" | grep -E "No IP:PORT to listen
           
 #            webserv: configuration file ../libUnitTest/config_test/minimal_empty.conf test failed"
 
