@@ -198,6 +198,8 @@ class LogException : public std::exception {
  * @throw LogException
  */
     void writeLogFile(const std::string& message);
+    void writePidLogFile(const std::string &message);
+
 
 /**
  * Public methode of Log class
@@ -211,6 +213,8 @@ class LogException : public std::exception {
     void printLogFile();
     void addIndent();
     void removeIndent();
+
+    std::string convertEventsTostring(int events);
 /*
 *====================================================================================
 *|                                  Element access                                  |
@@ -218,7 +222,9 @@ class LogException : public std::exception {
 */
 
 
-    void writePidLogFile(const std::string &message);
+    void success();
+
+    void failure();
 };
 
 

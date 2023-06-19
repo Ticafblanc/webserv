@@ -29,15 +29,22 @@ HttpMessage::HttpMessage(Socket& client, Config& config)
         findTokenServer();
         _execute.executeRequest(_serverToken);
     }
-    catch (int & error){
-        _client.getclient()._content ="<!DOCTYPE html>\n"
-        "<html><head><title>"+ _config._code.getStatusCode(error) + "</title></head>"
-        "<body><h1>" + _config._code.getStatusCode(error) + "</h1><p>Sorry</p></body></html>";
-        _client.getclient()._contentType = "text/html";
+    catch (const Exception & e){
+        _client.getclient()._statusCode = e.getCode();
+        _client.getclient()._connection = false;
+        if (_client.getclient()._statusCode >= 400) {
+            _execute.errorPage(client.getclient()._statusCode);
+            HttpReponse error(client, config);
+        }
+        throw e;
     }
-
-
-
+    catch (const std::exception & e){
+        _client.getclient()._statusCode = 400;
+        _client.getclient()._connection = false;
+        _execute.errorPage(client.getclient()._statusCode);
+        HttpReponse error(client, config);
+        throw e;
+    }
 }
 
 HttpMessage::~HttpMessage() {}
@@ -66,34 +73,24 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 void HttpMessage::findTokenServer() {
     std::string serverName = _request.getValueHeader("Host:");
     if (serverName.empty())
-        throw HttpMessage::httpMessageException("no host");
+        throw Exception("No host in request", 400);
     else{
         Socket & server = _config._mapFdSocket.at(_client.getclient()._server);
         _serverToken = server.findServerName(serverName);
+        if (_serverToken.empty())
+            throw Exception("server name not found", 404);
     }
 }
 
 
-/*
-*====================================================================================
-*|                                  Member Expetion                                 |
-*====================================================================================
-*/
 
-HttpMessage::httpMessageException::httpMessageException(const char * message) : _message(message) {}
+//client.getclient()._content ="<!DOCTYPE html>\n"
+//                             "<html><head><title>"+ _config._code.getStatusCode(error) + "</title></head>"
+//                                                                                         "<body><h1>" + _config._code.getStatusCode(error) + "</h1><p>Sorry</p></body></html>";
+//client.getclient()._contentType = "text/html";
 
-HttpMessage::httpMessageException::~httpMessageException() throw() {}
-
-const char * HttpMessage::httpMessageException::what() const throw() { return _message.c_str(); }
-
-HttpMessage::httpMessageException::httpMessageException(const HttpMessage::httpMessageException & other) : _message(other._message) {}
-
-HttpMessage::httpMessageException &HttpMessage::httpMessageException::operator=(const HttpMessage::httpMessageException &rhs) {
-    this->_message = rhs._message;
-    return *this;
-}
-
-
-
-
+//_client.getclient()._content ="<!DOCTYPE html>\n"
+//                              "<html><head><title>"+ _config._code.getStatusCode(error) + "</title></head>"
+//                                                                                          "<body><h1>" + _config._code.getStatusCode(error) + "</h1><p>Sorry</p></body></html>";
+//_client.getclient()._contentType = "text/html";
 

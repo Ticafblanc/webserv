@@ -69,6 +69,24 @@ void Log::removeIndent() {
     _indent.erase(0, 1);
 }
 
+std::string Log::convertEventsTostring(int events){
+    return std::string((events & (EPOLLOUT | EPOLLET)) ? "EPOLLOUT | EPOLLET" :
+                       ((events & (EPOLLIN | EPOLLET)) ? "EPOLLIN | EPOLLET" :
+                        ((events & (EPOLLOUT)) ? "EPOLLOUT" :
+                         (events & (EPOLLIN)) ? "EPOLLIN" : "ERROR" )));
+}
+
+void Log::success() {
+    addIndent();
+    writePidLogFile(" >>>> Sucesss <<<<");
+    removeIndent();
+}
+
+void Log::failure() {
+    addIndent();
+    writePidLogFile(" >>>> Failure <<<<");
+    removeIndent();
+}
 Log::LogException::LogException(const char * message)
         : _message(message) {}
 

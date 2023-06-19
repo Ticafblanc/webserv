@@ -43,7 +43,7 @@ void HeaderReponse::buildHeaderStatus() {
 }
 
 void HeaderReponse::addStatusCode() {
-    _startLineStatusCode = _config._code.getStatusCode();
+    _startLineStatusCode = _config._code.getStatusCode(_client._statusCode);
 }
 
 void HeaderReponse::addHttpHeaders(const std::string& token, const std::string& value) {
@@ -69,6 +69,10 @@ void HeaderReponse::addConnectionClose() {
     addHttpHeaders("Connection:", "close");
 }
 
+void HeaderReponse::addConnectionKeepAlive() {
+    addHttpHeaders("Connection:", "keep-alive");
+}
+
 const std::string &HeaderReponse::getHeaderReponse() {
     _startLineVersion += " ";
     _startLineVersion += _startLineStatusCode;
@@ -84,10 +88,13 @@ const std::string &HeaderReponse::getHeaderReponse() {
     return _startLineVersion;
 }
 
-
 HttpReponse::HttpReponse(Socket& client, Config& config)
         : _client(client),  _config(config), _bytesSend(), _buffer(),
-        _headReponse(client.getclient(), _config){}
+        _headReponse(client.getclient(), _config){
+    if (!_client.getclient()._content.empty())
+        sendMessage();
+    _client.getclient()._content.clear();
+}
 
 HttpReponse::~HttpReponse() {}
 
@@ -115,7 +122,6 @@ void HttpReponse::sendStatusPage() {
 }
 
 void HttpReponse::sendMessage() {
-//    std::cout << "send" << std::endl;
     _headReponse.buildHeader();
     chunckMessage();
     for(std::vector<std::string>::iterator it = _buffer.begin();

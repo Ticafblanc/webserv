@@ -148,6 +148,12 @@ void Code::buildStatusCode() {
     _mapStatusCode[410] = std::make_pair("Gone", "usr/local/var/www/html/410.html");
 
     /**
+     * the requested resource is no longer available on the server and there is no forwarding address.
+     * It is similar to a 404 error but indicates that the resource is permanently gone.
+     */
+    _mapStatusCode[413] = std::make_pair("Request Entity Too Large", "usr/local/var/www/html/413.html");
+
+    /**
      * the client has sent too many requests within a given time frame and has exceeded the server's
      * rate limiting policy. It is often used to prevent abuse or to ensure fair usage.
      */

@@ -88,7 +88,6 @@ static void launcher(Config & config) {
         try {
             epoll.EpollWait();
         }catch (std::exception & e){
-            std::cerr << e.what() << std::endl;
             config._errorLog.writeLogFile(e.what());
         }
     }
@@ -97,7 +96,7 @@ static void launcher(Config & config) {
 int main(int argc, char **argv, char **envp){
     std::string pathConfigFile;
     int         positionPathFileConfig = checkOption(argc, argv, envp);
-    system("cd /webserv/cmake-build-debug-docker && ls");
+
    if (positionPathFileConfig != -1) {
         signal(SIGINT, handleExit);
         signal(SIGTERM, handleExit);

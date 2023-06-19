@@ -32,11 +32,13 @@ void Execute::selectMethode() {
     (this->*_mapMethode[_httpRequest.getMethode()])();
 }
 
-void Execute::selectLocation() {
+void Execute::executeLocation() {
 }
 
 void Execute::GETmethode() {
-   std::string url = _httpRequest.getUrl();
+    std::string url = _httpRequest.getUrl();
+
+
    selectLocation();
     std::ifstream logfile("/webserv/var/www/default.com/index.html");
     if (!logfile.is_open())
@@ -101,7 +103,13 @@ std::string Execute::getContentType() {
 }
 
 
+void Execute::errorPage(int code){
+    //add to try open file
+    _client.getclient()._content = "<!DOCTYPE html>\n"
+    "<html><head><title>"+ _config._code.getStatusCode(code) + "</title></head>"
 
+    _client.getclient()._contentType = "text/html";
+}
 
 /*
 *====================================================================================
@@ -111,33 +119,14 @@ std::string Execute::getContentType() {
 
 
 void Execute::executeRequest(std::string & tokenServer) {
-    try {
-        if (tokenServer.empty())
-            throw 404;
-        _tokenServer = tokenServer;
-        selectMethode();
+    std::vector<std::pair<std::string, Config> > & vecUriConfig = _config._mapTokenVectorUriConfig.find(tokenServer)->second;
+    for (std::vector<std::pair<std::string, Config> >::iterator itvec = vecUriConfig.begin();
+    itvec != vecUriConfig.end(); ++itvec) {
+        if ()
+        executeLocation(itvec->second)
     }
-    catch (int & error){
-        _client.getclient()._content = "<!DOCTYPE html>\n"
-        "<html>\n"
-        "<head>\n"
-        "<title>"+ _config._code.getStatusCode(error) +"</title>\n"
-        "<style>\n"
-        "html { color-scheme: light dark; }\n"
-        "body { width: 35em; margin: 0 auto;\n"
-        "font-family: Tahoma, Verdana, Arial, sans-serif; }\n"
-        "</style>\n"
-        "</head>\n"
-        "<body>\n"
-        "<h1>" + _config._code.getStatusCode(error) + "</h1>\n"
-        "<p>Sorry</p>\n"
-        "</body>\n"
-        "</html>";
-        _client.getclient()._contentType = "text/html";
-    }
-
-
-
+    std::string url = _httpRequest.getUrl();
+    selectMethode();
 }
 
 
@@ -147,15 +136,4 @@ void Execute::executeRequest(std::string & tokenServer) {
 *====================================================================================
 */
 
-Execute::executeException::executeException(const char * message) : _message(message) {}
 
-Execute::executeException::~executeException() throw() {}
-
-const char * Execute::executeException::what() const throw() { return _message.c_str(); }
-
-Execute::executeException::executeException(const Execute::executeException & other) : _message(other._message) {}
-
-Execute::executeException &Execute::executeException::operator=(const Execute::executeException &rhs) {
-    this->_message = rhs._message;
-    return *this;
-}

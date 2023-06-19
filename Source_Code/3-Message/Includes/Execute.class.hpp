@@ -153,7 +153,7 @@ public:
  * @param   http_request instance const to copy the server
  * @throw   none
  **/
-    void selectLocation();
+    void executeLocation();
 
 /**
  * Protected methode of HttpReponse.class class
@@ -264,7 +264,7 @@ public:
     };
 
 
-
+    void errorPage(int code);
 };
 
 

@@ -301,7 +301,6 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void removeConnexionClient(Socket& client);
     void removeConnexionServer(Socket& server);
 
 /**
@@ -314,6 +313,8 @@ public:
  * @throw   none
  * */
     void selectEvent(Socket& client, int numberTrigged);
+
+    void checkConnexion();
 };
 
 

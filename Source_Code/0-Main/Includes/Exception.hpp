@@ -21,6 +21,7 @@ private:
 */
 
     std::string _message;
+    int         _code;
 
 /*>********************************public section**********************************/
 
@@ -45,7 +46,7 @@ public:
      *          message to store const char*
      * @throw   none
      **/
-    explicit Exception(const char *message);
+    Exception(const char *message, int code);
 
     /**
      * Copy constructor of Exception class
@@ -56,7 +57,7 @@ public:
      *          Log_socket in an int to close
      * @throw   none
      **/
-    Exception(const Exception &);
+    Exception(const Exception &)throw();
 
     /**
      * Operator overload= of Exception class
@@ -89,6 +90,7 @@ public:
      **/
     virtual const char *what() const throw();
 
+    int getCode() const ;
 };
 
 

@@ -32,6 +32,7 @@ struct SocketClient{
     std::string                                         _content;
     std::string                                         _contentType;
     std::string                                         _serverToken;
+    std::time_t                                         _lastConnection;
 };
 
 class Socket {

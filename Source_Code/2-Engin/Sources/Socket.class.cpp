@@ -32,12 +32,7 @@ Socket::Socket(epoll_event & event)
     buildClientSocket();
 }
 
-Socket::~Socket() {
-//    std::cout   << "erase client socket = "<< _socket
-//                <<" ip address = "<< _ipAddress
-//                << " port = "  << _port<< std::endl;
-//    closeSocket();
-}
+Socket::~Socket() {}
 
 Socket::Socket(const Socket &other)
         : _ipAddress(other._ipAddress), _port(other._port),
@@ -166,7 +161,6 @@ void Socket::buildServerSocket() {
         setBind();
         setListen(10);
         accessorSocketFlag(F_SETFL, O_NONBLOCK);
-
     }
 }
 
@@ -174,15 +168,9 @@ void Socket::buildClientSocket() {
     acceptConnection();
     getSockaddrIn();
     accessorSocketFlag(F_SETFL, O_NONBLOCK);
-
-//    _blocServer._peg._mapFdSocket.insert(data.fd, *this);
-//    _blocServer._maxEvents--;
 }
 
 void Socket::closeSocket() const {
-//    _blocServer._maxEvents++;
-//    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
-//    _blocServer._peg._mapFdSocket.erase(data.fd);
     close(_socket);
 }
 
@@ -245,13 +233,13 @@ std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameTo
 
 
 SocketClient::SocketClient(int server)
-        : _server(server), _connection(true),_statusCode(0), _content(), _contentType(), _serverToken() {}
+        : _server(server), _connection(true),_statusCode(0), _content(), _contentType(), _serverToken(), _lastConnection(std::time(NULL)) {}
 
 SocketClient::~SocketClient() {}
 
 SocketClient::SocketClient(const SocketClient &other) :
 _server(other._server), _connection(other._connection), _statusCode(other._statusCode), _content(other._content),
-_contentType(other._contentType), _serverToken(other._serverToken){}
+_contentType(other._contentType), _serverToken(other._serverToken), _lastConnection(other._lastConnection){}
 
 SocketClient &SocketClient::operator=(const SocketClient &rhs) {
     if (this != &rhs){

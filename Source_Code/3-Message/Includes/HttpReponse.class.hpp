@@ -7,7 +7,6 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/3-Message/Includes/Execute.class.hpp>
 
 class HeaderReponse {
 
@@ -94,6 +93,8 @@ public:
     const std::string & getHeaderReponse();
 
     void buildHeaderStatus();
+
+    void addConnectionKeepAlive();
 };
 
 

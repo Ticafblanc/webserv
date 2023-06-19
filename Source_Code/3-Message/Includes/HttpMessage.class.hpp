@@ -167,7 +167,7 @@ public:
          *          message to store const char*
          * @throw   none
          **/
-        httpMessageException(const char * message);
+        httpMessageException(const char * message, int code);
 
         /**
          * Copy constructor of httpMessageException class
@@ -211,8 +211,13 @@ public:
          **/
         virtual const char * what() const throw();
 
+        int getCode();
+
     private:
         std::string     _message;
+        int             _code;
+
+
     };
 
 
