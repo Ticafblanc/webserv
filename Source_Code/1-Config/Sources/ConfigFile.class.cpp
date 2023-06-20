@@ -62,7 +62,7 @@ void ConfigFile::parseFile() {
         _peg.findToken(*this, 0);
     }
     if (_config._mapFdSocket.empty())
-        throw Exception("No IP:PORT to listen");
+        throw Exception("No IP:PORT to listen", 0);
     _config._pidLog.writePidLogFile("\r\n\r\n\t\t\t\t#### Config data ####\r\n\r\n");
     printData();
 }
@@ -81,14 +81,15 @@ void ConfigFile::parseBloc(std::string & id) {
 
 std::string ConfigFile::blocToken(std::string & token) {
     std::string value = _peg.extractData('{');
-    if ((value.empty() && token != "location") || (!value.empty() && token == "location")){
+    if ((value.empty()  && token != "location") ||
+    (!value.empty() && value[0] == '/' && token == "location")){
         ConfigFile configFile(*this, &_config);
+        if (token == "location") {
+            configFile._config._root = configFile._config._root + value;
+            configFile._config._uri = value;
+        }
         configFile.parseBloc(token);
-        if (token == "location" || (token == "server" && configFile._config._uri.empty())) {
-            if (value.empty() && configFile._config._uri.empty())
-                configFile._config._uri = "/";
-            else
-                _config._uri = configFile._config._uri = value;
+        if (token == "location" || token == "server") {
             _parent->addChild(configFile._config);
             _parent->addServerName(configFile._config);
         }
@@ -305,8 +306,11 @@ std::string ConfigFile::setReturn(std::string & token) {
         if (value.eof()) {
             if (line[0] == '\"' && line[line.size()] == '\"' && _config._return == 0)
                 _config._code.setStatus((int)code, line.substr(1, line.size() - 3));
-            else if (_config._return == 0)
-                _config._code.setDefaultPage((int)code, line);
+            else if (_config._return == 0) {
+                if (line.substr(line.find_last_of('.')) != "html")
+                    return "not html content in return";
+                _config._code.setDefaultPage((int) code, line);
+            }
             else
                 return "";
             _config._return = (int)code;

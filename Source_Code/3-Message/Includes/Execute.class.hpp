@@ -19,11 +19,16 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    HttpRequest&                                _httpRequest;
+    HttpRequest&                                _request;
     Config&                                     _config;
     std::map<std::string, void (Execute::*)()>  _mapMethode;
+    std::map<std::string, std::string>          _mapCGI;
     std::string                                 _tokenServer;
     Socket&                                     _client;
+    Config*                                     _location;
+    bool                                        _isFile;
+    bool                                        _isCgi;
+
 
 /*
 *====================================================================================
@@ -142,7 +147,7 @@ public:
  * @param       void
  * @throw       none
  */
-    void executeRequest(std::string & tokenServer);
+    void executeRequest(Config & location);
 
 
 /**
@@ -187,84 +192,26 @@ public:
  * @throw       none
  */
     std::string getContentType();
-/*
-*====================================================================================
-*|                                  Class Exception                                 |
-*====================================================================================
-*/
 
+    void defaultPage(int code);
 
-/**
- * Class exception of Execute.class class
- *
- * class executeException;
- *
- * @inherit std::exception
- **/
-    class executeException: public std::exception
-    {
-    public:
+    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
 
-        /**
-         * Constructor of executeException class
-         *
-         * executeException(server & server , const char * message);
-         *
-         * @param   server is a server reference to set the private _server
-         *          to manage the close of server class
-         *          message to store const char*
-         * @throw   none
-         **/
-        executeException(const char * message);
+    void findRessource();
 
-        /**
-         * Copy constructor of executeException class
-         *
-         * executeException(executeException &);
-         *
-         * @param   http_request_exception instance to build the executeException
-         *          http_request_socket in an int to close
-         * @throw   none
-         **/
-        executeException(const executeException &);
+    bool isDirectory();
 
-        /**
-         * Operator overload= of executeException class
-         *
-         * operator=(const executeException&);
-         *
-         * @param   http_request_exception instance const to copy the executeException
-         * @throw   none
-         **/
-        executeException& operator=(const executeException &);
+    bool isFile();
 
-        /**
-        * Destructor of executeException class
-        *
-        * virtual executeException throw();
-        *
-        * @throw   none
-        **/
-        virtual ~executeException() throw();
+    void buildMapCGI();
 
-        /**
-         * Public methode of executeException
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "socket error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
+    bool checkIsCgi();
 
-    private:
-        std::string     _message;
-    };
+    void setContent(const std::string &path);
 
+    void setIndex();
 
-    void errorPage(int code);
+    void setAutoIndex();
 };
 
 

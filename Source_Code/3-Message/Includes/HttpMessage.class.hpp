@@ -57,11 +57,13 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                         _client;
-    Config&                         _config;
-    HttpRequest                     _request;
-    Execute                         _execute;
-    std::string                     _serverToken;
+    Socket&                                                 _client;
+    Config&                                                 _config;
+    std::vector<std::pair<std::string, Config> >::iterator  _bestConfig;
+    HttpRequest                                             _request;
+    Execute                                                 _execute;
+    std::string                                             _serverToken;
+    bool                                                    _isFile;
 
 /*
 *====================================================================================
@@ -139,87 +141,19 @@ public:
  * */
     void findTokenServer();
 
-/*
-*====================================================================================
-*|                                  Class Exception                                 |
-*====================================================================================
-*/
-
-
 /**
- * Class exception of HttpMessage class
+ * Private methode of server class
  *
- * class httpMessageException;
+ * extract data and put in std::string
  *
- * @inherit std::exception
- **/
-    class httpMessageException: public std::exception
-    {
-    public:
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
 
-        /**
-         * Constructor of httpMessageException class
-         *
-         * httpMessageException(server & server , const char * message);
-         *
-         * @param   server is a server reference to set the private _server
-         *          to manage the close of server class
-         *          message to store const char*
-         * @throw   none
-         **/
-        httpMessageException(const char * message, int code);
-
-        /**
-         * Copy constructor of httpMessageException class
-         *
-         * httpMessageException(httpMessageException &);
-         *
-         * @param   http_request_exception instance to build the httpMessageException
-         *          http_request_socket in an int to close
-         * @throw   none
-         **/
-        httpMessageException(const httpMessageException &);
-
-        /**
-         * Operator overload= of httpMessageException class
-         *
-         * operator=(const httpMessageException&);
-         *
-         * @param   http_request_exception instance const to copy the httpMessageException
-         * @throw   none
-         **/
-        httpMessageException& operator=(const httpMessageException &);
-
-        /**
-        * Destructor of httpMessageException class
-        *
-        * virtual httpMessageException throw();
-        *
-        * @throw   none
-        **/
-        virtual ~httpMessageException() throw();
-
-        /**
-         * Public methode of httpMessageException
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "socket error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-        int getCode();
-
-    private:
-        std::string     _message;
-        int             _code;
-
-
-    };
-
+    void findBestConfig();
 
 
 };

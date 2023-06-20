@@ -10,10 +10,10 @@
 */
 
 HeaderRequest::HeaderRequest()
-        : _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapHttpHeaders(){}
+        : _peg(), _startLineMethode(), _startLineURL(), _startLineVersion(), _mapHttpHeaders(), _endHeader(false){}
 
 HeaderRequest::HeaderRequest(std::string &message)
-        : _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(),_mapHttpHeaders(){
+        : _peg(message), _startLineMethode(), _startLineURL(), _startLineVersion(),_mapHttpHeaders(), _endHeader(false){
     setMapTokenStartLine();
     _peg.findToken(*this, 0);
 }
@@ -28,6 +28,7 @@ HeaderRequest &HeaderRequest::operator=(const HeaderRequest & rhs) {
     this->_startLineURL = rhs._startLineURL;
     this->_startLineVersion = rhs._startLineVersion;
     this->_mapHttpHeaders = rhs._mapHttpHeaders;
+    this->_endHeader = rhs._endHeader;
     return *this;
 }
 
@@ -131,6 +132,7 @@ void HeaderRequest::setMapTokenInformation() {
     _peg.setMapToken("X-Forwarded-Proto:", &HeaderRequest::addToMapHttpHeader);
     _peg.setMapToken("X-Frame-Options:", &HeaderRequest::addToMapHttpHeader);
     _peg.setMapToken("X-XSS-Protection:", &HeaderRequest::addToMapHttpHeader);
+    _peg.setMapToken("\r\n\r\n", &HeaderRequest::endHeader);
 }
 
 std::string HeaderRequest::addToStartLine(std::string & token) {
@@ -141,7 +143,7 @@ std::string HeaderRequest::addToStartLine(std::string & token) {
     if (_startLineVersion != "HTTP/1.1")
         throw Exception("Version protocole not supprted", 505);
     setMapTokenInformation();
-    while(!_peg.checkIsEmpty())
+    while(!_peg.checkIsEmpty() && !_endHeader)
         _peg.findToken(*this,  0);
     return std::string();
 }
@@ -153,11 +155,16 @@ std::string HeaderRequest::addToMapHttpHeader(std::string& token) {
     return std::string();
 }
 
+std::string HeaderRequest::endHeader(std::string& token) {
+    _endHeader = true;
+    return std::string();
+}
+
 const std::string &HeaderRequest::getStartLineMethode() const {
     return _startLineMethode;
 }
 
-const std::string &HeaderRequest::getStartLineUrl() const {
+std::string &HeaderRequest::getStartLineUrl(){
     return _startLineURL;
 }
 
@@ -200,6 +207,8 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
 
 void HttpRequest::recvMessage() {
     recvData();
+    if (static_cast<int>(_buffer[0].find("\r\n\r\n")) > _config._clientHeaderBufferSize)
+        throw Exception("Request headers size exceeds the maximum limit", 413);
     _headRequest = HeaderRequest(_buffer[0]);
     while(messageIsNotComplete()){
         recvData();
@@ -221,6 +230,8 @@ bool HttpRequest::messageIsNotComplete() {
         std::string contentLength = getValueHeader("Content-Length:");
         if (!contentLength.empty())
             _contentLength = std::atoi(contentLength.c_str());
+        if (_contentLength > _config._clientBodyBufferSize)
+            throw Exception("Request body size exceeds the maximum limit", 413);
     }
     return _bytesRecv < _contentLength;
 }
@@ -231,7 +242,7 @@ void HttpRequest::checkBytesRecv() const {
     if (_bytesRecv == -1)
         throw Exception(strerror(errno), 500);
     if (_bytesRecv > _config._clientMaxBodySize)
-        throw Exception("Request body size exceeds the maximum limit", 413);
+        throw Exception("Request Max body size exceeds the maximum limit", 413);
 }
 
 std::string HttpRequest::getValueHeader(const std::string & token) {
@@ -246,7 +257,7 @@ std::string HttpRequest::getMethode() {
     return _headRequest.getStartLineMethode();
 }
 
-std::string HttpRequest::getUrl() {
+std::string& HttpRequest::getUrl() {
     return _headRequest.getStartLineUrl();
 }
 

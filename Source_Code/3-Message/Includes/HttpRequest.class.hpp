@@ -25,6 +25,7 @@ private:
     std::string                                                         _startLineURL;
     std::string                                                         _startLineVersion;
     std::map<const std::string, const std::string>                      _mapHttpHeaders;
+    bool                                                                _endHeader;
 
 /*
 *====================================================================================
@@ -103,11 +104,13 @@ public:
 */
     const std::string &getStartLineMethode() const;
 
-    const std::string &getStartLineUrl() const;
+    std::string &getStartLineUrl();
 
     const std::string &getStartLineVersion() const;
 
     const std::map<const std::string, const std::string> &getMapHttpHeaders() const;
+
+    std::string endHeader(std::string &token);
 };
 
 class HttpRequest {
@@ -269,7 +272,7 @@ public:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string getUrl();
+    std::string& getUrl();
 
 /**
  * Private methode of HttpRequest.class class

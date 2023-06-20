@@ -27,13 +27,14 @@ HttpMessage::HttpMessage(Socket& client, Config& config)
     try {
         _request.recvMessage();
         findTokenServer();
-        _execute.executeRequest(_serverToken);
+        findBestConfig();
+        _execute.executeRequest(_bestConfig->second);
     }
     catch (const Exception & e){
         _client.getclient()._statusCode = e.getCode();
         _client.getclient()._connection = false;
         if (_client.getclient()._statusCode >= 400) {
-            _execute.errorPage(client.getclient()._statusCode);
+            _execute.defaultPage(client.getclient()._statusCode);
             HttpReponse error(client, config);
         }
         throw e;
@@ -41,7 +42,7 @@ HttpMessage::HttpMessage(Socket& client, Config& config)
     catch (const std::exception & e){
         _client.getclient()._statusCode = 400;
         _client.getclient()._connection = false;
-        _execute.errorPage(client.getclient()._statusCode);
+        _execute.defaultPage(client.getclient()._statusCode);
         HttpReponse error(client, config);
         throw e;
     }
@@ -81,6 +82,21 @@ void HttpMessage::findTokenServer() {
             throw Exception("server name not found", 404);
     }
 }
+
+
+void HttpMessage::findBestConfig() {
+    std::string& url = _request.getUrl();
+    std::vector<std::pair<std::string, Config> > & vecUriConfig = _config._mapTokenVectorUriConfig.find(_serverToken)->second;
+    _bestConfig = vecUriConfig.end();
+
+    for (std::vector<std::pair<std::string, Config> >::iterator itvec = vecUriConfig.begin();
+         itvec != vecUriConfig.end(); ++itvec) {
+        if (url.find(itvec->first) == 0 && itvec->first.length() > _bestConfig->first.length())
+            _bestConfig = itvec;
+    }
+    url = _bestConfig->second._root + url.substr(_bestConfig->first.length() - 1);
+}
+
 
 
 
