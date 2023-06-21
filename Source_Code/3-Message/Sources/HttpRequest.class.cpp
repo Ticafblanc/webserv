@@ -180,18 +180,16 @@ const std::map<const std::string, const std::string> &HeaderRequest::getMapHttpH
 
 
 
-HttpRequest::HttpRequest(Socket& socket, Config& config)
-        : _socket(socket), _config(config), _bytesRecv(), _contentLength(), _buffer(), _headRequest(){}
+HttpRequest::HttpRequest()
+        : _bytesRecv(), _contentLength(), _buffer(), _headRequest(){}
 
 HttpRequest::~HttpRequest() {}
 
 HttpRequest::HttpRequest(const HttpRequest & other)
-        : _socket(other._socket), _config(other._config), _bytesRecv(other._bytesRecv),
+        : _bytesRecv(other._bytesRecv),
           _contentLength(other._contentLength), _buffer(other._buffer), _headRequest(other._headRequest){}
 
 HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
-    this->_socket = rhs._socket;
-    this->_config = rhs._config;
     this->_bytesRecv = rhs._bytesRecv;
     this->_contentLength = rhs._contentLength;
     this->_buffer = rhs._buffer;
@@ -205,26 +203,6 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
 *====================================================================================
 */
 
-void HttpRequest::recvMessage() {
-    recvData();
-    if (static_cast<int>(_buffer[0].find("\r\n\r\n")) > _config._clientHeaderBufferSize)
-        throw Exception("Request headers size exceeds the maximum limit", 413);
-    _headRequest = HeaderRequest(_buffer[0]);
-    while(messageIsNotComplete()){
-        recvData();
-    }
-}
-
-void HttpRequest::recvData(){
-    char buffer[1024];
-    memset(buffer, '\0', 1024);
-    int bytesRecv = recv(_socket.getSocket(), buffer, 1024, 0);
-    _bytesRecv += bytesRecv;
-    checkBytesRecv();
-    buffer[bytesRecv] ='\0';
-    _buffer.push_back(buffer);
-}
-
 bool HttpRequest::messageIsNotComplete() {
     if (_contentLength == 0) {
         std::string contentLength = getValueHeader("Content-Length:");
@@ -234,6 +212,37 @@ bool HttpRequest::messageIsNotComplete() {
             throw Exception("Request body size exceeds the maximum limit", 413);
     }
     return _bytesRecv < _contentLength;
+}
+
+void HttpRequest::setContentLenght() {
+    std::string contentLength = getValueHeader("Content-Length:");
+    if (!contentLength.empty())
+        _contentLength = std::atoi(contentLength.c_str());
+}
+
+void HttpRequest::recvMessage() {
+    setContentLenght();
+    while(messageIsNotComplete()){
+        recvData(_config._clientBodyBufferSize);
+    }
+}
+
+void HttpRequest::recvHeader() {
+    recvData(_config._clientHeaderBufferSize);
+    if (_buffer[0].find("\r\n\r\n") == std::string::npos)
+        throw Exception("Request headers size exceeds the maximum limit", 413);
+    _headRequest = HeaderRequest(_buffer[0]);
+    messageIsNotComplete();
+}
+
+void HttpRequest::recvData(int sizeBuffer){
+    char buffer[sizeBuffer];
+    memset(buffer, '\0', sizeBuffer);
+    int bytesRecv = recv(_socket.getSocket(), buffer, sizeBuffer, 0);
+    _bytesRecv += bytesRecv;
+    checkBytesRecv();
+    buffer[bytesRecv] ='\0';
+    _buffer.push_back(buffer);
 }
 
 void HttpRequest::checkBytesRecv() const {

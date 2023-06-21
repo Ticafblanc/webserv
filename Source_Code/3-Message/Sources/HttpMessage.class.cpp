@@ -22,29 +22,18 @@
 HttpMessage::HttpMessage(Socket& client, Config& config)
 : _client(client),
   _config(config),
-  _request(_client, config),
   _execute(_request, config, _client){
     try {
-        _request.recvMessage();
+        _client.getclient()._request.recvHeader();
         findTokenServer();
         findBestConfig();
         _execute.executeRequest(_bestConfig->second);
     }
     catch (const Exception & e){
-        _client.getclient()._statusCode = e.getCode();
-        _client.getclient()._connection = false;
-        if (_client.getclient()._statusCode >= 400) {
-            _execute.defaultPage(client.getclient()._statusCode);
-            HttpReponse error(client, config);
-        }
-        throw e;
-    }
-    catch (const std::exception & e){
-        _client.getclient()._statusCode = 400;
+        _client.getclient()._statusCode = e.getCode();//400;//501 methode inconu
         _client.getclient()._connection = false;
         _execute.defaultPage(client.getclient()._statusCode);
         HttpReponse error(client, config);
-        throw e;
     }
 }
 
@@ -58,7 +47,6 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
     if (this != &rhs) {
         this->_client = rhs._client;
         this->_config = rhs._config;
-        this->_request = rhs._request;
         this->_execute = rhs._execute;
     }
     return *this;
@@ -72,7 +60,7 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 
 
 void HttpMessage::findTokenServer() {
-    std::string serverName = _request.getValueHeader("Host:");
+    std::string serverName = _client.getclient()._request.getValueHeader("Host:");
     if (serverName.empty())
         throw Exception("No host in request", 400);
     else{

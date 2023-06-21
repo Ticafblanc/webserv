@@ -27,7 +27,8 @@ private:
     Socket&                                     _client;
     Config*                                     _location;
     bool                                        _isFile;
-    bool                                        _isCgi;
+    std::string                                 _cgi;
+    std::ostringstream                          _oss;
 
 
 /*
@@ -201,17 +202,25 @@ public:
 
     bool isDirectory();
 
-    bool isFile();
+    bool isFile(std::string & path);
 
     void buildMapCGI();
 
-    bool checkIsCgi();
+    std::string checkIsCgi();
 
-    void setContent(const std::string &path);
+    void setFile(const std::string &path);
 
     void setIndex();
 
     void setAutoIndex();
+
+    void setContent();
+
+    void removeDirectory(std::string &path);
+
+    void removeFile(std::string &path);
+
+    void executCgi();
 };
 
 

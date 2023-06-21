@@ -27,19 +27,20 @@ std::string Listen::parseListenData(const std::string &input) {
     _input.str(input);
     std::string error = check_input();
     if (error.empty()){
-        Socket newSock(_ipAddress, _port);
+        Socket* newSock = new Socket(_ipAddress, _port);
         if (!_configBase._mapFdSocket.empty()) {
-            for (std::map<int, Socket>::iterator sockIt = _configBase._mapFdSocket.begin();
+            for (std::map<int, Socket*>::iterator sockIt = _configBase._mapFdSocket.begin();
                  sockIt != _configBase._mapFdSocket.end(); ++sockIt) {
-                if (sockIt->second == newSock) {
-                    newSock.addToken(_config._tok);
+                if (*sockIt->second == *newSock) {
+                    sockIt->second->addToken(_config._tok);
+                    delete newSock;
                     return error;
                 }
             }
         }
-        newSock.buildServerSocket();
-        newSock.addToken(_config._tok);
-        _configBase._mapFdSocket.insert(std::make_pair(newSock.getSocket(), newSock));
+        newSock->buildServerSocket();
+        newSock->addToken(_config._tok);
+        _configBase._mapFdSocket.insert(std::make_pair(newSock->getSocket(), newSock));
     }
     return error;
 }

@@ -24,13 +24,13 @@ ConfigFile::ConfigFile(ConfigFile& other, Config * config)
 ConfigFile::~ConfigFile() {}
 
 void ConfigFile::printData(){
-    for (std::map<int, Socket>::iterator itSock = _config._mapFdSocket.begin();
+    for (std::map<int, Socket*>::iterator itSock = _config._mapFdSocket.begin();
          itSock != _config._mapFdSocket.end(); ++itSock) {
         _config._pidLog.writePidLogFile("Socket fd => " + intToString(itSock->first));
-        _config._pidLog.writePidLogFile("ipaddress => " + itSock->second.getIpAddress() + " port => " + intToString(itSock->second.getPort()));
+        _config._pidLog.writePidLogFile("ipaddress => " + itSock->second->getIpAddress() + " port => " + intToString(itSock->second->getPort()));
         _config._pidLog.addIndent();
-        for(std::vector<std::pair<std::string, std::string> >::iterator itNameToken = itSock->second.getVectorServerNameToken().begin();
-            itNameToken != itSock->second.getVectorServerNameToken().end(); ++itNameToken) {
+        for(std::vector<std::pair<std::string, std::string> >::iterator itNameToken = itSock->second->getVectorServerNameToken().begin();
+            itNameToken != itSock->second->getVectorServerNameToken().end(); ++itNameToken) {
             _config._pidLog.writePidLogFile("server name => " + itNameToken->first + " = Token => " + itNameToken->second);
             for (std::map<std::string, std::vector<std::pair<std::string, Config> > >::iterator itToken = _config._mapTokenVectorUriConfig.begin();
                  itToken != _config._mapTokenVectorUriConfig.end(); ++itToken) {
@@ -175,6 +175,18 @@ std::string ConfigFile::addVectorListen(std::string &token){
     std::string value = _peg.extractData(';');
     Listen listen(_config, *_parent);
     return listen.parseListenData(value);
+}
+
+std::string ConfigFile::addMapAddHeader(std::string &token) {
+    (void)token;
+    std::string directive = _peg.extractData(' ');
+    if (directive == "Content-Disposition") {
+        std::string argument = _peg.extractData(';');
+        if(argument == "attachment")
+            _config._addHeader = std::make_pair(directive, argument);
+        return "";
+    }
+    return std::string("no value at add_header");
 }
 
 std::string ConfigFile::addIndex(std::string &token){
@@ -393,5 +405,6 @@ void ConfigFile::setMapTokenServer() {
 
 void ConfigFile::setMapTokenLocation() {
     _peg.setMapToken("return", &ConfigFile::setReturn);
+    _peg.setMapToken("add_header", &ConfigFile::addMapAddHeader);
     _peg.setMapToken("cgi_pass", &ConfigFile::setCgiPass);
 }

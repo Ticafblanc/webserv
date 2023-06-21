@@ -344,6 +344,8 @@ private:
     std::string                                                         _id;
 
     void printData();
+
+    std::string addMapAddHeader(std::string &token);
 };
 
 

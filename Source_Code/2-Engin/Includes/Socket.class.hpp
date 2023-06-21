@@ -17,24 +17,6 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 
-struct SocketClient{
-    explicit SocketClient(int server);
-
-    virtual ~SocketClient();
-
-    SocketClient(const SocketClient& other);
-
-    SocketClient& operator=(const SocketClient& rhs);
-
-    int                                                 _server;
-    bool                                                _connection;
-    int                                                 _statusCode;
-    std::string                                         _content;
-    std::string                                         _contentType;
-    std::string                                         _serverToken;
-    std::time_t                                         _lastConnection;
-};
-
 class Socket {
 
 /*>*******************************private section**********************************/
@@ -51,177 +33,11 @@ private:
     sockaddr_in                                         _sock;
     int                                                 _socket;
     std::vector<std::pair<std::string, std::string> >   _vectorServerNameToken;
-    /*client section*/
-    SocketClient                                        _client;
-
+    bool                                                _server;
 
 /*
 *====================================================================================
 *|                                       Methode                                    |
-*====================================================================================
-*/
-
-
-
-/*>********************************public section**********************************/
-
-public:
-
-/*
-*====================================================================================
-*|                                      Fonction                                    |
-*====================================================================================
-*/
-
-/**
- * Constructor of 7-Socket class
- *
- * 7-Socket();
- *
- * @param   void 
- * @throw   none
- **/
-    Socket();
-
-/**
- * Constructor of 7-Socket class
- *
- * 7-Socket(Server.class& Server.class, string &ipAddr, int &port);
- *
- * @param   void
- * @throw   none
- **/
-    Socket(const std::string &ipAddr, const int &port);
-
-/**
- * Constructor of 7-Socket class
- *
- * 7-Socket(Server.class& Server.class, epoll_event &event);
- *
- * @param   sockaddr instance to sockaddres_in
- * @param   event instance to epoll_event
- * @throw   socket::socketException
- **/
-    explicit Socket(epoll_event &event);
-
-/**
- * Destructor of 7-Socket class
- *
- * 7-Socket();
- **/
-    virtual ~Socket();
-
-/**
- * Copy constructor of 7-Socket class
- *
- * 7-Socket(7-Socket &);
- *
- * @param   socket instance to build the 7-Socket
- * @throw   none
- **/
-    Socket(const Socket &other);
-
-/**
- * Operator overload= of 7-Socket class
- *
- * operator=(const 7-Socket&);
- *
- * @param   socket instance const to copy the 7-Socket
- * @throw   none
- **/
-    Socket& operator=(const Socket &);
-
-/**
- * Operator overload= of 7-Socket class
- *
- * operator=(const 7-Socket&);
- *
- * @param   socket instance const to copy the 7-Socket
- * @throw   none
- **/
-    bool operator==(const Socket &);
-
-
-/*
-*====================================================================================
-*|                                  Class Exception                                 |
-*====================================================================================
-*/
-
-
-/**
- * Class exception of 7-Socket class
- *
- * class socketException;
- *
- * @inherit std::exception
- **/
-    class socketException: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of socketException class
-         *
-         * socketException(const char * message, int statusCode);
-         *
-         * @param   socket is a 7-Socket reference to set the private _socketFd
-         *          to manage the close of 7-Socket class
-         *          message to store const char*
-         * @throw   none
-         **/
-        explicit socketException(const char * message);
-
-        /**
-         * Copy constructor of socketException class
-         *
-         * socketException(socketException &);
-         *
-         * @param   socketException instance to build the socketException
-         *          socket_socket in an int to close
-         * @throw   none
-         **/
-        socketException(const socketException &);
-
-        /**
-         * Operator overload= of socketException class
-         *
-         * operator=(const socketException&);
-         *
-         * @param   socketException instance const to copy the socketException
-         * @throw   none
-         **/
-        socketException& operator=(const socketException &);
-
-        /**
-        * Destructor of socketException class
-        *
-        * virtual ~socketException() throw();
-        *
-        * @throw   none
-        **/
-        virtual ~socketException() throw();
-
-        /**
-         * Public methode of socketException
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "7-Socket error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string     _message;
-    };
-
-
-/*
-*====================================================================================
-*|                                      Methode                                     |
 *====================================================================================
 */
 
@@ -344,6 +160,99 @@ public:
 
 
 
+/*>********************************public section**********************************/
+
+public:
+
+/*
+*====================================================================================
+*|                                      Fonction                                    |
+*====================================================================================
+*/
+
+/**
+ * Constructor of 7-Socket class
+ *
+ * 7-Socket();
+ *
+ * @param   void 
+ * @throw   none
+ **/
+    Socket();
+
+/**
+ * Constructor of 7-Socket class
+ *
+ * 7-Socket(Server.class& Server.class, string &ipAddr, int &port);
+ *
+ * @param   void
+ * @throw   none
+ **/
+    Socket(const std::string &ipAddr, const int &port);
+
+/**
+ * Constructor of 7-Socket class
+ *
+ * 7-Socket(Server.class& Server.class, epoll_event &event);
+ *
+ * @param   sockaddr instance to sockaddres_in
+ * @param   event instance to epoll_event
+ * @throw   socket::socketException
+ **/
+    explicit Socket(epoll_event &event);
+
+/**
+ * Destructor of 7-Socket class
+ *
+ * 7-Socket();
+ **/
+    virtual ~Socket();
+
+/**
+ * Copy constructor of 7-Socket class
+ *
+ * 7-Socket(7-Socket &);
+ *
+ * @param   socket instance to build the 7-Socket
+ * @throw   none
+ **/
+    Socket(const Socket& other);
+
+/**
+ * Operator overload= of 7-Socket class
+ *
+ * operator=(const 7-Socket&);
+ *
+ * @param   socket instance const to copy the 7-Socket
+ * @throw   none
+ **/
+    Socket& operator=(const Socket &);
+
+/**
+ * Operator overload= of 7-Socket class
+ *
+ * operator=(const 7-Socket&);
+ *
+ * @param   socket instance const to copy the 7-Socket
+ * @throw   none
+ **/
+    bool operator==(const Socket &);
+
+
+/*
+*====================================================================================
+*|                                      Methode                                     |
+*====================================================================================
+*/
+
+/**
+ * Private methode of socket class
+ *
+ * void acceptConnection();
+ *
+ * @returns int socket fd
+ * @param   void
+ * */
     void acceptConnection();
 
 /**
@@ -421,12 +330,10 @@ public:
 
     const std::string &getIpAddress() const;
 
-    SocketClient &getclient() ;
-
     std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
 
     void addToken(const std::string &token);
-
+    bool isServer() const;
     bool checkSocket(int fd);
 };
 

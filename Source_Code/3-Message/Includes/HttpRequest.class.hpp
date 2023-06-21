@@ -6,7 +6,7 @@
 #define WEBSERVER_HTTPREQUEST_CLASS_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
-#include <Source_Code/1-Config/Includes/Config.hpp>
+#include <Source_Code/4-Utils/Template/PegParser.class.tpp>
 
 class HeaderRequest {
 
@@ -123,8 +123,6 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Socket&                         _socket;
-    Config&                         _config;
     ssize_t                         _bytesRecv;
     ssize_t                         _contentLength;
     std::vector<std::string>        _buffer;
@@ -150,7 +148,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void recvData();
+    void recvData(int sizeBuffer);
 
 /**
  * Private methode of server class
@@ -198,7 +196,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    explicit HttpRequest(Socket& socket, Config& config);
+    HttpRequest();
 
 /**
 * Destructor of HttpRequest.class class
@@ -287,6 +285,9 @@ public:
  * */
     void recvMessage();
 
+    void recvHeader();
+
+    void setContentLenght();
 };
 
 

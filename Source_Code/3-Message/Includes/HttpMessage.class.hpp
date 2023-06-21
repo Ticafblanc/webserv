@@ -14,8 +14,7 @@
 #define WEBSERV_HTTPMESSAGE_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
-#include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/3-Message/Includes/HttpRequest.class.hpp>
+//#include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/3-Message/Includes/Execute.class.hpp>
 #include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
 //User-Agent : spécifie l'agent utilisateur (généralement le navigateur) qui envoie la requête
@@ -60,7 +59,6 @@ private:
     Socket&                                                 _client;
     Config&                                                 _config;
     std::vector<std::pair<std::string, Config> >::iterator  _bestConfig;
-    HttpRequest                                             _request;
     Execute                                                 _execute;
     std::string                                             _serverToken;
     bool                                                    _isFile;
@@ -159,4 +157,4 @@ public:
 };
 
 
-#endif //WEBSERV_HTTP_REQUEST_HPP
+#endif //WEBSERV_HTTP_MESSAGE_HPP

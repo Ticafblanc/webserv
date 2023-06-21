@@ -19,25 +19,22 @@
 */
 
 Socket::Socket()
-:  _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(),
-  _client(0){}
+: _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(), _server(false){}
 
 Socket::Socket(const std::string & ipAddr, const int & port)
-: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(),
-  _client(0){}
+: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(), _server(true){}
 
 Socket::Socket(epoll_event & event)
-: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(),
-  _client(event.data.fd){
+: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(), _server(false){
     buildClientSocket();
 }
 
 Socket::~Socket() {}
 
-Socket::Socket(const Socket &other)
+Socket::Socket(const Socket& other)
         : _ipAddress(other._ipAddress), _port(other._port),
-          _sock(other._sock), _socket(other._socket), _vectorServerNameToken(other._vectorServerNameToken),
-          _client(other._client){}
+          _sock(other._sock), _socket(other._socket),
+          _vectorServerNameToken(other._vectorServerNameToken), _server(other._server){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
@@ -46,31 +43,8 @@ Socket& Socket::operator=(const Socket& rhs){
         this->_sock = rhs._sock;
         this->_socket = rhs._socket;
         this->_vectorServerNameToken = rhs._vectorServerNameToken;
-        this->_client = rhs._client;
+        this->_server = rhs._server;
     }
-    return *this;
-}
-
-
-
-/*
-*====================================================================================
-*|                                  Member Expetion                                 |
-*====================================================================================
-*/
-
-Socket::socketException::socketException(const char * message)
-: _message(message){}
-
-Socket::socketException::~socketException() throw() {}
-
-const char * Socket::socketException::what() const throw() { return _message.c_str(); }
-
-Socket::socketException::socketException(const Socket::socketException & other)
-: _message(other._message) {}
-
-Socket::socketException &Socket::socketException::operator=(const Socket::socketException &rhs) {
-    this->_message = rhs._message;
     return *this;
 }
 
@@ -104,7 +78,7 @@ bool Socket::checkSocket(int fd){
 void Socket::setSocket() {
     _socket = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
     if(_socket == 0)
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
 }
 
 void Socket::setSocketOption() {
@@ -112,7 +86,7 @@ void Socket::setSocketOption() {
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR,
                    &optionVal, (socklen_t)sizeof(optionVal))){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
@@ -120,7 +94,7 @@ void Socket::setBind() {
     socklen_t  addressLen = sizeof(_sock);
     if (bind(_socket, reinterpret_cast<struct sockaddr *>(&_sock), addressLen) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 
 }
@@ -128,14 +102,14 @@ void Socket::setBind() {
 void Socket::setListen(int backlog) const {
     if (listen(_socket, backlog) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
 void Socket::accessorSocketFlag(int command, int flag) const {
     if (fcntl(_socket, command, flag ) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
@@ -144,7 +118,7 @@ void Socket::acceptConnection() {
     int fd = accept(_socket, reinterpret_cast<struct sockaddr *>(&_sock), &addressLen);
     if (fd == -1) {
         closeSocket();
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
     _socket = fd;
 }
@@ -223,32 +197,13 @@ std::string  Socket::findServerName(const std::string &serverName) {
     return "";
 }
 
-SocketClient &Socket::getclient() {
-    return _client;
-}
-
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){
     return _vectorServerNameToken;
 }
 
-
-SocketClient::SocketClient(int server)
-        : _server(server), _connection(true),_statusCode(0), _content(), _contentType(), _serverToken(), _lastConnection(std::time(NULL)) {}
-
-SocketClient::~SocketClient() {}
-
-SocketClient::SocketClient(const SocketClient &other) :
-_server(other._server), _connection(other._connection), _statusCode(other._statusCode), _content(other._content),
-_contentType(other._contentType), _serverToken(other._serverToken), _lastConnection(other._lastConnection){}
-
-SocketClient &SocketClient::operator=(const SocketClient &rhs) {
-    if (this != &rhs){
-        this->_server = rhs._server;
-        this->_connection = rhs._connection;
-        this->_statusCode = rhs._statusCode;
-        this->_content = rhs._content;
-        this->_contentType = rhs._contentType;
-        this->_serverToken = rhs._serverToken;
-    }
-    return *this;
+bool Socket::isServer() const {
+    return _server;
 }
+
+
+
