@@ -24,7 +24,7 @@ HttpMessage::HttpMessage(Socket& client, Config& config)
   _config(config),
   _execute(_request, config, _client){
     try {
-        _client.getclient()._request.recvHeader();
+        _client.getclient().
         findTokenServer();
         findBestConfig();
         _execute.executeRequest(_bestConfig->second);
@@ -59,17 +59,17 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 */
 
 
-void HttpMessage::findTokenServer() {
-    std::string serverName = _client.getclient()._request.getValueHeader("Host:");
-    if (serverName.empty())
-        throw Exception("No host in request", 400);
-    else{
-        Socket & server = _config._mapFdSocket.at(_client.getclient()._server);
-        _serverToken = server.findServerName(serverName);
-        if (_serverToken.empty())
-            throw Exception("server name not found", 404);
-    }
-}
+//void HttpMessage::findTokenServer() {
+//    std::string serverName = _client.getclient()._request.getValueHeader("Host:");
+//    if (serverName.empty())
+//        throw Exception("No host in request", 400);
+//    else{
+//        Socket & server = _config._mapFdSocket.at(_client.getclient()._server);
+//        _serverToken = server.findServerName(serverName);
+//        if (_serverToken.empty())
+//            throw Exception("server name not found", 404);
+//    }
+//}
 
 
 void HttpMessage::findBestConfig() {

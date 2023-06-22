@@ -6,112 +6,8 @@
 #define WEBSERVER_HTTPREQUEST_CLASS_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/4-Utils/Template/PegParser.class.tpp>
-
-class HeaderRequest {
-
-/*>*******************************private section**********************************/
-
-private:
-
-/*
-*====================================================================================
-*|                                       Member                                     |
-*====================================================================================
-*/
-
-    PegParser<HeaderRequest>                                            _peg;
-    std::string                                                         _startLineMethode;
-    std::string                                                         _startLineURL;
-    std::string                                                         _startLineVersion;
-    std::map<const std::string, const std::string>                      _mapHttpHeaders;
-    bool                                                                _endHeader;
-
-/*
-*====================================================================================
-*|                                       Methode                                    |
-*====================================================================================
-*/
-
-    std::string addToStartLine(std::string &);
-    std::string addToMapHttpHeader(std::string &);
-    void setMapTokenStartLine();
-    void setMapTokenInformation();
-
-/*>********************************public section**********************************/
-
-public:
-
-/*
-*====================================================================================
-*|                                  Member Fonction                                 |
-*====================================================================================
-*/
-
-/**
- * Constructor of HeaderRequest class
- *
- * HeaderRequest();
- *
- * @param   void
- * @throw   none
- **/
-    HeaderRequest();
-
-/**
- * Constructor of HeaderRequest class
- *
- * HeaderRequest(Config & config);
- *
- * @param   config &
- * @throw   none
- **/
-    explicit HeaderRequest(std::string& message);
-
-/**
-* Destructor of HeaderRequest class
-*
-* HeaderRequest);
-*
-* @throw   none
-**/
-    ~HeaderRequest();
-
-/**
- * Copy constructor of HeaderRequest class
- *
- * HeaderRequest(const HeaderRequest &);
- *
- * @param   http_request instance to build the server
- * @throw   none
- **/
-    HeaderRequest(const HeaderRequest &);
-
-/**
- * Operator overload= of HeaderRequest class
- *
- * HeaderRequest(const HeaderRequest &);
- *
- * @param   http_request instance const to copy the server
- * @throw   none
- **/
-    HeaderRequest& operator=(const HeaderRequest &);
-
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
-    const std::string &getStartLineMethode() const;
-
-    std::string &getStartLineUrl();
-
-    const std::string &getStartLineVersion() const;
-
-    const std::map<const std::string, const std::string> &getMapHttpHeaders() const;
-
-    std::string endHeader(std::string &token);
-};
 
 class HttpRequest {
 /*>*******************************private section**********************************/
@@ -123,12 +19,23 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    ssize_t                         _bytesRecv;
-    ssize_t                         _contentLength;
-    std::vector<std::string>        _buffer;
-    HeaderRequest                   _headRequest;
-
-
+    Config&                                             _config;
+    Socket&                                             _socketClient;
+    std::string                                         _serverToken;
+    Config*                                             _location;
+    ssize_t                                             _bytesRecv;
+    ssize_t                                             _totalBytesRecv;
+    ssize_t                                             _contentLength;
+    bool                                                _chunked;
+    std::string                                         _crlf;
+    std::vector<char>                                   _buffer;
+    std::string                                         _data;
+    PegParser<HttpRequest>                              _peg;
+    std::string                                         _startLineMethode;
+    std::string                                         _startLineURL;
+    std::string                                         _startLineVersion;
+    std::map<const std::string, const std::string>      _mapHttpHeaders;
+    bool                                                _complete;
 /*
 *====================================================================================
 *|                                       Methode                                    |
@@ -148,7 +55,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void recvData(int sizeBuffer);
+    void recvData();
 
 /**
  * Private methode of server class
@@ -161,8 +68,20 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void checkBytesRecv() const;
+    void checkBytesRecv();
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string convertBufferToString();
 /**
  * Private methode of server class
  *
@@ -176,8 +95,17 @@ private:
  * */
     bool messageIsNotComplete();
 
+    std::string methodeGET(std::string &);
+    std::string methodePOST(std::string &);
+    std::string methodeDELETE(std::string &);
+    void extractHeaderData();
+    std::string addToMapHttpHeader(std::string &);
+    void setMapTokenStartLine();
+    void setMapTokenInformation();
 
-
+    std::string Host(std::string &token);
+    std::string ContentLength(std::string &token);
+    std::string TransfereEncoding(std::string &token);
 /*>********************************public section**********************************/
 
 public:
@@ -191,12 +119,13 @@ public:
 /**
  * Constructor of HttpRequest.class class
  *
- * HttpRequest.class(Config & config);
+ * HttpRequest.class(int socket, int clientHeaderBufferSize,
+                         int clientBodyBufferSize, int clientMaxBodySize);
  *
  * @param   config &
  * @throw   none
  **/
-    HttpRequest();
+    HttpRequest(Config& config, Socket& socket);
 
 /**
 * Destructor of HttpRequest.class class
@@ -285,9 +214,30 @@ public:
  * */
     void recvMessage();
 
-    void recvHeader();
+    void recvRequest();
 
     void setContentLenght();
+
+    void recvHeaderfirst();
+
+    void recvHeaderChunck();
+
+    bool isComplete() const;
+
+
+    void findBestConfig();
+
+    void findRessource();
+
+    bool isDirectory();
+
+    bool isFile(std::string &path);
+
+    std::string checkIsCgi();
+
+    void setIndex();
+
+    void setAutoIndex();
 };
 
 

@@ -33,7 +33,7 @@ private:
     sockaddr_in                                         _sock;
     int                                                 _socket;
     std::vector<std::pair<std::string, std::string> >   _vectorServerNameToken;
-    bool                                                _server;
+    Socket*                                             _server;
 
 /*
 *====================================================================================
@@ -199,7 +199,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    explicit Socket(epoll_event &event);
+    explicit Socket(epoll_event &event, Socket * server);
 
 /**
  * Destructor of 7-Socket class
@@ -333,8 +333,10 @@ public:
     std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
 
     void addToken(const std::string &token);
-    bool isServer() const;
+
     bool checkSocket(int fd);
+
+    Socket *getServer() const;
 };
 
 #endif //WEBSERV_ABASESOCKET_CLASS_HPP

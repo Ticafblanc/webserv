@@ -19,13 +19,14 @@
 */
 
 Socket::Socket()
-: _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(), _server(false){}
+: _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(), _server(NULL){}
 
 Socket::Socket(const std::string & ipAddr, const int & port)
-: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(), _server(true){}
+: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(), _server(NULL){}
 
-Socket::Socket(epoll_event & event)
-: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(), _server(false){
+Socket::Socket(epoll_event & event, Socket * server)
+: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(server->_vectorServerNameToken),
+_server(server){
     buildClientSocket();
 }
 
@@ -199,6 +200,10 @@ std::string  Socket::findServerName(const std::string &serverName) {
 
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){
     return _vectorServerNameToken;
+}
+
+Socket *Socket::getServer() const {
+    return _server;
 }
 
 bool Socket::isServer() const {

@@ -215,7 +215,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void addConnexion(int numberTrigged);
+    void addConnexion(int numberTrigged, Socket *pSocket);
 
 /**
  * add socket to Epoll

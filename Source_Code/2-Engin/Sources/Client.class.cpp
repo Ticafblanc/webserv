@@ -18,24 +18,27 @@
 *====================================================================================
 */
 
-Client::Client(epoll_event &event, Config& config)
-: Socket(event), _config(config), _server(event.data.fd), _connection(true), _statusCode(0),
-  _content(), _contentType(), _serverToken(), _lastConnection(std::time(NULL)) {}
+Client::Client(epoll_event &event, Config& config, Socket * server)
+: Socket(event, server), _config(config), _connection(true), _events(EPOLLIN | EPOLLET),
+_statusCode(0), _content(), _contentType(), _serverToken(), _lastConnection(std::time(NULL)), _request() {}
 
 Client::~Client() {}
 
 Client::Client(const Client &other)
-: Socket(other), _config(other._config), _server(other._server), _connection(other._connection), _statusCode(other._statusCode), _content(other._content),
-          _contentType(other._contentType), _serverToken(other._serverToken), _lastConnection(other._lastConnection){}
+: Socket(other), _config(other._config), _connection(other._connection), _events(other._events),
+_statusCode(other._statusCode), _content(other._content), _contentType(other._contentType), _serverToken(other._serverToken),
+_lastConnection(other._lastConnection), _request(other._request){}
 
 Client& Client::operator=(const Client& rhs){
     if (this != &rhs){
-        this->_server = rhs._server;
+        Socket::operator=(rhs);
         this->_connection = rhs._connection;
+        this->_events = rhs._events;
         this->_statusCode = rhs._statusCode;
         this->_content = rhs._content;
         this->_contentType = rhs._contentType;
         this->_serverToken = rhs._serverToken;
+        this->_request = rhs._request;
     }
     return *this;
 }
@@ -46,6 +49,24 @@ bool Client::operator==(const Client & rhs) {
     return false;
 }
 
+/*
+*====================================================================================
+*|                               public method                                      |
+*====================================================================================
+*/
+
+void Client::findTokenServer() {
+    std::string serverName = _request.getValueHeader("Host:");
+    if (serverName.empty())
+        throw Exception("No host in request", 400);
+    else{
+        Socket & server = _config._mapFdSocket.at(_server);
+        _serverToken = server.findServerName(serverName);
+        if (_serverToken.empty())
+            throw Exception("server name not found", 404);
+    }
+}
+
 
 /*
 *====================================================================================
@@ -53,13 +74,32 @@ bool Client::operator==(const Client & rhs) {
 *====================================================================================
 */
 
+void Client::recvEvent() {
+    _request.recvRequest();
+    if (_request.isComplete()){
+
+    }
+
+}
+
+void Client::sendEvent() {
+
+}
+
+/*
+*====================================================================================
+*|                                    Accessor                                      |
+*====================================================================================
+*/
+
+
 bool Client::isConnection() const {
     return _connection;
 }
 
-int Client::getServer() const {
-    return _server;
-}
+//Socket& Client::getServer()  {
+//    return _server;
+//}
 
 time_t Client::getLastConnection() const {
     return _lastConnection;
@@ -72,3 +112,21 @@ void Client::setConnection(bool connection) {
 void Client::setLastConnection(time_t lastConnection) {
     _lastConnection = lastConnection;
 }
+
+int Client::getStatusCode() const {
+    return _statusCode;
+}
+
+void Client::setStatusCode(int statusCode) {
+    _statusCode = statusCode;
+}
+
+int Client::getEvents() const {
+    return _events;
+}
+
+void Client::setEvents(int events) {
+    _events = events;
+}
+
+

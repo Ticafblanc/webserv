@@ -90,6 +90,8 @@ std::string ConfigFile::blocToken(std::string & token) {
         }
         configFile.parseBloc(token);
         if (token == "location" || token == "server") {
+            if (configFile._config._uri.empty())
+                configFile._config._uri = "/";
             _parent->addChild(configFile._config);
             _parent->addServerName(configFile._config);
         }

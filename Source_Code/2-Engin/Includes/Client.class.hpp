@@ -18,7 +18,6 @@
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/3-Message/Includes/HttpRequest.class.hpp>
-#include <Source_Code/2-Engin/Includes/Socket.class.hpp>
 
 
 
@@ -34,12 +33,12 @@ private:
 *====================================================================================
 */
     Config&                                             _config;
-    int                                                 _server;
     bool                                                _connection;
+    int                                                 _events;
     int                                                 _statusCode;
     std::string                                         _content;
     std::string                                         _contentType;
-    std::string                                         _serverToken;
+
     std::time_t                                         _lastConnection;
     HttpRequest                                         _request;
 
@@ -50,6 +49,8 @@ private:
 *====================================================================================
 */
 
+
+    void findTokenServer();
 
 
 /*>********************************public section**********************************/
@@ -72,7 +73,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    explicit Client(epoll_event &event, Config& config);
+    explicit Client(epoll_event &event, Config& config, Socket * server);
 
 /**
  * Destructor of 7-Client class
@@ -112,13 +113,20 @@ public:
     bool operator==(const Client &);
 
 
-
 /*
 *====================================================================================
-*|                                      Methode                                     |
+*|                                 public method                                    |
 *====================================================================================
 */
-    int getServer() const;
+    void recvEvent();
+    void sendEvent();
+/*
+*====================================================================================
+*|                                      Accessor                                    |
+*====================================================================================
+*/
+
+//    Socket& getServer() const;
 
     bool isConnection() const;
 
@@ -126,7 +134,16 @@ public:
 
     void setLastConnection(time_t lastConnection);
 
+    int getStatusCode() const;
+
+    void setStatusCode(int statusCode);
+
+    int getEvents() const;
+
+    void setEvents(int events);
+
     time_t getLastConnection() const;
+
 };
 
 #endif //WEBSERV_ABASECLIENT_CLASS_HPP

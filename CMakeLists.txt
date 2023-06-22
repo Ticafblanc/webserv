@@ -21,7 +21,7 @@ set(    CONFIG
 set(    ENGIN
         Source_Code/2-Engin/Sources/Epoll.class.cpp
         Source_Code/2-Engin/Sources/Socket.class.cpp
-        Source_Code/2-Engin/Sources/Token.cpp)
+        Source_Code/2-Engin/Sources/Token.cpp Source_Code/2-Engin/Sources/Client.class.cpp)
 
 set(    MESSAGE
         Source_Code/3-Message/Sources/HttpMessage.class.cpp

@@ -136,45 +136,45 @@ void Epoll::launchEpoll(){
 
 void Epoll::manageEvent() {
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
+
         _config._accessLog.writeLogFile("Event number [" + intToString(i) +
         "] with an event fd [ " + intToString(_events[i].data.fd) + "] and events flag => [" +
         _config._accessLog.convertEventsTostring(_events[i].events) + "]");
-        try {
-            std::map<int, Socket*>::iterator it = _config._mapFdSocket.find(_events[i].data.fd);
-            if (it != _config._mapFdSocket.end() && (it->second->isServer()))
-                addConnexion(i);
-            else if (it != _config._mapFdSocket.end() && it->second->checkSocket(_events[i].data.fd))
-                selectEvent(dynamic_cast<Client*>(it->second), i);
+
+        std::map<int, Socket*>::iterator it = _config._mapFdSocket.find(_events[i].data.fd);
+        if (it != _config._mapFdSocket.end() && (it->second->getServer()))
+            addConnexion(i, it->second);
+        else if (it != _config._mapFdSocket.end() && it->second->checkSocket(_events[i].data.fd))
+            selectEvent(dynamic_cast<Client*>(it->second), i);
 //            else {
 //                if (_events[i].data.fd == 0)
 //                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 //                else
 //                    close(_events[i].data.fd);
 //            }
-        }catch (std::exception & e){
-            _config._accessLog.failure();
-            _config._errorLog.writeLogFile(e.what());
-        }
     }
     checkConnexion();
 }
 
-void Epoll::addConnexion(int numberTrigged) {
+void Epoll::addConnexion(int numberTrigged, Socket * server) {
     if ((!(_events[numberTrigged].events & EPOLLERR)) ||(!(_events[numberTrigged].events & EPOLLHUP))
     || (!(_events[numberTrigged].events & EPOLLRDHUP)) || (_events[numberTrigged].events & EPOLLIN)) {
 
         _config._accessLog.writeLogFile("Accept new client {");
         _config._accessLog.addIndent();
+        try {
+            Client* newClient = new Client(_events[numberTrigged], _config, server);
 
-        Client* newClient = new Client(_events[numberTrigged], _config);
+            _config._accessLog.writeLogFile("Address ["  + newClient->getIpAddress() + ":"
+            + intToString(newClient->getPort()) + "] with socket [" + intToString(newClient->getSocket()) +
+            "] on socket server [" + intToString(newClient->getServer()->getSocket()) + "]");
 
-        _config._accessLog.writeLogFile("Address ["  + newClient->getIpAddress() + ":"
-        + intToString(newClient->getPort()) + "] with socket [" + intToString(newClient->getSocket()) +
-        "] on socket server [" + intToString(newClient->getServer()) + "]");
-
-        addSocket(newClient->getSocket(), EPOLLIN | EPOLLET);
-        _config._mapFdSocket[newClient->getSocket()] = newClient;
-
+            addSocket(newClient->getSocket(), newClient->getEvents());
+            _config._mapFdSocket[newClient->getSocket()] = newClient;
+        }catch (std::exception & e){
+            _config._accessLog.failure();
+            _config._errorLog.writeLogFile(e.what());
+        }
         _config._accessLog.removeIndent();
         _config._accessLog.writeLogFile("}");
         _config._accessLog.writeLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
@@ -182,6 +182,7 @@ void Epoll::addConnexion(int numberTrigged) {
 }
 
 void Epoll::removeConnexionServer(Socket* server) {
+
     _config._accessLog.writeLogFile("Remove client {");
     _config._accessLog.addIndent();
     _config._accessLog.writeLogFile("Address ["  + server->getIpAddress() + ":"
@@ -196,6 +197,7 @@ void Epoll::removeConnexionServer(Socket* server) {
     _config._accessLog.removeIndent();
     _config._accessLog.writeLogFile("}");
     _config._accessLog.writeLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
+
 }
 
 void Epoll::checkConnexion(){
@@ -216,49 +218,45 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
     }
 
     try {
-        client->setLastConnection(std::time(NULL));
+
+        int events = client->getEvents();
         if (_events[numberTrigged].events & EPOLLIN) {
+
             _config._accessLog.writeLogFile("Recv data {");
             _config._accessLog.addIndent();
             _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
-            + intToString(client->getPort()) + "] with socket [" + intToString(client.getSocket()) +
+            + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
               "] on socket server [" + intToString(client->getServer()) + "]");
 
             client->recvEvent();
-            if(client->getclient()._statusCode >= 100) {
-                modSocket(_events[numberTrigged].data.fd, EPOLLOUT | EPOLLET);
-            }
+
             _config._accessLog.removeIndent();
             _config._accessLog.writeLogFile("}");
+
         }
         if (_events[numberTrigged].events & EPOLLOUT) {
+
             _config._accessLog.writeLogFile("send data {");
             _config._accessLog.addIndent();
-            _config._accessLog.writeLogFile("Address [" + client.getIpAddress() + ":"
-            + intToString(client.getPort()) + "] with socket [" + intToString(client.getSocket()) +
-            "] on socket server [" + intToString(client.getclient()._server) + "]");
-            HttpReponse reponse(client, _config);
-            modSocket(_events[numberTrigged].data.fd, EPOLLIN | EPOLLET);
+            _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
+            + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
+            "] on socket server [" + intToString(client->getServer()) + "]");
+
+            client->sendEvent();
+
             _config._accessLog.removeIndent();
             _config._accessLog.writeLogFile("}");
+
         }
+        if (client->getEvents() != events)
+            modSocket(_events[numberTrigged].data.fd, client->getEvents());
+        client->setLastConnection(std::time(NULL));
     }catch (std::exception & e){
+        if (dynamic_cast<Exception&>(e).getCode() >= 0)
+            client->setConnection(false);
         _config._accessLog.failure();
         _config._errorLog.writeLogFile(e.what());
     }
-    if (!client.getclient()._connection)
+    if (!client->isConnection())
         removeConnexionServer(client);
 }
-
-
-//bool Server::checkEvent(epoll_event &event){
-//    std::vector<Socket>::iterator itSocket = std::find_if(_vectorServerSocket.begin(),
-//                                                          _vectorServerSocket.end(),
-//                                                          Socket(event));
-//    if (itSocket != _vectorServerSocket.end() && ((!(event.events & EPOLLERR)) ||
-//                                                  (!(event.events & EPOLLHUP)) || (event.events & EPOLLIN)))
-//        return true;
-//    else
-//        std::cerr << "error event at connexion " << event.events << event.data.fd << std::endl;
-//    return false;
-//}
