@@ -20,7 +20,7 @@
 
 Client::Client(epoll_event &event, Config& config, Socket * server)
 : Socket(event, server), _config(config), _connection(true), _events(EPOLLIN | EPOLLET),
-_statusCode(0), _content(), _contentType(), _serverToken(), _lastConnection(std::time(NULL)), _request() {}
+_statusCode(0), _content(), _contentType(),  _lastConnection(std::time(NULL)), _request() {}
 
 Client::~Client() {}
 
@@ -37,36 +37,14 @@ Client& Client::operator=(const Client& rhs){
         this->_statusCode = rhs._statusCode;
         this->_content = rhs._content;
         this->_contentType = rhs._contentType;
-        this->_serverToken = rhs._serverToken;
         this->_request = rhs._request;
     }
     return *this;
 }
 
 bool Client::operator==(const Client & rhs) {
-    if (this->_serverToken == rhs._serverToken && Socket::operator==(rhs))
-        return true;
-    return false;
+    return Socket::operator==(rhs);
 }
-
-/*
-*====================================================================================
-*|                               public method                                      |
-*====================================================================================
-*/
-
-void Client::findTokenServer() {
-    std::string serverName = _request.getValueHeader("Host:");
-    if (serverName.empty())
-        throw Exception("No host in request", 400);
-    else{
-        Socket & server = _config._mapFdSocket.at(_server);
-        _serverToken = server.findServerName(serverName);
-        if (_serverToken.empty())
-            throw Exception("server name not found", 404);
-    }
-}
-
 
 /*
 *====================================================================================
@@ -76,14 +54,11 @@ void Client::findTokenServer() {
 
 void Client::recvEvent() {
     _request.recvRequest();
-    if (_request.isComplete()){
-
-    }
-
+//    dd try to close client
 }
 
 void Client::sendEvent() {
-
+    _request.sendRequest();
 }
 
 /*
@@ -97,9 +72,6 @@ bool Client::isConnection() const {
     return _connection;
 }
 
-//Socket& Client::getServer()  {
-//    return _server;
-//}
 
 time_t Client::getLastConnection() const {
     return _lastConnection;

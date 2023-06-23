@@ -3,8 +3,7 @@
 //
 
 #include <Source_Code/3-Message/Includes/Execute.class.hpp>
-#include <dirent.h>
-#include <filesystem>
+
 
 Execute::Execute(HttpRequest& httpRequest, Config & config, Socket& client)
         : _request(httpRequest), _config(config), _mapMethode(), _client(client){

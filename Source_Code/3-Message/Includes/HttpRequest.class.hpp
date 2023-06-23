@@ -14,6 +14,8 @@ class HttpRequest {
 
 private:
 
+
+
 /*
 *====================================================================================
 *|                                       Member                                     |
@@ -22,12 +24,12 @@ private:
     Config&                                             _config;
     Socket&                                             _socketClient;
     std::string                                         _serverToken;
-    Config*                                             _location;
-    ssize_t                                             _bytesRecv;
-    ssize_t                                             _totalBytesRecv;
-    ssize_t                                             _contentLength;
-    bool                                                _chunked;
-    std::string                                         _crlf;
+    std::size_t                                         _bytesRecv;
+    std::size_t                                         _totalBytesRecv;
+    std::size_t                                         _contentLength;
+    bool                                                _headerIsComplete;
+    bool                                                _chunkedIsComplete;
+    bool                                                _bodyIsComplete;
     std::vector<char>                                   _buffer;
     std::string                                         _data;
     PegParser<HttpRequest>                              _peg;
@@ -35,14 +37,105 @@ private:
     std::string                                         _startLineURL;
     std::string                                         _startLineVersion;
     std::map<const std::string, const std::string>      _mapHttpHeaders;
-    bool                                                _complete;
+    Config*                                             _location;
+
+
 /*
 *====================================================================================
-*|                                       Methode                                    |
+*|                                  Private Methode                                 |
 *====================================================================================
 */
 
+/**
+ * Private methode of HttpRequest.class class
+ *
+ * manage event like receive message
+ *
+ * bool selectRecvMethode();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    bool selectRecvMethode();
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool recvHeaderfirst();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool recvHeader();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool headerIsNotComplete();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool headerIsComplete(std::string & str);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool recvHeaderChunck();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool recvChunck();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool headerIsNotComplete();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool chunkIsComplete(std::string & str);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool recvHeaderfirst();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool recvBody();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool headerIsNotComplete();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool bodyIsComplete(std::string & str);
 
 /**
  * Private methode of server class
@@ -55,39 +148,95 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void recvData();
+    bool recvData(bool (HttpRequest::*dataIsComplete)(std::string &));
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * void sendData();
+ * bool checkErrorBytesRecv();
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void checkBytesRecv();
+    bool checkErrorBytesRecv();
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * void sendData();
+ * bool bodyIsNotComplete();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool bodyIsNotComplete();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string bufferToDataString();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string bufferToDataString();
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Private methode of HttpRequest.class class
+ *
+ * manage event like receive message
+ *
+ *     void recvMessage();
+ *
+ * @returns void
+ * @param   void
+ * @throws  http_request::http_request_exception
+ * */
+    void recvMessage();
+
+
+
+
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string convertBufferToString();
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
     std::string convertBufferToString();
+
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * void sendData();
+ * bool messageIsNotComplete();
  *
  * @returns string with message content
  * @param   client_socket send message
@@ -95,17 +244,202 @@ private:
  * */
     bool messageIsNotComplete();
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string methodeGET(std::string &);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
     std::string methodeGET(std::string &);
-    std::string methodePOST(std::string &);
-    std::string methodeDELETE(std::string &);
-    void extractHeaderData();
-    std::string addToMapHttpHeader(std::string &);
-    void setMapTokenStartLine();
-    void setMapTokenInformation();
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string methodePOST(std::string &);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string methodePOST(std::string &);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string methodeDELETE(std::string &);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string methodeDELETE(std::string &);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void extractHeaderData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void extractHeaderData();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string addToMapHttpHeader(std::string &);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string addToMapHttpHeader(std::string &);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string Host(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
     std::string Host(std::string &token);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string ContentLength(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
     std::string ContentLength(std::string &token);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
     std::string TransfereEncoding(std::string &token);
+
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setContentLenght();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool isComplete() const;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void findBestConfig();
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void findRessource();
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string checkIsCgi();
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setIndex();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setAutoIndex();
+
+    friend void PegParser<HttpRequest>::setMapTokenHeaderStartLine();
+    friend void PegParser<HttpRequest>::setMapTokenHeadersInformation();
+
 /*>********************************public section**********************************/
 
 public:
@@ -158,6 +492,38 @@ public:
 
 /*
 *====================================================================================
+*|                                  Public Methode                                  |
+*====================================================================================
+*/
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void recvRequest();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void recvRequest();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendRequest();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void sendRequest();
+
+/*
+*====================================================================================
 *|                                  Element access                                  |
 *====================================================================================
 */
@@ -188,56 +554,8 @@ public:
  * */
     std::string getMethode();
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendData();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string& getUrl();
-
-/**
- * Private methode of HttpRequest.class class
- *
- * manage event like receive message
- *
- *     void recvMessage();
- *
- * @returns void
- * @param   void
- * @throws  http_request::http_request_exception
- * */
-    void recvMessage();
-
-    void recvRequest();
-
-    void setContentLenght();
-
-    void recvHeaderfirst();
-
-    void recvHeaderChunck();
-
-    bool isComplete() const;
 
 
-    void findBestConfig();
-
-    void findRessource();
-
-    bool isDirectory();
-
-    bool isFile(std::string &path);
-
-    std::string checkIsCgi();
-
-    void setIndex();
-
-    void setAutoIndex();
 };
 
 

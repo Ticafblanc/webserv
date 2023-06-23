@@ -351,62 +351,16 @@ std::string ConfigFile::setAutoIndex(std::string &token){
 
 void ConfigFile::setMapToken(const std::string & token) {
     if ( token.empty())
-        setMapTokenFile();
+        _peg.setMapTokenFile();
     else if(token == "events")
-        setMapTokenEvents();
+        _peg.setMapTokenEvents();
     else if(token == "http")
-        setMapTokenHttp();
+        _peg.setMapTokenHttp();
     else if(token == "server")
-        setMapTokenServer();
+        _peg.setMapTokenServer();
     else if(token == "location")
-        setMapTokenLocation();
+        _peg.setMapTokenLocation();
     else
         _peg.clearMapToken();
 }
 
-void ConfigFile::setMapTokenFile() {
-    _peg.clearMapToken();
-    _peg.setMapToken("worker_processes", &ConfigFile::setWorkerProcesses);
-    _peg.setMapToken("client_body_buffer_size", &ConfigFile::setClientBodyBufferSize);
-    _peg.setMapToken("client_header_buffer_size", &ConfigFile::setClientHeaderBufferSize);
-    _peg.setMapToken("client_max_body_size", &ConfigFile::setClientMaxBodySize);
-    _peg.setMapToken("events", &ConfigFile::blocToken);
-    _peg.setMapToken("http", &ConfigFile::blocToken);
-    _peg.setMapToken("server", &ConfigFile::blocToken);
-}
-
-void ConfigFile::setMapTokenEvents() {
-    _peg.clearMapToken();
-    _peg.setMapToken("worker_connections", &ConfigFile::setWorkerConnections);
-}
-
-void ConfigFile::setMapTokenHttp() {
-    _peg.clearMapToken();
-    _peg.setMapToken("listen", &ConfigFile::addVectorListen);
-    _peg.setMapToken("server_name", &ConfigFile::addVectorServerName);
-    _peg.setMapToken("root", &ConfigFile::setRoot);
-    _peg.setMapToken("index", &ConfigFile::addIndex);
-    _peg.setMapToken("error_page", &ConfigFile::setErrorPage);
-    _peg.setMapToken("autoindex", &ConfigFile::setAutoIndex);
-    _peg.setMapToken("allowed_methods", &ConfigFile::setAllowMethods);
-    _peg.setMapToken("server", &ConfigFile::blocToken);
-}
-
-void ConfigFile::setMapTokenServer() {
-    _peg.clearMapToken();
-    _peg.setMapToken("listen", &ConfigFile::addVectorListen);
-    _peg.setMapToken("server_name", &ConfigFile::addVectorServerName);
-    _peg.setMapToken("root", &ConfigFile::setRoot);
-    _peg.setMapToken("index", &ConfigFile::addIndex);
-    _peg.setMapToken("error_page", &ConfigFile::setErrorPage);
-    _peg.setMapToken("autoindex", &ConfigFile::setAutoIndex);
-    _peg.setMapToken("allowed_methods", &ConfigFile::setAllowMethods);
-    _peg.setMapToken("server", &ConfigFile::blocToken);
-    _peg.setMapToken("location", &ConfigFile::blocToken);
-}
-
-void ConfigFile::setMapTokenLocation() {
-    _peg.setMapToken("return", &ConfigFile::setReturn);
-    _peg.setMapToken("add_header", &ConfigFile::addMapAddHeader);
-    _peg.setMapToken("cgi_pass", &ConfigFile::setCgiPass);
-}

@@ -163,6 +163,7 @@ void Epoll::addConnexion(int numberTrigged, Socket * server) {
         _config._accessLog.writeLogFile("Accept new client {");
         _config._accessLog.addIndent();
         try {
+
             Client* newClient = new Client(_events[numberTrigged], _config, server);
 
             _config._accessLog.writeLogFile("Address ["  + newClient->getIpAddress() + ":"

@@ -277,61 +277,6 @@ private:
  * @throw       none
  */
     void setMapToken(const std::string & token);
-/**
- * Public methode of ConfigFile struct
- *
- * void setMapToken();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setMapTokenEvents();
-
-/**
- * Public methode of ConfigFile struct
- *
- * void setMapToken();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setMapTokenHttp();
-
-/**
- * Public methode of ConfigFile struct
- *
- * void setMapToken();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setMapTokenFile();
-
-
-    /**
- * Public methode of ConfigFile struct
- *
- * void setMapToken();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setMapTokenServer();
-
-    /**
- * Public methode of ConfigFile struct
- *
- * void setMapToken();
- *
- * @returns     void
- * @param       void
- * @throw       none
- */
-    void setMapTokenLocation();
 
 /*
 *====================================================================================
@@ -346,6 +291,12 @@ private:
     void printData();
 
     std::string addMapAddHeader(std::string &token);
+
+    friend void PegParser<ConfigFile>::setMapTokenFile();
+    friend void PegParser<ConfigFile>::setMapTokenEvents();
+    friend void PegParser<ConfigFile>::setMapTokenHttp();
+    friend void PegParser<ConfigFile>::setMapTokenServer();
+    friend void PegParser<ConfigFile>::setMapTokenLocation();
 };
 
 

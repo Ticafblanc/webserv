@@ -133,7 +133,6 @@ public:
     return *this;
 };
 
-
 /*
 *====================================================================================
 *|                                      Methode                                     |
@@ -328,6 +327,159 @@ public:
         _mapTokenListAction.clear();
     };
 
+/*
+*====================================================================================
+*|                                  Set map Token                                   |
+*====================================================================================
+*/
+
+    void setMapTokenFile() {
+        clearMapToken();
+        setMapToken("worker_processes", &T::setWorkerProcesses);
+        setMapToken("client_body_buffer_size", &T::setClientBodyBufferSize);
+        setMapToken("client_header_buffer_size", &T::setClientHeaderBufferSize);
+        setMapToken("client_max_body_size", &T::setClientMaxBodySize);
+        setMapToken("events", &T::blocToken);
+        setMapToken("http", &T::blocToken);
+        setMapToken("server", &T::blocToken);
+    }
+
+    void setMapTokenEvents() {
+        clearMapToken();
+        setMapToken("worker_connections", &T::setWorkerConnections);
+    }
+
+    void setMapTokenHttp() {
+        clearMapToken();
+        setMapToken("listen", &T::addVectorListen);
+        setMapToken("server_name", &T::addVectorServerName);
+        setMapToken("root", &T::setRoot);
+        setMapToken("index", &T::addIndex);
+        setMapToken("error_page", &T::setErrorPage);
+        setMapToken("autoindex", &T::setAutoIndex);
+        setMapToken("allowed_methods", &T::setAllowMethods);
+        setMapToken("server", &T::blocToken);
+    }
+
+    void setMapTokenServer() {
+        clearMapToken();
+        setMapToken("listen", &T::addVectorListen);
+        setMapToken("server_name", &T::addVectorServerName);
+        setMapToken("root", &T::setRoot);
+        setMapToken("index", &T::addIndex);
+        setMapToken("error_page", &T::setErrorPage);
+        setMapToken("autoindex", &T::setAutoIndex);
+        setMapToken("allowed_methods", &T::setAllowMethods);
+        setMapToken("server", &T::blocToken);
+        setMapToken("location", &T::blocToken);
+    }
+
+    void setMapTokenLocation() {
+        setMapToken("return", &T::setReturn);
+        setMapToken("add_header", &T::addMapAddHeader);
+        setMapToken("cgi_pass", &T::setCgiPass);
+    }
+
+    void setMapTokenHeaderStartLine() {
+       setMapToken("GET", &T::methodeGET);
+       setMapToken("POST", &T::methodePOST);
+       setMapToken("DELETE", &T::methodeDELETE);
+    }
+    void setMapTokenHeadersInformation() {
+        setMapToken();
+        setMapToken("Accept:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Charset:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Datetime:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Encoding:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Language:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Patch:", &T::addToMapHttpHeader);
+        setMapToken("Accept-Ranges:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Allow-Credentials:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Allow-Headers:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Allow-Methods:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Allow-Origin:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Expose-Headers:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Max-Age:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Request-Method:", &T::addToMapHttpHeader);
+        setMapToken("Access-Control-Request-Headers:", &T::addToMapHttpHeader);
+        setMapToken("Age:", &T::addToMapHttpHeader);
+        setMapToken("Allow:", &T::addToMapHttpHeader);
+        setMapToken("Alt-Svc:", &T::addToMapHttpHeader);
+        setMapToken("Authorization:", &T::addToMapHttpHeader);
+        setMapToken("Cache-Control:", &T::addToMapHttpHeader);
+        setMapToken("Connection:", &T::addToMapHttpHeader);
+        setMapToken("Content-Disposition:", &T::addToMapHttpHeader);
+        setMapToken("Content-Encoding:", &T::addToMapHttpHeader);
+        setMapToken("Content-Language:", &T::addToMapHttpHeader);
+        setMapToken("Content-Length:", &T::ContentLength);
+        setMapToken("Content-Location.class:", &T::addToMapHttpHeader);
+        setMapToken("Content-MD5:", &T::addToMapHttpHeader);
+        setMapToken("Content-Range:", &T::addToMapHttpHeader);
+        setMapToken("Content-Type:", &T::addToMapHttpHeader);
+        setMapToken("Cookie:", &T::addToMapHttpHeader);
+        setMapToken("DASL:", &T::addToMapHttpHeader);
+        setMapToken("Date:", &T::addToMapHttpHeader);
+        setMapToken("DAV:", &T::addToMapHttpHeader);
+        setMapToken("Depth:", &T::addToMapHttpHeader);
+        setMapToken("Destination:", &T::addToMapHttpHeader);
+        setMapToken("DNT (Do Not Track):", &T::addToMapHttpHeader);
+        setMapToken("ETag:", &T::addToMapHttpHeader);
+        setMapToken("Expect:", &T::addToMapHttpHeader);
+        setMapToken("Expires:", &T::addToMapHttpHeader);
+        setMapToken("Forwarded:", &T::addToMapHttpHeader);
+        setMapToken("From:", &T::addToMapHttpHeader);
+        setMapToken("Host:", &T::Host);
+        setMapToken("If:", &T::addToMapHttpHeader);
+        setMapToken("If-Match:", &T::addToMapHttpHeader);
+        setMapToken("If-Modified-Since:", &T::addToMapHttpHeader);
+        setMapToken("If-None-Match:", &T::addToMapHttpHeader);
+        setMapToken("If-Range:", &T::addToMapHttpHeader);
+        setMapToken("If-Unmodified-Since:", &T::addToMapHttpHeader);
+        setMapToken("IM (Instance Manipulation):", &T::addToMapHttpHeader);
+        setMapToken("Last-Modified:", &T::addToMapHttpHeader);
+        setMapToken("Link:", &T::addToMapHttpHeader);
+        setMapToken("Location.class:", &T::addToMapHttpHeader);
+        setMapToken("Lock-Token:", &T::addToMapHttpHeader);
+        setMapToken("Max-Forwards:", &T::addToMapHttpHeader);
+        setMapToken("MIME-Version:", &T::addToMapHttpHeader);
+        setMapToken("Origin:", &T::addToMapHttpHeader);
+        setMapToken("Overwrite:", &T::addToMapHttpHeader);
+        setMapToken("P3P (Platform for Privacy Preferences):", &T::addToMapHttpHeader);
+        setMapToken("Pragma:", &T::addToMapHttpHeader);
+        setMapToken("Prefer:", &T::addToMapHttpHeader);
+        setMapToken("Preference-Applied:", &T::addToMapHttpHeader);
+        setMapToken("Proxy-Authenticate:", &T::addToMapHttpHeader);
+        setMapToken("Proxy-Authorization:", &T::addToMapHttpHeader);
+        setMapToken("Proxy-Connection:", &T::addToMapHttpHeader);
+        setMapToken("Range:", &T::addToMapHttpHeader);
+        setMapToken("Referer:", &T::addToMapHttpHeader);
+        setMapToken("Retry-After:", &T::addToMapHttpHeader);
+        setMapToken("Server.class:", &T::addToMapHttpHeader);
+        setMapToken("Set-Cookie:", &T::addToMapHttpHeader);
+        setMapToken("Sec-Fetch-Dest:", &T::addToMapHttpHeader);
+        setMapToken("Sec-Fetch-Mode:", &T::addToMapHttpHeader);
+        setMapToken("Sec-Fetch-Site:", &T::addToMapHttpHeader);
+        setMapToken("Sec-Fetch-User:", &T::addToMapHttpHeader);
+        setMapToken("SLUG:", &T::addToMapHttpHeader);
+        setMapToken("SOAPAction:", &T::addToMapHttpHeader);
+        setMapToken("Status-URI:", &T::addToMapHttpHeader);
+        setMapToken("Strict-Transport-Security:", &T::addToMapHttpHeader);
+        setMapToken("TE:", &T::addToMapHttpHeader);
+        setMapToken("Timeout:", &T::addToMapHttpHeader);
+        setMapToken("Trailer:", &T::addToMapHttpHeader);
+        setMapToken("Transfer-Encoding:", &T::TransfereEncoding);
+        setMapToken("Upgrade:", &T::addToMapHttpHeader);
+        setMapToken("User-Agent:", &T::addToMapHttpHeader);
+        setMapToken("Upgrade-Insecure-Requests:", &T::addToMapHttpHeader);
+        setMapToken("Variant-Vary:", &T::addToMapHttpHeader);
+        setMapToken("Vary:", &T::addToMapHttpHeader);
+        setMapToken("Via:", &T::addToMapHttpHeader);
+        setMapToken("WWW-Authenticate:", &T::addToMapHttpHeader);
+        setMapToken("X-Forwarded-For:", &T::addToMapHttpHeader);
+        setMapToken("X-Forwarded-Proto:", &T::addToMapHttpHeader);
+        setMapToken("X-Frame-Options:", &T::addToMapHttpHeader);
+        setMapToken("X-XSS-Protection:", &T::addToMapHttpHeader);
+    }
 /*
 *====================================================================================
 *|                                  Member Exception                                 |
