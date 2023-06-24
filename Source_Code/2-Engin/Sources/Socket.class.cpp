@@ -162,14 +162,14 @@ const std::string &Socket::getIpAddress() const {
     return _ipAddress;
 }
 
-void Socket::addToken( const std::string & token){
-    _vectorServerNameToken.push_back(std::make_pair(token , token));
+void Socket::addToken( const std::string & defaultName, const std::string & token){
+    _vectorServerNameToken.push_back(std::make_pair(defaultName , token));
 }
 
 void Socket::addServerName( std::vector<std::string> & name, const std::string & token){
     for ( std::vector<std::pair<std::string, std::string> >::iterator it = _vectorServerNameToken.begin();
           it != _vectorServerNameToken.end(); ++it) {
-        if (it->first == token){
+        if (it->second == token){
             _vectorServerNameToken.erase(it);
             for ( std::vector<std::string>::iterator itName = name.begin();
                   itName != name.end(); ++itName) {
@@ -195,7 +195,7 @@ std::string  Socket::findServerName(const std::string &serverName) {
         if (it->first == serverName)
             return it->second;
     }
-    return "";
+    return _vectorServerNameToken.begin()->second;
 }
 
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){
@@ -206,9 +206,7 @@ Socket *Socket::getServer() const {
     return _server;
 }
 
-bool Socket::isServer() const {
-    return _server;
-}
+
 
 
 

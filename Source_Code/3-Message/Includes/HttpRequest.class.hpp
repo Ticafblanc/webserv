@@ -30,15 +30,19 @@ private:
     bool                                                _headerIsComplete;
     bool                                                _chunkedIsComplete;
     bool                                                _bodyIsComplete;
+    bool                                                _requestIsComplete;
     std::vector<char>                                   _buffer;
     std::string                                         _data;
     PegParser<HttpRequest>                              _peg;
     std::string                                         _startLineMethode;
     std::string                                         _startLineURL;
     std::string                                         _startLineVersion;
-    std::map<const std::string, const std::string>      _mapHttpHeaders;
+    std::string                                         _startLineStatusCode;
+    int                                                 _statusCode;
+    std::map< std::string, std::string>                 _mapHttpHeaders;
     Config*                                             _location;
-
+    std::ostringstream                                  _oss;
+    std::string                                         _contentType;
 
 /*
 *====================================================================================
@@ -386,7 +390,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void findBestConfig();
+    void findBestConfig(std::vector<std::pair<std::string, Config> > &UriConfig);
 /**
  * Private methode of server class
  *
@@ -422,7 +426,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void setIndex();
+    bool setIndex();
 
 /**
  * Private methode of server class
@@ -435,7 +439,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void setAutoIndex();
+    bool setAutoIndex();
 
     friend void PegParser<HttpRequest>::setMapTokenHeaderStartLine();
     friend void PegParser<HttpRequest>::setMapTokenHeadersInformation();
@@ -507,7 +511,7 @@ public:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void recvRequest();
+    bool recvRequest();
 
 /**
  * Private methode of server class
@@ -520,7 +524,7 @@ public:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void sendRequest();
+    bool sendRequest();
 
 /*
 *====================================================================================
@@ -546,16 +550,28 @@ public:
  *
  * extract data and put in std::string
  *
- * void sendData();
+ * std::string endHeader(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string getMethode();
+    std::string endHeader(std::string &token);
 
 
 
+
+    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
+
+    void setContent();
+
+    void errorPage();
+
+    void addMapHttpHeader();
+
+    void redirection();
+
+    bool sendRequest(int code);
 };
 
 

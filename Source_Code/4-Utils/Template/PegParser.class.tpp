@@ -385,8 +385,8 @@ public:
        setMapToken("POST", &T::methodePOST);
        setMapToken("DELETE", &T::methodeDELETE);
     }
+
     void setMapTokenHeadersInformation() {
-        setMapToken();
         setMapToken("Accept:", &T::addToMapHttpHeader);
         setMapToken("Accept-Charset:", &T::addToMapHttpHeader);
         setMapToken("Accept-Datetime:", &T::addToMapHttpHeader);
@@ -412,7 +412,7 @@ public:
         setMapToken("Content-Encoding:", &T::addToMapHttpHeader);
         setMapToken("Content-Language:", &T::addToMapHttpHeader);
         setMapToken("Content-Length:", &T::ContentLength);
-        setMapToken("Content-Location.class:", &T::addToMapHttpHeader);
+        setMapToken("Content-Location:", &T::addToMapHttpHeader);
         setMapToken("Content-MD5:", &T::addToMapHttpHeader);
         setMapToken("Content-Range:", &T::addToMapHttpHeader);
         setMapToken("Content-Type:", &T::addToMapHttpHeader);
@@ -438,7 +438,7 @@ public:
         setMapToken("IM (Instance Manipulation):", &T::addToMapHttpHeader);
         setMapToken("Last-Modified:", &T::addToMapHttpHeader);
         setMapToken("Link:", &T::addToMapHttpHeader);
-        setMapToken("Location.class:", &T::addToMapHttpHeader);
+        setMapToken("Location:", &T::addToMapHttpHeader);
         setMapToken("Lock-Token:", &T::addToMapHttpHeader);
         setMapToken("Max-Forwards:", &T::addToMapHttpHeader);
         setMapToken("MIME-Version:", &T::addToMapHttpHeader);
@@ -454,7 +454,7 @@ public:
         setMapToken("Range:", &T::addToMapHttpHeader);
         setMapToken("Referer:", &T::addToMapHttpHeader);
         setMapToken("Retry-After:", &T::addToMapHttpHeader);
-        setMapToken("Server.class:", &T::addToMapHttpHeader);
+        setMapToken("Server:", &T::addToMapHttpHeader);
         setMapToken("Set-Cookie:", &T::addToMapHttpHeader);
         setMapToken("Sec-Fetch-Dest:", &T::addToMapHttpHeader);
         setMapToken("Sec-Fetch-Mode:", &T::addToMapHttpHeader);
@@ -479,6 +479,7 @@ public:
         setMapToken("X-Forwarded-Proto:", &T::addToMapHttpHeader);
         setMapToken("X-Frame-Options:", &T::addToMapHttpHeader);
         setMapToken("X-XSS-Protection:", &T::addToMapHttpHeader);
+        setMapToken("\r\n\r\n", &T::endHeader);
     }
 /*
 *====================================================================================

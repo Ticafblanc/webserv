@@ -36,8 +36,7 @@ private:
     bool                                                _connection;
     int                                                 _events;
     int                                                 _statusCode;
-    std::string                                         _content;
-    std::string                                         _contentType;
+
 
     std::time_t                                         _lastConnection;
     HttpRequest                                         _request;
@@ -143,6 +142,10 @@ public:
     void setEvents(int events);
 
     time_t getLastConnection() const;
+
+    void setContent(const std::string &content);
+
+    void setContentType(const std::string &contentType);
 
 };
 

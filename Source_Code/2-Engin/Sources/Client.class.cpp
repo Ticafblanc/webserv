@@ -53,12 +53,29 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
-    _request.recvRequest();
-//    dd try to close client
+    try {
+        if (_request.recvRequest())
+            _events = EPOLLOUT | EPOLLET;
+    }catch (Exception & e){
+        _request.sendRequest(e.getCode());
+        _connection = false;
+        _config._accessLog.failure();
+        _config._errorLog.writeLogFile(e.what());
+    }
 }
 
 void Client::sendEvent() {
-    _request.sendRequest();
+    if (_events & EPOLLOUT) {
+        try {
+            if (_request.sendRequest())
+                _events = EPOLLIN | EPOLLET;
+        } catch (Exception &e) {
+            _request.sendRequest(e.getCode());
+            _connection = false;
+            _config._accessLog.failure();
+            _config._errorLog.writeLogFile(e.what());
+        }
+    }
 }
 
 /*
@@ -101,4 +118,10 @@ void Client::setEvents(int events) {
     _events = events;
 }
 
+void Client::setContent(const std::string &content) {
+    _content = content;
+}
 
+void Client::setContentType(const std::string &contentType) {
+    _contentType = contentType;
+}

@@ -39,7 +39,7 @@ std::string Listen::parseListenData(const std::string &input) {
             }
         }
         newSock->buildServerSocket();
-        newSock->addToken(_config._tok);
+        newSock->addToken(_ipAddress + ":" + intToString(_port),_config._tok);
         _configBase._mapFdSocket.insert(std::make_pair(newSock->getSocket(), newSock));
     }
     return error;

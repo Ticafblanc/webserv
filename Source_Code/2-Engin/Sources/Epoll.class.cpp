@@ -218,46 +218,40 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
         return;
     }
 
-    try {
+    int events = client->getEvents();
+    if (_events[numberTrigged].events & EPOLLIN) {
 
-        int events = client->getEvents();
-        if (_events[numberTrigged].events & EPOLLIN) {
+        _config._accessLog.writeLogFile("Recv data {");
+        _config._accessLog.addIndent();
+        _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
+        + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
+          "] on socket server [" + intToString(client->getServer()) + "]");
 
-            _config._accessLog.writeLogFile("Recv data {");
-            _config._accessLog.addIndent();
-            _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
-            + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
-              "] on socket server [" + intToString(client->getServer()) + "]");
+        client->recvEvent();
 
-            client->recvEvent();
+        _config._accessLog.removeIndent();
+        _config._accessLog.writeLogFile("}");
 
-            _config._accessLog.removeIndent();
-            _config._accessLog.writeLogFile("}");
-
-        }
-        if (_events[numberTrigged].events & EPOLLOUT) {
-
-            _config._accessLog.writeLogFile("send data {");
-            _config._accessLog.addIndent();
-            _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
-            + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
-            "] on socket server [" + intToString(client->getServer()) + "]");
-
-            client->sendEvent();
-
-            _config._accessLog.removeIndent();
-            _config._accessLog.writeLogFile("}");
-
-        }
-        if (client->getEvents() != events)
-            modSocket(_events[numberTrigged].data.fd, client->getEvents());
-        client->setLastConnection(std::time(NULL));
-    }catch (std::exception & e){
-        if (dynamic_cast<Exception&>(e).getCode() >= 0)
-            client->setConnection(false);
-        _config._accessLog.failure();
-        _config._errorLog.writeLogFile(e.what());
     }
+    if (_events[numberTrigged].events & EPOLLOUT) {
+
+        _config._accessLog.writeLogFile("send data {");
+        _config._accessLog.addIndent();
+        _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
+        + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
+        "] on socket server [" + intToString(client->getServer()) + "]");
+
+        client->sendEvent();
+
+        _config._accessLog.removeIndent();
+        _config._accessLog.writeLogFile("}");
+
+    }
+
+    if (client->getEvents() != events)
+        modSocket(_events[numberTrigged].data.fd, client->getEvents());
+    client->setLastConnection(std::time(NULL));
+
     if (!client->isConnection())
         removeConnexionServer(client);
 }

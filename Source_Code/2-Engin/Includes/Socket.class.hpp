@@ -16,6 +16,7 @@
 #define WEBSERV_SOCKET_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/4-Utils/Includes/Utils.hpp>
 
 class Socket {
 
@@ -332,7 +333,7 @@ public:
 
     std::vector<std::pair<std::string, std::string> > &getVectorServerNameToken();
 
-    void addToken(const std::string &token);
+    void addToken(const std::string & defautName, const std::string &token);
 
     bool checkSocket(int fd);
 

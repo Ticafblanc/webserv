@@ -14,7 +14,10 @@ std::string intToString(int number);
 char** setEnvp(char **envp);
 bool isDirectory(std::string & path);
 bool isFile(std::string & path);
-int autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss);
+bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss);
 std::size_t stringToSizet(const std::string & str);
-
+bool removeDirectory(std::string &path);
+bool removeFile(std::string &path);
+bool setFile(const std::string & path, std::ostringstream &oss);
+std::string addDate();
 #endif //WEBSERVER_UTILS_HPP
