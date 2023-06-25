@@ -33,16 +33,21 @@ private:
     bool                                                _requestIsComplete;
     std::vector<char>                                   _buffer;
     std::string                                         _data;
+    std::vector<std::string>                            _vecdata;
     PegParser<HttpRequest>                              _peg;
     std::string                                         _startLineMethode;
     std::string                                         _startLineURL;
     std::string                                         _startLineVersion;
     std::string                                         _startLineStatusCode;
     int                                                 _statusCode;
+    std::string                                         _queryString;
     std::map< std::string, std::string>                 _mapHttpHeaders;
     Config*                                             _location;
     std::ostringstream                                  _oss;
     std::string                                         _contentType;
+    pid_t                                               _pid;
+    int                                                 _pipeFdIn[2];
+    int                                                 _pipeFdOut[2];
 
 /*
 *====================================================================================
@@ -414,7 +419,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string checkIsCgi();
+    bool checkIsCgi();
 /**
  * Private methode of server class
  *
@@ -572,6 +577,10 @@ public:
     void redirection();
 
     bool sendRequest(int code);
+
+    bool executeCgi();
+
+    bool continueCgi();
 };
 
 

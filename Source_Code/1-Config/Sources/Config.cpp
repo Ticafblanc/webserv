@@ -5,7 +5,7 @@
 #include <Source_Code/1-Config/Includes/Config.hpp>
 
 
-Config::Config(Token & token, char **env)
+Config::Config(Token & token)
 : _workerProcess(1), _workerConnections(10),
   _clientBodyBufferSize(8192), _clientHeaderBufferSize(1024),_clientMaxBodySize(1048576),
   _name(), _index(), _root("/webserv/Docker_build/var/www/default.com"), _uri(), _allowMethods(7),
@@ -15,7 +15,7 @@ Config::Config(Token & token, char **env)
   _accessLog("/webserv/Docker_build/var/log/access.log"),
   _errorLog("/webserv/Docker_build/var/log/error.log"),
   _pidLog("/webserv/Docker_build/var/log/webserv.pid"),
-  _token(token), _tok(), _envp(setEnvp(env)),
+  _token(token), _tok(), _envp(),
   _configBase(*this) {
     _name.push_back("localhost");
     _index.insert("index.html");

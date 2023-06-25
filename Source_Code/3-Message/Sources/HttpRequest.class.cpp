@@ -48,13 +48,15 @@ HttpRequest &HttpRequest::operator=(const HttpRequest &rhs) {
 *====================================================================================
 */
 
+void resetSend(){
+
+}
+
 bool HttpRequest::recvRequest() {
     if (!_headerIsComplete)
         return recvHeader();
-    else if (!_chunkedIsComplete)
-        return recvChunck();
     else
-        return recvBody();
+        return continueCgi();
 }
 
 bool HttpRequest::sendRequest() {
@@ -75,7 +77,7 @@ bool HttpRequest::sendRequest(int code) {
 */
 
 
-bool HttpRequest::recvHeader() {
+bool HttpRequest::recvHeader() {//add resetSend()
     if (recvData(&HttpRequest::headerIsComplete)) {
         _peg.setStringStream(_data);
         _peg.setMapTokenHeaderStartLine();
@@ -88,7 +90,7 @@ bool HttpRequest::recvHeader() {
 bool HttpRequest::headerIsComplete(std::string & str){
     _data += str;
     if (str.find("\r\n\r\n") != std::string::npos){
-        return true;
+        return _headerIsComplete = true;
     }
     return false;
 }
@@ -169,24 +171,18 @@ bool HttpRequest::checkErrorBytesRecv(){
 *====================================================================================
 */
 
-
-
 std::string HttpRequest::methodeGET(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(1, 3, 5))
         throw Exception("Method GET Not Allowed ", 405);
-    std::string cgi = checkIsCgi();
-    if (!cgi.empty()) {
-        if (executCgi()) {
-            throw Exception("CGI in GET fail", 500);
-        }
-    }
-    else if (_oss.str().empty()) {
-        if (setFile(_request.getUrl())) {
+    if(checkIsCgi())
+        return executCgi();
+    findRessource();
+    if (_oss.str().empty()) {
+        if (setFile(_startLineURL, _oss)) {
             throw Exception("impossible to open file", 403);
         }
     }
-    _mapHttpHeaders.clear();
     setContent();
     return std::string();
 }
@@ -195,15 +191,11 @@ std::string HttpRequest::methodePOST(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(2, 3, 6))
         throw Exception("Method Post Not Allowed ", 405);
-    std::string cgi = checkIsCgi();
-    if (cgi.empty())
-        throw Exception("Method Post has not a cgi ", 405);
-    if (!_chunkedIsComplete)
-        recvChunck();
-    else if (!_bodyIsComplete)
-        recvBody();
-    if (_requestIsComplete)
-        setContent();
+    if(checkIsCgi())
+        return executCgi();
+    else if (!_location->_autoindex || !setAutoIndex()) {
+        throw Exception("Method Post has not an exec ", 405);
+    }
     return std::string();
 }
 
@@ -235,7 +227,6 @@ void HttpRequest::extractHeaderData() {
     _peg.setMapTokenHeadersInformation();
     while(!_peg.checkIsEmpty() && !_headerIsComplete)
         _peg.findToken(*this,  0);
-    findRessource();
 }
 
 /*
@@ -298,20 +289,20 @@ bool HttpRequest::setAutoIndex(){
     return autoIndexToHtml(_location->_root, _startLineURL, _oss);
 }
 
-std::string HttpRequest::checkIsCgi() {
-    std::map<std::string, std::string> mapCGI;
-    mapCGI["php"] = "/usr/bin/php";
-    mapCGI["py"] = "/usr/bin/python";
-    mapCGI["sh"] = "/usr/bin/bash";
+bool HttpRequest::checkIsCgi() {
     std::string & url = _startLineURL;
-    std::size_t pos = url.find_last_of('.');
-    if (pos != std::string::npos) {
-        std::map<std::string, std::string>::iterator cgi = mapCGI.find(url.substr(pos + 1));
-        if (cgi != _config._mapMimeType.end()){
-            return cgi->second;
+    std::size_t slashPos = _startLineURL.find_last_of('/');
+    std::size_t dotPos = _startLineURL.find_last_of('.');
+    std::size_t questionPos = _startLineURL.find_last_of('?');
+    if (dotPos != std::string::npos && dotPos < slashPos) {
+        if (questionPos != std::string::npos) {
+            _queryString = _startLineURL.substr(questionPos + 1);
+            _startLineURL = _startLineURL.substr(0, questionPos);
         }
+        if (_startLineURL.substr(dotPos + 1) == "php")
+            return isExec(_startLineURL);
     }
-    return "";
+    return false;
 }
 
 std::string HttpRequest::ContentLength(std::string &token) {
@@ -362,6 +353,26 @@ std::string HttpRequest::endHeader(std::string& token) {
 *====================================================================================
 */
 
+bool HttpRequest::executeCgi(){
+    if (launchChild(_pipeFdIn, _pipeFdOut, _pid, setArgv("/usr/bin/php", _startLineURL),
+                setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
+        throw Exception("error to create child process", 500);
+    close(_pipeFdIn[STDIN_FILENO]);
+    close(_pipeFdOut[STDOUT_FILENO]);
+    return continueCgi();
+    throw Exception("CGI in GET fail", 500);
+}
+
+bool HttpRequest::continueCgi(){
+    throw Exception("CGI in GET fail", 500);
+};
+
+/*
+*====================================================================================
+*|                                       set Conetent                               |
+*====================================================================================
+*/
+
 void HttpRequest::errorPage(){
     _oss.clear();
     std::string path(_location->_code.getStatusPage(_statusCode));
@@ -400,20 +411,18 @@ void HttpRequest::setContent(){
     _data += _location->_code.getStatusCode(_statusCode) + "\r\n";
     _data += "Date: " + addDate() + "\r\n";
     _data += "Server: webserv/1.0 (ubuntu)\r\n";
+    addMapHttpHeader();
     if (!_oss.str().empty()) {
         if (static_cast<int>(_oss.str().size()) >= (_location->_clientMaxBodySize / 2)) {
             _data += "Transfer-Encoding: chunked\r\n";
-            for (int i = 0; i < _oss.str().size() ; i += (_location->_clientMaxBodySize / 2)) {
-
-
-            }
+            chunkData(_vecdata, _oss.str(), (_location->_clientMaxBodySize / 2));
         } else {
             _data += "Content-Length: " + intToString(_oss.str().size()) + "\r\n";
+            _vecdata.push_back(_oss.str());
         }
         _data += "Content-Type: " + _contentType + "\r\n";
     }
-    addMapHttpHeader();
-    _data += "\r\n" + _oss.str();
+    _data += "\r\n";
 }
 
 

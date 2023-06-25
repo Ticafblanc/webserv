@@ -54,8 +54,10 @@ bool Client::operator==(const Client & rhs) {
 
 void Client::recvEvent() {
     try {
-        if (_request.recvRequest())
+        if (_request.recvRequest()) {
             _events = EPOLLOUT | EPOLLET;
+            _request.resetRecv();
+        }
     }catch (Exception & e){
         _request.sendRequest(e.getCode());
         _connection = false;
@@ -67,8 +69,10 @@ void Client::recvEvent() {
 void Client::sendEvent() {
     if (_events & EPOLLOUT) {
         try {
-            if (_request.sendRequest())
+            if (_request.sendRequest()){
                 _events = EPOLLIN | EPOLLET;
+                _request.resetSend();
+            }
         } catch (Exception &e) {
             _request.sendRequest(e.getCode());
             _connection = false;

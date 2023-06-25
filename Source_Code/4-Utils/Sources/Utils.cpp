@@ -19,19 +19,13 @@ std::size_t stringToSizet(const std::string & str){
     return size;
 }
 
-char** setEnvp(char **envp) {
-    if (envp) {
-        std::vector<char *> vecEnvp;
-        for (int i = 0; envp[i] != NULL; ++i) {
-            char *tmp = strdup(envp[i]);
-            vecEnvp.push_back(tmp);
-        }
-        vecEnvp.push_back(NULL);
-        char **newEnvp = new char *[vecEnvp.size()];
-        std::copy(vecEnvp.begin(), vecEnvp.end(), newEnvp);
-        return newEnvp;
+std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
+    std::vector<char*> env;
+    for (size_t i = 0; i < envVec.size(); ++i) {
+        env.push_back(const_cast<char*>(envVec[i].c_str()));
     }
-    return NULL;
+    env.push_back(NULL);
+    return env;
 }
 
 
@@ -47,6 +41,14 @@ bool isFile(std::string & path) {
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISREG(statbuf.st_mode);
+}
+
+bool isExec(std::string & path) {
+    struct stat statbuf;
+    if (stat(path.c_str(), &statbuf) != 0)
+        return false;
+    return S_ISREG(statbuf.st_mode) && (statbuf.st_mode & S_IXUSR ||
+            statbuf.st_mode & S_IXGRP ||statbuf.st_mode & S_IXOTH);
 }
 
 bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss){
@@ -96,39 +98,52 @@ bool setFile(const std::string & path, std::ostringstream &oss){
     return true;
 }
 
-void executCgi() {
-    _request.recvMessage();
-    int status;
-    int pipefd[2];
-    if (pipe(pipefd) == -1)
-        throw Exception("fail to to create pipe", 500);
-    pid_t pid = fork();
-    if (pid == -1)
-        throw Exception("fail to fork", 500);
-    if (pid == 0) {
-        close(pipefd[STDOUT_FILENO]);
-        dup2(pipefd[STDIN_FILENO], STDIN_FILENO);
-        close(pipefd[STDIN_FILENO]);
-        char* const argv[] = {"/path/to/cgi/script", NULL};
-        execv(argv[0], argv);
-        exit(EXIT_FAILURE);
-    } else {
-        // We're in the parent process
-        close(pipefd[0]); // Close the read end of the pipe in the parent
+std::vector<char*>  setPhpEnv(const std::string& method, const std::string& query, std::map<std::string, std::string>& headers) {
+    std::vector<std::string> envVec;
 
-        char buffer[4096];
-        ssize_t read_size;
-        while ((read_size = read(STDIN_FILENO, buffer, sizeof(buffer))) > 0) {
-            write(pipefd[1], buffer, read_size);
-        }
-
-        close(pipefd[1]); // This sends an EOF to the child
-
-
-        waitpid(pid, &status, 0);
+    envVec.push_back("REQUEST_METHOD=" + method);
+    if (!query.empty()) {
+        envVec.push_back("QUERY_STRING=" + query);
     }
+    for (std::map<std::string, std::string>::iterator it = headers.begin();
+    it != headers.end(); ++it) {
+        std::string envVar = "HTTP_" + it->first;
+        std::replace(envVar.begin(), envVar.end(), '-', '_');
+        std::transform(envVar.begin(), envVar.end(), envVar.begin(), ::toupper);
+        envVar += "=" + it->second;
+        envVec.push_back(envVar);
+    }
+    return setEnvp(envVec);
+}
 
-    return 0;
+std::vector<char*> setArgv(const std::string& executablePath, const std::string& filePath){
+    std::vector<char*> argv;
+    argv.push_back(const_cast<char*>(executablePath.c_str()));
+    argv.push_back(const_cast<char*>(filePath.c_str()));
+    argv.push_back(NULL);
+
+    return argv;
+}
+
+bool launchChild(int * pipefdIn,int * pipefdOut, pid_t &pid,
+                 std::vector<char*> argv, std::vector<char*> envp) {
+
+    if (pipe(pipefdIn) == -1 || pipe(pipefdOut) == -1)
+        return false;
+    pid = fork();
+    if (pid == -1)
+        return false;
+    if (pid == 0) {
+        close(pipefdIn[STDOUT_FILENO]);
+        close(pipefdOut[STDIN_FILENO]);
+        dup2(pipefdIn[STDIN_FILENO], STDIN_FILENO);
+        dup2(pipefdOut[STDOUT_FILENO], STDOUT_FILENO);
+        close(pipefdIn[STDIN_FILENO]);
+        close(pipefdOut[STDOUT_FILENO]);
+        execve(argv[0], argv.data(), envp.data());
+        exit(EXIT_FAILURE);
+    }
+    return true;
 }
 
 std::string addDate() {
@@ -137,4 +152,12 @@ std::string addDate() {
     char buffer[80];
     std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeInfo);
     return std::string(buffer);
+}
+
+void chunkData(std::vector<std::string> & vec, std::string data, std::size_t size) {
+    for (std::size_t i = 0; i < data.size(); i += size + 1) {
+        vec.push_back(data.substr(i, (data.size() > size) ? size : data.size()) + "\r\n");
+        data = data.substr(size + 1);
+    }
+    vec.push_back("\0\r\n\r\n");
 }
