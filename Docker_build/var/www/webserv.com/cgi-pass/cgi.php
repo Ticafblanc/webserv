@@ -9,8 +9,8 @@
     }
 
 
-    // $_POST for application/x-www-form-urlencoded ou multipart/form-data //
-    //php://input for other content
+//     $_POST for application/x-www-form-urlencoded ou multipart/form-data //
+//     php://input for other content
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postData = file_get_contents('php://input');
         header('Content-Type: text/html; charset=utf-8');
