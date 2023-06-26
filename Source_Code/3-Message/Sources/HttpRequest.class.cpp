@@ -56,7 +56,7 @@ bool HttpRequest::recvRequest() {
     if (!_headerIsComplete)
         return recvHeader();
     else
-        return continueCgi();
+        return continuePhp();
 }
 
 bool HttpRequest::sendRequest() {
@@ -92,47 +92,6 @@ bool HttpRequest::headerIsComplete(std::string & str){
     if (str.find("\r\n\r\n") != std::string::npos){
         return _headerIsComplete = true;
     }
-    return false;
-}
-
-bool HttpRequest::recvChunck() {
-    if (recvData(&HttpRequest::chunkIsComplete)) {
-        if (!executeCGI())
-            throw Exception("impossible to open file", 403);
-        return _requestIsComplete = true;
-    }
-    return false;
-}
-
-bool HttpRequest::chunkIsComplete(std::string & str){
-    std::size_t startPosCRLF = str.find("\r\n");
-    if (startPosCRLF != std::string::npos) {
-        std::size_t chunkSize = stringToSizet(_data.substr(0, startPosCRLF)) + 2;
-        if (chunkSize == 0)
-            return (_chunkedIsComplete = true);
-        else {
-            _contentLength = chunkSize;
-            _data += str.substr(chunkSize + 2);
-            recvData(&HttpRequest::bodyIsComplete);
-            _data += _data.substr(0, str.size() - 2);
-        }
-    }
-    return false;
-}
-
-bool HttpRequest::recvBody() {
-    if (_data.size() >= _contentLength || recvData(&HttpRequest::bodyIsComplete)) {
-        if (!executeCGI())
-            throw Exception("CGI in GET fail", 500);
-        return _requestIsComplete = true;
-    }
-    return false;
-}
-
-bool HttpRequest::bodyIsComplete(std::string & str){
-    _data += str;
-    if (_data.size() >= _contentLength)
-        return true;
     return false;
 }
 
@@ -175,15 +134,17 @@ std::string HttpRequest::methodeGET(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(1, 3, 5))
         throw Exception("Method GET Not Allowed ", 405);
-    if(checkIsCgi())
-        return executCgi();
-    findRessource();
-    if (_oss.str().empty()) {
-        if (setFile(_startLineURL, _oss)) {
-            throw Exception("impossible to open file", 403);
+    if(_location->_cgiPass.empty() || !checkIsPHP()) {
+        findRessource();
+        if (_oss.str().empty()) {
+            if (setFile(_startLineURL, _oss)) {
+                throw Exception("impossible to open file", 403);
+            }
         }
+        setContent();
+        return "";
     }
-    setContent();
+    executePhp();
     return std::string();
 }
 
@@ -191,11 +152,10 @@ std::string HttpRequest::methodePOST(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(2, 3, 6))
         throw Exception("Method Post Not Allowed ", 405);
-    if(checkIsCgi())
-        return executCgi();
-    else if (!_location->_autoindex || !setAutoIndex()) {
-        throw Exception("Method Post has not an exec ", 405);
+    if(!checkIsPHP()) {
+        findPostRessource();
     }
+    executePhp();
     return std::string();
 }
 
@@ -203,11 +163,10 @@ std::string HttpRequest::methodeDELETE(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(4, 5, 6))
         throw Exception("Method GET Not Allowed ", 405);
-    if (_oss.str().empty()) {
-        if (!removeDirectory(_startLineURL))
-            throw Exception("fail to remove ressource", 500);
-        _statusCode = 204;
-    }
+    findRessource();
+    if (!removeDirectory(_startLineURL))
+        throw Exception("fail to remove ressource", 500);
+    _statusCode = 204;
     return std::string();
 }
 
@@ -270,6 +229,14 @@ void HttpRequest::findRessource() {
 
 }
 
+void HttpRequest::findPostRessource() {
+    if (!isExec(_startLineURL)) {
+        findRessource();
+        if (_oss.str().empty())
+            throw Exception("Method Post has not an exec ", 405);
+    }
+}
+
 bool HttpRequest::setIndex(){
     for (std::set<std::string>::iterator  itSet = _location->_index.begin();
          itSet != _location->_index.end() ; ++itSet) {
@@ -289,7 +256,7 @@ bool HttpRequest::setAutoIndex(){
     return autoIndexToHtml(_location->_root, _startLineURL, _oss);
 }
 
-bool HttpRequest::checkIsCgi() {
+bool HttpRequest::checkIsPHP() {
     std::string & url = _startLineURL;
     std::size_t slashPos = _startLineURL.find_last_of('/');
     std::size_t dotPos = _startLineURL.find_last_of('.');
@@ -353,19 +320,108 @@ std::string HttpRequest::endHeader(std::string& token) {
 *====================================================================================
 */
 
-bool HttpRequest::executeCgi(){
-    if (launchChild(_pipeFdIn, _pipeFdOut, _pid, setArgv("/usr/bin/php", _startLineURL),
+bool HttpRequest::executePhp(){
+    if (launchChild(_pipeFdIn, _pipeFdOut, _pid,
+                    setArgv("/usr/bin/php", _startLineURL),
                 setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
         throw Exception("error to create child process", 500);
     close(_pipeFdIn[STDIN_FILENO]);
     close(_pipeFdOut[STDOUT_FILENO]);
-    return continueCgi();
-    throw Exception("CGI in GET fail", 500);
+    if (write(_pipeFdIn[STDOUT_FILENO], _data.data(), _data.size()) == -1)
+        throw Exception("error to write in child", 500);
+    _data.clear();
+    return continuePhp();
 }
 
-bool HttpRequest::continueCgi(){
-    throw Exception("CGI in GET fail", 500);
+bool HttpRequest::continuePhp(){
+    if (recvData(_methodeTorecv)){
+        close(_pipeFdIn[STDOUT_FILENO]);
+        int status;
+        waitpid(_pid, &status,0);
+        if (status != 0)
+            throw Exception("CGI in GET fail", 500);
+        readData();
+        close(_pipeFdOut[STDIN_FILENO]);
+        controleHeader();
+        setContent();
+    }
+    return false;
+
+
 };
+
+void HttpRequest::controleHeader(){
+    std::string line;
+    while (std::getline(_data, line)){
+
+    }
+
+}
+
+void HttpRequest::readData(){
+    _buffer.resize(_config._clientBodyBufferSize);
+    while (true) {
+        _buffer.clear();
+        _bytesRecv = read(_pipeFdOut[STDIN_FILENO], _buffer.data(), _buffer.size());
+        if (static_cast<int>(_bytesRecv) == -1)
+            throw Exception("Fail To recv output child", 500);
+        _oss.write(&_buffer[0], _buffer.size());
+    }
+}
+
+void HttpRequest::writeToChild(){
+    if (write(_pipeFdIn[STDOUT_FILENO], _data.data(), _data.size()) == -1)
+        throw Exception("error to write in child", 500);
+    _data.clear();
+}
+
+bool HttpRequest::chunkIsComplete(std::string & str){
+    while (!str.empty()) {
+        std::size_t startPosCRLF = str.find("\r\n");
+        if (startPosCRLF != std::string::npos) {
+            std::size_t chunkSize = stringToSizet(str.substr(0, startPosCRLF));
+            if (chunkSize == 0)
+                return (_chunkedIsComplete = true);
+            else {
+                str = str.substr(startPosCRLF + 2);
+                _contentLength = chunkSize;
+                if (bodyChunkIsComplete(str))
+                    continue;
+                if (!recvData(&HttpRequest::bodyChunkIsComplete))
+                    return false;
+            }
+        }
+    }
+    return false;
+}
+
+bool HttpRequest::bodyIsComplete(std::string & str){
+    _data += str;
+    if (_data.size() >= _contentLength) {
+        writeToChild();
+        return true;
+    }
+    return false;
+}
+
+bool HttpRequest::bodyChunkIsComplete(std::string & str){
+    std::size_t startPosCRLF = str.find("\r\n");
+    if (startPosCRLF != std::string::npos) {
+        _data += str.substr(0, startPosCRLF);
+        str = str.substr(0, startPosCRLF + 2);
+    }else {
+        _data += str;
+    }
+    if (_data.size() == _contentLength) {
+        writeToChild();
+        _data = str;
+        return true;
+    }
+    if (_data.size() > _contentLength){
+        throw Exception("body too large", 413);
+    }
+    return false;
+}
 
 /*
 *====================================================================================

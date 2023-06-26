@@ -12,6 +12,8 @@
 class HttpRequest {
 /*>*******************************private section**********************************/
 
+typedef bool (HttpRequest::*dataIsComplete)(std::string &);
+
 private:
 
 
@@ -31,6 +33,7 @@ private:
     bool                                                _chunkedIsComplete;
     bool                                                _bodyIsComplete;
     bool                                                _requestIsComplete;
+    dataIsComplete                                      _methodeTorecv;
     std::vector<char>                                   _buffer;
     std::string                                         _data;
     std::vector<std::string>                            _vecdata;
@@ -419,7 +422,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool checkIsCgi();
+    bool checkIsPHP();
 /**
  * Private methode of server class
  *
@@ -578,9 +581,19 @@ public:
 
     bool sendRequest(int code);
 
-    bool executeCgi();
+    bool executePhp();
 
-    bool continueCgi();
+    bool continuePhp();
+
+    void findPostRessource();
+
+    void readData();
+
+    void writeToChild();
+
+    bool bodyChunkIsComplete(std::string &str);
+
+    void controleHeader();
 };
 
 

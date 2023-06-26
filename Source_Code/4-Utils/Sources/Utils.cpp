@@ -134,12 +134,10 @@ bool launchChild(int * pipefdIn,int * pipefdOut, pid_t &pid,
     if (pid == -1)
         return false;
     if (pid == 0) {
-        close(pipefdIn[STDOUT_FILENO]);
-        close(pipefdOut[STDIN_FILENO]);
         dup2(pipefdIn[STDIN_FILENO], STDIN_FILENO);
+        close(pipefdOut[STDIN_FILENO]);
         dup2(pipefdOut[STDOUT_FILENO], STDOUT_FILENO);
-        close(pipefdIn[STDIN_FILENO]);
-        close(pipefdOut[STDOUT_FILENO]);
+        close(pipefdIn[STDOUT_FILENO]);
         execve(argv[0], argv.data(), envp.data());
         exit(EXIT_FAILURE);
     }

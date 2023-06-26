@@ -33,6 +33,7 @@
 #include <ctime>
 #include <limits>
 #include <sys/stat.h>
+#include <sys/wait.h>
 
 #include <Source_Code/0-Main/Includes/Exception.hpp>
 //__FILE_NAME__

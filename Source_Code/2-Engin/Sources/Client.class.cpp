@@ -26,7 +26,7 @@ Client::~Client() {}
 
 Client::Client(const Client &other)
 : Socket(other), _config(other._config), _connection(other._connection), _events(other._events),
-_statusCode(other._statusCode), _content(other._content), _contentType(other._contentType), _serverToken(other._serverToken),
+_statusCode(other._statusCode), , _serverToken(other._serverToken),
 _lastConnection(other._lastConnection), _request(other._request){}
 
 Client& Client::operator=(const Client& rhs){
@@ -35,8 +35,6 @@ Client& Client::operator=(const Client& rhs){
         this->_connection = rhs._connection;
         this->_events = rhs._events;
         this->_statusCode = rhs._statusCode;
-        this->_content = rhs._content;
-        this->_contentType = rhs._contentType;
         this->_request = rhs._request;
     }
     return *this;
@@ -59,10 +57,15 @@ void Client::recvEvent() {
             _request.resetRecv();
         }
     }catch (Exception & e){
-        _request.sendRequest(e.getCode());
-        _connection = false;
-        _config._accessLog.failure();
-        _config._errorLog.writeLogFile(e.what());
+        if (e.getCode() == 0 ) {
+            _connection = false;
+            _config._accessLog.failure();
+        } else {
+            _request.sendRequest(e.getCode());
+            _connection = false;
+            _config._accessLog.failure();
+            _config._errorLog.writeLogFile(e.what());
+        }
     }
 }
 
