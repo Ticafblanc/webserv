@@ -88,7 +88,12 @@ static void launcher(Config & config) {
         try {
             epoll.EpollWait();
         }catch (std::exception & e){
-            config._errorLog.writeLogFile(e.what());
+            config._accessLog.setIndent("");
+            config._accessLog.setLogEnable(true);
+            std::ostringstream oss;
+            oss << "last event >> " << config._accessLog;
+            config._errorLog.writeTimeLogFile(oss.str());
+            config._errorLog.writeTimeLogFile(e.what());
         }
     }
 }

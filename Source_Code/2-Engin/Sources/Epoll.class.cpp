@@ -69,24 +69,24 @@ bool Epoll::EpollWait(int timeOut) {
 }
 
 bool Epoll::EpollWait() {
-    _config._accessLog.writeLogFile("Epoll Wait ...");
+    _config._accessLog.writeMessageLogFile("Epoll Wait ...");
     _numberTriggeredEvents = epoll_wait(_epollInstanceFd, _events, _config._workerConnections, -1);
     if ( _numberTriggeredEvents == -1) {
         _config._accessLog.failure();
         throw Exception(strerror(errno), 503);
     }
-    _config._accessLog.writeLogFile("[" + intToString(_numberTriggeredEvents) + "] New Events {");
+    _config._accessLog.writeMessageLogFile("[" + intToString(_numberTriggeredEvents) + "] New Events {");
     _config._accessLog.addIndent();
     manageEvent();
     _config._accessLog.removeIndent();
-    _config._accessLog.writeLogFile("}");
+    _config._accessLog.writeMessageLogFile("}");
     return (_numberTriggeredEvents > 0);
 }
 
 void Epoll::addSocket(int socket, int events){
-    _config._accessLog.writeLogFile("Add Socket [" +
-    intToString(socket) + "] to Epoll with events flag [" +
-    _config._accessLog.convertEventsTostring(events) + "]");
+    _config._accessLog.writeMessageLogFile("Add Socket [" +
+                                        intToString(socket) + "] to Epoll with events flag [" +
+                                        _config._accessLog.convertEventsTostring(events) + "]");
 
     setEpollEvent(socket, events);
     setEpollCtl(EPOLL_CTL_ADD) ;
@@ -96,9 +96,9 @@ void Epoll::addSocket(int socket, int events){
 }
 
 void Epoll::modSocket(int socket, int events){
-    _config._accessLog.writeLogFile("Mod Socket [" +
-    intToString(socket) + "] to Epoll with events flag [" +
-    _config._accessLog.convertEventsTostring(events) + "]");
+    _config._accessLog.writeMessageLogFile("Mod Socket [" +
+                                        intToString(socket) + "] to Epoll with events flag [" +
+                                        _config._accessLog.convertEventsTostring(events) + "]");
 
     setEpollEvent(socket, events);
     setEpollCtl(EPOLL_CTL_MOD);
@@ -107,8 +107,8 @@ void Epoll::modSocket(int socket, int events){
 }
 
 void Epoll::removeSocket(int socket){
-    _config._accessLog.writeLogFile("Remove Socket [" +
-    intToString(socket) + "]");
+    _config._accessLog.writeMessageLogFile("Remove Socket [" +
+                                        intToString(socket) + "]");
 
     setEpollEvent(socket, 0);
     setEpollCtl(EPOLL_CTL_DEL);
@@ -119,7 +119,7 @@ void Epoll::removeSocket(int socket){
 }
 
 void Epoll::launchEpoll(){
-    _config._accessLog.writeLogFile("Create Epoll Instance ...");
+    _config._accessLog.writeMessageLogFile("Create Epoll Instance ...");
 
     createEpollInstance(_config._mapFdSocket.size());
 
@@ -127,8 +127,8 @@ void Epoll::launchEpoll(){
 
     for (std::map<int, Socket*>::iterator it = _config._mapFdSocket.begin();
          it != _config._mapFdSocket.end(); ++it) {
-        _config._accessLog.writeLogFile("starts monitoring on [" +
-        it->second->getIpAddress() + ":" + intToString(it->second->getPort()) + "]");
+        _config._accessLog.writeMessageLogFile("starts monitoring on [" +
+                                            it->second->getIpAddress() + ":" + intToString(it->second->getPort()) + "]");
         addSocket(it->first, EPOLLIN);
         _config._accessLog.success();
     }
@@ -137,9 +137,10 @@ void Epoll::launchEpoll(){
 void Epoll::manageEvent() {
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
 
-        _config._accessLog.writeLogFile("Event number [" + intToString(i) +
-        "] with an event fd [ " + intToString(_events[i].data.fd) + "] and events flag => [" +
-        _config._accessLog.convertEventsTostring(_events[i].events) + "]");
+        _config._accessLog.writeMessageLogFile("Event number [" + intToString(i) +
+                                            "] with an event fd [ " + intToString(_events[i].data.fd) +
+                                            "] and events flag => [" +
+                                            _config._accessLog.convertEventsTostring(_events[i].events) + "]");
 
         std::map<int, Socket*>::iterator it = _config._mapFdSocket.find(_events[i].data.fd);
         if (it != _config._mapFdSocket.end() && (it->second->getServer()))
@@ -160,35 +161,39 @@ void Epoll::addConnexion(int numberTrigged, Socket * server) {
     if ((!(_events[numberTrigged].events & EPOLLERR)) ||(!(_events[numberTrigged].events & EPOLLHUP))
     || (!(_events[numberTrigged].events & EPOLLRDHUP)) || (_events[numberTrigged].events & EPOLLIN)) {
 
-        _config._accessLog.writeLogFile("Accept new client {");
+        _config._accessLog.writeMessageLogFile("Accept new client {");
         _config._accessLog.addIndent();
         try {
 
             Client* newClient = new Client(_events[numberTrigged], _config, server);
 
-            _config._accessLog.writeLogFile("Address ["  + newClient->getIpAddress() + ":"
-            + intToString(newClient->getPort()) + "] with socket [" + intToString(newClient->getSocket()) +
-            "] on socket server [" + intToString(newClient->getServer()->getSocket()) + "]");
+            _config._accessLog.writeMessageLogFile("Address [" + newClient->getIpAddress() + ":"
+                                                + intToString(newClient->getPort()) + "] with socket [" +
+                                                intToString(newClient->getSocket()) +
+                                                "] on socket server [" +
+                                                intToString(newClient->getServer()->getSocket()) + "]");
 
             addSocket(newClient->getSocket(), newClient->getEvents());
             _config._mapFdSocket[newClient->getSocket()] = newClient;
         }catch (std::exception & e){
             _config._accessLog.failure();
-            _config._errorLog.writeLogFile(e.what());
+            _config._errorLog.writeMessageLogFile(e.what());
         }
         _config._accessLog.removeIndent();
-        _config._accessLog.writeLogFile("}");
-        _config._accessLog.writeLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
+        _config._accessLog.writeMessageLogFile("}");
+        _config._accessLog.writeMessageLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
     }
 }
 
 void Epoll::removeConnexionServer(Socket* server) {
 
-    _config._accessLog.writeLogFile("Remove client {");
+    _config._accessLog.writeMessageLogFile("Remove client {");
     _config._accessLog.addIndent();
-    _config._accessLog.writeLogFile("Address ["  + server->getIpAddress() + ":"
-    + intToString(server->getPort()) + "] with socket [" + intToString(server->getSocket()) +
-    "] on socket server [" + intToString(dynamic_cast<Client*>(server)->getServer()) + "]");
+    _config._accessLog.writeMessageLogFile("Address [" + server->getIpAddress() + ":"
+                                        + intToString(server->getPort()) + "] with socket [" +
+                                        intToString(server->getSocket()) +
+                                        "] on socket server [" +
+                                        intToString(dynamic_cast<Client *>(server)->getServer()->getSocket()) + "]");
 
     removeSocket(server->getSocket());
     int socket = server->getSocket();
@@ -196,8 +201,8 @@ void Epoll::removeConnexionServer(Socket* server) {
     _config._mapFdSocket.erase(socket);
 
     _config._accessLog.removeIndent();
-    _config._accessLog.writeLogFile("}");
-    _config._accessLog.writeLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
+    _config._accessLog.writeMessageLogFile("}");
+    _config._accessLog.writeMessageLogFile("Connexion available [" + intToString(_config._workerConnections) + "]");
 
 }
 
@@ -221,30 +226,32 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
     int events = client->getEvents();
     if (_events[numberTrigged].events & EPOLLIN) {
 
-        _config._accessLog.writeLogFile("Recv data {");
+        _config._accessLog.writeMessageLogFile("Recv data {");
         _config._accessLog.addIndent();
-        _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
-        + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
-          "] on socket server [" + intToString(client->getServer()) + "]");
+        _config._accessLog.writeMessageLogFile("Address [" + client->getIpAddress() + ":"
+                                            + intToString(client->getPort()) + "] with socket [" +
+                                            intToString(client->getSocket()) +
+                                            "] on socket server [" + intToString(client->getServer()->getSocket()) + "]");
 
         client->recvEvent();
 
         _config._accessLog.removeIndent();
-        _config._accessLog.writeLogFile("}");
+        _config._accessLog.writeMessageLogFile("}");
 
     }
     if (_events[numberTrigged].events & EPOLLOUT) {
 
-        _config._accessLog.writeLogFile("send data {");
+        _config._accessLog.writeMessageLogFile("send data {");
         _config._accessLog.addIndent();
-        _config._accessLog.writeLogFile("Address [" + client->getIpAddress() + ":"
-        + intToString(client->getPort()) + "] with socket [" + intToString(client->getSocket()) +
-        "] on socket server [" + intToString(client->getServer()) + "]");
+        _config._accessLog.writeMessageLogFile("Address [" + client->getIpAddress() + ":"
+                                            + intToString(client->getPort()) + "] with socket [" +
+                                            intToString(client->getSocket()) +
+                                            "] on socket server [" + intToString(client->getServer()->getSocket()) + "]");
 
         client->sendEvent();
 
         _config._accessLog.removeIndent();
-        _config._accessLog.writeLogFile("}");
+        _config._accessLog.writeMessageLogFile("}");
 
     }
 

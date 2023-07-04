@@ -29,25 +29,45 @@ void Log::setLog(const std::string &pathToLogFile) {
     file.close();
 }
 
-void Log::writeLogFile(const std::string& message) {
+void Log::writeTimeLogFile(const std::string& message) {
     std::time_t timestamp = std::time(NULL);
 
     std::string timestampStr = std::ctime(&timestamp);
 
-    timestampStr = timestampStr.substr(0, timestampStr.length() - 1);
-    std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
-    if (!logfile.is_open())
-        throw LogException("fail to open file");
-    logfile << "[" << timestampStr << "] " << _indent << message << std::endl;
-    logfile.close();
+    timestampStr = "[" + timestampStr.substr(0, timestampStr.length() - 1) +  "] ";
 }
 
-void Log::writePidLogFile(const std::string& message) {
-    std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
-    if (!logfile.is_open())
-        throw LogException("fail to open file");
-    logfile << _indent << message << std::endl;
-    logfile.close();
+bool Log::setTime() {
+    std::time_t timestamp = std::time(NULL);
+    if (timestamp == _timestamp)
+        return false;
+    _timestampStr = std::ctime(&timestamp);
+    _timestampStr = "[" + _timestampStr.substr(0, _timestampStr.length() - 1) +  "] ";
+    return true;
+}
+
+void Log::setMessage(const std::string& message) {
+    _message = message;
+}
+
+void Log::writeMessageLogFile(const std::string& message) {
+    setMessage(message);
+    if (_logEnable) {
+        std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
+        if (!logfile.is_open())
+            throw LogException("fail to open file");
+        if (setTime())
+            logfile << "\n" << _timestampStr << "\n" << std::endl;
+        logfile << *this;
+        logfile.close();
+    }
+}
+
+
+
+std::ostream &operator<<(std::ostream &os, const Log &log) {
+    os << log._indent << log._message;
+    return os;
 }
 
 void Log::printLogFile() {
@@ -78,15 +98,24 @@ std::string Log::convertEventsTostring(int events){
 
 void Log::success() {
     addIndent();
-    writePidLogFile(" >>>> Sucesss <<<<");
+    writeMessageLogFile(" >>>> Sucesss <<<<");
     removeIndent();
 }
 
 void Log::failure() {
     addIndent();
-    writePidLogFile(" >>>> Failure <<<<");
+    writeMessageLogFile(" >>>> Failure <<<<");
     removeIndent();
 }
+
+void Log::setLogEnable(bool logEnable) {
+    _logEnable = logEnable;
+}
+
+void Log::setIndent(const std::string &indent) {
+    _indent = indent;
+}
+
 Log::LogException::LogException(const char * message)
         : _message(message) {}
 

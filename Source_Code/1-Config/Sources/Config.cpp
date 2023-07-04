@@ -19,7 +19,7 @@ Config::Config(Token & token)
   _configBase(*this) {
     _name.push_back("localhost");
     _index.insert("index.html");
-    _pidLog.writePidLogFile(intToString(getpid()));
+    _pidLog.writeMessageLogFile(intToString(getpid()));
 }//@todo add free envp
 
 Config::~Config() {

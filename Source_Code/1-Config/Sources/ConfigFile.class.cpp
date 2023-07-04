@@ -26,27 +26,31 @@ ConfigFile::~ConfigFile() {}
 void ConfigFile::printData(){
     for (std::map<int, Socket*>::iterator itSock = _config._mapFdSocket.begin();
          itSock != _config._mapFdSocket.end(); ++itSock) {
-        _config._pidLog.writePidLogFile("Socket fd => " + intToString(itSock->first));
-        _config._pidLog.writePidLogFile("ipaddress => " + itSock->second->getIpAddress() + " port => " + intToString(itSock->second->getPort()));
+        _config._pidLog.writeMessageLogFile("Socket fd => " + intToString(itSock->first));
+        _config._pidLog.writeMessageLogFile(
+                "ipaddress => " + itSock->second->getIpAddress() + " port => " + intToString(itSock->second->getPort()));
         _config._pidLog.addIndent();
         for(std::vector<std::pair<std::string, std::string> >::iterator itNameToken = itSock->second->getVectorServerNameToken().begin();
             itNameToken != itSock->second->getVectorServerNameToken().end(); ++itNameToken) {
-            _config._pidLog.writePidLogFile("server name => " + itNameToken->first + " = Token => " + itNameToken->second);
+            _config._pidLog.writeMessageLogFile(
+                    "server name => " + itNameToken->first + " = Token => " + itNameToken->second);
             for (std::map<std::string, std::vector<std::pair<std::string, Config> > >::iterator itToken = _config._mapTokenVectorUriConfig.begin();
                  itToken != _config._mapTokenVectorUriConfig.end(); ++itToken) {
                 if (itToken->first == itNameToken->second) {
                     for (std::vector<std::pair<std::string, Config> >::iterator itConfig = itToken->second.begin();
                          itConfig != itToken->second.end(); ++itConfig) {
-                        _config._pidLog.writePidLogFile("uri => " + itConfig->first);
+                        _config._pidLog.writeMessageLogFile("uri => " + itConfig->first);
                         for( std::set<std::string>::iterator itIndex = itConfig->second._index.begin();
                              itIndex != itConfig->second._index.end(); ++itIndex){
-                            _config._pidLog.writePidLogFile("index => " + *itIndex);
+                            _config._pidLog.writeMessageLogFile("index => " + *itIndex);
                         }
-                        _config._pidLog.writePidLogFile("root => " + itConfig->second._root);
-                        _config._pidLog.writePidLogFile("allow method => " + intToString(itConfig->second._allowMethods));
-                        _config._pidLog.writePidLogFile("cgi => " + itConfig->second._cgiPass);
-                        _config._pidLog.writePidLogFile("autoIndex => " + (std::string) ((itConfig->second._autoindex) ? "true" : "false"));
-                        _config._pidLog.writePidLogFile("return => " + intToString(itConfig->second._return));
+                        _config._pidLog.writeMessageLogFile("root => " + itConfig->second._root);
+                        _config._pidLog.writeMessageLogFile(
+                                "allow method => " + intToString(itConfig->second._allowMethods));
+                        _config._pidLog.writeMessageLogFile("cgi => " + itConfig->second._cgiPass);
+                        _config._pidLog.writeMessageLogFile(
+                                "autoIndex => " + (std::string) ((itConfig->second._autoindex) ? "true" : "false"));
+                        _config._pidLog.writeMessageLogFile("return => " + intToString(itConfig->second._return));
                     }
                 }
             }
@@ -56,20 +60,20 @@ void ConfigFile::printData(){
 }
 void ConfigFile::parseFile() {
     _config._pidLog.addIndent();
-    _config._pidLog.writePidLogFile("\r\n\r\n\t\t\t\t#### Config File ####\r\n\r\n");
+    _config._pidLog.writeMessageLogFile("\r\n\r\n\t\t\t\t#### Config File ####\r\n\r\n");
     setMapToken("");
     while (!_peg.checkIsEmpty()) {
         _peg.findToken(*this, 0);
     }
     if (_config._mapFdSocket.empty())
         throw Exception("No IP:PORT to listen", 0);
-    _config._pidLog.writePidLogFile("\r\n\r\n\t\t\t\t#### Config data ####\r\n\r\n");
+    _config._pidLog.writeMessageLogFile("\r\n\r\n\t\t\t\t#### Config data ####\r\n\r\n");
     printData();
 }
 
 void ConfigFile::parseBloc(std::string & id) {
     _config._pidLog.addIndent();
-    _config._pidLog.writePidLogFile("####" + id + "####");
+    _config._pidLog.writeMessageLogFile("####" + id + "####");
     _id = id;
     if (id == "server")
         _config._tok = _config._token.generateToken();
@@ -108,7 +112,7 @@ std::string ConfigFile::setWorkerProcesses(std::string & token) {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (end != value.c_str() && val > 0 && val < 5){
         _config._workerProcess = static_cast<int>(val);
-        _config._pidLog.writePidLogFile("worker processes = " + value);
+        _config._pidLog.writeMessageLogFile("worker processes = " + value);
         return "";
     }
     return "invalide data for worker processes => " + value;
@@ -122,7 +126,7 @@ std::string ConfigFile::setClientBodyBufferSize(std::string & token) {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (end != value.c_str() && val > 1023 && val < 8193){
         _config._clientBodyBufferSize = static_cast<int>(val);
-        _config._pidLog.writePidLogFile("client Body buffer size = " + value);
+        _config._pidLog.writeMessageLogFile("client Body buffer size = " + value);
         return "";
     }
     return "invalide data for body buffer size => " + value;
@@ -137,7 +141,7 @@ std::string ConfigFile::setClientHeaderBufferSize(std::string & token) {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (end != value.c_str() && val > 511 && val < 1025){
         _config._clientHeaderBufferSize = static_cast<int>(val);
-        _config._pidLog.writePidLogFile("client Header buffer size = " + value);
+        _config._pidLog.writeMessageLogFile("client Header buffer size = " + value);
         return "";
     }
     return "invalide data for header buffer size => " + value;
@@ -151,7 +155,7 @@ std::string ConfigFile::setClientMaxBodySize(std::string & token) {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (end != value.c_str() && val > 500000 && val < 1048576){
         _config._clientMaxBodySize = static_cast<int>(val);
-        _config._pidLog.writePidLogFile("client max Body size = " + value);
+        _config._pidLog.writeMessageLogFile("client max Body size = " + value);
         return "";
     }
     return "invalide data for max body size => " + value;
@@ -165,7 +169,7 @@ std::string ConfigFile::setWorkerConnections(std::string &token) {
     const long val = std::strtol(value.c_str(), &end, 10);
     if (end != value.c_str() && val > 9 && val < 21){
         _parent->_workerConnections = static_cast<int>(val);
-        _config._pidLog.writePidLogFile("worker connection = " + value);
+        _config._pidLog.writeMessageLogFile("worker connection = " + value);
         return "";
     }
     return "invalide data for workerConnection => " + value;
@@ -202,7 +206,7 @@ std::string ConfigFile::addIndex(std::string &token){
             val.push_back(line);
         }
         _config.addToSet(val, _config._index);
-        _config._pidLog.writePidLogFile("index = " + value.str());
+        _config._pidLog.writeMessageLogFile("index = " + value.str());
         return "";
     }
     return std::string("no value at index");
@@ -219,7 +223,7 @@ std::string ConfigFile::addVectorServerName(std::string &token){
             val.push_back(line);
         }
         _config._name.insert(_config._name.end(), val.begin(), val.end());
-        _config._pidLog.writePidLogFile("name = " + value.str());
+        _config._pidLog.writeMessageLogFile("name = " + value.str());
         return "";
     }
     return std::string("no value at server_name");
@@ -235,7 +239,7 @@ std::string ConfigFile::setRoot(std::string &token){
         _config._root = root;
     else
         return "Path not found => " + root;
-    _config._pidLog.writePidLogFile("root = " + root);
+    _config._pidLog.writeMessageLogFile("root = " + root);
     return std::string("");
 }
 
@@ -245,7 +249,7 @@ std::string ConfigFile::setCgiPass(std::string &token){
     if (cgi.empty())
         return std::string("no value at cgi");
     _config._cgiPass = cgi;
-    _config._pidLog.writePidLogFile("cgi pass = " + cgi);
+    _config._pidLog.writeMessageLogFile("cgi pass = " + cgi);
     return std::string("");
 }
 
@@ -271,7 +275,8 @@ std::string ConfigFile::setAllowMethods(std::string &token){
         }
         if ( _config._allowMethods > _get + _post + _delete)
             _config._allowMethods = _get + _post + _delete;
-        _config._pidLog.writePidLogFile("allow methods = " + value.str() + "conf = " + intToString(_config._allowMethods));
+        _config._pidLog.writeMessageLogFile(
+                "allow methods = " + value.str() + "conf = " + intToString(_config._allowMethods));
         return "";
     }
     return std::string("no value at allow_methods");
@@ -294,7 +299,7 @@ std::string ConfigFile::setErrorPage(std::string &token){
         if (value.eof()) {
             if (!line.empty()) {
                 _config._code.setDefaultPage((int) code, line);
-                _config._pidLog.writePidLogFile("error page = " + value.str());
+                _config._pidLog.writeMessageLogFile("error page = " + value.str());
                 return "";
             }
             return "no index to set" ;
@@ -328,7 +333,7 @@ std::string ConfigFile::setReturn(std::string & token) {
             else
                 return "";
             _config._return = (int)code;
-            _config._pidLog.writePidLogFile("return = " + value.str());
+            _config._pidLog.writeMessageLogFile("return = " + value.str());
             return "";
         }
         return std::string("to much value in return");
@@ -345,7 +350,7 @@ std::string ConfigFile::setAutoIndex(std::string &token){
         _config._autoindex = (value == "on") ? true : false;
     else
         return std::string("error value at auto index");
-    _config._pidLog.writePidLogFile("auto index = " + (std::string)((_config._autoindex) ? "on" : "off"));
+    _config._pidLog.writeMessageLogFile("auto index = " + (std::string) ((_config._autoindex) ? "on" : "off"));
     return std::string("");
 }
 

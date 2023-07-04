@@ -64,7 +64,7 @@ void Client::recvEvent() {
             _request.sendRequest(e.getCode());
             _connection = false;
             _config._accessLog.failure();
-            _config._errorLog.writeLogFile(e.what());
+            _config._errorLog.writeTimeLogFile(e.what());
         }
     }
 }
@@ -80,7 +80,7 @@ void Client::sendEvent() {
             _request.sendRequest(e.getCode());
             _connection = false;
             _config._accessLog.failure();
-            _config._errorLog.writeLogFile(e.what());
+            _config._errorLog.writeTimeLogFile(e.what());
         }
     }
 }
