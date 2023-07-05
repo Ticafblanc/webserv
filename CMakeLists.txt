@@ -24,14 +24,14 @@ set(    ENGIN
         Source_Code/2-Engin/Sources/Token.cpp Source_Code/2-Engin/Sources/Client.class.cpp)
 
 set(    MESSAGE
-        Source_Code/3-Message/Sources/HttpMessage.class.cpp
+        Source_Code/3-Message/Sources/HttpMessage.Iclass.cpp
         Source_Code/3-Message/Sources/HttpReponse.class.cpp
-        Source_Code/3-Message/Sources/HttpRequest.class.cpp
+        Source_Code/3-Message/Sources/HttpMessage.class.cpp
         Source_Code/3-Message/Sources/Execute.class.cpp)
 
 set(    UTILS
         Source_Code/4-Utils/Template/PegParser.class.tpp
-        Source_Code/4-Utils/Sources/Utils.cpp)
+        Source_Code/4-Utils/Sources/Utils.cpp Source_Code/4-Utils/Template/recv_send.tpp Source_Code/4-Utils/Template/read_write.tpp)
 
 
 #add_executable(webserv ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})

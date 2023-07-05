@@ -7,6 +7,7 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/4-Utils/Template/PegParser.class.tpp>
+#include <Source_Code/4-Utils/Template/recv_send.tpp>
 #include <dirent.h>
 #include <filesystem>
 

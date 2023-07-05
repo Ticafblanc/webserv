@@ -17,9 +17,10 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/3-Message/Includes/HttpRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.class.hpp>
 
-
+#define CLOSE false
+#define KEEP_ALIVE true
 
 class Client : public Socket {
 
@@ -35,12 +36,8 @@ private:
     Config&                                             _config;
     bool                                                _connection;
     int                                                 _events;
-    int                                                 _statusCode;
-
-
     std::time_t                                         _lastConnection;
-    HttpRequest                                         _request;
-
+    HttpMessage*                                        _message;
 
 /*
 *====================================================================================
@@ -48,8 +45,6 @@ private:
 *====================================================================================
 */
 
-
-    void findTokenServer();
 
 
 /*>********************************public section**********************************/
@@ -125,27 +120,13 @@ public:
 *====================================================================================
 */
 
-//    Socket& getServer() const;
-
     bool isConnection() const;
 
-    void setConnection(bool connection);
-
+    time_t getLastConnection() const;
     void setLastConnection(time_t lastConnection);
 
-    int getStatusCode() const;
-
-    void setStatusCode(int statusCode);
-
     int getEvents() const;
-
     void setEvents(int events);
-
-    time_t getLastConnection() const;
-
-    void setContent(const std::string &content);
-
-    void setContentType(const std::string &contentType);
 
 };
 

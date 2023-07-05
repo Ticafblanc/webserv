@@ -19,23 +19,26 @@
 */
 
 Client::Client(epoll_event &event, Config& config, Socket * server)
-: Socket(event, server), _config(config), _connection(true), _events(EPOLLIN | EPOLLET),
-_statusCode(0), _content(), _contentType(),  _lastConnection(std::time(NULL)), _request() {}
+: Socket(event, server), _config(config), _connection(KEEP_ALIVE), _events(EPOLLIN | EPOLLET),
+_lastConnection(std::time(NULL)), _message() {}
 
-Client::~Client() {}
+Client::~Client() {
+    if (_message) {
+        delete _message;
+    }
+}
 
 Client::Client(const Client &other)
 : Socket(other), _config(other._config), _connection(other._connection), _events(other._events),
-_statusCode(other._statusCode), , _serverToken(other._serverToken),
-_lastConnection(other._lastConnection), _request(other._request){}
+_lastConnection(other._lastConnection), _message() {}
 
 Client& Client::operator=(const Client& rhs){
     if (this != &rhs){
         Socket::operator=(rhs);
         this->_connection = rhs._connection;
         this->_events = rhs._events;
-        this->_statusCode = rhs._statusCode;
-        this->_request = rhs._request;
+        this->_lastConnection = rhs._lastConnection;
+        this->_message = rhs._message;
     }
     return *this;
 }
@@ -51,37 +54,28 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
+    if (!_message)
+        _message = new HttpMessage(_config, *this);
     try {
-        if (_request.recvRequest()) {
+        if (_message.recv()) {
             _events = EPOLLOUT | EPOLLET;
-            _request.resetRecv();
         }
     }catch (Exception & e){
-        if (e.getCode() == 0 ) {
-            _connection = false;
-            _config._accessLog.failure();
-        } else {
-            _request.sendRequest(e.getCode());
-            _connection = false;
-            _config._accessLog.failure();
+            _connection = CLOSE;
             _config._errorLog.writeTimeLogFile(e.what());
-        }
+            delete _message;
+            _message = NULL;
     }
 }
 
 void Client::sendEvent() {
-    if (_events & EPOLLOUT) {
-        try {
-            if (_request.sendRequest()){
-                _events = EPOLLIN | EPOLLET;
-                _request.resetSend();
-            }
-        } catch (Exception &e) {
-            _request.sendRequest(e.getCode());
-            _connection = false;
-            _config._accessLog.failure();
-            _config._errorLog.writeTimeLogFile(e.what());
+    try {
+        if (_message.send()){
+            _events = EPOLLIN | EPOLLET;
         }
+    } catch (Exception &e) {
+            _connection = CLOSE;
+            _config._errorLog.writeTimeLogFile(e.what());
     }
 }
 
@@ -101,20 +95,8 @@ time_t Client::getLastConnection() const {
     return _lastConnection;
 }
 
-void Client::setConnection(bool connection) {
-    _connection = connection;
-}
-
 void Client::setLastConnection(time_t lastConnection) {
     _lastConnection = lastConnection;
-}
-
-int Client::getStatusCode() const {
-    return _statusCode;
-}
-
-void Client::setStatusCode(int statusCode) {
-    _statusCode = statusCode;
 }
 
 int Client::getEvents() const {
@@ -123,12 +105,4 @@ int Client::getEvents() const {
 
 void Client::setEvents(int events) {
     _events = events;
-}
-
-void Client::setContent(const std::string &content) {
-    _content = content;
-}
-
-void Client::setContentType(const std::string &contentType) {
-    _contentType = contentType;
 }
