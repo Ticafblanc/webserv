@@ -223,8 +223,7 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
         return;
     }
 
-    int events = client->getEvents();
-    if (_events[numberTrigged].events & EPOLLIN) {
+    if (_events[numberTrigged].events & EPOLLIN && client->getEvents() & EPOLLIN) {
 
         _config._accessLog.writeMessageLogFile("Recv data {");
         _config._accessLog.addIndent();
@@ -239,7 +238,7 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
         _config._accessLog.writeMessageLogFile("}");
 
     }
-    if (_events[numberTrigged].events & EPOLLOUT) {
+    if (_events[numberTrigged].events & EPOLLOUT && client->getEvents() & EPOLLOUT) {
 
         _config._accessLog.writeMessageLogFile("send data {");
         _config._accessLog.addIndent();
@@ -255,9 +254,9 @@ void Epoll::selectEvent(Client *client, int numberTrigged) {
 
     }
 
-    if (client->getEvents() != events)
+    if (_events[numberTrigged].events != client->getEvents())
         modSocket(_events[numberTrigged].data.fd, client->getEvents());
-    client->setLastConnection(std::time(NULL));
+
 
     if (!client->isConnection())
         removeConnexionServer(client);

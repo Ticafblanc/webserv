@@ -17,10 +17,11 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/3-Message/Includes/HttpMessage.class.hpp>
-
-#define CLOSE false
-#define KEEP_ALIVE true
+#include <Source_Code/3-Message/Includes/HttpHeadersRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpBodyRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpBodyReponse.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpHeadersReponse.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
 
 class Client : public Socket {
 
@@ -35,9 +36,9 @@ private:
 */
     Config&                                             _config;
     bool                                                _connection;
-    int                                                 _events;
+    uint32_t                                            _events;
     std::time_t                                         _lastConnection;
-    HttpMessage*                                        _message;
+    IHttpMessage*                                       _message;
 
 /*
 *====================================================================================
@@ -45,7 +46,27 @@ private:
 *====================================================================================
 */
 
+/**
+ * Constructor of 7-Client class
+ *
+ * void selectRequestMessageMethode() ;
+ *
+ * @param   sockaddr instance to sockaddres_in
+ * @param   event instance to epoll_event
+ * @throw   socket::socketException
+ **/
+    void selectRequestMessageMethode() ;
 
+/**
+ * Constructor of 7-Client class
+ *
+ * void updateClient() ;
+ *
+ * @param   sockaddr instance to sockaddres_in
+ * @param   event instance to epoll_event
+ * @throw   socket::socketException
+ **/
+    void updateClient() ;
 
 /*>********************************public section**********************************/
 
@@ -125,7 +146,7 @@ public:
     time_t getLastConnection() const;
     void setLastConnection(time_t lastConnection);
 
-    int getEvents() const;
+    uint32_t getEvents() const;
     void setEvents(int events);
 
 };

@@ -21,17 +21,22 @@ set(    CONFIG
 set(    ENGIN
         Source_Code/2-Engin/Sources/Epoll.class.cpp
         Source_Code/2-Engin/Sources/Socket.class.cpp
-        Source_Code/2-Engin/Sources/Token.cpp Source_Code/2-Engin/Sources/Client.class.cpp)
+        Source_Code/2-Engin/Sources/Token.cpp
+        Source_Code/2-Engin/Sources/Client.class.cpp)
 
 set(    MESSAGE
-        Source_Code/3-Message/Sources/HttpMessage.Iclass.cpp
-        Source_Code/3-Message/Sources/HttpReponse.class.cpp
-        Source_Code/3-Message/Sources/HttpMessage.class.cpp
-        Source_Code/3-Message/Sources/Execute.class.cpp)
+        Source_Code/3-Message/Sources/HttpHeaders.Aclass.cpp
+        Source_Code/3-Message/Sources/HttpHeadersRequest.class.cpp
+        Source_Code/3-Message/Sources/HttpHeadersReponse.class.cpp
+        Source_Code/3-Message/Sources/HttpBody.Aclass.cpp
+        Source_Code/3-Message/Sources/HttpBodyRequest.class.cpp
+        Source_Code/3-Message/Sources/HttpBodyReponse.class.cpp
+        Source_Code/3-Message/Sources/HttpReponse.class.cpp)
 
 set(    UTILS
         Source_Code/4-Utils/Template/PegParser.class.tpp
-        Source_Code/4-Utils/Sources/Utils.cpp Source_Code/4-Utils/Template/recv_send.tpp Source_Code/4-Utils/Template/read_write.tpp)
+        Source_Code/4-Utils/Sources/Utils.cpp
+        Source_Code/4-Utils/Template/recv_send.tpp )
 
 
 #add_executable(webserv ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})

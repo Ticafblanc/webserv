@@ -2,17 +2,16 @@
 // Created by Matthis DoQuocBao on 2023-06-09.
 //
 
-#ifndef WEBSERVER_HTTPMESSAGE_CLASS_HPP
-#define WEBSERVER_HTTPMESSAGE_CLASS_HPP
+#ifndef WEBSERVER_HTTPBODYREQUEST_CLASS_HPP
+#define WEBSERVER_HTTPBODYREQUEST_CLASS_HPP
 
-#include <Source_Code/0-Main/Includes/Headers.hpp>
-#include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/4-Utils/Template/PegParser.class.tpp>
+#include <Source_Code/3-Message/Includes/HttpBody.Aclass.hpp>
 
-class HttpMessage {
+class HttpBodyRequest : public AHttpBody {
+
 /*>*******************************private section**********************************/
 
-typedef bool (HttpMessage::*dataIsComplete)(std::size_t&);
+typedef bool (HttpHeadersRequest::*dataIsComplete)(std::size_t&);
 
 private:
 
@@ -21,28 +20,25 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Config&                                             _config;
-    Socket&                                             _socketClient;
-    std::string                                         _serverToken;
-    std::size_t                                         _totalBytesExchange;
+    std::string                                         _serverToken;//
     std::size_t                                         _contentLength;
     bool                                                _headerIsComplete;
     bool                                                _chunkedIsComplete;
     bool                                                _bodyIsComplete;
     bool                                                _requestIsComplete;
-    std::vector<char>                                   _buffer;
-    dataIsComplete                                      _methodeToRecv;
+    std::vector<char>                                   _buffer;//
+    dataIsComplete                                      _methodeToRecv;//
     std::string                                         _data;
     std::vector<std::string>                            _vecdata;
-    PegParser<HttpMessage>                              _peg;
-    std::string                                         _startLineMethode;
-    std::string                                         _startLineURL;
-    std::string                                         _startLineVersion;
+    PegParser<HttpHeadersRequest>                       _peg;
+    std::string                                         _startLineMethode;//
+    std::string                                         _startLineURL;//
+    std::string                                         _startLineVersion;//
     std::string                                         _startLineStatusCode;
     int                                                 _statusCode;
     std::string                                         _queryString;
-    std::map< std::string, std::string>                 _mapHttpHeaders;
-    Config*                                             _location;
+    std::map< std::string, std::string>                 _mapHttpHeadersRequest;
+    std::map< std::string, std::string>                 _mapHttpHeadersReponse;
     std::ostringstream                                  _oss;
     std::string                                         _contentType;
     pid_t                                               _pid;
@@ -188,18 +184,7 @@ private:
 
 
 
-/**
- * Private methode of HttpMessage.class class
- *
- * manage event like receive message
- *
- *     void recvMessage();
- *
- * @returns void
- * @param   void
- * @throws  http_request::http_request_exception
- * */
-    void recvMessage();
+
 
 
 
@@ -424,8 +409,8 @@ private:
  * */
     bool setAutoIndex();
 
-    friend void PegParser<HttpMessage>::setMapTokenHeaderStartLine();
-    friend void PegParser<HttpMessage>::setMapTokenHeadersInformation();
+    friend void PegParser<HttpHeadersRequest>::setMapTokenHeaderStartLine();
+    friend void PegParser<HttpHeadersRequest>::setMapTokenHeadersInformation();
 
 /*>********************************public section**********************************/
 
@@ -438,44 +423,44 @@ public:
 */
 
 /**
- * Constructor of HttpMessage.class class
+ * Constructor of HttpHeadersRequest.class class
  *
- * HttpMessage.class(int socket, int clientHeaderBufferSize,
+ * HttpHeadersRequest.class(int socket, int clientHeaderBufferSize,
                          int clientBodyBufferSize, int clientMaxBodySize);
  *
  * @param   config &
  * @throw   none
  **/
-    HttpMessage(Config& config, Socket& socket);
+    HttpHeadersRequest(Config& config, Socket& socket);
 
 /**
-* Destructor of HttpMessage.class class
+* Destructor of HttpHeadersRequest.class class
 *
-* HttpMessage.class);
+* HttpHeadersRequest.class);
 *
 * @throw   none
 **/
-    ~HttpMessage();
+    ~HttpHeadersRequest();
 
 /**
- * Copy constructor of HttpMessage.class class
+ * Copy constructor of HttpHeadersRequest.class class
  *
- * HttpMessage.class(const HttpMessage.class &);
+ * HttpHeadersRequest.class(const HttpHeadersRequest.class &);
  *
  * @param   http_request instance to build the server
  * @throw   none
  **/
-    HttpMessage(const HttpMessage &);
+    HttpHeadersRequest(const HttpHeadersRequest &);
 
 /**
- * Operator overload= of HttpMessage.class class
+ * Operator overload= of HttpHeadersRequest.class class
  *
- * HttpMessage.class(const HttpMessage.class &);
+ * HttpHeadersRequest.class(const HttpHeadersRequest.class &);
  *
  * @param   http_request instance const to copy the server
  * @throw   none
  **/
-    HttpMessage& operator=(const HttpMessage &);
+    HttpHeadersRequest& operator=(const HttpHeadersRequest &);
 
 /*
 *====================================================================================
@@ -488,26 +473,26 @@ public:
  *
  * extract data and put in std::string
  *
- * void recvRequest();
+ * void recvMessage();
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool recvRequest();
+    bool recvMessage();
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * void sendRequest();
+ * void sendMessage();
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool sendRequest();
+    bool sendMessage();
 
 /*
 *====================================================================================
@@ -554,7 +539,7 @@ public:
 
     void redirection();
 
-    bool sendRequest(int code);
+    bool sendMessage(int code);
 
     bool executePhp();
 
@@ -576,4 +561,4 @@ public:
 };
 
 
-#endif //WEBSERVER_HTTPMESSAGE_CLASS_HPP
+#endif //WEBSERVER_HttpHeadersRequest_CLASS_HPP

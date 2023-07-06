@@ -34,6 +34,7 @@
 #include <limits>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <typeinfo>
 
 #include <Source_Code/0-Main/Includes/Exception.hpp>
 //__FILE_NAME__

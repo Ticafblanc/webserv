@@ -14,7 +14,7 @@ HttpMessage::HttpMessage(Config& config, Socket& socketClient)
         : _config(config), _socketClient(socketClient), _serverToken(), _totalBytesExchange(),
           _contentLength(), _headerIsComplete(false), _chunkedIsComplete(true), _requestIsComplete(false),
           _data(), _peg(), _startLineMethode(), _startLineURL(),
-          _startLineVersion(), _mapHttpHeaders(){}//@todo to update
+          _startLineVersion(), _mapHttpHeadersRequest(){}//@todo to update
 
 HttpMessage::~HttpMessage() {}
 
@@ -35,7 +35,7 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
         this->_startLineMethode = rhs._startLineMethode;
         this->_startLineURL = rhs._startLineURL;
         this->_startLineVersion = rhs._startLineVersion;
-        this->_mapHttpHeaders = rhs._mapHttpHeaders;
+        this->_mapHttpHeadersRequest = rhs._mapHttpHeadersRequest;
     }
     return *this;
 }
@@ -46,19 +46,19 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
 *====================================================================================
 */
 
-bool HttpMessage::recvRequest() {
+bool HttpMessage::recvMessage() {
     if (!_headerIsComplete)
         return recvHeader();
     else
         return continueBody();
 }
 
-bool HttpMessage::sendRequest() {
+bool HttpMessage::sendMessage() {
     if (_requestIsComplete)
 
 }
 
-bool HttpMessage::sendRequest(int code) {
+bool HttpMessage::sendMessage(int code) {
     _statusCode = code;
     setContent();
 
@@ -66,7 +66,7 @@ bool HttpMessage::sendRequest(int code) {
 
 /*
 *====================================================================================
-*|                                  Private Methode to recv                         |
+*|                                  Private Methode to recvMessage                         |
 *====================================================================================
 */
 
@@ -118,7 +118,7 @@ bool HttpMessage::checkErrorBytesExchange(std::size_t& bytesExchange){
     if (static_cast<int>(bytesExchange) == -1)
         return true;
     if (bytesExchange == 0 )
-        throw Exception("recvRequest close connection", 0);
+        throw Exception("recvMessage close connection", 0);
     _totalBytesExchange += bytesExchange;
     if (static_cast<int>(_totalBytesExchange) > _config._clientMaxBodySize)
         throw Exception("Request Max body size exceeds the maximum limit", 413);
@@ -265,7 +265,7 @@ void HttpMessage::extractHeaderData() {
 
 std::string HttpMessage::Host(std::string & token){
     addToMapHttpHeader(token);
-    std::string serverName = _mapHttpHeaders.find(token)->second;
+    std::string serverName = _mapHttpHeadersRequest.find(token)->second;
     if (serverName.empty())
         throw Exception("No host in request", 400);
     std::string serverToken = _socketClient.getServer()->findServerName(serverName);
@@ -366,13 +366,13 @@ std::string HttpMessage::addToMapHttpHeader(std::string& token) {
     _peg.deleteMapToken(token);
     std::string data = _peg.extractData('\n');
     data.erase(data.size() - 1);
-    _mapHttpHeaders.insert(std::make_pair(token, data));
+    _mapHttpHeadersRequest.insert(std::make_pair(token, data));
     return std::string();
 }
 
 std::string HttpMessage::getValueHeader(const std::string & token) {
-    const std::map<std::string, std::string>::iterator it = _mapHttpHeaders.find(token);
-    if (it != _mapHttpHeaders.end())
+    const std::map<std::string, std::string>::iterator it = _mapHttpHeadersRequest.find(token);
+    if (it != _mapHttpHeadersRequest.end())
         return it->second;
     return std::string();
 }
@@ -392,7 +392,7 @@ std::string HttpMessage::endHeader(std::string& token) {
 bool HttpMessage::executePhp(){
     if (launchChild(_pipeFdIn, _pipeFdOut, _pid,
                     setArgv("/usr/bin/php", _startLineURL),
-                setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
+                setPhpEnv(_startLineMethode, _queryString, _mapHttpHeadersRequest)))
         throw Exception("error to create child process", 500);
     close(_pipeFdIn[STDIN_FILENO]);
     close(_pipeFdOut[STDOUT_FILENO]);
@@ -432,12 +432,12 @@ void HttpMessage::errorPage(){
 }
 
 void HttpMessage::redirection(){
-    _mapHttpHeaders["Location:"] = _location->_code.getStatusPage(_statusCode);
+    _mapHttpHeadersRequest["Location:"] = _location->_code.getStatusPage(_statusCode);
 }
 
 void HttpMessage::addMapHttpHeader(){
-    for (std::map<std::string, std::string>::iterator  i = _mapHttpHeaders.begin();
-         i != _mapHttpHeaders.end(); ++i) {
+    for (std::map<std::string, std::string>::iterator  i = _mapHttpHeadersRequest.begin();
+         i != _mapHttpHeadersRequest.end(); ++i) {
         if (!i->second.empty())
             _data += i->first + " " + i->second + "\r\n";
     }

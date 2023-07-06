@@ -20,7 +20,7 @@
 
 Client::Client(epoll_event &event, Config& config, Socket * server)
 : Socket(event, server), _config(config), _connection(KEEP_ALIVE), _events(EPOLLIN | EPOLLET),
-_lastConnection(std::time(NULL)), _message() {}
+_lastConnection(std::time(NULL)), _message(NULL) {}
 
 Client::~Client() {
     if (_message) {
@@ -54,29 +54,19 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
-    if (!_message)
-        _message = new HttpMessage(_config, *this);
-    try {
-        if (_message.recv()) {
-            _events = EPOLLOUT | EPOLLET;
-        }
-    }catch (Exception & e){
-            _connection = CLOSE;
-            _config._errorLog.writeTimeLogFile(e.what());
-            delete _message;
-            _message = NULL;
-    }
+    if (dynamic_cast<HttpReponse*>(_message) != NULL)
+        return;
+    do {
+        selectRequestMessageMethode();
+    }while (_message->continueManageEvent());
+    updateClient();
 }
 
 void Client::sendEvent() {
-    try {
-        if (_message.send()){
-            _events = EPOLLIN | EPOLLET;
-        }
-    } catch (Exception &e) {
-            _connection = CLOSE;
-            _config._errorLog.writeTimeLogFile(e.what());
-    }
+    if (dynamic_cast<HttpReponse*>(_message) == NULL)
+        return;
+    while (_message && _message->continueManageEvent());
+    updateClient();
 }
 
 /*
@@ -99,10 +89,48 @@ void Client::setLastConnection(time_t lastConnection) {
     _lastConnection = lastConnection;
 }
 
-int Client::getEvents() const {
+uint32_t Client::getEvents() const {
     return _events;
 }
 
 void Client::setEvents(int events) {
     _events = events;
+}
+
+/*
+*====================================================================================
+*|                                    Private Methode                               |
+*====================================================================================
+*/
+
+void Client::selectRequestMessageMethode() {
+    if (!_message ) {
+        _message = new HttpHeadersRequest(_config, *this);
+    }else if (_message->requestHeadersIsComplete() && !_message->requestBodyIsComplete()
+                && dynamic_cast<HttpBodyRequest*>(_message) == NULL) {
+        IHttpMessage* tmp = new HttpBodyRequest(_message);
+        std::swap(tmp, _message);
+        delete tmp;
+    }else if (_message->requestHeadersIsComplete() && _message->requestBodyIsComplete()
+                && dynamic_cast<HttpBodyReponse*>(_message) == NULL) {
+        IHttpMessage* tmp = new HttpBodyReponse(_message);
+        std::swap(tmp, _message);
+        delete tmp;
+    }else if (_message->bodyReponseIsComplete() && !_message->headersReponseIsComplete()
+                && dynamic_cast<HttpBodyReponse*>(_message) == NULL) {
+        IHttpMessage* tmp = new HttpHeadersReponse(_message);
+        std::swap(tmp, _message);
+        delete tmp;
+    }else if (_message->bodyReponseIsComplete() && _message->headersReponseIsComplete()
+                && dynamic_cast<HttpReponse*>(_message) == NULL) {
+        IHttpMessage* tmp = new HttpReponse(_message);
+        std::swap(tmp, _message);
+        delete tmp;
+    }
+}
+
+void Client::updateClient() {
+    _connection = _message->connectionStatus();
+    _events = _message->eventsStatus();
+    setLastConnection(std::time(NULL));
 }
