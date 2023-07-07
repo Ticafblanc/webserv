@@ -266,7 +266,7 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void extractHeaderData();
+    bool extractHeaderData();
 
 /**
  * Private methode of server class

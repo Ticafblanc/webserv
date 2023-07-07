@@ -19,7 +19,7 @@
 */
 
 Client::Client(epoll_event &event, Config& config, Socket * server)
-: Socket(event, server), _config(config), _connection(KEEP_ALIVE), _events(EPOLLIN | EPOLLET),
+: Socket(event, server), _config(config),
 _lastConnection(std::time(NULL)), _message(NULL) {}
 
 Client::~Client() {
@@ -29,14 +29,12 @@ Client::~Client() {
 }
 
 Client::Client(const Client &other)
-: Socket(other), _config(other._config), _connection(other._connection), _events(other._events),
+: Socket(other), _config(other._config),
 _lastConnection(other._lastConnection), _message() {}
 
 Client& Client::operator=(const Client& rhs){
     if (this != &rhs){
         Socket::operator=(rhs);
-        this->_connection = rhs._connection;
-        this->_events = rhs._events;
         this->_lastConnection = rhs._lastConnection;
         this->_message = rhs._message;
     }
@@ -76,11 +74,6 @@ void Client::sendEvent() {
 */
 
 
-bool Client::isConnection() const {
-    return _connection;
-}
-
-
 time_t Client::getLastConnection() const {
     return _lastConnection;
 }
@@ -90,11 +83,11 @@ void Client::setLastConnection(time_t lastConnection) {
 }
 
 uint32_t Client::getEvents() const {
-    return _events;
+    return _message->eventsStatus();
 }
 
-void Client::setEvents(int events) {
-    _events = events;
+bool Client::isConnection() const {
+    return _message->connectionStatus();
 }
 
 /*
@@ -112,7 +105,7 @@ void Client::selectRequestMessageMethode() {
         std::swap(tmp, _message);
         delete tmp;
     }else if (_message->requestHeadersIsComplete() && _message->requestBodyIsComplete()
-                && dynamic_cast<HttpBodyReponse*>(_message) == NULL) {
+                && !_message->bodyReponseIsComplete() && dynamic_cast<HttpBodyReponse*>(_message) == NULL) {
         IHttpMessage* tmp = new HttpBodyReponse(_message);
         std::swap(tmp, _message);
         delete tmp;
@@ -130,7 +123,9 @@ void Client::selectRequestMessageMethode() {
 }
 
 void Client::updateClient() {
-    _connection = _message->connectionStatus();
-    _events = _message->eventsStatus();
+    if (_message.isComplete()){
+        delete _message;
+        _message = NULL;
+    }
     setLastConnection(std::time(NULL));
 }

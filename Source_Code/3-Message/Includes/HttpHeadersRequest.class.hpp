@@ -20,49 +20,24 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    std::string                                         _serverToken;//
-    std::size_t                                         _contentLength;
-    bool                                                _headerIsComplete;
-    bool                                                _chunkedIsComplete;
-    bool                                                _bodyIsComplete;
-    bool                                                _requestIsComplete;
-    std::vector<char>                                   _buffer;//
-    dataIsComplete                                      _methodeToRecv;//
+    std::vector<char>                                   _buffer;
+    std::size_t                                         _totalBytesRecv;
     std::string                                         _data;
-    std::vector<std::string>                            _vecdata;
     PegParser<HttpHeadersRequest>                       _peg;
-    std::string                                         _startLineMethode;//
-    std::string                                         _startLineURL;//
-    std::string                                         _startLineVersion;//
-    std::string                                         _startLineStatusCode;
-    int                                                 _statusCode;
+    std::string                                         _startLineMethode;
+    std::string                                         _startLineURL;
+    std::string                                         _startLineVersion;
     std::string                                         _queryString;
-    std::map< std::string, std::string>                 _mapHttpHeadersRequest;
-    std::map< std::string, std::string>                 _mapHttpHeadersReponse;
-    std::ostringstream                                  _oss;
+    bool                                                _isChunked;
+    bool                                                _isCGI;
     std::string                                         _contentType;
-    pid_t                                               _pid;
-    int                                                 _pipeFdIn[2];
-    int                                                 _pipeFdOut[2];
+    std::map< std::string, std::string>                 _mapHttpHeadersRequest;
 
 /*
 *====================================================================================
 *|                                  Private Methode                                 |
 *====================================================================================
 */
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool recvHeaderfirst();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool recvHeader();
 
 /**
  * Private methode of server class
@@ -89,132 +64,6 @@ private:
  * @throws  server::server_exception
  * */
     bool checkErrorBytesExchange(std::size_t& bytesExchange);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool recvHeaderChunck();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool recvChunck();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool headerIsNotComplete();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool chunkIsComplete(std::string & str);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool recvHeaderfirst();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool recvBody();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool headerIsNotComplete();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool bodyIsComplete(std::string & str);
-
-
-
-
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool bodyIsNotComplete();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool bodyIsNotComplete();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string bufferToDataString();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string bufferToDataString();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string convertBufferToString();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string convertBufferToString();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool messageIsNotComplete();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool messageIsNotComplete();
 
 /**
  * Private methode of server class
@@ -267,6 +116,19 @@ private:
  * @throws  server::server_exception
  * */
     void extractHeaderData();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void extractHeaderData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
 
 /**
  * Private methode of server class
@@ -332,32 +194,6 @@ private:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void setContentLenght();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool isComplete() const;
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
     void findBestConfig(std::vector<std::pair<std::string, Config> > &UriConfig);
 /**
  * Private methode of server class
@@ -401,13 +237,13 @@ private:
  *
  * extract data and put in std::string
  *
- * std::string TransfereEncoding(std::string &token);
+ * std::string endHeader(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool setAutoIndex();
+    std::string endHeader(std::string &token);
 
     friend void PegParser<HttpHeadersRequest>::setMapTokenHeaderStartLine();
     friend void PegParser<HttpHeadersRequest>::setMapTokenHeadersInformation();
@@ -415,6 +251,25 @@ private:
 /*>********************************public section**********************************/
 
 public:
+
+/*
+*====================================================================================
+*|                                  Member Fonction Override                        |
+*====================================================================================
+*/
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool continueManageEvent() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool continueManageEvent() override;
 
 /*
 *====================================================================================
@@ -462,37 +317,6 @@ public:
  **/
     HttpHeadersRequest& operator=(const HttpHeadersRequest &);
 
-/*
-*====================================================================================
-*|                                  Public Methode                                  |
-*====================================================================================
-*/
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void recvMessage();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool recvMessage();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendMessage();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool sendMessage();
 
 /*
 *====================================================================================
@@ -513,51 +337,6 @@ public:
  * */
     std::string getValueHeader(const std::string& token);
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string endHeader(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string endHeader(std::string &token);
-
-
-
-
-    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
-
-    void setContent();
-
-    void errorPage();
-
-    void addMapHttpHeader();
-
-    void redirection();
-
-    bool sendMessage(int code);
-
-    bool executePhp();
-
-    bool continueBody();
-
-    void findPostRessource();
-
-    bool bodyChunkIsComplete(std::size_t &bytesExchange);
-
-    void controleHeader();
-
-    bool readDataIsNotComplete(std::size_t& bytesExchange);
-
-    bool writeDataIsNotComplete(size_t &bytesExchange);
-
-    bool checkErrorBytes(size_t &bytesExchange);
-
-    bool bodyIsNotComplete(std::size_t &bytesExchange);
 };
 
 

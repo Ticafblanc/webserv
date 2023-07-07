@@ -11,7 +11,7 @@ class AHttpHeaders : public IHttpMessage {
 
 /*>*******************************private section**********************************/
 
-private:
+protected:
 
 /*
 *====================================================================================
@@ -20,8 +20,17 @@ private:
 */
     Config&                                             _config;
     Socket&                                             _socketClient;
-    std::string                                         _startLineVersion;
+    bool                                                _connection;
+    uint32_t                                            _events;
+    int                                                 _statusCode;
+    bool                                                _requestHeadersIsComplete;
+    bool                                                _requestBodyIsComplete;
+    bool                                                _bodyReponseIsComplete;
+    bool                                                _headersReponseIsComplete;
+    bool                                                _isComplete;
     std::map< std::string, std::string>                 _mapHttpHeaders;
+
+public:
 
 /*
 *====================================================================================
@@ -87,17 +96,164 @@ public:
 *|                                  Element access                                  |
 *====================================================================================
 */
-    virtual Config &getConfig() const = 0;
 
-    virtual void setConfig(Config &config) = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *     virtual bool eventsStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setConfig(Config &config);
 
-    virtual const std::string &getStartLineVersion() const = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *     virtual bool eventsStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    uint32_t eventsStatus() override;
 
-    virtual void setStartLineVersion(const std::string &startLineVersion) = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool connectionStatus() override;
 
-    virtual const std::map<std::string, std::string> &getMapHttpHeaders() const = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setConnection(bool connection);
 
-    virtual void setMapHttpHeaders(const std::map<std::string, std::string> &mapHttpHeaders) = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setEvents(uint32_t events);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setStatusCode(int statusCode);
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool requestHeadersIsComplete() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool requestHeadersIsComplete() override;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool requestBodyIsComplete() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool requestBodyIsComplete() override;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool bodyReponseIsComplete() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool bodyReponseIsComplete() override;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool headersReponseIsComplete() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool headersReponseIsComplete() override;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool isComplete() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool isComplete() override;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void addMapHttpHeaders(const std::pair<std::string, std::string> &pairHeader);
+
+
 };
 
 

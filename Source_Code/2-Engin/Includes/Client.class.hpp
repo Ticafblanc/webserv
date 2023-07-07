@@ -35,8 +35,6 @@ private:
 *====================================================================================
 */
     Config&                                             _config;
-    bool                                                _connection;
-    uint32_t                                            _events;
     std::time_t                                         _lastConnection;
     IHttpMessage*                                       _message;
 
@@ -142,12 +140,10 @@ public:
 */
 
     bool isConnection() const;
-
+    uint32_t getEvents() const;
     time_t getLastConnection() const;
     void setLastConnection(time_t lastConnection);
 
-    uint32_t getEvents() const;
-    void setEvents(int events);
 
 };
 

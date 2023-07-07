@@ -173,7 +173,7 @@ void Epoll::addConnexion(int numberTrigged, Socket * server) {
                                                 "] on socket server [" +
                                                 intToString(newClient->getServer()->getSocket()) + "]");
 
-            addSocket(newClient->getSocket(), newClient->getEvents());
+            addSocket(newClient->getSocket(), EPOLLIN | EPOLLET);
             _config._mapFdSocket[newClient->getSocket()] = newClient;
         }catch (std::exception & e){
             _config._accessLog.failure();

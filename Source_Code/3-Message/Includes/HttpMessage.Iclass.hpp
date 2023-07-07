@@ -26,31 +26,6 @@ public:
  *
  * extract data and put in std::string
  *
- *     virtual bool eventsStatus() = 0;
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    virtual bool eventsStatus() = 0;
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- *  virtual bool connectionStatus() = 0;
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    virtual bool connectionStatus() = 0;
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
  * virtual bool continueManageEvent() = 0;
  *
  * @returns string with message content
@@ -110,6 +85,44 @@ public:
  * @throws  server::server_exception
  * */
     virtual bool headersReponseIsComplete() = 0;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * virtual bool isComplete() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    virtual bool isComplete() = 0;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *     virtual bool eventsStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    virtual uint32_t eventsStatus() = 0;
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    virtual bool connectionStatus() = 0;
 
 };
 

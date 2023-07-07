@@ -20,7 +20,7 @@ HttpMessage::~HttpMessage() {}
 
 HttpMessage::HttpMessage(const HttpMessage & other)
         : _config(other._config), _socketClient(other._socketClient),
-          _totalBytesExchange(other._totalBytesExchange), _contentLength(other._contentLength), _chunkedIsComplete(other._chunkedIsComplete),
+          _totalBytesExchange(other._totalBytesExchange), _contentLength(other._contentLength), _chunkedIsComplete(other._isChunked),
           _data(), _peg(other._peg){}
 
 HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
@@ -30,7 +30,7 @@ HttpMessage &HttpMessage::operator=(const HttpMessage &rhs) {
         this->_serverToken = rhs._serverToken;
         this->_contentLength = rhs._contentLength;
         this->_headerIsComplete = rhs._headerIsComplete;
-        this->_chunkedIsComplete = rhs._chunkedIsComplete;
+        this->_isChunked = rhs._isChunked;
         this->_peg = rhs._peg;
         this->_startLineMethode = rhs._startLineMethode;
         this->_startLineURL = rhs._startLineURL;
