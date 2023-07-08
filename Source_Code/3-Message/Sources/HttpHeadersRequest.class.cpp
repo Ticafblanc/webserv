@@ -11,24 +11,19 @@
 */
 
 HttpHeadersRequest::HttpHeadersRequest(Config& config, Socket& socketClient)
-        : AHttpHeaders(config, socketClient), _buffer(config._clientHeaderBufferSize), _totalBytesRecv(),
-        _isChunked(false), _isCGI(false), _mapHttpHeadersRequest() {}
+        : AHttpMessage(config, socketClient), _buffer(config._clientHeaderBufferSize), _totalBytesRecv(),
+          _isChunked(false), _isCGI(false) {}
 
 HttpHeadersRequest::~HttpHeadersRequest() {}
 
 HttpHeadersRequest::HttpHeadersRequest(const HttpHeadersRequest & other)
-        : AHttpHeaders(other), _totalBytesRecv(), _data(other._data), _isChunked(other._isChunked),
-        _isCGI(other._isCGI), _mapHttpHeadersRequest(other._mapHttpHeadersRequest){}
+        : AHttpMessage(other), _totalBytesRecv(), _isChunked(other._isChunked), _isCGI(other._isCGI){}
 
 HttpHeadersRequest &HttpHeadersRequest::operator=(const HttpHeadersRequest &rhs) {
     if ( this != & rhs) {
-        AHttpHeaders::operator=(rhs);
+        AHttpMessage::operator=(rhs);
         this->_isChunked = rhs._isChunked;
         this->_data = rhs._data;
-        this->_startLineMethode = rhs._startLineMethode;
-        this->_startLineURL = rhs._startLineURL;
-        this->_startLineVersion = rhs._startLineVersion;
-        this->_mapHttpHeadersRequest = rhs._mapHttpHeadersRequest;
     }
     return *this;
 }
@@ -48,7 +43,6 @@ bool HttpHeadersRequest::continueManageEvent() {
             _peg.setStringStream(_data);
             _peg.setMapTokenHeaderStartLine();
             _peg.findToken(*this, 0);
-            findRessource();
             return true;
         }catch (Exception& e) {
             _config._accessLog.failure();
@@ -62,6 +56,7 @@ bool HttpHeadersRequest::continueManageEvent() {
     }
     return false;
 }
+
 
 /*
 *====================================================================================
@@ -108,8 +103,7 @@ bool HttpHeadersRequest::checkErrorBytesExchange(std::size_t& bytesExchange){
 std::string HttpHeadersRequest::methodeGET(std::string & token) {
     (void)token;
     extractHeaderData();
-    if (!checkIsAllowedMethode(1, 3, 5))
-        throw Exception("Method GET Not Allowed ", 405);
+    _methode = new HttpGETRequest((AHttpMessage)this, _peg);
     return std::string();
 }
 
@@ -118,6 +112,7 @@ std::string HttpHeadersRequest::methodePOST(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(2, 3, 6))
         throw Exception("Method Post Not Allowed ", 405);
+    findRessource();
     return std::string();
 }
 
@@ -126,15 +121,9 @@ std::string HttpHeadersRequest::methodeDELETE(std::string & token) {
     extractHeaderData();
     if (!checkIsAllowedMethode(4, 5, 6))
         throw Exception("Method GET Not Allowed ", 405);
+    findRessource();
     return std::string();
 }
-
-bool HttpHeadersRequest::checkIsAllowedMethode(int allow, int dual1, int dual2) const{
-    return(_config._allowMethods == 7 ||
-           _config._allowMethods == allow ||
-           _config._allowMethods == dual1 ||
-           _config._allowMethods == dual2);
-};
 
 void HttpHeadersRequest::extractHeaderData() {
     _startLineURL = _peg.extractData(' ');
@@ -142,9 +131,6 @@ void HttpHeadersRequest::extractHeaderData() {
     _startLineVersion.erase(_startLineVersion.size() - 1);
     if (_startLineVersion != "HTTP/1.1")
         throw Exception("Version protocole not supprted", 505);
-    _peg.setMapTokenHeadersInformation();
-    while(!_peg.checkIsEmpty() && !_requestHeadersIsComplete)
-        _peg.findToken(*this,  0);
 }
 
 /*
@@ -153,116 +139,7 @@ void HttpHeadersRequest::extractHeaderData() {
 *====================================================================================
 */
 
-std::string HttpHeadersRequest::Host(std::string & token){
-    addToMapHttpHeader(token);
-    std::string serverName = _mapHttpHeadersRequest.find(token)->second;
-    if (serverName.empty())
-        throw Exception("No host in request", 400);
-    std::string serverToken = _socketClient.getServer()->findServerName(serverName);
-    findBestConfig(_config._mapTokenVectorUriConfig.find(serverToken)->second);
-    return std::string();
-}
 
-void HttpHeadersRequest::findBestConfig(std::vector<std::pair<std::string, Config> > &UriConfig) {
-    std::vector<std::pair<std::string, Config> >::iterator bestLocation = UriConfig.end() - 1;
-    for (std::vector<std::pair<std::string, Config> >::iterator itvec = UriConfig.begin();
-         itvec != UriConfig.end(); ++itvec) {
-        if (_startLineURL.find(itvec->first) == 0 && itvec->first.length() > bestLocation->first.length())
-            bestLocation = itvec;
-    }
-    _startLineURL = bestLocation->second._root +
-                    _startLineURL.substr(bestLocation->first.length() - 1);
-    setConfig(bestLocation->second);
-}
-
-void HttpHeadersRequest::findRessource() {
-    if (!isExec(_startLineURL)) {
-        if (!isFile(_startLineURL)) {
-            if (!isDirectory(_startLineURL) && !setIndex()) {
-                if (!_config._autoindex) {
-                    throw Exception("root/Uri not found", 404);
-                }
-            }
-        }
-    }else{
-        if (!checkIsPHP())
-            throw Exception("exec is not PHP file", 403);
-        _isCGI = true;
-    }
-}
-
-bool HttpHeadersRequest::setIndex(){
-    for (std::set<std::string>::iterator  itSet = _config._index.begin();
-         itSet != _config._index.end() ; ++itSet) {
-        std::string Url = _startLineURL;
-        Url += "/" + *itSet;
-        if (isFile(Url)){
-            _startLineURL = Url;
-            return true;
-        }
-    }
-    return false;
-}
-
-bool HttpHeadersRequest::checkIsPHP() {
-    std::string & url = _startLineURL;
-    std::size_t slashPos = _startLineURL.find_last_of('/');
-    std::size_t dotPos = _startLineURL.find_last_of('.');
-    std::size_t questionPos = _startLineURL.find_last_of('?');
-    if (dotPos != std::string::npos && dotPos < slashPos) {
-        if (questionPos != std::string::npos) {
-            _queryString = _startLineURL.substr(questionPos + 1);
-            _startLineURL = _startLineURL.substr(0, questionPos);
-        }
-        if (_startLineURL.substr(dotPos + 1) == "php")
-            return isExec(_startLineURL);
-    }
-    return false;
-}
-
-std::string HttpHeadersRequest::ContentLength(std::string &token) {
-    addToMapHttpHeader(token);
-    int icontentLength = 0 ;
-    if (!_isChunked) {
-        std::string contentLength = getValueHeader("Content-Length:");
-        if (!contentLength.empty())
-            icontentLength = std::atoi(contentLength.c_str());
-        if (static_cast<int>(icontentLength) > _config._clientMaxBodySize)
-            throw Exception("Request body size exceeds the maximum limit", 413);
-    }
-    return std::string();
-}
-
-std::string HttpHeadersRequest::TransfereEncoding(std::string &token) {
-    addToMapHttpHeader(token);
-    _startLineMethode = token;
-    std::string chunked = getValueHeader("Transfer-Encoding:");
-    if (chunked == "chunked" )
-        _isChunked = true;
-    return std::string();
-}
-
-std::string HttpHeadersRequest::addToMapHttpHeader(std::string& token) {
-    _peg.deleteMapToken(token);
-    std::string data = _peg.extractData('\n');
-    data.erase(data.size() - 1);
-    _mapHttpHeadersRequest.insert(std::make_pair(token, data));
-    return std::string();
-}
-
-std::string HttpHeadersRequest::getValueHeader(const std::string & token) {
-    const std::map<std::string, std::string>::iterator it = _mapHttpHeadersRequest.find(token);
-    if (it != _mapHttpHeadersRequest.end())
-        return it->second;
-    return std::string();
-}
-
-std::string HttpHeadersRequest::endHeader(std::string& token) {
-    (void)token;
-    _data =  _data.substr(_data.find("\r\n\r\n") + 4);
-    _requestHeadersIsComplete = true;
-    return "";
-}
 
 
 

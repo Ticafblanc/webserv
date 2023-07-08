@@ -2,17 +2,14 @@
 // Created by Matthis DoQuocBao on 2023-06-09.
 //
 
-#ifndef WEBSERVER_HTTPHEADERSREQUEST_CLASS_HPP
-#define WEBSERVER_HTTPHEADERSREQUEST_CLASS_HPP
+#ifndef WEBSERVER_HTTPGETREQUEST_CLASS_HPP
+#define WEBSERVER_HTTPGETREQUEST_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
-#include <Source_Code/3-Message/Includes/HttpGETRequest.class.hpp>
 
-class HttpHeadersRequest : public AHttpMessage {
+class HttpGETRequest : public AHttpMessage {
 
 /*>*******************************private section**********************************/
-
-typedef bool (HttpHeadersRequest::*dataIsComplete)(std::size_t&);
 
 private:
 
@@ -21,11 +18,8 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    std::vector<char>                                   _buffer;
-    std::size_t                                         _totalBytesRecv;
-    PegParser<HttpHeadersRequest>                       _peg;
+    PegParser<AHttpMessage>                             _peg;
     std::string                                         _queryString;
-    bool                                                _isChunked;
     bool                                                _isCGI;
     std::string                                         _contentType;
 
@@ -34,89 +28,122 @@ private:
 *|                                  Private Methode                                 |
 *====================================================================================
 */
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string addToMapHttpHeader(std::string &);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    std::string addToMapHttpHeader(std::string &);
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * bool headerIsNotComplete();
+ * std::string Host(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool headerIsNotComplete(std::size_t& bytesExchange);
+    std::string Host(std::string &token);
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * bool checkErrorBytesRecv();
+ * std::string ContentLength(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool checkErrorBytesExchange(std::size_t& bytesExchange);
+    std::string ContentLength(std::string &token);
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * std::string methodeGET(std::string &);
+ * std::string TransfereEncoding(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string methodeGET(std::string &);
+    std::string TransfereEncoding(std::string &token);
+
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * std::string methodePOST(std::string &);
+ * std::string TransfereEncoding(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string methodePOST(std::string &);
+    void findBestConfig(std::vector<std::pair<std::string, Config> > &UriConfig);
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void findRessource();
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool checkIsPHP();
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * std::string TransfereEncoding(std::string &token);
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool setIndex();
 
 /**
  * Private methode of server class
  *
  * extract data and put in std::string
  *
- * std::string methodeDELETE(std::string &);
+ * std::string endHeader(std::string &token);
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    std::string methodeDELETE(std::string &);
+    std::string endHeader(std::string &token);
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void extractHeaderData();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    void extractHeaderData();
-
-
-
-    friend void PegParser<HttpHeadersRequest>::setMapTokenHeaderStartLine();
-
+    friend void PegParser<AHttpMessage>::setMapTokenHeadersInformation();
 
 /*>********************************public section**********************************/
 
@@ -148,44 +175,44 @@ public:
 */
 
 /**
- * Constructor of HttpHeadersRequest.class class
+ * Constructor of HttpGETRequest.class class
  *
- * HttpHeadersRequest.class(int socket, int clientHeaderBufferSize,
+ * HttpGETRequest.class(int socket, int clientHeaderBufferSize,
                          int clientBodyBufferSize, int clientMaxBodySize);
  *
  * @param   config &
  * @throw   none
  **/
-    HttpHeadersRequest(Config& config, Socket& socket);
+    HttpGETRequest(const AHttpMessage base, PegParser<AHttpMessage>& peg);
 
 /**
-* Destructor of HttpHeadersRequest.class class
+* Destructor of HttpGETRequest.class class
 *
-* HttpHeadersRequest.class);
+* HttpGETRequest.class);
 *
 * @throw   none
 **/
-    ~HttpHeadersRequest();
+    ~HttpGETRequest();
+
+///**
+// * Copy constructor of HttpGETRequest.class class
+// *
+// * HttpGETRequest.class(const HttpGETRequest.class &);
+// *
+// * @param   http_request instance to build the server
+// * @throw   none
+// **/
+//    HttpGETRequest(const HttpGETRequest &);
 
 /**
- * Copy constructor of HttpHeadersRequest.class class
+ * Operator overload= of HttpGETRequest.class class
  *
- * HttpHeadersRequest.class(const HttpHeadersRequest.class &);
- *
- * @param   http_request instance to build the server
- * @throw   none
- **/
-    HttpHeadersRequest(const HttpHeadersRequest &);
-
-/**
- * Operator overload= of HttpHeadersRequest.class class
- *
- * HttpHeadersRequest.class(const HttpHeadersRequest.class &);
+ * HttpGETRequest.class(const HttpGETRequest.class &);
  *
  * @param   http_request instance const to copy the server
  * @throw   none
  **/
-    HttpHeadersRequest& operator=(const HttpHeadersRequest &);
+    HttpGETRequest& operator=(const HttpGETRequest &);
 
 
 /*
@@ -195,8 +222,7 @@ public:
 */
 
 
-
 };
 
 
-#endif //WEBSERVER_HttpHeadersRequest_CLASS_HPP
+#endif //WEBSERVER_HttpGETRequest_CLASS_HPP

@@ -36,7 +36,8 @@ private:
 */
     Config&                                             _config;
     std::time_t                                         _lastConnection;
-    IHttpMessage*                                       _message;
+    IHttpMessage*                                       _request;
+    IHttpMessage*                                       _reponse;
 
 /*
 *====================================================================================

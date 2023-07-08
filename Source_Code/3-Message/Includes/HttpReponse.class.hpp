@@ -5,9 +5,9 @@
 #ifndef WEBSERVER_HttpReponse_CLASS_HPP
 #define WEBSERVER_HttpReponse_CLASS_HPP
 
-#include <Source_Code/3-Message/Includes/HttpHeaders.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
 
-class HttpReponse : public AHttpHeaders {
+class HttpReponse : public AHttpMessage {
     
 /*>*******************************private section**********************************/
 private:

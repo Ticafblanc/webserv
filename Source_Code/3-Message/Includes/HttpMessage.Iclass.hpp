@@ -39,6 +39,19 @@ public:
  *
  * extract data and put in std::string
  *
+ *  virtual bool connectionStatus() = 0;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    virtual void updateClassMessage(IHttpMessage*&) = 0;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
  * virtual bool requestHeadersIsComplete() = 0;
  *
  * @returns string with message content

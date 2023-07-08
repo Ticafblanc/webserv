@@ -110,8 +110,9 @@ public:
  * @param   other is 6-PegParser to copy
  * @throw   none
  **/
-    PegParser(const PegParser & other) : _stringStream(){
-        *this = other;
+    PegParser(PegParser & other)
+    : _stringStream(other._stringStream.str()),_lineCommentCharacter(other._lineCommentCharacter) {
+        _stringStream.seekg(other._stringStream.tellg());
     };
 
 /**
@@ -545,7 +546,7 @@ public:
          *
          * virtual const char * what() const throw();
          *
-         * @returns  const char * store in private std::string _message
+         * @returns  const char * store in private std::string _request
          *          at the construction defaut constructor "7-Socket error"
          * @param   void
          * @throw   none
