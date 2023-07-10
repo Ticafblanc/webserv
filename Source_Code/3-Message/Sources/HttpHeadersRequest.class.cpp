@@ -52,6 +52,7 @@ bool HttpHeadersRequest::continueManageEvent() {
             setStatusCode(400);
         }
     }
+    _methode = new HttpReponse(*this);
     return false;
 }
 

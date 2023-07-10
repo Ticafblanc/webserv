@@ -42,6 +42,9 @@ bool HttpGETRequest::continueManageEvent() {
         if (_isCGI) {
             if (!startCgi())
                 throw Exception("error to create child process", 500);
+        } else {
+            if (pipe(_pipeFdOut) == -1)
+                throw Exception("error to create pipe", 500);
         }
         return true;
     }catch (Exception& e) {
@@ -76,6 +79,7 @@ bool HttpGETRequest::startCgi() {
                     setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
         return false;
     close(_pipeFdIn[STDIN_FILENO]);
+    close(_pipeFdIn[STDOUT_FILENO]);
     close(_pipeFdOut[STDOUT_FILENO]);
     return true;
 }
@@ -114,6 +118,10 @@ void HttpGETRequest::findRessource() {
             if (!isDirectory(_startLineURL) && !setIndex()) {
                 if (!_config._autoindex) {
                     throw Exception("root/Uri not found", 404);
+                } else {
+                    if (pipe(_pipeFdOut) == -1)
+                        throw Exception("error to create pipe", 500);
+                    autoIndexToHtml();
                 }
             }
         }

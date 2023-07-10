@@ -46,6 +46,8 @@ bool HttpPOSTRequest::continueManageEvent() {
         if (_isCGI) {
             if (!startCgi())
                 throw Exception("error to create child process", 500);
+        } else {
+
         }
         return true;
     }catch (Exception& e) {
@@ -57,6 +59,7 @@ bool HttpPOSTRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
+    _methode = new HttpReponse(*this);
     return false;
 }
 

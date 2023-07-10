@@ -38,6 +38,7 @@ bool HttpDELETERequest::continueManageEvent() {
         if (!checkIsAllowedMethode(1, 3, 5))
             throw Exception("Method GET Not Allowed ", 405);
         findRessource();
+
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -48,6 +49,7 @@ bool HttpDELETERequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
+    _methode = new HttpReponse(*this);
     return false;
 }
 
@@ -93,14 +95,23 @@ void HttpDELETERequest::findBestConfig(std::vector<std::pair<std::string, Config
 }
 
 void HttpDELETERequest::findRessource() {
-    if (!isExec(_startLineURL)) {
-        if (!isFile(_startLineURL)) {
-            if (!isDirectory(_startLineURL)) {
-                if (!_config._autoindex) {
-                    throw Exception("root/Uri not found", 404);
-                }
+    if (!isFile(_startLineURL)) {
+        if (!isDirectory(_startLineURL)) {
+            if (!_config._autoindex) {
+                throw Exception("root/Uri not found", 404);
+            } else {
+                if (pipe(_pipeFdOut) == -1)
+                    throw Exception("error to create pipe", 500);
+                autoIndexToHtml();
+                _statusCode = 200;
             }
+        } else {
+            if ( removeDirectory(_startLineURL))
+                _statusCode = 204;
         }
+    } else {
+        if (removeFile(_startLineURL))
+            _statusCode = 204;
     }
 }
 

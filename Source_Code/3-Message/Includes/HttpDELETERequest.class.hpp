@@ -6,6 +6,7 @@
 #define WEBSERVER_HTTPDELETEREQUEST_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
 
 class HttpDELETERequest : public AHttpMessage {
 
