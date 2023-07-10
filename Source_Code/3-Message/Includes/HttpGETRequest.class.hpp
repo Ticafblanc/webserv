@@ -18,7 +18,7 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    PegParser<AHttpMessage>                             _peg;
+    PegParser<HttpGETRequest>                           _peg;
     std::string                                         _queryString;
     bool                                                _isCGI;
     std::string                                         _contentType;
@@ -28,6 +28,33 @@ private:
 *|                                  Private Methode                                 |
 *====================================================================================
 */
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool continueManageEvent() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void extractData();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * bool continueManageEvent() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool startCgi();
+
 /**
  * Private methode of server class
  *
@@ -143,7 +170,7 @@ private:
  * */
     std::string endHeader(std::string &token);
 
-    friend void PegParser<AHttpMessage>::setMapTokenHeadersInformation();
+    friend void PegParser<HttpGETRequest>::setMapTokenHeadersInformation();
 
 /*>********************************public section**********************************/
 
@@ -183,7 +210,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpGETRequest(const AHttpMessage base, PegParser<AHttpMessage>& peg);
+    HttpGETRequest(const AHttpMessage& base, const std::string & data);
 
 /**
 * Destructor of HttpGETRequest.class class
@@ -194,15 +221,15 @@ public:
 **/
     ~HttpGETRequest();
 
-///**
-// * Copy constructor of HttpGETRequest.class class
-// *
-// * HttpGETRequest.class(const HttpGETRequest.class &);
-// *
-// * @param   http_request instance to build the server
-// * @throw   none
-// **/
-//    HttpGETRequest(const HttpGETRequest &);
+/**
+ * Copy constructor of HttpGETRequest.class class
+ *
+ * HttpGETRequest.class(const HttpGETRequest.class &);
+ *
+ * @param   http_request instance to build the server
+ * @throw   none
+ **/
+    HttpGETRequest(const HttpGETRequest &);
 
 /**
  * Operator overload= of HttpGETRequest.class class
@@ -217,7 +244,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Element access                                  |
+*|                                  Public Metode                                   |
 *====================================================================================
 */
 

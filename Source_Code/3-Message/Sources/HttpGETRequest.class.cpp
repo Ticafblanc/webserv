@@ -10,13 +10,13 @@
 *====================================================================================
 */
 
-HttpGETRequest::HttpGETRequest(const AHttpMessage base, PegParser<AHttpMessage>& peg)
-        : AHttpMessage(base), _peg(peg), _isCGI(false){}
+HttpGETRequest::HttpGETRequest(const AHttpMessage& base, const std::string & data)
+        : AHttpMessage(base), _peg(data), _isCGI(false){}
 
 HttpGETRequest::~HttpGETRequest() {}
 
-//HttpGETRequest::HttpGETRequest(const HttpGETRequest & other)
-//        : AHttpMessage(other), _queryString(other._queryString), _isCGI(other._isCGI){}
+HttpGETRequest::HttpGETRequest(const HttpGETRequest & other)
+        : AHttpMessage(other), _queryString(other._queryString), _isCGI(other._isCGI){}
 
 HttpGETRequest &HttpGETRequest::operator=(const HttpGETRequest &rhs) {
     if ( this != & rhs) {
@@ -35,9 +35,14 @@ HttpGETRequest &HttpGETRequest::operator=(const HttpGETRequest &rhs) {
 
 bool HttpGETRequest::continueManageEvent() {
     try {
-        _peg.setStringStream(_data);
-        _peg.setMapTokenHeaderStartLine();
-        _peg.findToken(*this, 0);
+        extractData();
+        if (!checkIsAllowedMethode(1, 3, 5))
+            throw Exception("Method GET Not Allowed ", 405);
+        findRessource();
+        if (_isCGI) {
+            if (!startCgi())
+                throw Exception("error to create child process", 500);
+        }
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -54,101 +59,25 @@ bool HttpGETRequest::continueManageEvent() {
 
 /*
 *====================================================================================
-*|                                  Private Methode to recvMessage                         |
-*====================================================================================
-*/
-
-
-
-
-bool HttpGETRequest::headerIsNotComplete(std::size_t& bytesExchange){
-    if (checkErrorBytesExchange(bytesExchange))
-        return false;
-    _data.append(_buffer.begin(), _buffer.end());
-    _buffer.clear();
-    if (_data.find("\r\n\r\n") == std::string::npos){
-        _requestHeadersIsComplete = true;
-        return false;
-    }
-    return true;
-}
-
-bool HttpGETRequest::checkErrorBytesExchange(std::size_t& bytesExchange){
-    if (static_cast<int>(bytesExchange) == -1)
-        return true;
-    if (bytesExchange == 0 ) {
-        setConnection(CLOSE);
-        return true;
-    }
-    _totalBytesRecv += bytesExchange;
-    if (static_cast<int>(_totalBytesRecv) > _config._clientMaxBodySize){
-        setStatusCode(413);
-        return true;
-    }
-    return false;
-}
-
-/*
-*====================================================================================
 *|                                  select Methode                                  |
 *====================================================================================
 */
 
-std::string HttpGETRequest::methodeGET(std::string & token) {
-    (void)token;
-    extractHeaderData();
-    if (!checkIsAllowedMethode(1, 3, 5))
-        throw Exception("Method GET Not Allowed ", 405);
-    findRessource();
-    if (_isCGI){
-        if (launchChild(_pipeFdIn, _pipeFdOut, _pid,
-                        setArgv("/usr/bin/php", _startLineURL),
-                        setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
-            throw Exception("error to create child process", 500);
-        close(_pipeFdIn[STDIN_FILENO]);
-        close(_pipeFdOut[STDOUT_FILENO]);
-    }
-    return std::string();
-}
 
-std::string HttpGETRequest::methodePOST(std::string & token) {
-    (void)token;
-    extractHeaderData();
-    if (!checkIsAllowedMethode(2, 3, 6))
-        throw Exception("Method Post Not Allowed ", 405);
-    findRessource();
-    _requestBodyIsComplete = false;
-    if (_isCGI){
-        if (launchChild(_pipeFdIn, _pipeFdOut, _pid,
-                        setArgv("/usr/bin/php", _startLineURL),
-                        setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
-            throw Exception("error to create child process", 500);
-        close(_pipeFdIn[STDIN_FILENO]);
-        close(_pipeFdOut[STDOUT_FILENO]);
-    }
-    return std::string();
-}
-
-std::string HttpGETRequest::methodeDELETE(std::string & token) {
-    (void)token;
-    extractHeaderData();
-    if (!checkIsAllowedMethode(4, 5, 6))
-        throw Exception("Method GET Not Allowed ", 405);
-    findRessource();
-    return std::string();
-}
-
-
-
-void HttpGETRequest::extractHeaderData() {
-    _startLineURL = _peg.extractData(' ');
-    _startLineVersion = _peg.extractData('\n');
-    _startLineVersion.erase(_startLineVersion.size() - 1);
-    if (_startLineVersion != "HTTP/1.1")
-        throw Exception("Version protocole not supprted", 505);
+void HttpGETRequest::extractData() {
     _peg.setMapTokenHeadersInformation();
     while(!_peg.checkIsEmpty() && !_requestHeadersIsComplete)
         _peg.findToken(*this,  0);
+}
+
+bool HttpGETRequest::startCgi() {
+    if (launchChild(_pipeFdIn, _pipeFdOut, _pid,
+                    setArgv("/usr/bin/php", _startLineURL),
+                    setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
+        return false;
+    close(_pipeFdIn[STDIN_FILENO]);
+    close(_pipeFdOut[STDOUT_FILENO]);
+    return true;
 }
 
 /*
@@ -226,23 +155,11 @@ bool HttpGETRequest::checkIsPHP() {
 
 std::string HttpGETRequest::ContentLength(std::string &token) {
     addToMapHttpHeader(token);
-    int icontentLength = 0 ;
-    if (!_isChunked) {
-        std::string contentLength = getValueHeader("Content-Length:");
-        if (!contentLength.empty())
-            icontentLength = std::atoi(contentLength.c_str());
-        if (static_cast<int>(icontentLength) > _config._clientMaxBodySize)
-            throw Exception("Request body size exceeds the maximum limit", 413);
-    }
     return std::string();
 }
 
 std::string HttpGETRequest::TransfereEncoding(std::string &token) {
     addToMapHttpHeader(token);
-    _startLineMethode = token;
-    std::string chunked = getValueHeader("Transfer-Encoding:");
-    if (chunked == "chunked" )
-        _isChunked = true;
     return std::string();
 }
 
@@ -251,17 +168,6 @@ std::string HttpGETRequest::addToMapHttpHeader(std::string& token) {
     std::string data = _peg.extractData('\n');
     data.erase(data.size() - 1);
     addMapHttpHeaders(std::make_pair(token, data));
-    return std::string();
-}
-
-void HttpGETRequest::addMapHttpHeaders(const std::pair<std::string, std::string> &pairHeader){
-    _mapHttpHeaders.insert(pairHeader);
-}
-
-std::string HttpGETRequest::getValueHeader(const std::string & token) {
-    const std::map<std::string, std::string>::iterator it = _mapHttpHeaders.find(token);
-    if (it != _mapHttpHeaders.end())
-        return it->second;
     return std::string();
 }
 

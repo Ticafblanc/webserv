@@ -251,6 +251,18 @@ public:
 /**
  * Public methode of 6-PegParser.class
  *
+ *   const std::stringstream &getStringStream() const;
+ *
+ * @returns     bool true if find endOfBlocCharacter
+ * @param       endOfBlocCharacter define the end of bloc
+ * @throw       syntaxException
+ */
+    const std::string getStr(){
+        return _stringStream.str().substr(_stringStream.tellg());
+    };
+/**
+ * Public methode of 6-PegParser.class
+ *
  *  void setStringStream(const std::stringstream &stringStream);
  *
  * @returns     bool true if find endOfBlocCharacter

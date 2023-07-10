@@ -11,18 +11,16 @@
 */
 
 HttpHeadersRequest::HttpHeadersRequest(Config& config, Socket& socketClient)
-        : AHttpMessage(config, socketClient), _buffer(config._clientHeaderBufferSize), _totalBytesRecv(),
-          _isChunked(false), _isCGI(false) {}
+        : AHttpMessage(config, socketClient), _buffer(config._clientHeaderBufferSize), _totalBytesRecv() {}
 
 HttpHeadersRequest::~HttpHeadersRequest() {}
 
 HttpHeadersRequest::HttpHeadersRequest(const HttpHeadersRequest & other)
-        : AHttpMessage(other), _totalBytesRecv(), _isChunked(other._isChunked), _isCGI(other._isCGI){}
+        : AHttpMessage(other), _totalBytesRecv(){}
 
 HttpHeadersRequest &HttpHeadersRequest::operator=(const HttpHeadersRequest &rhs) {
     if ( this != & rhs) {
         AHttpMessage::operator=(rhs);
-        this->_isChunked = rhs._isChunked;
         this->_data = rhs._data;
     }
     return *this;
@@ -103,25 +101,23 @@ bool HttpHeadersRequest::checkErrorBytesExchange(std::size_t& bytesExchange){
 std::string HttpHeadersRequest::methodeGET(std::string & token) {
     (void)token;
     extractHeaderData();
-    _methode = new HttpGETRequest((AHttpMessage)this, _peg);
+    _methode = new HttpGETRequest(*this, _peg.getStr());
     return std::string();
 }
 
 std::string HttpHeadersRequest::methodePOST(std::string & token) {
     (void)token;
     extractHeaderData();
-    if (!checkIsAllowedMethode(2, 3, 6))
-        throw Exception("Method Post Not Allowed ", 405);
-    findRessource();
+    _methode = new HttpPOSTRequest(*this, _peg.getStr());
     return std::string();
 }
 
 std::string HttpHeadersRequest::methodeDELETE(std::string & token) {
     (void)token;
     extractHeaderData();
-    if (!checkIsAllowedMethode(4, 5, 6))
-        throw Exception("Method GET Not Allowed ", 405);
-    findRessource();
+    _methode = new HttpDELETERequest(*this, _peg.getStr());
+//    if (!checkIsAllowedMethode(4, 5, 6))
+//        throw Exception("Method GET Not Allowed ", 405);
     return std::string();
 }
 
@@ -133,11 +129,6 @@ void HttpHeadersRequest::extractHeaderData() {
         throw Exception("Version protocole not supprted", 505);
 }
 
-/*
-*====================================================================================
-*|                                  Information Methode                             |
-*====================================================================================
-*/
 
 
 

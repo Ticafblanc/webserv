@@ -7,6 +7,8 @@
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
 #include <Source_Code/3-Message/Includes/HttpGETRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpPOSTRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpDELETERequest.class.hpp>
 
 class HttpHeadersRequest : public AHttpMessage {
 
@@ -24,10 +26,7 @@ private:
     std::vector<char>                                   _buffer;
     std::size_t                                         _totalBytesRecv;
     PegParser<HttpHeadersRequest>                       _peg;
-    std::string                                         _queryString;
-    bool                                                _isChunked;
-    bool                                                _isCGI;
-    std::string                                         _contentType;
+
 
 /*
 *====================================================================================
@@ -186,15 +185,6 @@ public:
  * @throw   none
  **/
     HttpHeadersRequest& operator=(const HttpHeadersRequest &);
-
-
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
-
-
 
 };
 
