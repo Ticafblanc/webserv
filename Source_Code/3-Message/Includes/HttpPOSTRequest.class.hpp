@@ -6,6 +6,7 @@
 #define WEBSERVER_HTTPPOSTSREQUEST_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpBodyRequest.class.hpp>
 
 class HttpPOSTRequest : public AHttpMessage {
 
@@ -20,10 +21,7 @@ private:
 *====================================================================================
 */
     PegParser<HttpPOSTRequest>                          _peg;
-    std::size_t                                         _contentLength;
-    bool                                                _isChunked;
     bool                                                _isCGI;
-    std::string                                         _contentType;
 
 /*
 *====================================================================================

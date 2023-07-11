@@ -35,8 +35,8 @@ bool HttpDELETERequest::continueManageEvent() {
 
     try {
         extractData();
-        if (!checkIsAllowedMethode(1, 3, 5))
-            throw Exception("Method GET Not Allowed ", 405);
+        if (!checkIsAllowedMethode(4, 5, 6))
+            throw Exception("Method DELETE Not Allowed ", 405);
         findRessource();
 
         return true;
@@ -49,7 +49,7 @@ bool HttpDELETERequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
-    _methode = new HttpReponse(*this);
+    _methode = new HttpBodyReponse(*this);
     return false;
 }
 

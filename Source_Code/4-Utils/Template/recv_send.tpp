@@ -39,11 +39,11 @@ void readData(int fd, std::vector<char>& buffer,T& base,
 template<class T>
 void writeData(int fd, std::vector<char>& buffer, T& base,
                bool (T::*dataIsNotComplete)(std::size_t&)){
-    std::size_t bytesWrite;
+    std::size_t bytesWrite = 1;
 
-    do {
+    while ((base.*(dataIsNotComplete))(bytesWrite)){
         bytesWrite = write(fd, buffer.data(), buffer.size());
-    }while ((base.*(dataIsNotComplete))(bytesWrite));
+    }
 }
 
 template<class T>
@@ -52,10 +52,12 @@ void recvAndWriteData(int fd, int socket, std::vector<char>& buffer, T& base,
     std::size_t bytes;
 
     do {
-        bytes = write(fd, buffer.data(), buffer.size());
-        if (bytes != buffer.size())
-            break;
-        bytes = recv(socket, buffer.data(), buffer.size(), 0);
+        if (!buffer.empty()) {
+            write(fd, buffer.data(), buffer.size());
+            buffer.clear();
+        }
+        if (buffer.empty())
+            bytes = recv(socket, buffer.data(), buffer.size(), 0);
     } while ((base.*(dataIsNotComplete))(bytes));
 }
 

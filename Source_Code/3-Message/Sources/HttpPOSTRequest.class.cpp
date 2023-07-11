@@ -11,21 +11,16 @@
 */
 
 HttpPOSTRequest::HttpPOSTRequest(const AHttpMessage& base, const std::string & data)
-        : AHttpMessage(base), _peg(data), _contentLength(), _isChunked(false),
-        _isCGI(false), _contentType() {}
+        : AHttpMessage(base), _peg(data), _isCGI(false){}
 
 HttpPOSTRequest::~HttpPOSTRequest() {}
 
 HttpPOSTRequest::HttpPOSTRequest(const HttpPOSTRequest & other)
-        : AHttpMessage(other), _contentLength(other._contentLength), _isChunked(other._isChunked),
-          _isCGI(other._isCGI), _contentType(other._contentType){}
+        : AHttpMessage(other), _isCGI(other._isCGI){}
 
 HttpPOSTRequest &HttpPOSTRequest::operator=(const HttpPOSTRequest &rhs) {
     if ( this != & rhs) {
         AHttpMessage::operator=(rhs);
-        this->_isChunked = rhs._isChunked;
-        this->_contentLength = rhs._contentLength;
-        this->_contentType = rhs._contentType;
         this->_isCGI = rhs._isCGI;
     }
     return *this;
@@ -47,7 +42,9 @@ bool HttpPOSTRequest::continueManageEvent() {
             if (!startCgi())
                 throw Exception("error to create child process", 500);
         } else {
-
+            if (pipe(_pipeFdOut) == -1)
+                throw Exception("error to create pipe", 500);
+            //open and write data in
         }
         return true;
     }catch (Exception& e) {
@@ -59,7 +56,7 @@ bool HttpPOSTRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
-    _methode = new HttpReponse(*this);
+    _methode = new HttpBodyRequest(*this, _peg.getStr());
     return false;
 }
 

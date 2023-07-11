@@ -52,7 +52,6 @@ bool HttpHeadersRequest::continueManageEvent() {
             setStatusCode(400);
         }
     }
-    _methode = new HttpReponse(*this);
     return false;
 }
 
@@ -117,8 +116,6 @@ std::string HttpHeadersRequest::methodeDELETE(std::string & token) {
     (void)token;
     extractHeaderData();
     _methode = new HttpDELETERequest(*this, _peg.getStr());
-//    if (!checkIsAllowedMethode(4, 5, 6))
-//        throw Exception("Method GET Not Allowed ", 405);
     return std::string();
 }
 

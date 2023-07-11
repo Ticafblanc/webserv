@@ -14,7 +14,7 @@ AHttpMessage::AHttpMessage(Config& config, Socket& socketClient)
         : _config(config), _socketClient(socketClient), _methode(NULL), _connection(KEEP_ALIVE),
         _events(EPOLLIN | EPOLLET),  _statusCode(0), _data(), _requestHeadersIsComplete(false), _requestBodyIsComplete(true),
         _bodyReponseIsComplete(true), _headersReponseIsComplete(false), _isComplete(false), _mapHttpHeaders(),
-        _pid(), _pipeFdIn(), _pipeFdOut() {}
+        _contentLength(), _isChunked(false), _contentType(), _pid(), _pipeFdIn(), _pipeFdOut() {}
 
 AHttpMessage::~AHttpMessage() {}
 
@@ -23,6 +23,7 @@ AHttpMessage::AHttpMessage(const AHttpMessage & other)
         _statusCode(other._statusCode), _data(other._data), _requestHeadersIsComplete(other._requestHeadersIsComplete),
         _requestBodyIsComplete(other._requestBodyIsComplete), _bodyReponseIsComplete(other._bodyReponseIsComplete),
         _headersReponseIsComplete(other._headersReponseIsComplete),_isComplete(other._isComplete), _mapHttpHeaders(),
+        _contentLength(other._contentLength), _isChunked(other._isChunked), _contentType(other._contentType),
         _pid(other._pid), _pipeFdIn(), _pipeFdOut() {
     this->_pipeFdIn[0] = other._pipeFdIn[0];
     this->_pipeFdIn[1] = other._pipeFdIn[1];
@@ -48,6 +49,14 @@ AHttpMessage &AHttpMessage::operator=(const AHttpMessage &rhs) {
         this->_startLineURL = rhs._startLineURL;
         this->_startLineVersion = rhs._startLineVersion;
         this->_mapHttpHeaders = rhs._mapHttpHeaders;
+        this->_contentLength = rhs._contentLength;
+        this->_isChunked = rhs._isChunked;
+        this->_contentType = rhs._contentType;
+        this->_pipeFdIn[0] = rhs._pipeFdIn[0];
+        this->_pipeFdIn[1] = rhs._pipeFdIn[1];
+        this->_pipeFdOut[0] = rhs._pipeFdOut[0];
+        this->_pipeFdOut[1] = rhs._pipeFdOut[1];
+
     }
     return *this;
 }

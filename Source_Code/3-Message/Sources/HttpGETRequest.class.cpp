@@ -45,6 +45,7 @@ bool HttpGETRequest::continueManageEvent() {
         } else {
             if (pipe(_pipeFdOut) == -1)
                 throw Exception("error to create pipe", 500);
+            //open and write in fd out
         }
         return true;
     }catch (Exception& e) {
@@ -56,6 +57,7 @@ bool HttpGETRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
+    _methode = new HttpBodyReponse(*this);
     return false;
 }
 

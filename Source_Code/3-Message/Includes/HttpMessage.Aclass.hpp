@@ -34,6 +34,9 @@ protected:
     std::string                                         _startLineURL;
     std::string                                         _startLineVersion;
     std::map< std::string, std::string>                 _mapHttpHeaders;
+    std::size_t                                         _contentLength;
+    bool                                                _isChunked;
+    std::string                                         _contentType;
     pid_t                                               _pid;
     int                                                 _pipeFdIn[2];
     int                                                 _pipeFdOut[2];

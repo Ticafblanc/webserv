@@ -21,7 +21,6 @@ private:
     PegParser<HttpGETRequest>                           _peg;
     std::string                                         _queryString;
     bool                                                _isCGI;
-    std::string                                         _contentType;
 
 /*
 *====================================================================================
