@@ -81,7 +81,6 @@ bool HttpGETRequest::startCgi() {
                     setPhpEnv(_startLineMethode, _queryString, _mapHttpHeaders)))
         return false;
     close(_pipeFdIn[STDIN_FILENO]);
-    close(_pipeFdIn[STDOUT_FILENO]);
     close(_pipeFdOut[STDOUT_FILENO]);
     return true;
 }

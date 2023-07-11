@@ -20,23 +20,21 @@
 
 Client::Client(epoll_event &event, Config& config, Socket * server)
 : Socket(event, server), _config(config),
-  _lastConnection(std::time(NULL)), _request(NULL), _reponse(NULL) {}
+  _lastConnection(std::time(NULL)), _message(NULL){}
 
 Client::~Client() {
-    delete _request;
-    delete _reponse;
+    delete _message;
 }
 
 Client::Client(const Client &other)
 : Socket(other), _config(other._config),
-  _lastConnection(other._lastConnection), _request(other._request), _reponse(other._reponse) {}
+  _lastConnection(other._lastConnection), _message(other._message){}
 
 Client& Client::operator=(const Client& rhs){
     if (this != &rhs){
         Socket::operator=(rhs);
         this->_lastConnection = rhs._lastConnection;
-        this->_request = rhs._request;
-        this->_reponse = rhs._reponse;
+        this->_message = rhs._message;
     }
     return *this;
 }
@@ -52,18 +50,18 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
-    if (dynamic_cast<HttpReponse*>(_request) != NULL)
+    if (dynamic_cast<HttpReponse*>(_message) != NULL)
         return;
     do {
         selectRequestMessageMethode();
-    }while (_request->continueManageEvent() && !_request->isComplete());
+    }while (_message->continueManageEvent() && !_message->isComplete());
     updateClient();
 }
 
 void Client::sendEvent() {
-    if (!_request || dynamic_cast<HttpReponse*>(_request) == NULL)
+    if (!_message || dynamic_cast<HttpReponse*>(_message) == NULL)
         return;
-    while (_request->continueManageEvent());
+    while (_message->continueManageEvent());
     updateClient();
 }
 
@@ -83,11 +81,11 @@ void Client::setLastConnection(time_t lastConnection) {
 }
 
 uint32_t Client::getEvents() const {
-    return _request->eventsStatus();
+    return _message->eventsStatus();
 }
 
 bool Client::isConnection() const {
-    return _request->connectionStatus();
+    return _message->connectionStatus();
 }
 
 /*
@@ -97,32 +95,16 @@ bool Client::isConnection() const {
 */
 
 void Client::selectRequestMessageMethode() {
-    if (!_request ) {
-        _request = new HttpHeadersRequest(_config, *this);
-    }else if (_request->requestHeadersIsComplete()) {
-        _request->updateClassMessage(_request);
-    }else if (_request->requestHeadersIsComplete() && _request->requestBodyIsComplete()
-              && !_request->bodyReponseIsComplete() && dynamic_cast<HttpBodyReponse*>(_request) == NULL) {
-        IHttpMessage* tmp = new HttpBodyReponse(_request);
-        std::swap(tmp, _request);
-        delete tmp;
-    }else if (_request->bodyReponseIsComplete() && !_request->headersReponseIsComplete()
-              && dynamic_cast<HttpBodyReponse*>(_request) == NULL) {
-        IHttpMessage* tmp = new HttpHeadersReponse(_request);
-        std::swap(tmp, _request);
-        delete tmp;
-    }else if (_request->bodyReponseIsComplete() && _request->headersReponseIsComplete()
-              && dynamic_cast<HttpReponse*>(_request) == NULL) {
-        IHttpMessage* tmp = new HttpReponse(_request);
-        std::swap(tmp, _request);
-        delete tmp;
-    }
+    if (!_message ) {
+        _message = new HttpHeadersRequest(_config, *this);
+    }else
+        _message->updateClassMessage(_message);
 }
 
 void Client::updateClient() {
-    if (_request.isComplete()){
-        delete _request;
-        _request = NULL;
+    if (_message->isComplete()){
+        delete _message;
+        _message = NULL;
     }
     setLastConnection(std::time(NULL));
 }

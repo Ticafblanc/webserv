@@ -5,10 +5,11 @@
 #ifndef WEBSERVER_HTTPBODYREPONSE_CLASS_HPP
 #define WEBSERVER_HTTPBODYREPONSE_CLASS_HPP
 
-#include <Source_Code/3-Message/Includes/HttpBody.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
 
-class HttpBodyReponse : public AHttpBody {
-    
+class HttpBodyReponse : public AHttpMessage {
+    typedef void (HttpBodyRequest::*dataIsComplete)();
+
 /*>*******************************private section**********************************/
 private:
 
@@ -17,17 +18,67 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-
-    std::string                                         _startLineVersion;
-    std::string                                         _startLineStatusCode;
-    std::map< std::string, std::string>                 _mapHttpBodyReponse;
-
+    std::vector<char>   _buffer;
+    std::size_t         _totalBytesRecv;
+    dataIsComplete      _methodeToRecv;
 /*
 *====================================================================================
 *|                                  Private Methode                                 |
 *====================================================================================
 */
 
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void recvBody();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void setDefaultPage();
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool checkErrorBytes(std::size_t& bytesExchange);
+
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void sendData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool readDataIsNotComplete(std::size_t& bytesExchange);
 /*>********************************public section**********************************/
 
 public:
@@ -47,7 +98,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpBodyReponse(Config& config, Socket& socket);
+    HttpBodyReponse(const AHttpMessage& base);
 
 /**
 * Destructor of HttpBodyReponse.class class
@@ -80,7 +131,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Public Methode                                  |
+*|                                  Member Fonction Override                        |
 *====================================================================================
 */
 
@@ -89,26 +140,13 @@ public:
  *
  * extract data and put in std::string
  *
- * void recvMessage();
+ * bool continueManageEvent() override;
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool recvMessage();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendMessage();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool sendMessage();
+    bool continueManageEvent() override;
 
 /*
 *====================================================================================
@@ -116,64 +154,7 @@ public:
 *====================================================================================
 */
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendData();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string getValueHeader(const std::string& token);
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string endHeader(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string endHeader(std::string &token);
-
-
-
-
-    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
-
-    void setContent();
-
-    void errorPage();
-
-    void addMapHttpHeader();
-
-    void redirection();
-
-    bool sendMessage(int code);
-
-    bool executePhp();
-
-    bool continueBody();
-
-    void findPostRessource();
-
-    bool bodyChunkIsComplete(std::size_t &bytesExchange);
-
-    void controleHeader();
-
-    bool readDataIsNotComplete(std::size_t& bytesExchange);
-
-    bool writeDataIsNotComplete(size_t &bytesExchange);
-
-    bool checkErrorBytes(size_t &bytesExchange);
-
-    bool bodyIsNotComplete(std::size_t &bytesExchange);
 };
 
 

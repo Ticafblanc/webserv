@@ -170,7 +170,7 @@ class LogException : public std::exception {
          *
          * virtual const char * what() const throw();
          *
-         * @returns  const char * store in private std::string _request
+         * @returns  const char * store in private std::string _message
          *          at the construction defaut constructor "7-Socket error"
          * @param   void
          * @throw   none
