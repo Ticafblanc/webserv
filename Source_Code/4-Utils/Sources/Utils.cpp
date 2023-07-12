@@ -144,13 +144,7 @@ bool launchChild(int * pipefdIn,int * pipefdOut, pid_t &pid,
     return true;
 }
 
-std::string addDate() {
-    std::time_t now = std::time(0);
-    std::tm* timeInfo = std::gmtime(&now);
-    char buffer[80];
-    std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeInfo);
-    return std::string(buffer);
-}
+
 
 void chunkData(std::vector<std::string> & vec, std::string data, std::size_t size) {
     for (std::size_t i = 0; i < data.size(); i += size + 1) {

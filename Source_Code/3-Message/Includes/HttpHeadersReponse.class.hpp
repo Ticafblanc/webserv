@@ -5,9 +5,9 @@
 #ifndef WEBSERVER_HttpHeadersReponse_CLASS_HPP
 #define WEBSERVER_HttpHeadersReponse_CLASS_HPP
 
-#include <Source_Code/3-Message/Includes/HttpHeadersRequest.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
 
-class HttpHeadersReponse : public HttpHeadersRequest {
+class HttpHeadersReponse : public AHttpMessage {
     
 /*>*******************************private section**********************************/
 private:
@@ -18,16 +18,22 @@ private:
 *====================================================================================
 */
 
-    std::string                                         _startLineVersion;
-    std::string                                         _startLineStatusCode;
-    std::map< std::string, std::string>                 _mapHttpHeadersReponse;
+
 
 /*
 *====================================================================================
 *|                                  Private Methode                                 |
 *====================================================================================
 */
+    void updateMapHeaders(std::string& cgiHeaders);
 
+    void startLine();
+
+    void addDate();
+
+    void addServer();
+
+    void setHeaders();
 /*>********************************public section**********************************/
 
 public:
@@ -47,7 +53,8 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpHeadersReponse(Config& config, Socket& socket);
+    HttpHeadersReponse(const AHttpMessage& base);
+    HttpHeadersReponse(const AHttpMessage& base, std::string& CgiHeader);
 
 /**
 * Destructor of HttpHeadersReponse.class class
@@ -80,7 +87,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Public Methode                                  |
+*|                                  Member Fonction Override                        |
 *====================================================================================
 */
 
@@ -89,91 +96,15 @@ public:
  *
  * extract data and put in std::string
  *
- * void recvMessage();
+ * bool continueManageEvent() override;
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool recvMessage();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendMessage();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool sendMessage();
-
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendData();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string getValueHeader(const std::string& token);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string endHeader(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string endHeader(std::string &token);
+    bool continueManageEvent() override;
 
 
-
-
-    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
-
-    void setContent();
-
-    void errorPage();
-
-    void addMapHttpHeader();
-
-    void redirection();
-
-    bool sendMessage(int code);
-
-    bool executePhp();
-
-    bool continueBody();
-
-    void findPostRessource();
-
-    bool bodyChunkIsComplete(std::size_t &bytesExchange);
-
-    void controleHeader();
-
-    bool readDataIsNotComplete(std::size_t& bytesExchange);
-
-    bool writeDataIsNotComplete(size_t &bytesExchange);
-
-    bool checkErrorBytes(size_t &bytesExchange);
-
-    bool bodyIsNotComplete(std::size_t &bytesExchange);
 };
 
 

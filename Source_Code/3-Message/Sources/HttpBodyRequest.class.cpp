@@ -13,17 +13,17 @@
 HttpBodyRequest::HttpBodyRequest(const AHttpMessage& base, const std::string & data)
 : AHttpMessage(base), _buffer(_config._clientBodyBufferSize), _totalBytesRecv(),
 _methodeToRecv((_isChunked) ? &HttpBodyRequest::recvHeaderChunck : &HttpBodyRequest::recvBody){
-    _data = data;
-    _totalBytesRecv = _data.size();
+    _body = data;
+    _totalBytesRecv = _body.size();
     (this->*(_methodeToRecv))();
     if (!data.empty()){
-        _buffer.assign(_data.begin(),
-                       (_data.size() > static_cast<std::size_t>(_config._clientBodyBufferSize)) ?
-                       _data.begin() + _config._clientBodyBufferSize : _data.end());
-        if (_data.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
-            _data = _data.substr(0, _config._clientBodyBufferSize);
+        _buffer.assign(_body.begin(),
+                       (_body.size() > static_cast<std::size_t>(_config._clientBodyBufferSize)) ?
+                       _body.begin() + _config._clientBodyBufferSize : _body.end());
+        if (_body.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
+            _body = _body.substr(0, _config._clientBodyBufferSize);
         else
-            _data.clear();
+            _body.clear();
     }
 }
 
@@ -78,18 +78,18 @@ void HttpBodyRequest::recvHeaderChunck(){
             if (checkErrorBytesExchange(bytesRecv)) {
                 return;
             }
-            _data.append(_buffer.begin(), _buffer.end());
+            _body.append(_buffer.begin(), _buffer.end());
             _buffer.clear();
         }
         if (findHeaderChunck()) {
             std::size_t size = std::min(_contentLength, static_cast<std::size_t>(_config._clientBodyBufferSize));
-            size = std::min(_data.size(),  size);
-            checkErrorBytesExchange((_data.size() >= size) ? size : _data.size());
-            _buffer.assign(_data.begin(),(_data.size() >= size) ? _data.begin() + size : _data.end());
-            if (_data.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
-                _data = _data.substr(0, _config._clientBodyBufferSize);
+            size = std::min(_body.size(), size);
+            checkErrorBytesExchange((_body.size() >= size) ? size : _body.size());
+            _buffer.assign(_body.begin(), (_body.size() >= size) ? _body.begin() + size : _body.end());
+            if (_body.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
+                _body = _body.substr(0, _config._clientBodyBufferSize);
             else
-                _data.clear();
+                _body.clear();
             write(_pipeFdIn[STDOUT_FILENO], _buffer.data(), size);
             _contentLength -= size;
             _buffer.clear();
@@ -115,31 +115,31 @@ void HttpBodyRequest::recvBodyChunck(){
         totalBytesRecv += bytesRecv;
         if (totalBytesRecv > _contentLength)
             throw Exception("Request chunck size exceeds content length", 413);
-        _data.append(_buffer.begin(), _buffer.end());
+        _body.append(_buffer.begin(), _buffer.end());
         _buffer.clear();
-        posCRLF = _data.find("\r\n");
+        posCRLF = _body.find("\r\n");
         if(posCRLF == std::string::npos) {
             std::size_t size = std::min(_contentLength, static_cast<std::size_t>(_config._clientBodyBufferSize));
-            size = std::min(_data.size(),  size);
-            checkErrorBytesExchange((_data.size() >= size) ? size : _data.size());
-            _buffer.assign(_data.begin(),(_data.size() >= size) ? _data.begin() + size : _data.end());
-            if (_data.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
-                _data = _data.substr(0, _config._clientBodyBufferSize);
+            size = std::min(_body.size(), size);
+            checkErrorBytesExchange((_body.size() >= size) ? size : _body.size());
+            _buffer.assign(_body.begin(), (_body.size() >= size) ? _body.begin() + size : _body.end());
+            if (_body.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
+                _body = _body.substr(0, _config._clientBodyBufferSize);
             else
-                _data.clear();
+                _body.clear();
             write(_pipeFdIn[STDOUT_FILENO], _buffer.data(), size);
             _contentLength -= size;
             _buffer.clear();
             continue;
         }else {
             std::size_t size = std::min(_contentLength, static_cast<std::size_t>(_config._clientBodyBufferSize));
-            size = std::min(_data.size(),  size);
-            checkErrorBytesExchange((_data.size() >= size) ? size : _data.size());
-            _buffer.assign(_data.begin(),(_data.size() >= size) ? _data.begin() + size : _data.end());
-            if (_data.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
-                _data = _data.substr(0, _config._clientBodyBufferSize);
+            size = std::min(_body.size(), size);
+            checkErrorBytesExchange((_body.size() >= size) ? size : _body.size());
+            _buffer.assign(_body.begin(), (_body.size() >= size) ? _body.begin() + size : _body.end());
+            if (_body.size() > static_cast<std::size_t>(_config._clientBodyBufferSize))
+                _body = _body.substr(0, _config._clientBodyBufferSize);
             else
-                _data.clear();
+                _body.clear();
             write(_pipeFdIn[STDOUT_FILENO], _buffer.data(), size);
             _contentLength -= size;
             }
@@ -148,13 +148,13 @@ void HttpBodyRequest::recvBodyChunck(){
 }
 
 bool HttpBodyRequest::findHeaderChunck() {
-    std::size_t posCRLF = _data.find("\r\n");
+    std::size_t posCRLF = _body.find("\r\n");
     if(posCRLF == std::string::npos) {
         _buffer.clear();
         return false;
     }
-    _contentLength = stringToSizet(_data.substr(0,posCRLF));
-    _data = _data.substr(0,posCRLF + 2);
+    _contentLength = stringToSizet(_body.substr(0, posCRLF));
+    _body = _body.substr(0, posCRLF + 2);
     if (_contentLength == 0) {
         _requestBodyIsComplete = true;
         return false;
@@ -163,16 +163,16 @@ bool HttpBodyRequest::findHeaderChunck() {
 }
 
 void HttpBodyRequest::recvBody() {
-    while (!_data.empty()) {
+    while (!_body.empty()) {
         std::size_t size = (_contentLength > static_cast<std::size_t>(_config._clientBodyBufferSize)) ? _config._clientBodyBufferSize : _contentLength;
         checkErrorBytesExchange(size);
-        _buffer.assign(_data.begin(),
-                       (_data.size() > size) ?
-                       _data.begin() + _config._clientBodyBufferSize : _data.end());
-        if (_data.size() > size)
-            _data = _data.substr(0, size);
+        _buffer.assign(_body.begin(),
+                       (_body.size() > size) ?
+                       _body.begin() + _config._clientBodyBufferSize : _body.end());
+        if (_body.size() > size)
+            _body = _body.substr(0, size);
         else
-            _data.clear();
+            _body.clear();
         write(_pipeFdIn[STDOUT_FILENO], _buffer.data(), size);
         _buffer.clear();
     }

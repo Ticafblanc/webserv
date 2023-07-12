@@ -39,13 +39,15 @@ bool HttpGETRequest::continueManageEvent() {
         if (!checkIsAllowedMethode(1, 3, 5))
             throw Exception("Method GET Not Allowed ", 405);
         findRessource();
-        if (_isCGI) {
-            if (!startCgi())
-                throw Exception("error to create child process", 500);
-        } else {
-            if (pipe(_pipeFdOut) == -1)
-                throw Exception("error to create pipe", 500);
-            //open and write in fd out
+        if (!_statusCode) {
+            if (_isCGI) {
+                if (!startCgi())
+                    throw Exception("error to create child process", 500);
+            } else {
+                if (pipe(_pipeFdOut) == -1)
+                    throw Exception("error to create pipe", 500);
+                //open and write in fd out
+            }
         }
         return true;
     }catch (Exception& e) {
@@ -98,6 +100,7 @@ std::string HttpGETRequest::Host(std::string & token){
         throw Exception("No host in request", 400);
     std::string serverToken = _socketClient.getServer()->findServerName(serverName);
     findBestConfig(_config._mapTokenVectorUriConfig.find(serverToken)->second);
+    redirection();
     return std::string();
 }
 
@@ -182,7 +185,7 @@ std::string HttpGETRequest::addToMapHttpHeader(std::string& token) {
 
 std::string HttpGETRequest::endHeader(std::string& token) {
     (void)token;
-    _data =  _data.substr(_data.find("\r\n\r\n") + 4);
+    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
     _requestHeadersIsComplete = true;
     return "";
 }

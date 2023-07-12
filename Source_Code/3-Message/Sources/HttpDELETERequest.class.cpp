@@ -38,7 +38,8 @@ bool HttpDELETERequest::continueManageEvent() {
         if (!checkIsAllowedMethode(4, 5, 6))
             throw Exception("Method DELETE Not Allowed ", 405);
         findRessource();
-
+        if (!_statusCode)
+            _statusCode = 204;
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -79,6 +80,7 @@ std::string HttpDELETERequest::Host(std::string & token){
         throw Exception("No host in request", 400);
     std::string serverToken = _socketClient.getServer()->findServerName(serverName);
     findBestConfig(_config._mapTokenVectorUriConfig.find(serverToken)->second);
+    redirection();
     return std::string();
 }
 
@@ -103,15 +105,14 @@ void HttpDELETERequest::findRessource() {
                 if (pipe(_pipeFdOut) == -1)
                     throw Exception("error to create pipe", 500);
                 autoIndexToHtml();
-                _statusCode = 200;
+                if (!_statusCode)
+                    _statusCode = 200;
             }
         } else {
-            if ( removeDirectory(_startLineURL))
-                _statusCode = 204;
+            removeDirectory(_startLineURL);
         }
     } else {
-        if (removeFile(_startLineURL))
-            _statusCode = 204;
+        removeFile(_startLineURL);
     }
 }
 
@@ -135,7 +136,7 @@ std::string HttpDELETERequest::addToMapHttpHeader(std::string& token) {
 
 std::string HttpDELETERequest::endHeader(std::string& token) {
     (void)token;
-    _data =  _data.substr(_data.find("\r\n\r\n") + 4);
+    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
     _requestHeadersIsComplete = true;
     return "";
 }

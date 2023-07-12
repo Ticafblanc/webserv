@@ -24,7 +24,8 @@ protected:
     bool                                                _connection;
     uint32_t                                            _events;
     int                                                 _statusCode;
-    std::string                                         _data;
+    std::string                                         _header;
+    std::string                                         _body;
     bool                                                _requestHeadersIsComplete;
     bool                                                _requestBodyIsComplete;
     bool                                                _bodyReponseIsComplete;
@@ -301,6 +302,19 @@ public:
  * @throws  server::server_exception
  * */
     bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
+ * void extractHeaderData();
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    void redirection()
 };
 
 

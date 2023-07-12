@@ -21,7 +21,7 @@ HttpHeadersRequest::HttpHeadersRequest(const HttpHeadersRequest & other)
 HttpHeadersRequest &HttpHeadersRequest::operator=(const HttpHeadersRequest &rhs) {
     if ( this != & rhs) {
         AHttpMessage::operator=(rhs);
-        this->_data = rhs._data;
+        this->_body = rhs._body;
     }
     return *this;
 }
@@ -38,7 +38,7 @@ bool HttpHeadersRequest::continueManageEvent() {
     if (_requestHeadersIsComplete) {
         try {
             _requestHeadersIsComplete = false;
-            _peg.setStringStream(_data);
+            _peg.setStringStream(_body);
             _peg.setMapTokenHeaderStartLine();
             _peg.findToken(*this, 0);
             return true;
@@ -68,9 +68,9 @@ bool HttpHeadersRequest::continueManageEvent() {
 bool HttpHeadersRequest::headerIsNotComplete(std::size_t& bytesExchange){
     if (checkErrorBytesExchange(bytesExchange))
         return false;
-    _data.append(_buffer.begin(), _buffer.end());
+    _body.append(_buffer.begin(), _buffer.end());
     _buffer.clear();
-    if (_data.find("\r\n\r\n") == std::string::npos){
+    if (_body.find("\r\n\r\n") == std::string::npos){
         _requestHeadersIsComplete = true;
         return false;
     }

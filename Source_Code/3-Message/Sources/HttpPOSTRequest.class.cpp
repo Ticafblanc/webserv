@@ -46,6 +46,8 @@ bool HttpPOSTRequest::continueManageEvent() {
                 throw Exception("error to create pipe", 500);
             //open and write data in
         }
+        if (!_statusCode)
+            _statusCode = 200;
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -97,6 +99,7 @@ std::string HttpPOSTRequest::Host(std::string & token){
         throw Exception("No host in request", 400);
     std::string serverToken = _socketClient.getServer()->findServerName(serverName);
     findBestConfig(_config._mapTokenVectorUriConfig.find(serverToken)->second);
+    redirection();
     return std::string();
 }
 
@@ -183,7 +186,7 @@ std::string HttpPOSTRequest::addToMapHttpHeader(std::string& token) {
 
 std::string HttpPOSTRequest::endHeader(std::string& token) {
     (void)token;
-    _data =  _data.substr(_data.find("\r\n\r\n") + 4);
+    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
     _requestHeadersIsComplete = true;
     return "";
 }

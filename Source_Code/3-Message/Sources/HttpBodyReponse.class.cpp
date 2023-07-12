@@ -12,7 +12,7 @@
 
 HttpBodyReponse::HttpBodyReponse(const AHttpMessage& base)
 : AHttpMessage(base), _buffer(_config._clientBodyBufferSize), _totalBytesRecv(){
-    _data.clear();
+    _body.clear();
     if (_statusCode < 300 && _statusCode >= 200)
         _methodeToRecv = &HttpBodyReponse::recvBody;
     else if (_statusCode >= 400)
@@ -96,12 +96,12 @@ void HttpBodyReponse::setDefaultPage(){
     }else {
         _mapHttpHeaders["Content-Length:"] = _config._mapMimeType.at(path.substr(path.find_last_of('.')));
     }
-    _data = oss.str();
+    _body = oss.str();
 }
 bool HttpBodyReponse::readDataIsNotComplete(std::size_t& bytesExchange){
     if (checkErrorBytes(bytesExchange))
         return false;
-    _data.append(_buffer.begin(), _buffer.end());
+    _body.append(_buffer.begin(), _buffer.end());
     _buffer.clear();
     return true;
 }

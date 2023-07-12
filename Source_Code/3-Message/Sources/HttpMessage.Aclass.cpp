@@ -12,19 +12,19 @@
 
 AHttpMessage::AHttpMessage(Config& config, Socket& socketClient)
         : _config(config), _socketClient(socketClient), _methode(NULL), _connection(KEEP_ALIVE),
-        _events(EPOLLIN | EPOLLET),  _statusCode(0), _data(), _requestHeadersIsComplete(false), _requestBodyIsComplete(true),
-        _bodyReponseIsComplete(true), _headersReponseIsComplete(false), _isComplete(false), _mapHttpHeaders(),
-        _contentLength(), _isChunked(false), _contentType(), _pid(), _pipeFdIn(), _pipeFdOut() {}
+          _events(EPOLLIN | EPOLLET), _statusCode(0), _body(), _requestHeadersIsComplete(false), _requestBodyIsComplete(true),
+          _bodyReponseIsComplete(true), _headersReponseIsComplete(false), _isComplete(false), _mapHttpHeaders(),
+          _contentLength(), _isChunked(false), _contentType(), _pid(), _pipeFdIn(), _pipeFdOut() {}
 
 AHttpMessage::~AHttpMessage() {}
 
 AHttpMessage::AHttpMessage(const AHttpMessage & other)
         : _config(other._config), _socketClient(other._socketClient), _methode(other._methode), _connection(KEEP_ALIVE), _events(EPOLLIN | EPOLLET),
-        _statusCode(other._statusCode), _data(other._data), _requestHeadersIsComplete(other._requestHeadersIsComplete),
-        _requestBodyIsComplete(other._requestBodyIsComplete), _bodyReponseIsComplete(other._bodyReponseIsComplete),
-        _headersReponseIsComplete(other._headersReponseIsComplete),_isComplete(other._isComplete), _mapHttpHeaders(),
-        _contentLength(other._contentLength), _isChunked(other._isChunked), _contentType(other._contentType),
-        _pid(other._pid), _pipeFdIn(), _pipeFdOut() {
+          _statusCode(other._statusCode), _body(other._body), _requestHeadersIsComplete(other._requestHeadersIsComplete),
+          _requestBodyIsComplete(other._requestBodyIsComplete), _bodyReponseIsComplete(other._bodyReponseIsComplete),
+          _headersReponseIsComplete(other._headersReponseIsComplete), _isComplete(other._isComplete), _mapHttpHeaders(),
+          _contentLength(other._contentLength), _isChunked(other._isChunked), _contentType(other._contentType),
+          _pid(other._pid), _pipeFdIn(), _pipeFdOut() {
     this->_pipeFdIn[0] = other._pipeFdIn[0];
     this->_pipeFdIn[1] = other._pipeFdIn[1];
     this->_pipeFdOut[0] = other._pipeFdOut[0];
@@ -39,7 +39,7 @@ AHttpMessage &AHttpMessage::operator=(const AHttpMessage &rhs) {
         this->_connection = rhs._connection;
         this->_events = rhs._events;
         this->_statusCode = rhs._statusCode;
-        this->_data = rhs._data;
+        this->_body = rhs._body;
         this->_requestHeadersIsComplete = rhs._requestHeadersIsComplete;
         this->_requestBodyIsComplete = rhs._requestBodyIsComplete;
         this->_bodyReponseIsComplete = rhs._bodyReponseIsComplete;
@@ -136,4 +136,11 @@ bool AHttpMessage::checkIsAllowedMethode(int allow, int dual1, int dual2) const{
            _config._allowMethods == allow ||
            _config._allowMethods == dual1 ||
            _config._allowMethods == dual2);
-};
+}
+
+void AHttpMessage::redirection(){
+    if (_config._return) {
+        _mapHttpHeaders["Location:"] = _config._code.getStatusPage(_config._return);
+        _statusCode = _config._return;
+    }
+}
