@@ -6,6 +6,7 @@
 #define WEBSERVER_HTTPGETREQUEST_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpBodyReponse.class.hpp>
 
 class HttpGETRequest : public AHttpMessage {
 

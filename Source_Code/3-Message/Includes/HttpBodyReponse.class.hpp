@@ -6,9 +6,10 @@
 #define WEBSERVER_HTTPBODYREPONSE_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
+#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
 
 class HttpBodyReponse : public AHttpMessage {
-    typedef void (HttpBodyRequest::*dataIsComplete)();
+    typedef void (HttpBodyReponse::*dataIsComplete)();
 
 /*>*******************************private section**********************************/
 private:
@@ -147,13 +148,6 @@ public:
  * @throws  server::server_exception
  * */
     bool continueManageEvent() override;
-
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
-
 
 };
 

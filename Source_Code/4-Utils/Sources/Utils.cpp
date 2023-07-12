@@ -19,6 +19,12 @@ std::size_t stringToSizet(const std::string & str){
     return size;
 }
 
+std::string sizetToString(std::size_t size){
+    std::ostringstream oss;
+    oss << std::hex << size;
+    return oss.str();
+}
+
 std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
     std::vector<char*> env;
     for (size_t i = 0; i < envVec.size(); ++i) {
@@ -146,10 +152,4 @@ bool launchChild(int * pipefdIn,int * pipefdOut, pid_t &pid,
 
 
 
-void chunkData(std::vector<std::string> & vec, std::string data, std::size_t size) {
-    for (std::size_t i = 0; i < data.size(); i += size + 1) {
-        vec.push_back(data.substr(i, (data.size() > size) ? size : data.size()) + "\r\n");
-        data = data.substr(size + 1);
-    }
-    vec.push_back("\0\r\n\r\n");
-}
+

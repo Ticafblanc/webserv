@@ -16,12 +16,12 @@ void recvData(int socket, std::vector<char>& buffer, T& base,
 }
 
 template<class T>
-void sendData(int socket, std::vector<char>& buffer, T& base,
+void sendData(int socket, std::vector<std::vector<char> >& buffers, T& base,
              bool (T::*dataIsNotComplete)(std::size_t&)){
     std::size_t bytesSend;
 
     do {
-        bytesSend = send(socket, buffer.data(), buffer.size(), 0);
+        bytesSend = send(socket, buffers.front().data(), buffers.front().size(), 0);
     }while ((base.*(dataIsNotComplete))(bytesSend));
     return 0;
 }

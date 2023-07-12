@@ -18,6 +18,7 @@ bool isFile(std::string & path);
 bool isExec(std::string & path);
 bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss);
 std::size_t stringToSizet(const std::string & str);
+std::string sizetToString(std::size_t size);
 bool removeDirectory(std::string &path);
 bool removeFile(std::string &path);
 bool setFile(const std::string & path, std::ostringstream &oss);

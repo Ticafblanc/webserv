@@ -18,16 +18,19 @@ private:
 *====================================================================================
 */
 
-    std::string                                         _startLineVersion;
-    std::string                                         _startLineStatusCode;
-    std::map< std::string, std::string>                 _mapHttpReponse;
+   std::vector<std::vector<char> >          _buffers;
+   std::size_t                              _totalBytesSend;
 
 /*
 *====================================================================================
 *|                                  Private Methode                                 |
 *====================================================================================
 */
-
+    void chunkData();
+    void setData(std::size_t headerSize);
+    std::size_t setHeader();
+    bool reponseIsNotComplete(std::size_t& bytesExchange);
+    bool checkErrorBytesExchange(std::size_t& bytesExchange);
 /*>********************************public section**********************************/
 
 public:
@@ -47,7 +50,7 @@ public:
  * @param   config &
  * @throw   none
  **/
-    HttpReponse(Config& config, Socket& socket);
+    HttpReponse(const AHttpMessage& base);
 
 /**
 * Destructor of HttpReponse.class class
@@ -80,7 +83,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Public Methode                                  |
+*|                                  Member Fonction Override                        |
 *====================================================================================
 */
 
@@ -89,91 +92,14 @@ public:
  *
  * extract data and put in std::string
  *
- * void recvMessage();
+ * bool continueManageEvent() override;
  *
  * @returns string with message content
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    bool recvMessage();
+    bool continueManageEvent() override;
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendMessage();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool sendMessage();
-
-/*
-*====================================================================================
-*|                                  Element access                                  |
-*====================================================================================
-*/
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * void sendData();
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string getValueHeader(const std::string& token);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string endHeader(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string endHeader(std::string &token);
-
-
-
-
-    bool checkIsAllowedMethode(int allow, int dual1, int dual2) const;
-
-    void setContent();
-
-    void errorPage();
-
-    void addMapHttpHeader();
-
-    void redirection();
-
-    bool sendMessage(int code);
-
-    bool executePhp();
-
-    bool continueBody();
-
-    void findPostRessource();
-
-    bool bodyChunkIsComplete(std::size_t &bytesExchange);
-
-    void controleHeader();
-
-    bool readDataIsNotComplete(std::size_t& bytesExchange);
-
-    bool writeDataIsNotComplete(size_t &bytesExchange);
-
-    bool checkErrorBytes(size_t &bytesExchange);
-
-    bool bodyIsNotComplete(std::size_t &bytesExchange);
 };
 
 
