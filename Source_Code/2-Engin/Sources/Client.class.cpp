@@ -50,8 +50,8 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
-    if (dynamic_cast<HttpReponse*>(_message) != NULL)
-        return;
+    /*if (dynamic_cast<HttpReponse*>(_message) != NULL)
+        return;*/
     do {
         selectRequestMessageMethode();
     }while (_message->continueManageEvent() && !_message->isComplete());
@@ -59,7 +59,7 @@ void Client::recvEvent() {
 }
 
 void Client::sendEvent() {
-    if (!_message || dynamic_cast<HttpReponse*>(_message) == NULL)
+    if (!_message /*|| dynamic_cast<HttpReponse*>(_message) == NULL*/)
         return;
     while (_message->continueManageEvent());
     updateClient();
@@ -81,11 +81,15 @@ void Client::setLastConnection(time_t lastConnection) {
 }
 
 uint32_t Client::getEvents() const {
-    return _message->eventsStatus();
+    if (_message != NULL)
+        return _message->eventsStatus();
+    return EPOLLIN | EPOLLET;
 }
 
 bool Client::isConnection() const {
-    return _message->connectionStatus();
+    if (_message != NULL)
+        return _message->connectionStatus();
+    return true;
 }
 
 /*

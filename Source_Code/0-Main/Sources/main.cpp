@@ -33,7 +33,8 @@ void handleReload(int sig) {
 
 const char * selectPath(char **argv, int positionPathFileConfig){
     if(positionPathFileConfig == 0)
-        return "/usr/local/etc/webserv/webserv.conf";
+        return "/webserv/Docker_build/etc/webserv/webserv.conf";
+//        return "/usr/local/etc/webserv/webserv.conf";
     else if(positionPathFileConfig == 3 )
         return "";
     else
@@ -70,7 +71,7 @@ static int checkOption(int argc, char **argv){
             if (argv[1][1] == 's')
                 (void)argv;//@todo webserv -s (stop quit reopen reload) SIGINT, SIGTERM shutdown SIGHUP reload
             else if (argv[1][1] == 't')
-                checkFile(argc, argv, );
+                checkFile(argc, argv);
             else if (argv[1][1] == 'c' && argc == 3)
                 return 2;
             std::cerr << "invalid option -" << argv[1][1] << std::endl;
@@ -92,8 +93,8 @@ static void launcher(Config & config) {
             config._accessLog.setLogEnable(true);
             std::ostringstream oss;
             oss << "last event >> " << config._accessLog;
-            config._errorLog.writeTimeLogFile(oss.str());
-            config._errorLog.writeTimeLogFile(e.what());
+            config._errorLog.writeMessageLogFile(oss.str());
+            config._errorLog.writeMessageLogFile(e.what());
         }
     }
 }

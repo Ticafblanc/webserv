@@ -73,6 +73,10 @@ bool Socket::checkSocket(int fd){
     struct sockaddr_in address;
     socklen_t address_length = sizeof(address);
     getsockname(fd, reinterpret_cast<struct sockaddr*>(&address), &address_length);
+    std::string ipAddress = inet_ntoa(_sock.sin_addr);
+    int port = ntohs(_sock.sin_port);
+    if (port == _port && ipAddress == _ipAddress)
+        return true;
     return ((_sock.sin_addr.s_addr == address.sin_addr.s_addr) && (_sock.sin_port == address.sin_port));
 }
 

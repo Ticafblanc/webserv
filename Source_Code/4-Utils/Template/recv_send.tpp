@@ -23,7 +23,7 @@ void sendData(int socket, std::vector<std::vector<char> >& buffers, T& base,
     do {
         bytesSend = send(socket, buffers.front().data(), buffers.front().size(), 0);
     }while ((base.*(dataIsNotComplete))(bytesSend));
-    return 0;
+    return ;
 }
 
 template<class T>

@@ -20,7 +20,7 @@ public:
 *|                                  Public Methode                                  |
 *====================================================================================
 */
-
+    virtual ~IHttpMessage() {};
 /**
  * Private methode of server class
  *

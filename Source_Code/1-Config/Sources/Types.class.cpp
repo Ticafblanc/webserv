@@ -11,7 +11,7 @@ Types::Types(const std::string& pathFile) : _peg(pathFile.c_str()), _mapMimeType
 
 Types::~Types() {}
 
-Types::Types(const Types & other) : _peg(other._peg), _mapMimeType(other._mapMimeType){}
+Types::Types(const Types & other) : _peg(), _mapMimeType(other._mapMimeType){}
 
 Types &Types::operator=(const Types &rhs) {
     this->_peg = rhs._peg;

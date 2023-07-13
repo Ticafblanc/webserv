@@ -326,7 +326,7 @@ std::string ConfigFile::setReturn(std::string & token) {
             if (line[0] == '\"' && line[line.size()] == '\"' && _config._return == 0)
                 _config._code.setStatus((int)code, line.substr(1, line.size() - 3));
             else if (_config._return == 0) {
-                if (line.find("http://www.") != 0) || line.substr(line.find_last_of('.')) != "html")
+                if ((line.find("http://www.") != 0) || line.substr(line.find_last_of('.')) != "html")
                     return "not html or http://www. content in return";
                 _config._code.setDefaultPage((int) code, line);
             }

@@ -32,7 +32,7 @@ std::string Listen::parseListenData(const std::string &input) {
             for (std::map<int, Socket*>::iterator sockIt = _configBase._mapFdSocket.begin();
                  sockIt != _configBase._mapFdSocket.end(); ++sockIt) {
                 if (*sockIt->second == *newSock) {
-                    sockIt->second->addToken(_config._tok);
+                    sockIt->second->addToken(_config._name.front(), _config._tok);
                     delete newSock;
                     return error;
                 }

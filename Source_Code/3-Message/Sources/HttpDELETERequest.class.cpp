@@ -40,6 +40,7 @@ bool HttpDELETERequest::continueManageEvent() {
         findRessource();
         if (!_statusCode)
             _statusCode = 204;
+//    _methode = new HttpBodyReponse(*this);
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -50,7 +51,6 @@ bool HttpDELETERequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
-    _methode = new HttpBodyReponse(*this);
     return false;
 }
 
@@ -104,7 +104,7 @@ void HttpDELETERequest::findRessource() {
             } else {
                 if (pipe(_pipeFdOut) == -1)
                     throw Exception("error to create pipe", 500);
-                autoIndexToHtml();
+//                autoIndexToHtml();
                 if (!_statusCode)
                     _statusCode = 200;
             }

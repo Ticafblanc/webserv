@@ -143,7 +143,7 @@ void Epoll::manageEvent() {
                                             _config._accessLog.convertEventsTostring(_events[i].events) + "]");
 
         std::map<int, Socket*>::iterator it = _config._mapFdSocket.find(_events[i].data.fd);
-        if (it != _config._mapFdSocket.end() && (it->second->getServer()))
+        if (it != _config._mapFdSocket.end() && !(it->second->getServer()))
             addConnexion(i, it->second);
         else if (it != _config._mapFdSocket.end() && it->second->checkSocket(_events[i].data.fd))
             selectEvent(dynamic_cast<Client*>(it->second), i);
@@ -211,8 +211,11 @@ void Epoll::checkConnexion(){
     currentTime -= 10;
     for (std::map<int, Socket*>::iterator itSock = _config._mapFdSocket.begin();
     itSock != _config._mapFdSocket.end(); ++itSock) {
-        if (!dynamic_cast<Client*>(itSock->second)->isConnection() || currentTime > dynamic_cast<Client*>(itSock->second)->getLastConnection())
-            removeConnexionServer(itSock->second);
+        if (dynamic_cast<Client*>(itSock->second) != NULL) {
+            if (!dynamic_cast<Client *>(itSock->second)->isConnection() ||
+                currentTime > dynamic_cast<Client *>(itSock->second)->getLastConnection())
+                removeConnexionServer(itSock->second);
+        }
     }
 }
 

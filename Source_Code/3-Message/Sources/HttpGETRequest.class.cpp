@@ -49,6 +49,7 @@ bool HttpGETRequest::continueManageEvent() {
                 //open and write in fd out
             }
         }
+//    _methode = new HttpBodyReponse(*this);
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -59,7 +60,6 @@ bool HttpGETRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
-    _methode = new HttpBodyReponse(*this);
     return false;
 }
 
@@ -125,7 +125,7 @@ void HttpGETRequest::findRessource() {
                 } else {
                     if (pipe(_pipeFdOut) == -1)
                         throw Exception("error to create pipe", 500);
-                    autoIndexToHtml();
+//                    autoIndexToHtml();
                 }
             }
         }
@@ -150,7 +150,7 @@ bool HttpGETRequest::setIndex(){
 }
 
 bool HttpGETRequest::checkIsPHP() {
-    std::string & url = _startLineURL;
+//    std::string & url = _startLineURL;
     std::size_t slashPos = _startLineURL.find_last_of('/');
     std::size_t dotPos = _startLineURL.find_last_of('.');
     std::size_t questionPos = _startLineURL.find_last_of('?');

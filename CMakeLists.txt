@@ -29,12 +29,11 @@ set(    MESSAGE
         Source_Code/3-Message/Sources/HttpHeadersRequest.class.cpp
         Source_Code/3-Message/Sources/HttpGETRequest.class.cpp
         Source_Code/3-Message/Sources/HttpPOSTRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpDELETERequest.class.cpp
-        Source_Code/3-Message/Sources/HttpHeadersReponse.class.cpp
-        Source_Code/3-Message/Sources/HttpBody.Aclass.cpp
-        Source_Code/3-Message/Sources/HttpBodyRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpBodyReponse.class.cpp
-        Source_Code/3-Message/Sources/HttpReponse.class.cpp )
+        Source_Code/3-Message/Sources/HttpDELETERequest.class.cpp)
+#        Source_Code/3-Message/Sources/HttpHeadersReponse.class.cpp
+#        Source_Code/3-Message/Sources/HttpBodyRequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpBodyReponse.class.cpp
+#        Source_Code/3-Message/Sources/HttpReponse.class.cpp )
 
 set(    UTILS
         Source_Code/4-Utils/Template/PegParser.class.tpp

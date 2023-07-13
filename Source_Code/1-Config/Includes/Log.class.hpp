@@ -208,7 +208,7 @@ class LogException : public std::exception {
  * @param message
  * @throw LogException
  */
-    void writeTimeLogFile(const std::string& message);
+//    void writeTimeLogFile(const std::string& message);
     void writeMessageLogFile(const std::string &message);
 
 

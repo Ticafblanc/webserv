@@ -48,6 +48,7 @@ bool HttpPOSTRequest::continueManageEvent() {
         }
         if (!_statusCode)
             _statusCode = 200;
+//        _methode = new HttpBodyRequest(*this, _peg.getStr());
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -58,7 +59,6 @@ bool HttpPOSTRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
     }
-    _methode = new HttpBodyRequest(*this, _peg.getStr());
     return false;
 }
 
@@ -145,7 +145,7 @@ bool HttpPOSTRequest::setIndex(){
 }
 
 bool HttpPOSTRequest::checkIsPHP() {
-    std::string & url = _startLineURL;
+//    std::string & url = _startLineURL;
     std::size_t slashPos = _startLineURL.find_last_of('/');
     std::size_t dotPos = _startLineURL.find_last_of('.');
     if (dotPos != std::string::npos && dotPos < slashPos) {

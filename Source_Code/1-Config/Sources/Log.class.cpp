@@ -29,13 +29,13 @@ void Log::setLog(const std::string &pathToLogFile) {
     file.close();
 }
 
-void Log::writeTimeLogFile(const std::string& message) {
-    std::time_t timestamp = std::time(NULL);
-
-    std::string timestampStr = std::ctime(&timestamp);
-
-    timestampStr = "[" + timestampStr.substr(0, timestampStr.length() - 1) +  "] ";
-}
+//void Log::writeTimeLogFile(const std::string& message) {
+//    std::time_t timestamp = std::time(NULL);
+//
+//    std::string timestampStr = std::ctime(&timestamp);
+//
+//    timestampStr = "[" + timestampStr.substr(0, timestampStr.length() - 1) +  "] ";
+//}
 
 bool Log::setTime() {
     std::time_t timestamp = std::time(NULL);

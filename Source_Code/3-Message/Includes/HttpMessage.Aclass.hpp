@@ -314,7 +314,7 @@ public:
  * @param   client_socket send message
  * @throws  server::server_exception
  * */
-    void redirection()
+    void redirection();
 };
 
 
