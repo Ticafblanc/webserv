@@ -39,17 +39,18 @@ bool HttpGETRequest::continueManageEvent() {
         if (!checkIsAllowedMethode(1, 3, 5))
             throw Exception("Method GET Not Allowed ", 405);
         findRessource();
+        _mapHttpHeaders.clear();
         if (!_statusCode) {
             if (_isCGI) {
                 if (!startCgi())
                     throw Exception("error to create child process", 500);
             } else {
-                if (pipe(_pipeFdOut) == -1)
-                    throw Exception("error to create pipe", 500);
-                //open and write in fd out
+                if (pipe(_pipeFdOut) == -1 || !extractFileToFd(_startLineURL, _pipeFdOut[STDOUT_FILENO]))
+                    throw Exception("error to extract file", 500);
+                _statusCode = 200;
             }
         }
-//    _methode = new HttpBodyReponse(*this);
+        _methode = new HttpBodyReponse(*this);
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -96,9 +97,12 @@ bool HttpGETRequest::startCgi() {
 std::string HttpGETRequest::Host(std::string & token){
     addToMapHttpHeader(token);
     std::string serverName = _mapHttpHeaders.find(token)->second;
-    if (serverName.empty())
+    if (serverName.empty()) {
         throw Exception("No host in request", 400);
+    }
     std::string serverToken = _socketClient.getServer()->findServerName(serverName);
+    if (serverToken.empty())
+        throw Exception("Host not found", 404);
     findBestConfig(_config._mapTokenVectorUriConfig.find(serverToken)->second);
     redirection();
     return std::string();
@@ -119,7 +123,7 @@ void HttpGETRequest::findBestConfig(std::vector<std::pair<std::string, Config> >
 void HttpGETRequest::findRessource() {
     if (!isExec(_startLineURL)) {
         if (!isFile(_startLineURL)) {
-            if (!isDirectory(_startLineURL) && !setIndex()) {
+            if (isDirectory(_startLineURL) && !setIndex()) {
                 if (!_config._autoindex) {
                     throw Exception("root/Uri not found", 404);
                 } else {

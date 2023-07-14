@@ -34,7 +34,7 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Config&                                             _config;
+    Config                                              _config;
     std::time_t                                         _lastConnection;
     IHttpMessage*                                       _message;
 

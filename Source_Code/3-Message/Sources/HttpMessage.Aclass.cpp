@@ -20,9 +20,11 @@ AHttpMessage::~AHttpMessage() {}
 
 AHttpMessage::AHttpMessage(const AHttpMessage & other)
         : _config(other._config), _socketClient(other._socketClient), _methode(other._methode), _connection(KEEP_ALIVE), _events(EPOLLIN | EPOLLET),
-          _statusCode(other._statusCode), _body(other._body), _requestHeadersIsComplete(other._requestHeadersIsComplete),
+          _statusCode(other._statusCode), _header(other._header), _body(other._body), _requestHeadersIsComplete(other._requestHeadersIsComplete),
           _requestBodyIsComplete(other._requestBodyIsComplete), _bodyReponseIsComplete(other._bodyReponseIsComplete),
-          _headersReponseIsComplete(other._headersReponseIsComplete), _isComplete(other._isComplete), _mapHttpHeaders(),
+          _headersReponseIsComplete(other._headersReponseIsComplete), _isComplete(other._isComplete),
+          _startLineMethode(other._startLineMethode), _startLineURL(other._startLineURL),  _startLineVersion(other._startLineVersion),
+          _mapHttpHeaders(other._mapHttpHeaders),
           _contentLength(other._contentLength), _isChunked(other._isChunked), _contentType(other._contentType),
           _pid(other._pid), _pipeFdIn(), _pipeFdOut() {
     this->_pipeFdIn[0] = other._pipeFdIn[0];
@@ -39,11 +41,13 @@ AHttpMessage &AHttpMessage::operator=(const AHttpMessage &rhs) {
         this->_connection = rhs._connection;
         this->_events = rhs._events;
         this->_statusCode = rhs._statusCode;
+        this->_header = rhs._header;
         this->_body = rhs._body;
         this->_requestHeadersIsComplete = rhs._requestHeadersIsComplete;
         this->_requestBodyIsComplete = rhs._requestBodyIsComplete;
         this->_bodyReponseIsComplete = rhs._bodyReponseIsComplete;
         this->_headersReponseIsComplete = rhs._headersReponseIsComplete;
+        this->_mapHttpHeaders = rhs._mapHttpHeaders;
         this->_isComplete = rhs._isComplete;
         this->_startLineMethode = rhs._startLineMethode;
         this->_startLineURL = rhs._startLineURL;

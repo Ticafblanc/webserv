@@ -11,10 +11,12 @@
 */
 
 HttpHeadersReponse::HttpHeadersReponse(const AHttpMessage& base) : AHttpMessage(base){
+    _startLineVersion = "HTTP/1.1";
     _isChunked = false;
 }
 
 HttpHeadersReponse::HttpHeadersReponse(const AHttpMessage& base, std::string& cgiHeader) : AHttpMessage(base){
+    _startLineVersion = "HTTP/1.1";
     _isChunked = false;
     updateMapHeaders(cgiHeader);
 }
@@ -40,7 +42,8 @@ bool HttpHeadersReponse::continueManageEvent() {
     if ((_statusCode < 300 && _statusCode >= 200) || _statusCode >= 400) {
         try {
             setHeaders();
-            return true;
+            _methode = new HttpReponse(*this);
+            return false;
         } catch (Exception &e) {
             _config._accessLog.failure();
             _config._errorLog.writeMessageLogFile(e.what());
@@ -53,7 +56,6 @@ bool HttpHeadersReponse::continueManageEvent() {
             return true;
         }
     }
-    _methode = new HttpReponse(*this);
     return false;
 }
 

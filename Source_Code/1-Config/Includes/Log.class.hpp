@@ -239,7 +239,7 @@ class LogException : public std::exception {
 
     friend std::ostream &operator<<(std::ostream &os, const Log &log);
 
-    bool setTime();
+    void setTime();
 
     void setMessage(const std::string &message);
 };

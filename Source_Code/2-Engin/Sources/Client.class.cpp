@@ -35,6 +35,7 @@ Client& Client::operator=(const Client& rhs){
         Socket::operator=(rhs);
         this->_lastConnection = rhs._lastConnection;
         this->_message = rhs._message;
+        this->_config = rhs._config;
     }
     return *this;
 }
@@ -54,7 +55,7 @@ void Client::recvEvent() {
         return;*/
     do {
         selectRequestMessageMethode();
-    }while (_message->continueManageEvent() && !_message->isComplete());
+    }while (_message->continueManageEvent());
     updateClient();
 }
 
@@ -106,9 +107,10 @@ void Client::selectRequestMessageMethode() {
 }
 
 void Client::updateClient() {
-    if (_message->isComplete()){
+    if (_message && _message->isComplete()){
         delete _message;
         _message = NULL;
-    }
+    }else
+        _message->updateClassMessage(_message);
     setLastConnection(std::time(NULL));
 }

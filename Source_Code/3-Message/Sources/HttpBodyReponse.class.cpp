@@ -44,6 +44,8 @@ bool HttpBodyReponse::continueManageEvent() {
         try {
             close(_pipeFdIn[STDOUT_FILENO]);
             (this->*(_methodeToRecv))();
+            _mapHttpHeaders["Content-Length:"] = intToString(_body.size());
+            _methode = new HttpHeadersReponse(*this);
             return true;
         } catch (Exception &e) {
             _config._accessLog.failure();
@@ -57,7 +59,6 @@ bool HttpBodyReponse::continueManageEvent() {
             return true;
         }
     }
-    _methode = new HttpHeaderReponse(*this);
     return false;
 }
 
@@ -84,24 +85,27 @@ void HttpBodyReponse::recvBody(){
 }
 
 void HttpBodyReponse::setDefaultPage(){
-    std::ostringstream oss;
+    std::stringstream ss;
     std::string path(_config._code.getStatusPage(_statusCode));
-    if (!setFile(path, oss)) {
-        if (oss.str().empty()) {
-            oss.str() = "<!DOCTYPE html><html><head><title>" +
-                         _config._code.getStatusCode(_statusCode) + "</title></head><body><h1>" +
-                         _config._code.getStatusCode(_statusCode) + "</h1><p>Sorry</p></body></html>";
-        }
-        _mapHttpHeaders["Content-Length:"] = "text/html";
-    }else {
-        _mapHttpHeaders["Content-Length:"] = _config._mapMimeType.at(path.substr(path.find_last_of('.')));
+    std::ifstream htmlPage(path.c_str());
+    if(htmlPage.is_open()) {
+        ss << htmlPage.rdbuf();
+        _mapHttpHeaders["Content-Type:"] = _config._mapMimeType.at(path.substr(path.find_last_of('.')));
     }
-    _body = oss.str();
+    else {
+        ss << "<!DOCTYPE html><html><head><title>" +
+                     _config._code.getStatusCode(_statusCode) + "</title></head><body><h1>" +
+                     _config._code.getStatusCode(_statusCode) + "</h1><p>Sorry</p></body></html>";
+        _mapHttpHeaders["Content-Type:"] = "text/html";
+    }
+    _body = ss.str();
 }
+
 bool HttpBodyReponse::readDataIsNotComplete(std::size_t& bytesExchange){
     if (checkErrorBytes(bytesExchange))
         return false;
-    _body.append(_buffer.begin(), _buffer.end());
+    std::size_t size = std::min(bytesExchange, _buffer.size());
+    _body.append(_buffer.begin(), _buffer.begin() + size - 1);
     _buffer.clear();
     return true;
 }
@@ -114,6 +118,7 @@ bool HttpBodyReponse::checkErrorBytes(std::size_t& bytesExchange){
     _totalBytesRecv += bytesExchange;
     if (static_cast<int>(_totalBytesRecv) > _config._clientMaxBodySize)
         throw Exception("Reponse Max body size exceeds the maximum limit", 413);
+    return false;
 }
 
 

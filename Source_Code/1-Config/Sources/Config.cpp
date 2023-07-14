@@ -38,7 +38,7 @@ Config::Config(const Config & other)
   _name(other._name), _index(other._index), _root(other._root), _uri(),
   _allowMethods(other._allowMethods), _addHeader(other._addHeader), _return(), _cgiPass(),
   _autoindex(other._autoindex), _code(other._code),
-  _mapFdSocket(), _mapTokenVectorUriConfig(),
+  _mapFdSocket(), _mapTokenVectorUriConfig(other._mapTokenVectorUriConfig),
   _mapMimeType(),
   _accessLog(other._accessLog), _errorLog(other._errorLog), _pidLog(other._pidLog),
   _token(other._token), _tok(other._tok), _envp(other._envp), _configBase(const_cast<Config &>(other)){}

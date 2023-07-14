@@ -11,10 +11,12 @@
 */
 
 HttpReponse::HttpReponse(const AHttpMessage & base) : AHttpMessage(base) {
+    _totalBytesSend = 0;
     if (_isChunked){
         chunkData();
     }
     setData(setHeader());
+    setEvents(EPOLLOUT | EPOLLET);
 }
 
 HttpReponse::~HttpReponse() {}
@@ -50,7 +52,6 @@ bool HttpReponse::continueManageEvent() {
         setStatusCode(400);
         return true;
     }
-    return false;
 }
 
 
@@ -58,7 +59,7 @@ bool HttpReponse::continueManageEvent() {
 bool HttpReponse::reponseIsNotComplete(std::size_t& bytesExchange){
     if (checkErrorBytesExchange(bytesExchange))
         return false;
-    std::pop_heap(_buffers.begin(), _buffers.begin());
+    _buffers.erase(_buffers.begin(), _buffers.begin() + 1);
     if (_buffers.empty()){
         _isComplete = true;
         return false;
@@ -79,18 +80,17 @@ bool HttpReponse::checkErrorBytesExchange(std::size_t& bytesExchange){
 
 std::size_t  HttpReponse::setHeader() {
     std::size_t size;
-    for (; _header.empty();) {
+    while (!_header.empty()) {
         std::vector<char> buffer;
         size = std::min(static_cast<std::size_t>(_config._clientHeaderBufferSize), _header.size());
         buffer.assign(_header.begin(), _header.begin() + size);
         _header = _header.substr(size);
         _buffers.push_back(buffer);
     }
-    return size;
+    return (_config._clientHeaderBufferSize - size);
 }
 
 void HttpReponse::chunkData() {
-    std::vector<char>& endHeader = _buffers.back();
     std::ostringstream oss;
     for (size_t i = 0; i < _body.size(); i += _config._clientBodyBufferSize) {
         size_t chunkSize = std::min(static_cast<std::size_t>(_config._clientBodyBufferSize), _body.size() - i);
@@ -102,12 +102,13 @@ void HttpReponse::chunkData() {
 }
 
 void HttpReponse::setData(std::size_t headerSize) {
+    (void)headerSize;
     if (!_body.empty()){
-        std::size_t newSize= std::min(_body.size(), static_cast<std::size_t>(_config._clientHeaderBufferSize));
-        _buffers.back().insert(_buffers.back().begin() + headerSize + 1, _body.begin(), _body.begin() + newSize);
-        _body = _body.substr(newSize);
+//        std::size_t newSize= std::min(_body.size(), headerSize);
+//        _buffers.back().insert(_buffers.back().end(), _body.begin(), _body.begin() + newSize);
+//        _body = _body.substr(newSize);
         std::size_t size;
-        for (; !_body.empty();) {
+        while (!_body.empty()) {
             std::vector<char> buffer;
             size = std::min(static_cast<std::size_t>(_config._clientBodyBufferSize), _body.size());
             buffer.assign(_body.begin(), _body.begin() + size);
@@ -115,5 +116,4 @@ void HttpReponse::setData(std::size_t headerSize) {
             _buffers.push_back(buffer);
         }
     }
-
 }

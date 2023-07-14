@@ -136,6 +136,7 @@ void Epoll::launchEpoll(){
 
 void Epoll::manageEvent() {
     for (int i = 0; i < _numberTriggeredEvents; ++i) {
+        _config._accessLog.setTime();
 
         _config._accessLog.writeMessageLogFile("Event number [" + intToString(i) +
                                             "] with an event fd [ " + intToString(_events[i].data.fd) +
@@ -143,6 +144,9 @@ void Epoll::manageEvent() {
                                             _config._accessLog.convertEventsTostring(_events[i].events) + "]");
 
         std::map<int, Socket*>::iterator it = _config._mapFdSocket.find(_events[i].data.fd);
+//        std::cout << "size = " << _config._mapFdSocket.size() << std::endl;
+//        if (it != _config._mapFdSocket.end())
+//            std::cout << _events->data.fd << std::endl;
         if (it != _config._mapFdSocket.end() && !(it->second->getServer()))
             addConnexion(i, it->second);
         else if (it != _config._mapFdSocket.end() && it->second->checkSocket(_events[i].data.fd))
@@ -213,8 +217,10 @@ void Epoll::checkConnexion(){
     itSock != _config._mapFdSocket.end(); ++itSock) {
         if (dynamic_cast<Client*>(itSock->second) != NULL) {
             if (!dynamic_cast<Client *>(itSock->second)->isConnection() ||
-                currentTime > dynamic_cast<Client *>(itSock->second)->getLastConnection())
+                currentTime > dynamic_cast<Client *>(itSock->second)->getLastConnection()) {
+                std::cout << itSock->second->getSocket() << std::endl;
                 removeConnexionServer(itSock->second);
+            }
         }
     }
 }

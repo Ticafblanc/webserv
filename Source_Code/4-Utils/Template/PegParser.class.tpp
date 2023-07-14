@@ -155,6 +155,7 @@ public:
 
     void findToken(T& base, char controlOperator) {
         std::string token = extractData(controlOperator);
+
         if (token.find_first_not_of('\0') ==  std::string::npos)
             return;
         typename std::map<std::string, std::string (T::*)(std::string&)>::iterator it = _mapTokenListAction.find(token);

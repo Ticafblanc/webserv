@@ -199,7 +199,7 @@ std::string  Socket::findServerName(const std::string &serverName) {
         if (it->first == serverName)
             return it->second;
     }
-    return _vectorServerNameToken.begin()->second;
+    return "";
 }
 
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){

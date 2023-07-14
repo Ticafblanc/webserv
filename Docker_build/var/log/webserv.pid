@@ -1,96 +1,142 @@
-
-[Thu Jul 13 12:27:34 2023] 
-
-13
-[Thu Jul 13 12:27:34 2023] 
-
+1
 	
 
 				#### Config File ####
 
 
-[Thu Jul 13 12:27:34 2023] 
-
 	worker processes = 1
-[Thu Jul 13 12:27:34 2023] 
-
 		####events####
-[Thu Jul 13 12:27:34 2023] 
-
 		worker connection = 10
-[Thu Jul 13 12:27:34 2023] 
-
 		####http####
-[Thu Jul 13 12:27:34 2023] 
-
 			####server####
-[Thu Jul 13 12:27:34 2023] 
-
-			name = defaut.com
-[Thu Jul 13 12:27:34 2023] 
-
+			name = webserv.local
 			root = /webserv/Docker_build/var/www/default.com
-[Thu Jul 13 12:27:34 2023] 
-
 			index = index.html
-[Thu Jul 13 12:27:34 2023] 
-
 			error page = 404 /index.html
-[Thu Jul 13 12:27:34 2023] 
-
 			error page = 410 /index.html
-[Thu Jul 13 12:27:34 2023] 
-
 			error page = 429 /index.html
-[Thu Jul 13 12:27:34 2023] 
-
 				####location####
-[Thu Jul 13 12:27:34 2023] 
-
 				allow methods = GET POST DELETEconf = 7
-[Thu Jul 13 12:27:34 2023] 
-
 				auto index = on
-[Thu Jul 13 12:27:34 2023] 
-
 			####server####
-[Thu Jul 13 12:27:34 2023] 
-
 			name = defaut2.com
-[Thu Jul 13 12:27:34 2023] 
-
 			root = /webserv/Docker_build/var/www/default.com
-[Thu Jul 13 12:27:34 2023] 
-
 			index = index.html
-[Thu Jul 13 12:27:34 2023] 
-
 				####location####
-[Thu Jul 13 12:27:34 2023] 
-
 				allow methods = GETconf = 1
-[Thu Jul 13 12:27:34 2023] 
-
 	
 
 				#### Config data ####
 
 
-[Thu Jul 13 12:27:34 2023] 
-
 	Socket fd => 3
-[Thu Jul 13 12:27:34 2023] 
-
 	ipaddress => 0.0.0.0 port => 8080
-[Thu Jul 13 12:27:34 2023] 
-
+		server name => webserv.local = Token => LekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => localhost = Token => LekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
 	Socket fd => 4
-[Thu Jul 13 12:27:34 2023] 
-
 	ipaddress => 0.0.0.0 port => 80
-[Thu Jul 13 12:27:35 2023] 
-
+		server name => webserv.local = Token => LekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => localhost = Token => LekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 7
+		cgi => 
+		autoIndex => true
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => defaut2.com = Token => LekKKJoqdDLekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 1
+		cgi => 
+		autoIndex => false
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
 	Socket fd => 5
-[Thu Jul 13 12:27:35 2023] 
-
 	ipaddress => 0.0.0.0 port => 8081
+		server name => defaut2.com = Token => LekKKJoqdDLekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 1
+		cgi => 
+		autoIndex => false
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0
+		server name => localhost = Token => LekKKJoqdDLekKKJoqdD
+		uri => / 
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com/ 
+		allow method => 1
+		cgi => 
+		autoIndex => false
+		return => 0
+		uri => /
+		index => index.html
+		root => /webserv/Docker_build/var/www/default.com
+		allow method => 7
+		cgi => 
+		autoIndex => false
+		return => 0

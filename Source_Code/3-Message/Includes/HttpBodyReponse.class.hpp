@@ -6,7 +6,7 @@
 #define WEBSERVER_HTTPBODYREPONSE_CLASS_HPP
 
 #include <Source_Code/3-Message/Includes/HttpMessage.Aclass.hpp>
-#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpHeadersReponse.class.hpp>
 
 class HttpBodyReponse : public AHttpMessage {
     typedef void (HttpBodyReponse::*dataIsComplete)();

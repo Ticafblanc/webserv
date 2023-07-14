@@ -7,13 +7,13 @@
 
 Log::Log() {}
 
-Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile), _indent(){
+Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile), _indent(), _timestamp(), _logEnable(true){
     setLog(pathToLogFile);
 }
 
 Log::~Log() {}
 
-Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile), _indent(other._indent){}
+Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile), _indent(other._indent), _timestamp(), _logEnable(true){}
 
 Log &Log::operator=(const Log & rhs) {
     this->_pathToLogFile = rhs._pathToLogFile;
@@ -37,13 +37,15 @@ void Log::setLog(const std::string &pathToLogFile) {
 //    timestampStr = "[" + timestampStr.substr(0, timestampStr.length() - 1) +  "] ";
 //}
 
-bool Log::setTime() {
-    std::time_t timestamp = std::time(NULL);
-    if (timestamp == _timestamp)
-        return false;
-    _timestampStr = std::ctime(&timestamp);
-    _timestampStr = "[" + _timestampStr.substr(0, _timestampStr.length() - 1) +  "] ";
-    return true;
+void Log::setTime() {
+    std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
+    if (!logfile.is_open())
+        throw LogException("fail to open file");
+    _timestamp = std::time(NULL);
+//    std::tm* memory = std::localtime(&_timestamp);
+//    _timestamp = timestamp;
+//    memory->tm_hour -= 4;
+    logfile << "\n" << std::asctime(std::localtime(&_timestamp)) << std::endl;
 }
 
 void Log::setMessage(const std::string& message) {
@@ -56,9 +58,7 @@ void Log::writeMessageLogFile(const std::string& message) {
         std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
         if (!logfile.is_open())
             throw LogException("fail to open file");
-        if (setTime())
-            logfile << "\n" << _timestampStr << "\n" << std::endl;
-        logfile << *this;
+        logfile << *this << std::endl;
         logfile.close();
     }
 }
@@ -90,10 +90,10 @@ void Log::removeIndent() {
 }
 
 std::string Log::convertEventsTostring(int events){
-    return std::string((events & (EPOLLOUT | EPOLLET)) ? "EPOLLOUT | EPOLLET" :
-                       ((events & (EPOLLIN | EPOLLET)) ? "EPOLLIN | EPOLLET" :
-                        ((events & (EPOLLOUT)) ? "EPOLLOUT" :
-                         (events & (EPOLLIN)) ? "EPOLLIN" : "ERROR" )));
+    return std::string((events & EPOLLOUT && events & EPOLLET) ? "EPOLLOUT | EPOLLET" :
+                       (events & EPOLLIN && events &EPOLLET) ? "EPOLLIN | EPOLLET" :
+                        ((events & EPOLLOUT) ? "EPOLLOUT" :
+                         (events & EPOLLIN) ? "EPOLLIN" : "ERROR" ));
 }
 
 void Log::success() {

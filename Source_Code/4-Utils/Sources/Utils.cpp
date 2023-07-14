@@ -25,6 +25,12 @@ std::string sizetToString(std::size_t size){
     return oss.str();
 }
 
+std::string sizetToStringHex(std::size_t size){
+    std::ostringstream oss;
+    oss << std::hex << size;
+    return oss.str();
+}
+
 std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
     std::vector<char*> env;
     for (size_t i = 0; i < envVec.size(); ++i) {
@@ -95,12 +101,19 @@ bool removeFile(std::string &path){
     return true;
 }
 
-bool setFile(const std::string & path, std::ostringstream &oss){
+bool extractFileToFd(const std::string & path, int fd){
     std::ifstream htmlPage(path.c_str());
     if(!htmlPage.is_open())
         return false;
-    std::copy(std::istreambuf_iterator<char>(htmlPage),
-              std::istreambuf_iterator<char>(), std::ostreambuf_iterator<char>(oss));
+    std::vector<char> buffer(1024);
+    while (!htmlPage.eof()) {
+        htmlPage.read(buffer.data(), buffer.size());
+        std::streamsize bytes_read = htmlPage.gcount();
+        if (bytes_read <= 0) {
+            break;
+        }
+        write(fd, buffer.data(), bytes_read);
+    }
     return true;
 }
 
