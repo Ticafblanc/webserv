@@ -51,8 +51,8 @@ bool Client::operator==(const Client & rhs) {
 */
 
 void Client::recvEvent() {
-    /*if (dynamic_cast<HttpReponse*>(_message) != NULL)
-        return;*/
+    if (dynamic_cast<HttpReponse*>(_message) != NULL)
+        return;
     do {
         selectRequestMessageMethode();
     }while (_message->continueManageEvent());
@@ -60,7 +60,7 @@ void Client::recvEvent() {
 }
 
 void Client::sendEvent() {
-    if (!_message /*|| dynamic_cast<HttpReponse*>(_message) == NULL*/)
+    if (!_message || dynamic_cast<HttpReponse*>(_message) == NULL)
         return;
     while (_message->continueManageEvent());
     updateClient();

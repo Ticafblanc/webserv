@@ -113,6 +113,8 @@ bool extractFileToFd(const std::string & path, int fd){
             break;
         }
         write(fd, buffer.data(), bytes_read);
+//        std::cout << "write = " << i << buffer.data() << bytes_read << std::endl;
+        buffer.clear();
     }
     return true;
 }

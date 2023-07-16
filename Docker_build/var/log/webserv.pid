@@ -31,7 +31,7 @@
 
 	Socket fd => 3
 	ipaddress => 0.0.0.0 port => 8080
-		server name => webserv.local = Token => LekKKJoqdD
+		server name => webserv.local = Token => EMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -46,7 +46,7 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => localhost = Token => LekKKJoqdD
+		server name => localhost = Token => EMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -63,7 +63,7 @@
 		return => 0
 	Socket fd => 4
 	ipaddress => 0.0.0.0 port => 80
-		server name => webserv.local = Token => LekKKJoqdD
+		server name => webserv.local = Token => EMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -78,7 +78,7 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => localhost = Token => LekKKJoqdD
+		server name => localhost = Token => EMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -93,7 +93,7 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => defaut2.com = Token => LekKKJoqdDLekKKJoqdD
+		server name => defaut2.com = Token => EMCp40TtLAEMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -110,7 +110,7 @@
 		return => 0
 	Socket fd => 5
 	ipaddress => 0.0.0.0 port => 8081
-		server name => defaut2.com = Token => LekKKJoqdDLekKKJoqdD
+		server name => defaut2.com = Token => EMCp40TtLAEMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -125,7 +125,7 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => localhost = Token => LekKKJoqdDLekKKJoqdD
+		server name => localhost = Token => EMCp40TtLAEMCp40TtLA
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 

@@ -42,7 +42,7 @@ HttpBodyReponse &HttpBodyReponse::operator=(const HttpBodyReponse &rhs) {
 bool HttpBodyReponse::continueManageEvent() {
     if ((_statusCode < 300 && _statusCode >= 200) || _statusCode >= 400) {
         try {
-            close(_pipeFdIn[STDOUT_FILENO]);
+            close(_pipeFdOut[STDOUT_FILENO]);
             (this->*(_methodeToRecv))();
             _mapHttpHeaders["Content-Length:"] = intToString(_body.size());
             _methode = new HttpHeadersReponse(*this);

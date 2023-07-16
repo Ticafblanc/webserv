@@ -46,10 +46,12 @@ bool HttpHeadersRequest::continueManageEvent() {
             _config._accessLog.failure();
             _config._errorLog.writeMessageLogFile(e.what());
             setStatusCode(e.getCode());
+            _methode = new HttpBodyReponse(*this);
         }catch (std::exception& e){
             _config._accessLog.failure();
             _config._errorLog.writeMessageLogFile(e.what());
             setStatusCode(400);
+            _methode = new HttpBodyReponse(*this);
         }
     }
     return false;
