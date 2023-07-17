@@ -114,16 +114,12 @@ bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLeng
     contentLength = is.tellg();
     is.seekg (0, std::ios::beg);
     std::vector<char> buffer(contentLength);
-//    while (!is.eof()) {
+
+    std::cout << path << " " << contentLength << " " << buffer.size()<< std::endl;
     is.read(buffer.data(), buffer.size());
-    std::streamsize bytes_read = is.gcount();
-    std::cout <<"conten "<< contentLength <<"gcount " <<  bytes_read << "buffer size" << buffer.size() << std::endl;
-//        if (bytes_read <= 0) {
-//            break;
-//        }
-    write(fd, buffer.data(), contentLength);
+    write(fd, buffer.data(), buffer.size());
+    std::cout << path << " " << contentLength << " " << buffer.size()<< std::endl;
     buffer.clear();
-//    }
     return true;
 }
 

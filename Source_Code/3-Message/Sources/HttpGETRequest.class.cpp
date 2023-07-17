@@ -38,9 +38,7 @@ bool HttpGETRequest::continueManageEvent() {
         extractData();
         if (!checkIsAllowedMethode(1, 3, 5))
             throw Exception("Method GET Not Allowed ", 405);
-        std::cout << " before " <<_startLineURL << std::endl;
         findRessource();
-        std::cout << "after " <<_startLineURL << std::endl;
         _mapHttpHeaders.clear();
         if (!_statusCode) {
             if (_isCGI) {
@@ -51,7 +49,6 @@ bool HttpGETRequest::continueManageEvent() {
                     throw Exception("error to extract file", 500);
                 _mapHttpHeaders["Content-Type:"] = _config._mapMimeType.at(_startLineURL.substr(_startLineURL.find_last_of('.') + 1));
                 _statusCode = 200;
-
             }
         }
         _methode = new HttpBodyReponse(*this);
@@ -155,12 +152,13 @@ bool HttpGETRequest::setIndex(){
          itSet != _config._index.end() ; ++itSet) {
         std::string Url = _startLineURL;
         Url += *itSet;
+        std::cout << *itSet << std::endl;
         if (isFile(Url)){
             _startLineURL = Url;
             return true;
         }
     }
-    std::cout << "false"<< std::endl;
+    std::cout << "false "<< _startLineURL << std::endl;
     return false;
 }
 

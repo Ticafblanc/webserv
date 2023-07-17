@@ -26,7 +26,6 @@ std::string Types::parseBlocTypes() {
     while (!_peg.checkIsEndOfBloc('}')) {
         value = _peg.extractData(0);
         token = _peg.extractData(';');
-        std::cout << token  << " " << value << std::endl;
         _mapMimeType[token] = value;
     }
     return std::string();

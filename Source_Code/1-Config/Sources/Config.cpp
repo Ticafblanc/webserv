@@ -85,7 +85,7 @@ void Config::addToSet(std::vector<std::string> & value, std::set<std::string> & 
     if (!value.empty()) {
         for (std::vector<std::string>::iterator it = value.begin();
         it != value.end() ; ++it) {
-            if (conf.find(*it) != conf.end())
+            if (conf.find(*it) == conf.end())
                 conf.insert(*it);
         }
     }

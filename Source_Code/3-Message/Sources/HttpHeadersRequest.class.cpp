@@ -129,8 +129,6 @@ void HttpHeadersRequest::extractHeaderData() {
     _startLineVersion.erase(_startLineVersion.size() - 1);
     if (_startLineVersion != "HTTP/1.1")
         throw Exception("Version protocole not supprted", 505);
-//    std::cout <<"start     >>>>   " << _startLineURL <<std::endl;
-
 }
 
 

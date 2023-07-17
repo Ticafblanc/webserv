@@ -5,7 +5,8 @@ types {
     text/css                              css;
     text/xml                              xml rss;
     image/gif                             gif;
-    image/jpeg                            jpeg jpg;
+    image/jpeg                            jpg;
+    image/jpeg                            jpeg;
     application/x-javascript              js;
     text/plain                            txt;
     text/x-component                      htc;

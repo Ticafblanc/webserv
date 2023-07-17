@@ -19,9 +19,9 @@
 				allow methods = GET POST DELETEconf = 7
 				auto index = on
 			####server####
-			name = defaut2.com
-			root = /webserv/Docker_build/var/www/default.com
-			index = index.html
+			name = webserv.com
+			root = /webserv/Docker_build/var/www/webserv.com
+			index = accueille.html
 				####location####
 				allow methods = GETconf = 1
 	
@@ -31,7 +31,7 @@
 
 	Socket fd => 3
 	ipaddress => 0.0.0.0 port => 8080
-		server name => 0.0.0.0:8080 = Token => fqdN76SRiq
+		server name => 0.0.0.0:8080 = Token => 8An1QFzI6i
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -48,7 +48,7 @@
 		return => 0
 	Socket fd => 4
 	ipaddress => 0.0.0.0 port => 80
-		server name => 0.0.0.0:80 = Token => fqdN76SRiq
+		server name => 0.0.0.0:80 = Token => 8An1QFzI6i
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -63,34 +63,38 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => localhost = Token => fqdN76SRiqfqdN76SRiq
+		server name => localhost = Token => 8An1QFzI6i8An1QFzI6i
 		uri => / 
+		index => accueille.html
 		index => index.html
-		root => /webserv/Docker_build/var/www/default.com/ 
+		root => /webserv/Docker_build/var/www/webserv.com/ 
 		allow method => 1
 		cgi => 
 		autoIndex => false
 		return => 0
 		uri => /
+		index => accueille.html
 		index => index.html
-		root => /webserv/Docker_build/var/www/default.com
+		root => /webserv/Docker_build/var/www/webserv.com
 		allow method => 7
 		cgi => 
 		autoIndex => false
 		return => 0
 	Socket fd => 5
 	ipaddress => 0.0.0.0 port => 8081
-		server name => 0.0.0.0:8081 = Token => fqdN76SRiqfqdN76SRiq
+		server name => 0.0.0.0:8081 = Token => 8An1QFzI6i8An1QFzI6i
 		uri => / 
+		index => accueille.html
 		index => index.html
-		root => /webserv/Docker_build/var/www/default.com/ 
+		root => /webserv/Docker_build/var/www/webserv.com/ 
 		allow method => 1
 		cgi => 
 		autoIndex => false
 		return => 0
 		uri => /
+		index => accueille.html
 		index => index.html
-		root => /webserv/Docker_build/var/www/default.com
+		root => /webserv/Docker_build/var/www/webserv.com
 		allow method => 7
 		cgi => 
 		autoIndex => false
