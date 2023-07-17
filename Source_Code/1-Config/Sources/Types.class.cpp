@@ -11,7 +11,7 @@ Types::Types(const std::string& pathFile) : _peg(pathFile.c_str()), _mapMimeType
 
 Types::~Types() {}
 
-Types::Types(const Types & other) : _peg(other._peg), _mapMimeType(other._mapMimeType){}
+Types::Types(const Types & other) : _peg(), _mapMimeType(other._mapMimeType){}
 
 Types &Types::operator=(const Types &rhs) {
     this->_peg = rhs._peg;
@@ -22,10 +22,11 @@ Types &Types::operator=(const Types &rhs) {
 std::string Types::parseBlocTypes() {
     std::string value;
     std::string token;
-
+    _peg.extractData('{');
     while (!_peg.checkIsEndOfBloc('}')) {
         value = _peg.extractData(0);
         token = _peg.extractData(';');
+        std::cout << token  << " " << value << std::endl;
         _mapMimeType[token] = value;
     }
     return std::string();

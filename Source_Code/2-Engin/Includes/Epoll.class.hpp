@@ -9,8 +9,9 @@
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/3-Message/Includes/HttpMessage.class.hpp>
-#include <Source_Code/3-Message/Includes/HttpReponse.class.hpp>
+#include <Source_Code/2-Engin/Includes/Client.class.hpp>
+#include <Source_Code/3-Message/Includes/HttpMessage.iclass.hpp>
+
 
 class Epoll :public epoll_event {
 
@@ -23,7 +24,7 @@ protected:
 *|                                       Member                                     |
 *====================================================================================
 */
-    Config&                                     _config;
+    Config&                                         _config;
     int                                             _epollInstanceFd;
     epoll_event*                                    _events;
     int                                             _numberTriggeredEvents;
@@ -80,82 +81,6 @@ public:
  * 2-Engin();
  **/
     virtual ~Epoll();
-
-/*
-*====================================================================================
-*|                                  Class Exception                                 |
-*====================================================================================
-*/
-
-
-/**
- * Class exception of 2-Engin class
- *
- * class epollException;
- *
- * @inherit std::exception
- **/
-    class epollException: public std::exception
-    {
-    public:
-
-        /**
-         * Constructor of epollException class
-         *
-         * epollException(const char * message, int statusCode);
-         *
-         * @param   epoll is a 2-Engin reference to set the private _epoll
-         *          to manage the close of 2-Engin class
-         *          message to store const char*
-         * @throw   none
-         **/
-        epollException(const char * message);
-
-        /**
-         * Copy constructor of epollException class
-         *
-         * epollException(epollException &);
-         *
-         * @param   epollException instance to build the epollException
-         *          epoll_epoll in an int to close
-         * @throw   none
-         **/
-        epollException(const epollException &);
-
-        /**
-         * Operator overload= of epollException class
-         *
-         * operator=(const epollException&);
-         *
-         * @param   epollException instance const to copy the epollException
-         * @throw   none
-         **/
-        epollException& operator=(const epollException &);
-
-        /**
-        * Destructor of epollException class
-        *
-        * virtual ~epollException() throw();
-        *
-        * @throw   none
-        **/
-        virtual ~epollException() throw();
-
-        /**
-         * Public methode of epollException
-         *
-         * virtual const char * what() const throw();
-         *
-         * @returns  const char * store in private std::string _message
-         *          at the construction defaut constructor "2-Engin error"
-         * @param   void
-         * @throw   none
-         **/
-        virtual const char * what() const throw();
-
-    private:
-        std::string     _message;
-    };
 
 /*
 *====================================================================================
@@ -290,7 +215,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void addConnexion(int numberTrigged);
+    void addConnexion(int numberTrigged, Socket *pSocket);
 
 /**
  * add socket to Epoll
@@ -301,8 +226,7 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void removeConnexionClient(Socket& client);
-    void removeConnexionServer(Socket& server);
+    void removeConnexionServer(Socket* server);
 
 /**
  * add socket to Epoll
@@ -313,7 +237,9 @@ public:
  * @param   int socket
  * @throw   none
  * */
-    void selectEvent(Socket& client, int numberTrigged);
+    void selectEvent(Client* client, int numberTrigged);
+
+    void checkConnexion();
 };
 
 

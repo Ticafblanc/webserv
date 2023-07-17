@@ -11,13 +11,13 @@
 #include <Source_Code/1-Config/Includes/Log.class.hpp>
 #include <Source_Code/1-Config/Includes/Types.class.hpp>
 #include <Source_Code/1-Config/Includes/Code.class.hpp>
-#include <Source_Code/2-Engin//Includes/Token.hpp>
-#include <Source_Code/2-Engin//Includes/Socket.class.hpp>
+#include <Source_Code/2-Engin/Includes/Token.hpp>
+#include <Source_Code/2-Engin/Includes/Socket.class.hpp>
 
 
 struct Config {
 
-    Config( Token & token, char **env);
+    Config( Token & token);
 
     virtual ~Config() ;
 
@@ -42,13 +42,14 @@ struct Config {
     std::string                                                     _root;
     std::string                                                     _uri;
     int                                                             _allowMethods;// GET = 1 POST = 2 DELETE = 4 GET/POST = 3 GET/DELETE = 5 POST/DELETE = 6 ALL = 7
+    std::pair<std::string, std::string>                             _addHeader;
     int                                                             _return;//return code [text]; text == uri or custom code
     std::string                                                     _cgiPass;// /path=>>cgi
     bool                                                            _autoindex;//on/off
     Code                                                            _code;//code class
 
     /*data to store config*/
-    std::map<int, Socket>                                                   _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
+    std::map<int, Socket*>                                                  _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
     std::map<std::string, std::vector<std::pair<std::string, Config> > >    _mapTokenVectorUriConfig;//map id token and config child
     std::map<std::string, std::string>                                      _mapMimeType;//mime type data
 

@@ -7,6 +7,7 @@
 #define WEBSERVER_LOG_HPP
 
 #include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <ostream>
 
 
 class Log {
@@ -23,8 +24,18 @@ private:
 */
 
     std::string     _pathToLogFile;
-//    std::fstream    _LogFile;
     std::string     _indent;
+public:
+    void setIndent(const std::string &indent);
+
+private:
+    std::string     _message;
+    std::time_t     _timestamp;
+    std::string     _timestampStr;
+    bool            _logEnable;
+public:
+    void setLogEnable(bool logEnable);
+
 public:
 
 
@@ -180,7 +191,7 @@ class LogException : public std::exception {
 /**
  * Public methode of Log class
  *
- * void writeLogFile(const std::string& message);
+ * void writeTimeLogFile(const std::string& message);
  *
  * @returns void
  * @param message
@@ -191,13 +202,15 @@ class LogException : public std::exception {
 /**
  * Public methode of Log class
  *
- * void writeLogFile(const std::string& message);
+ * void writeTimeLogFile(const std::string& message);
  *
  * @returns void
  * @param message
  * @throw LogException
  */
-    void writeLogFile(const std::string& message);
+//    void writeTimeLogFile(const std::string& message);
+    void writeMessageLogFile(const std::string &message);
+
 
 /**
  * Public methode of Log class
@@ -211,6 +224,8 @@ class LogException : public std::exception {
     void printLogFile();
     void addIndent();
     void removeIndent();
+
+    std::string convertEventsTostring(int events);
 /*
 *====================================================================================
 *|                                  Element access                                  |
@@ -218,7 +233,15 @@ class LogException : public std::exception {
 */
 
 
-    void writePidLogFile(const std::string &message);
+    void success();
+
+    void failure();
+
+    friend std::ostream &operator<<(std::ostream &os, const Log &log);
+
+    void setTime();
+
+    void setMessage(const std::string &message);
 };
 
 

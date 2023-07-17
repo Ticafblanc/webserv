@@ -6,172 +6,114 @@
 
 /*
 *====================================================================================
-*|                                       HeaderReponse                              |
+*|                                  Member Fonction                                 |
 *====================================================================================
 */
 
-HeaderReponse::HeaderReponse(SocketClient & client, Config& config)
-        : _client(client), _config(config), _startLineVersion("HTTP/1.1"), _startLineStatusCode(), _mapHttpHeaders() {}
-
-HeaderReponse::HeaderReponse(const HeaderReponse & other)
-        : _client(other._client), _config(other._config), _startLineVersion(other._startLineVersion), _startLineStatusCode(other._startLineStatusCode),
-          _mapHttpHeaders(other._mapHttpHeaders) {}
-
-HeaderReponse &HeaderReponse::operator=(const HeaderReponse & rhs) {
-    this->_client = rhs._client;
-    this->_startLineVersion = rhs._startLineVersion;
-    this->_startLineStatusCode = rhs._startLineStatusCode;
-    this->_mapHttpHeaders = rhs._mapHttpHeaders;
-    return *this;
-}
-
-void HeaderReponse::buildHeader() {
-    addStatusCode();
-    addDate();
-    addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
-    addContentInfo();
-    addConnectionClose();
-}
-
-void HeaderReponse::buildHeaderStatus() {
-    addStatusCode();
-    addDate();
-    addHttpHeaders("Server.class:", "webserv/1.0 (ubuntu)");
-    addHttpHeaders("Content-Type:", _client._contentType);
-    addHttpHeaders("Content-Length:", intToString(_client._content.size()));
-    addConnectionClose();
-}
-
-void HeaderReponse::addStatusCode() {
-    _startLineStatusCode = _config._code.getStatusCode();
-}
-
-void HeaderReponse::addHttpHeaders(const std::string& token, const std::string& value) {
-    _mapHttpHeaders[token] = value;
-}
-
-void HeaderReponse::addDate() {
-    std::time_t now = std::time(0);
-    std::tm* timeInfo = std::gmtime(&now);
-    char buffer[80];
-    std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeInfo);
-    addHttpHeaders("Code.class:", buffer);
-}
-
-void HeaderReponse::addContentInfo() {
-    if (!_client._content.empty()) {
-        addHttpHeaders("Content-Type:", _client._contentType);
-        addHttpHeaders("Content-Length:", intToString(_client._content.size()));
+HttpReponse::HttpReponse(const AHttpMessage & base) : AHttpMessage(base) {
+    _totalBytesSend = 0;
+    if (_isChunked){
+        chunkData();
     }
+    setData(setHeader());
+    setEvents(EPOLLOUT | EPOLLET);
 }
-
-void HeaderReponse::addConnectionClose() {
-    addHttpHeaders("Connection:", "close");
-}
-
-const std::string &HeaderReponse::getHeaderReponse() {
-    _startLineVersion += " ";
-    _startLineVersion += _startLineStatusCode;
-    _startLineVersion += "\r\n";
-    for (std::map<std::string, std::string>::iterator  i = _mapHttpHeaders.begin();
-         i != _mapHttpHeaders.end(); ++i) {
-        _startLineVersion += i->first;
-        _startLineVersion += " ";
-        _startLineVersion += i->second;
-        _startLineVersion += "\r\n";
-    }
-    _startLineVersion += "\r\n";
-    return _startLineVersion;
-}
-
-
-HttpReponse::HttpReponse(Socket& client, Config& config)
-        : _client(client),  _config(config), _bytesSend(), _buffer(),
-        _headReponse(client.getclient(), _config){}
 
 HttpReponse::~HttpReponse() {}
 
-HttpReponse::HttpReponse(const HttpReponse & other)
-        : _client(other._client), _config(other._config), _bytesSend(other._bytesSend),
-        _buffer(other._buffer), _headReponse(other._headReponse) {}
+HttpReponse::HttpReponse(const HttpReponse & other) : AHttpMessage(other), _buffers(other._buffers){}
 
 HttpReponse &HttpReponse::operator=(const HttpReponse &rhs) {
-    this->_client = rhs._client;
-    this->_config = rhs._config;
-    this->_bytesSend = rhs._bytesSend;
-    this->_buffer = rhs._buffer;
-    this->_headReponse = rhs._headReponse;
+    if ( this != & rhs) {
+        AHttpMessage::operator=(rhs);
+       this->_buffers = rhs._buffers;
+    }
     return *this;
 }
 
 /*
 *====================================================================================
-*|                                       Methode                                    |
+*|                                  Public Methode Override                         |
 *====================================================================================
 */
 
-void HttpReponse::sendStatusPage() {
-
-}
-
-void HttpReponse::sendMessage() {
-//    std::cout << "send" << std::endl;
-    _headReponse.buildHeader();
-    chunckMessage();
-    for(std::vector<std::string>::iterator it = _buffer.begin();
-    it != _buffer.end(); ++it){
-        sendData(*it);
+bool HttpReponse::continueManageEvent() {
+    try {
+        sendData(_socketClient.getSocket(), _buffers, *this, &HttpReponse::reponseIsNotComplete);
+        return false;
+    } catch (Exception &e) {
+        _config._accessLog.failure();
+        _config._errorLog.writeMessageLogFile(e.what());
+        setStatusCode(e.getCode());
+        return true;
+    } catch (std::exception &e) {
+        _config._accessLog.failure();
+        _config._errorLog.writeMessageLogFile(e.what());
+        setStatusCode(400);
+        return true;
     }
 }
 
-bool HttpReponse::messageIsNotComplete() {
-    return _bytesSend < (ssize_t) _client.getclient()._content.size();
-}
 
 
-void HttpReponse::checkBytesSend() {
-    if (_bytesSend == 0 )//close connection
-        throw HttpReponse::httpReponseException("send close connection");
-    if (_bytesSend == -1)//bad request
-        throw HttpReponse::httpReponseException("send bad request");
-    if (_bytesSend > 1024)//check headrs befor throw
-        throw HttpReponse::httpReponseException("send size error");
-}
-
-void HttpReponse::chunckMessage() {
-    std::string buffer = _headReponse.getHeaderReponse() + _client.getclient()._content;
-    size_t Pos = 0;
-
-    while (Pos < buffer.size()) {
-        _buffer.push_back(buffer.substr(Pos, 1024));
-        Pos += 1024;
+bool HttpReponse::reponseIsNotComplete(std::size_t& bytesExchange){
+    if (checkErrorBytesExchange(bytesExchange))
+        return false;
+    _buffers.erase(_buffers.begin(), _buffers.begin() + 1);
+    if (_buffers.empty()){
+        _isComplete = true;
+        return false;
     }
+    return true;
 }
 
-void HttpReponse::sendData(const std::string& message){
-    _bytesSend = send(_client.getSocket(), message.data(), 1024, 0);
-    checkBytesSend();
-//    std::cout << " client  >> " << _client.getSocket() << " send >>> \n" << message <<  "\n"<<std::endl;
+bool HttpReponse::checkErrorBytesExchange(std::size_t& bytesExchange){
+    if (static_cast<int>(bytesExchange) == -1)
+        return true;
+    if (bytesExchange == 0 )
+        throw Exception("recvMessage close connection", 0);
+    _totalBytesSend += bytesExchange;
+    if (static_cast<int>(_totalBytesSend) > _config._clientMaxBodySize)
+        throw Exception("Request Max body size exceeds the maximum limit", 413);
+    return false;
 }
 
+std::size_t  HttpReponse::setHeader() {
+    std::size_t size;
+    while (!_header.empty()) {
+        std::vector<char> buffer;
+        size = std::min(static_cast<std::size_t>(_config._clientHeaderBufferSize), _header.size());
+        buffer.assign(_header.begin(), _header.begin() + size);
+        _header = _header.substr(size);
+        _buffers.push_back(buffer);
+    }
+    return (_config._clientHeaderBufferSize - size);
+}
 
+void HttpReponse::chunkData() {
+    std::ostringstream oss;
+    for (size_t i = 0; i < _body.size(); i += _config._clientBodyBufferSize) {
+        size_t chunkSize = std::min(static_cast<std::size_t>(_config._clientBodyBufferSize), _body.size() - i);
+        oss << std::hex << chunkSize << "\r\n";
+        oss << _body.substr(i, chunkSize) << "\r\n";
+    }
+    oss << "0\r\n\r\n";
+    _body = oss.str();
+}
 
-
-/*
-*====================================================================================
-*|                                  Member Expetion                                 |
-*====================================================================================
-*/
-
-HttpReponse::httpReponseException::httpReponseException(const char * message) : _message(message) {}
-
-HttpReponse::httpReponseException::~httpReponseException() throw() {}
-
-const char * HttpReponse::httpReponseException::what() const throw() { return _message.c_str(); }
-
-HttpReponse::httpReponseException::httpReponseException(const HttpReponse::httpReponseException & other) : _message(other._message) {}
-
-HttpReponse::httpReponseException &HttpReponse::httpReponseException::operator=(const HttpReponse::httpReponseException &rhs) {
-    this->_message = rhs._message;
-    return *this;
+void HttpReponse::setData(std::size_t headerSize) {
+    (void)headerSize;
+    if (!_body.empty()){
+//        std::size_t newSize= std::min(_body.size(), headerSize);
+//        _buffers.back().insert(_buffers.back().end(), _body.begin(), _body.begin() + newSize);
+//        _body = _body.substr(newSize);
+        std::size_t size;
+        while (!_body.empty()) {
+            std::vector<char> buffer;
+            size = std::min(static_cast<std::size_t>(_config._clientBodyBufferSize), _body.size());
+            buffer.assign(_body.begin(), _body.begin() + size);
+            _body = _body.substr(size);
+            _buffers.push_back(buffer);
+        }
+    }
 }

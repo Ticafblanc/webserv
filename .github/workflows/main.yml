@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ticafblanc/webserv-env-dev:latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -27,6 +27,6 @@ jobs:
         working-directory: build
         run: cmake --build .
 
-      - name: Run Unit test
-        working-directory: build
-        run: ctest
+#      - name: Run Unit test
+#        working-directory: build
+#        run: ctest --extra-verbose

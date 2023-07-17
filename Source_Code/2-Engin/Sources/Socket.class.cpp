@@ -19,30 +19,23 @@
 */
 
 Socket::Socket()
-:  _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(),
-  _client(0){}
+: _ipAddress(), _port(), _sock(), _socket(0), _vectorServerNameToken(), _server(NULL){}
 
 Socket::Socket(const std::string & ipAddr, const int & port)
-: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(),
-  _client(0){}
+: _ipAddress(ipAddr), _port(port), _sock(), _socket(0), _vectorServerNameToken(), _server(NULL){}
 
-Socket::Socket(epoll_event & event)
-: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(),
-  _client(event.data.fd){
+Socket::Socket(epoll_event & event, Socket * server)
+: _ipAddress(), _port(), _sock(), _socket(event.data.fd), _vectorServerNameToken(server->_vectorServerNameToken),
+_server(server){
     buildClientSocket();
 }
 
-Socket::~Socket() {
-//    std::cout   << "erase client socket = "<< _socket
-//                <<" ip address = "<< _ipAddress
-//                << " port = "  << _port<< std::endl;
-//    closeSocket();
-}
+Socket::~Socket() {}
 
-Socket::Socket(const Socket &other)
+Socket::Socket(const Socket& other)
         : _ipAddress(other._ipAddress), _port(other._port),
-          _sock(other._sock), _socket(other._socket), _vectorServerNameToken(other._vectorServerNameToken),
-          _client(other._client){}
+          _sock(other._sock), _socket(other._socket),
+          _vectorServerNameToken(other._vectorServerNameToken), _server(other._server){}
 
 Socket& Socket::operator=(const Socket& rhs){
     if (this != &rhs) {
@@ -51,31 +44,8 @@ Socket& Socket::operator=(const Socket& rhs){
         this->_sock = rhs._sock;
         this->_socket = rhs._socket;
         this->_vectorServerNameToken = rhs._vectorServerNameToken;
-        this->_client = rhs._client;
+        this->_server = rhs._server;
     }
-    return *this;
-}
-
-
-
-/*
-*====================================================================================
-*|                                  Member Expetion                                 |
-*====================================================================================
-*/
-
-Socket::socketException::socketException(const char * message)
-: _message(message){}
-
-Socket::socketException::~socketException() throw() {}
-
-const char * Socket::socketException::what() const throw() { return _message.c_str(); }
-
-Socket::socketException::socketException(const Socket::socketException & other)
-: _message(other._message) {}
-
-Socket::socketException &Socket::socketException::operator=(const Socket::socketException &rhs) {
-    this->_message = rhs._message;
     return *this;
 }
 
@@ -97,15 +67,23 @@ void Socket::setSockaddrIn() {
 void Socket::getSockaddrIn() {
     _ipAddress = inet_ntoa(_sock.sin_addr);
     _port = ntohs(_sock.sin_port);
-    std::cout   << "add client socket = "<< _socket
-                <<" ip address = "<< _ipAddress
-                << " port = "  << _port<< std::endl;
+}
+
+bool Socket::checkSocket(int fd){
+    struct sockaddr_in address;
+    socklen_t address_length = sizeof(address);
+    getsockname(fd, reinterpret_cast<struct sockaddr*>(&address), &address_length);
+    std::string ipAddress = inet_ntoa(_sock.sin_addr);
+    int port = ntohs(_sock.sin_port);
+    if (port == _port && ipAddress == _ipAddress)
+        return true;
+    return ((_sock.sin_addr.s_addr == address.sin_addr.s_addr) && (_sock.sin_port == address.sin_port));
 }
 
 void Socket::setSocket() {
     _socket = socket(AF_INET, SOCK_STREAM, 0);/*IPPROTO_TCP*/
     if(_socket == 0)
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
 }
 
 void Socket::setSocketOption() {
@@ -113,7 +91,7 @@ void Socket::setSocketOption() {
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR,
                    &optionVal, (socklen_t)sizeof(optionVal))){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
@@ -121,7 +99,7 @@ void Socket::setBind() {
     socklen_t  addressLen = sizeof(_sock);
     if (bind(_socket, reinterpret_cast<struct sockaddr *>(&_sock), addressLen) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 
 }
@@ -129,14 +107,14 @@ void Socket::setBind() {
 void Socket::setListen(int backlog) const {
     if (listen(_socket, backlog) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
 void Socket::accessorSocketFlag(int command, int flag) const {
     if (fcntl(_socket, command, flag ) < 0){
         close(_socket);
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
 }
 
@@ -145,7 +123,7 @@ void Socket::acceptConnection() {
     int fd = accept(_socket, reinterpret_cast<struct sockaddr *>(&_sock), &addressLen);
     if (fd == -1) {
         closeSocket();
-        throw socketException(strerror(errno));
+        throw Exception(strerror(errno), 503);
     }
     _socket = fd;
 }
@@ -169,15 +147,9 @@ void Socket::buildClientSocket() {
     acceptConnection();
     getSockaddrIn();
     accessorSocketFlag(F_SETFL, O_NONBLOCK);
-
-//    _blocServer._peg._mapFdSocket.insert(data.fd, *this);
-//    _blocServer._maxEvents--;
 }
 
 void Socket::closeSocket() const {
-//    _blocServer._maxEvents++;
-//    _blocServer.setEpollCtl(EPOLL_CTL_DEL, *this);
-//    _blocServer._peg._mapFdSocket.erase(data.fd);
     close(_socket);
 }
 
@@ -194,18 +166,18 @@ const std::string &Socket::getIpAddress() const {
     return _ipAddress;
 }
 
-void Socket::addToken( const std::string & token){
-    _vectorServerNameToken.push_back(std::make_pair(token , token));
+void Socket::addToken( const std::string & defaultName, const std::string & token){
+    _vectorServerNameToken.push_back(std::make_pair(defaultName , token));
 }
 
 void Socket::addServerName( std::vector<std::string> & name, const std::string & token){
     for ( std::vector<std::pair<std::string, std::string> >::iterator it = _vectorServerNameToken.begin();
           it != _vectorServerNameToken.end(); ++it) {
-        if (it->first == token){
-            _vectorServerNameToken.erase(it);
+        if (it->second == token){
+//            _vectorServerNameToken.erase(it);
             for ( std::vector<std::string>::iterator itName = name.begin();
                   itName != name.end(); ++itName) {
-                if (findServerName(*itName).empty())
+                if (findServerName(*itName) == _ipAddress + ":" + intToString(_port))
                     _vectorServerNameToken.push_back(std::make_pair(*itName, token));
             }
             return;
@@ -227,34 +199,18 @@ std::string  Socket::findServerName(const std::string &serverName) {
         if (it->first == serverName)
             return it->second;
     }
-    return "";
-}
-
-SocketClient &Socket::getclient() {
-    return _client;
+    return _vectorServerNameToken.begin()->second;
 }
 
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){
     return _vectorServerNameToken;
 }
 
-
-SocketClient::SocketClient(int server)
-        : _server(server), _connection(true), _content(), _contentType(), _serverToken() {}
-
-SocketClient::~SocketClient() {}
-
-SocketClient::SocketClient(const SocketClient &other) :
-_server(other._server), _connection(other._connection), _content(other._content),
-_contentType(other._contentType), _serverToken(other._serverToken){}
-
-SocketClient &SocketClient::operator=(const SocketClient &rhs) {
-    if (this != &rhs){
-        this->_server = rhs._server;
-        this->_connection = rhs._connection;
-        this->_content = rhs._content;
-        this->_contentType = rhs._contentType;
-        this->_serverToken = rhs._serverToken;
-    }
-    return *this;
+Socket *Socket::getServer() const {
+    return _server;
 }
+
+
+
+
+

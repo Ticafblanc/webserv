@@ -7,13 +7,13 @@
 
 Log::Log() {}
 
-Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile), _indent(){
+Log::Log(const std::string &pathToLogFile) : _pathToLogFile(pathToLogFile), _indent(), _timestamp(), _logEnable(true){
     setLog(pathToLogFile);
 }
 
 Log::~Log() {}
 
-Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile), _indent(other._indent){}
+Log::Log(const Log & other) : _pathToLogFile(other._pathToLogFile), _indent(other._indent), _timestamp(), _logEnable(true){}
 
 Log &Log::operator=(const Log & rhs) {
     this->_pathToLogFile = rhs._pathToLogFile;
@@ -29,25 +29,45 @@ void Log::setLog(const std::string &pathToLogFile) {
     file.close();
 }
 
-void Log::writeLogFile(const std::string& message) {
-    std::time_t timestamp = std::time(NULL);
+//void Log::writeTimeLogFile(const std::string& message) {
+//    std::time_t timestamp = std::time(NULL);
+//
+//    std::string timestampStr = std::ctime(&timestamp);
+//
+//    timestampStr = "[" + timestampStr.substr(0, timestampStr.length() - 1) +  "] ";
+//}
 
-    std::string timestampStr = std::ctime(&timestamp);
-
-    timestampStr = timestampStr.substr(0, timestampStr.length() - 1);
+void Log::setTime() {
     std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
     if (!logfile.is_open())
         throw LogException("fail to open file");
-    logfile << "[" << timestampStr << "] " << _indent << message << std::endl;
-    logfile.close();
+    _timestamp = std::time(NULL);
+//    std::tm* memory = std::localtime(&_timestamp);
+//    _timestamp = timestamp;
+//    memory->tm_hour -= 4;
+    logfile << "\n" << std::asctime(std::localtime(&_timestamp)) << std::endl;
 }
 
-void Log::writePidLogFile(const std::string& message) {
-    std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
-    if (!logfile.is_open())
-        throw LogException("fail to open file");
-    logfile << _indent << message << std::endl;
-    logfile.close();
+void Log::setMessage(const std::string& message) {
+    _message = message;
+}
+
+void Log::writeMessageLogFile(const std::string& message) {
+    setMessage(message);
+    if (_logEnable) {
+        std::ofstream logfile(_pathToLogFile.c_str(), std::ios::app);
+        if (!logfile.is_open())
+            throw LogException("fail to open file");
+        logfile << *this << std::endl;
+        logfile.close();
+    }
+}
+
+
+
+std::ostream &operator<<(std::ostream &os, const Log &log) {
+    os << log._indent << log._message;
+    return os;
 }
 
 void Log::printLogFile() {
@@ -67,6 +87,33 @@ void Log::addIndent() {
 
 void Log::removeIndent() {
     _indent.erase(0, 1);
+}
+
+std::string Log::convertEventsTostring(int events){
+    return std::string((events & EPOLLOUT && events & EPOLLET) ? "EPOLLOUT | EPOLLET" :
+                       (events & EPOLLIN && events &EPOLLET) ? "EPOLLIN | EPOLLET" :
+                        ((events & EPOLLOUT) ? "EPOLLOUT" :
+                         (events & EPOLLIN) ? "EPOLLIN" : "ERROR" ));
+}
+
+void Log::success() {
+    addIndent();
+    writeMessageLogFile(" >>>> Sucesss <<<<");
+    removeIndent();
+}
+
+void Log::failure() {
+    addIndent();
+    writeMessageLogFile(" >>>> Failure <<<<");
+    removeIndent();
+}
+
+void Log::setLogEnable(bool logEnable) {
+    _logEnable = logEnable;
+}
+
+void Log::setIndent(const std::string &indent) {
+    _indent = indent;
 }
 
 Log::LogException::LogException(const char * message)
