@@ -32,7 +32,7 @@ function FormComponent() {
 
     return (
         <div className="divFormInner bg-primary">
-            <Form action="http://localhost:8000/cgi.php" method="post" encType="multipart/form-data">
+            <Form method="post" encType="multipart/form-data">
                 <Form.Group className="mb-3" controlId="floatingName">
                     <MyFormGroup label={"Name"} formControlType={"string"} placeHolder={"Name"} formName={"name"}/>
                 </Form.Group>
