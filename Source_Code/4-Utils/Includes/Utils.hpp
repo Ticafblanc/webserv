@@ -22,7 +22,7 @@ std::size_t stringToSizet(const std::string & str);
 std::string sizetToString(std::size_t size);
 bool removeDirectory(std::string &path);
 bool removeFile(std::string &path);
-bool extractFileToFd(const std::string & path, int fd);
+bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength);
 void chunkData(std::vector<std::string> & vec, std::string data, std::size_t size);
 std::vector<char*> setArgv(const std::string& executablePath, const std::string& filePath);
 std::vector<char*> setPhpEnv(const std::string& method, const std::string& query, std::map<std::string, std::string>& headers);

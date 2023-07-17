@@ -112,8 +112,8 @@ void HttpBodyRequest::recvBodyChunck(){
         if (checkErrorBytesExchange(bytesRecv)) {
             return;
         }
-        totalBytesRecv += bytesRecv;
-        if (totalBytesRecv > _contentLength)
+        _totalBytesRecv += bytesRecv;
+        if (_totalBytesRecv > _contentLength)
             throw Exception("Request chunck size exceeds content length", 413);
         _body.append(_buffer.begin(), _buffer.end());
         _buffer.clear();

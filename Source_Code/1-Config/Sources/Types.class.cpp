@@ -22,10 +22,11 @@ Types &Types::operator=(const Types &rhs) {
 std::string Types::parseBlocTypes() {
     std::string value;
     std::string token;
-
+    _peg.extractData('{');
     while (!_peg.checkIsEndOfBloc('}')) {
         value = _peg.extractData(0);
         token = _peg.extractData(';');
+        std::cout << token  << " " << value << std::endl;
         _mapMimeType[token] = value;
     }
     return std::string();

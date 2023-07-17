@@ -43,6 +43,8 @@ std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
 
 bool isDirectory(std::string & path) {
     struct stat statbuf;
+//    std::cout << "directory"<< std::endl;
+
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISDIR(statbuf.st_mode);
@@ -50,6 +52,8 @@ bool isDirectory(std::string & path) {
 
 bool isFile(std::string & path) {
     struct stat statbuf;
+//    std::cout << "file"<< std::endl;
+
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISREG(statbuf.st_mode);
@@ -57,6 +61,7 @@ bool isFile(std::string & path) {
 
 bool isExec(std::string & path) {
     struct stat statbuf;
+//    std::cout << "exec"<< std::endl;
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISREG(statbuf.st_mode) && (statbuf.st_mode & S_IXUSR ||
@@ -101,21 +106,24 @@ bool removeFile(std::string &path){
     return true;
 }
 
-bool extractFileToFd(const std::string & path, int fd){
-    std::ifstream htmlPage(path.c_str());
-    if(!htmlPage.is_open())
+bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength){
+    std::ifstream is(path.c_str(), std::ios::binary | std::ios::in  );
+    if(!is.is_open())
         return false;
-    std::vector<char> buffer(1024);
-    while (!htmlPage.eof()) {
-        htmlPage.read(buffer.data(), buffer.size());
-        std::streamsize bytes_read = htmlPage.gcount();
-        if (bytes_read <= 0) {
-            break;
-        }
-        write(fd, buffer.data(), bytes_read);
-//        std::cout << "write = " << i << buffer.data() << bytes_read << std::endl;
-        buffer.clear();
-    }
+    is.seekg (0, std::ios::end);
+    contentLength = is.tellg();
+    is.seekg (0, std::ios::beg);
+    std::vector<char> buffer(contentLength);
+//    while (!is.eof()) {
+    is.read(buffer.data(), buffer.size());
+    std::streamsize bytes_read = is.gcount();
+    std::cout <<"conten "<< contentLength <<"gcount " <<  bytes_read << "buffer size" << buffer.size() << std::endl;
+//        if (bytes_read <= 0) {
+//            break;
+//        }
+    write(fd, buffer.data(), contentLength);
+    buffer.clear();
+//    }
     return true;
 }
 

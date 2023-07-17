@@ -11,7 +11,7 @@
 */
 
 HttpBodyReponse::HttpBodyReponse(const AHttpMessage& base)
-: AHttpMessage(base), _buffer(_config._clientBodyBufferSize), _totalBytesRecv(){
+: AHttpMessage(base), _buffer(_config._clientMaxBodySize), _totalBytesRecv(){
     _body.clear();
     if (_statusCode < 300 && _statusCode >= 200)
         _methodeToRecv = &HttpBodyReponse::recvBody;
@@ -102,10 +102,11 @@ void HttpBodyReponse::setDefaultPage(){
 }
 
 bool HttpBodyReponse::readDataIsNotComplete(std::size_t& bytesExchange){
-    if (checkErrorBytes(bytesExchange))
+    if (checkErrorBytes(bytesExchange)) {
         return false;
+    }
     std::size_t size = std::min(bytesExchange, _buffer.size());
-    _body.append(_buffer.begin(), _buffer.begin() + size - 1);
+    _body.append(_buffer.begin(), _buffer.begin() + size);
     _buffer.clear();
     return true;
 }

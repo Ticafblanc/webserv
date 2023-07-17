@@ -38,16 +38,20 @@ bool HttpGETRequest::continueManageEvent() {
         extractData();
         if (!checkIsAllowedMethode(1, 3, 5))
             throw Exception("Method GET Not Allowed ", 405);
+        std::cout << " before " <<_startLineURL << std::endl;
         findRessource();
+        std::cout << "after " <<_startLineURL << std::endl;
         _mapHttpHeaders.clear();
         if (!_statusCode) {
             if (_isCGI) {
                 if (!startCgi())
                     throw Exception("error to create child process", 500);
             } else {
-                if (pipe(_pipeFdOut) == -1 || !extractFileToFd(_startLineURL, _pipeFdOut[STDOUT_FILENO]))
+                if (pipe(_pipeFdOut) == -1 || !extractFileToFd(_startLineURL, _pipeFdOut[STDOUT_FILENO], _contentLength))
                     throw Exception("error to extract file", 500);
+                _mapHttpHeaders["Content-Type:"] = _config._mapMimeType.at(_startLineURL.substr(_startLineURL.find_last_of('.') + 1));
                 _statusCode = 200;
+
             }
         }
         _methode = new HttpBodyReponse(*this);
@@ -57,11 +61,14 @@ bool HttpGETRequest::continueManageEvent() {
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(e.getCode());
         _methode = new HttpBodyReponse(*this);
+        return true;
     }catch (std::exception& e){
         _config._accessLog.failure();
         _config._errorLog.writeMessageLogFile(e.what());
         setStatusCode(400);
         _methode = new HttpBodyReponse(*this);
+        return true;
+
     }
     return false;
 }
@@ -76,8 +83,9 @@ bool HttpGETRequest::continueManageEvent() {
 
 void HttpGETRequest::extractData() {
     _peg.setMapTokenHeadersInformation();
-    while(!_peg.checkIsEmpty() && !_requestHeadersIsComplete)
-        _peg.findToken(*this,  0);
+    while(!_peg.checkIsEmpty() && !_requestHeadersIsComplete) {
+        _peg.findToken(*this, 0);
+    }
 }
 
 bool HttpGETRequest::startCgi() {
@@ -125,7 +133,7 @@ void HttpGETRequest::findBestConfig(std::vector<std::pair<std::string, Config> >
 void HttpGETRequest::findRessource() {
     if (!isExec(_startLineURL)) {
         if (!isFile(_startLineURL)) {
-            if (isDirectory(_startLineURL) && !setIndex()) {
+            if (!isDirectory(_startLineURL) || !setIndex()) {
                 if (!_config._autoindex) {
                     throw Exception("root/Uri not found", 404);
                 } else {
@@ -152,6 +160,7 @@ bool HttpGETRequest::setIndex(){
             return true;
         }
     }
+    std::cout << "false"<< std::endl;
     return false;
 }
 

@@ -218,7 +218,7 @@ void Epoll::checkConnexion(){
         if (dynamic_cast<Client*>(itSock->second) != NULL) {
             if (!dynamic_cast<Client *>(itSock->second)->isConnection() ||
                 currentTime > dynamic_cast<Client *>(itSock->second)->getLastConnection()) {
-                std::cout << itSock->second->getSocket() << std::endl;
+//                std::cout << itSock->second->getSocket() << std::endl;
                 removeConnexionServer(itSock->second);
             }
         }

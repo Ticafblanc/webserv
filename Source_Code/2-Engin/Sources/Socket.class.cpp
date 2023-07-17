@@ -174,10 +174,10 @@ void Socket::addServerName( std::vector<std::string> & name, const std::string &
     for ( std::vector<std::pair<std::string, std::string> >::iterator it = _vectorServerNameToken.begin();
           it != _vectorServerNameToken.end(); ++it) {
         if (it->second == token){
-            _vectorServerNameToken.erase(it);
+//            _vectorServerNameToken.erase(it);
             for ( std::vector<std::string>::iterator itName = name.begin();
                   itName != name.end(); ++itName) {
-                if (findServerName(*itName).empty())
+                if (findServerName(*itName) == _ipAddress + ":" + intToString(_port))
                     _vectorServerNameToken.push_back(std::make_pair(*itName, token));
             }
             return;
@@ -199,7 +199,7 @@ std::string  Socket::findServerName(const std::string &serverName) {
         if (it->first == serverName)
             return it->second;
     }
-    return "";
+    return _vectorServerNameToken.begin()->second;
 }
 
 std::vector<std::pair<std::string, std::string> > &Socket::getVectorServerNameToken(){
