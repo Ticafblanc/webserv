@@ -154,7 +154,7 @@ bool HttpGETRequest::setIndex(){
     for (std::set<std::string>::iterator  itSet = _config._index.begin();
          itSet != _config._index.end() ; ++itSet) {
         std::string Url = _startLineURL;
-        Url += "/" + *itSet;
+        Url += *itSet;
         if (isFile(Url)){
             _startLineURL = Url;
             return true;
