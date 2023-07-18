@@ -25,7 +25,7 @@ protected:
     uint32_t                                            _events;
     int                                                 _statusCode;
     std::string                                         _header;
-    std::string                                         _body;
+    std::vector<char>                                   _body;
     bool                                                _requestHeadersIsComplete;
     bool                                                _requestBodyIsComplete;
     bool                                                _bodyReponseIsComplete;

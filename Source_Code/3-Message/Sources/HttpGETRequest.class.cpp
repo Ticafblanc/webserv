@@ -44,14 +44,17 @@ bool HttpGETRequest::continueManageEvent() {
             if (_isCGI) {
                 if (!startCgi())
                     throw Exception("error to create child process", 500);
+                _methode = new HttpBodyReponse(*this);
+                return false;
             } else {
-                if (pipe(_pipeFdOut) == -1 || !extractFileToFd(_startLineURL, _pipeFdOut[STDOUT_FILENO], _contentLength))
+                if (!extractFileToBuffer())
                     throw Exception("error to extract file", 500);
+                _mapHttpHeaders["Content-Length:"] = intToString(_body.size());
                 _mapHttpHeaders["Content-Type:"] = _config._mapMimeType.at(_startLineURL.substr(_startLineURL.find_last_of('.') + 1));
                 _statusCode = 200;
+                _methode = new HttpHeadersReponse(*this);
             }
         }
-        _methode = new HttpBodyReponse(*this);
         return true;
     }catch (Exception& e) {
         _config._accessLog.failure();
@@ -92,6 +95,20 @@ bool HttpGETRequest::startCgi() {
         return false;
     close(_pipeFdIn[STDIN_FILENO]);
     close(_pipeFdOut[STDOUT_FILENO]);
+    return true;
+}
+
+bool HttpGETRequest::extractFileToBuffer() {
+    std::ifstream is(_startLineURL.c_str(), std::ios::binary | std::ios::in);
+    if (!is.is_open())
+        return false;
+    is.seekg(0, std::ios::end);
+    _contentLength = is.tellg();
+    is.seekg(0, std::ios::beg);
+    _body.clear();
+    _body.resize(_contentLength);
+    is.read(_body.data(), _body.size());
+//    std::cout <<_body.data()  << " size "<< _contentLength<< std::endl;
     return true;
 }
 
@@ -152,14 +169,12 @@ bool HttpGETRequest::setIndex(){
          itSet != _config._index.end() ; ++itSet) {
         std::string Url = _startLineURL;
         Url += *itSet;
-        std::cout << *itSet << std::endl;
         if (isFile(Url)){
             _startLineURL = Url;
             return true;
         }
     }
-    std::cout << "false "<< _startLineURL << std::endl;
-    return false;
+        return false;
 }
 
 bool HttpGETRequest::checkIsPHP() {
@@ -198,7 +213,7 @@ std::string HttpGETRequest::addToMapHttpHeader(std::string& token) {
 
 std::string HttpGETRequest::endHeader(std::string& token) {
     (void)token;
-    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
+//    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
     _requestHeadersIsComplete = true;
     return "";
 }

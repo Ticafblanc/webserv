@@ -100,6 +100,7 @@ public:
  * */
     bool continueManageEvent() override;
 
+    void sendData();
 };
 
 

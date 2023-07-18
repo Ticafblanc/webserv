@@ -106,22 +106,19 @@ bool removeFile(std::string &path){
     return true;
 }
 
-bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength){
-    std::ifstream is(path.c_str(), std::ios::binary | std::ios::in  );
-    if(!is.is_open())
-        return false;
-    is.seekg (0, std::ios::end);
-    contentLength = is.tellg();
-    is.seekg (0, std::ios::beg);
-    std::vector<char> buffer(contentLength);
+//bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
+//    std::size_t min = 1024;
 
-    std::cout << path << " " << contentLength << " " << buffer.size()<< std::endl;
-    is.read(buffer.data(), buffer.size());
-    write(fd, buffer.data(), buffer.size());
-    std::cout << path << " " << contentLength << " " << buffer.size()<< std::endl;
-    buffer.clear();
-    return true;
-}
+//    while (!buffer.empty()){
+//        std::size_t size = std::min(buffer.size(), min);
+//        std::cout << path << " " << contentLength << " " << buffer.size() <<" " << size << std::endl;
+//        write(fd, buffer.data(), size);
+//        buffer.erase(buffer.begin(), buffer.begin() + size);
+//    }
+//    std::cout <<"end" <<  path << " " << contentLength << " " << buffer.size()<< std::endl;
+//    buffer.clear();
+//    return true;
+//}
 
 std::vector<char*>  setPhpEnv(const std::string& method, const std::string& query, std::map<std::string, std::string>& headers) {
     std::vector<std::string> envVec;

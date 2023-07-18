@@ -60,6 +60,20 @@ private:
  *
  * extract data and put in std::string
  *
+ * bool continueManageEvent() override;
+ *
+ * @returns string with message content
+ * @param   client_socket send message
+ * @throws  server::server_exception
+ * */
+    bool extractFileToBuffer();
+
+
+/**
+ * Private methode of server class
+ *
+ * extract data and put in std::string
+ *
  * std::string addToMapHttpHeader(std::string &);
  *
  * @returns string with message content

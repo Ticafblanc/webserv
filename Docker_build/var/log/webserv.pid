@@ -31,7 +31,7 @@
 
 	Socket fd => 3
 	ipaddress => 0.0.0.0 port => 8080
-		server name => 0.0.0.0:8080 = Token => 8An1QFzI6i
+		server name => 0.0.0.0:8080 = Token => Ak3a2bD25D
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -48,7 +48,7 @@
 		return => 0
 	Socket fd => 4
 	ipaddress => 0.0.0.0 port => 80
-		server name => 0.0.0.0:80 = Token => 8An1QFzI6i
+		server name => 0.0.0.0:80 = Token => Ak3a2bD25D
 		uri => / 
 		index => index.html
 		root => /webserv/Docker_build/var/www/default.com/ 
@@ -63,7 +63,7 @@
 		cgi => 
 		autoIndex => false
 		return => 0
-		server name => localhost = Token => 8An1QFzI6i8An1QFzI6i
+		server name => localhost = Token => Ak3a2bD25DAk3a2bD25D
 		uri => / 
 		index => accueille.html
 		index => index.html
@@ -82,7 +82,7 @@
 		return => 0
 	Socket fd => 5
 	ipaddress => 0.0.0.0 port => 8081
-		server name => 0.0.0.0:8081 = Token => 8An1QFzI6i8An1QFzI6i
+		server name => 0.0.0.0:8081 = Token => Ak3a2bD25DAk3a2bD25D
 		uri => / 
 		index => accueille.html
 		index => index.html

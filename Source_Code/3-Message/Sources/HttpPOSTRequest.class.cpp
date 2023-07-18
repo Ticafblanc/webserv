@@ -186,7 +186,7 @@ std::string HttpPOSTRequest::addToMapHttpHeader(std::string& token) {
 
 std::string HttpPOSTRequest::endHeader(std::string& token) {
     (void)token;
-    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
+//    _body =  _body.substr(_body.find("\r\n\r\n") + 4);
     _requestHeadersIsComplete = true;
     return "";
 }

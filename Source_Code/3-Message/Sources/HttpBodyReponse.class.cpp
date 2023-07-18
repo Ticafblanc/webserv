@@ -98,15 +98,15 @@ void HttpBodyReponse::setDefaultPage(){
                      _config._code.getStatusCode(_statusCode) + "</h1><p>Sorry</p></body></html>";
         _mapHttpHeaders["Content-Type:"] = "text/html";
     }
-    _body = ss.str();
+//    _body = ss.str();
 }
 
 bool HttpBodyReponse::readDataIsNotComplete(std::size_t& bytesExchange){
     if (checkErrorBytes(bytesExchange)) {
         return false;
     }
-    std::size_t size = std::min(bytesExchange, _buffer.size());
-    _body.append(_buffer.begin(), _buffer.begin() + size);
+//    std::size_t size = std::min(bytesExchange, _buffer.size());
+//    _body.append(_buffer.begin(), _buffer.begin() + size);
     _buffer.clear();
     return true;
 }

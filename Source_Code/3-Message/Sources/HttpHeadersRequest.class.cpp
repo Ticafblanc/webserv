@@ -74,7 +74,7 @@ bool HttpHeadersRequest::headerIsNotComplete(std::size_t& bytesExchange){
     _buffer.clear();
     std::size_t doubleCRLFpos = _header.find("\r\n\r\n");
     if (doubleCRLFpos != std::string::npos){
-        _body = _header.substr(doubleCRLFpos);
+        _body.assign(_header.begin() + doubleCRLFpos + 4, _header.end());
         _requestHeadersIsComplete = true;
         return false;
     }
