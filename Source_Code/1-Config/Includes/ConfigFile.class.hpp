@@ -15,7 +15,7 @@
 #ifndef WEBSERV_CONFIG_HPP
 #define WEBSERV_CONFIG_HPP
 
-#include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/4-Utils/Template/PegParser.class.tpp>
 #include <Source_Code/1-Config/Includes/Listen.class.hpp>

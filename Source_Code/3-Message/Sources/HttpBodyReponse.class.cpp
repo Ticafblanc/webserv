@@ -19,6 +19,15 @@ HttpBodyReponse::HttpBodyReponse(const AHttpMessage& base)
         _methodeToRecv = &HttpBodyReponse::setDefaultPage;
 }
 
+HttpBodyReponse::HttpBodyReponse(const AHttpMessage& base, int statusCode)
+        : AHttpMessage(base), _buffer(_config._clientMaxBodySize), _totalBytesRecv(){
+    _body.clear();
+    if (_statusCode < 300 && _statusCode >= 200)
+        _methodeToRecv = &HttpBodyReponse::recvBody;
+    else if (_statusCode >= 400)
+        _methodeToRecv = &HttpBodyReponse::setDefaultPage;
+}
+
 HttpBodyReponse::~HttpBodyReponse() {}
 
 HttpBodyReponse::HttpBodyReponse(const HttpBodyReponse & other)

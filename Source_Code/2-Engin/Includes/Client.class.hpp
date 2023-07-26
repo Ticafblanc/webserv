@@ -15,7 +15,7 @@
 #ifndef WEBSERV_CLIENT_HPP
 #define WEBSERV_CLIENT_HPP
 
-#include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/3-Message/Includes/HttpHeadersRequest.class.hpp>
 #include <Source_Code/3-Message/Includes/HttpBodyRequest.class.hpp>

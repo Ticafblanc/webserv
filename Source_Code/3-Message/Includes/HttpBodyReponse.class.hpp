@@ -9,6 +9,8 @@
 #include <Source_Code/3-Message/Includes/HttpHeadersReponse.class.hpp>
 
 class HttpBodyReponse : public AHttpMessage {
+    HttpBodyReponse(const AHttpMessage &base, int statusCode);
+
     typedef void (HttpBodyReponse::*dataIsComplete)();
 
 /*>*******************************private section**********************************/

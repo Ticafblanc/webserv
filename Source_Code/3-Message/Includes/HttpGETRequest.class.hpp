@@ -20,8 +20,7 @@ private:
 *====================================================================================
 */
     PegParser<HttpGETRequest>                           _peg;
-    std::string                                         _queryString;
-    bool                                                _isCGI;
+
 
 /*
 *====================================================================================
@@ -29,31 +28,7 @@ private:
 *====================================================================================
 */
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool continueManageEvent() override;
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    void extractData();
 
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * bool continueManageEvent() override;
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool startCgi();
 
 /**
  * Private methode of server class
@@ -68,123 +43,6 @@ private:
  * */
     bool extractFileToBuffer();
 
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string addToMapHttpHeader(std::string &);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string addToMapHttpHeader(std::string &);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string Host(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string Host(std::string &token);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string ContentLength(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string ContentLength(std::string &token);
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string TransfereEncoding(std::string &token);
-
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    void findBestConfig(std::vector<std::pair<std::string, Config> > &UriConfig);
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    void findRessource();
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool checkIsPHP();
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string TransfereEncoding(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    bool setIndex();
-
-/**
- * Private methode of server class
- *
- * extract data and put in std::string
- *
- * std::string endHeader(std::string &token);
- *
- * @returns string with message content
- * @param   client_socket send message
- * @throws  server::server_exception
- * */
-    std::string endHeader(std::string &token);
-
-    friend void PegParser<HttpGETRequest>::setMapTokenHeadersInformation();
 
 /*>********************************public section**********************************/
 

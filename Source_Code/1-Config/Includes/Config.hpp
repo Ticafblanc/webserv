@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_CONFIG_HPP
 #define WEBSERVER_CONFIG_HPP
 
-#include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
 #include <Source_Code/1-Config/Includes/Log.class.hpp>

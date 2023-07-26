@@ -6,47 +6,58 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
-set(    MAIN
-        Source_Code/0-Main/Sources/main.cpp
-        Source_Code/0-Main/Sources/Exception.cpp)
+add_subdirectory(Source_Code/5-Log)
 
-set(    CONFIG
-        Source_Code/1-Config/Sources/Config.cpp
-        Source_Code/1-Config/Sources/ConfigFile.class.cpp
-        Source_Code/1-Config/Sources/Code.class.cpp
-        Source_Code/1-Config/Sources/Types.class.cpp
-        Source_Code/1-Config/Sources/Listen.class.cpp
-        Source_Code/1-Config/Sources/Log.class.cpp)
+set(SOURCES_CODE Source_Code/0-webserv_launch_main_project/webserv_launch_main_project.cpp)
 
-set(    ENGIN
-        Source_Code/2-Engin/Sources/Epoll.class.cpp
-        Source_Code/2-Engin/Sources/Socket.class.cpp
-        Source_Code/2-Engin/Sources/Token.cpp
-        Source_Code/2-Engin/Sources/Client.class.cpp)
+add_executable(WEBSERV ${SOURCES_CODE})
 
-set(    MESSAGE
-        Source_Code/3-Message/Sources/HttpMessage.Aclass.cpp
-        Source_Code/3-Message/Sources/HttpHeadersRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpGETRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpPOSTRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpDELETERequest.class.cpp
-        Source_Code/3-Message/Sources/HttpHeadersReponse.class.cpp
-#        Source_Code/3-Message/Sources/HttpBodyRequest.class.cpp
-        Source_Code/3-Message/Sources/HttpBodyReponse.class.cpp
-        Source_Code/3-Message/Sources/HttpReponse.class.cpp )
-
-set(    UTILS
-        Source_Code/4-Utils/Template/PegParser.class.tpp
-        Source_Code/4-Utils/Sources/Utils.cpp
-        Source_Code/4-Utils/Template/recv_send.tpp )
+target_link_libraries(WEBSERV ${LOG_LIB})
 
 
-#add_executable(webserv ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})
-add_library(webserver_lib STATIC ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})
 
-add_executable(webserv Source_Code/0-Main/Sources/main.cpp)
 
-target_link_libraries(webserv PRIVATE webserver_lib ${CMAKE_DL_LIBS})
+#
+#set(    MAIN
+#
+#        Source_Code/1-Exception/Sources/Exception.cpp)
+#
+#set(    CONFIG
+#        Source_Code/1-Config/Sources/Config.cpp
+#        Source_Code/1-Config/Sources/ConfigFile.class.cpp
+#        Source_Code/1-Config/Sources/Code.class.cpp
+#        Source_Code/1-Config/Sources/Types.class.cpp
+#        Source_Code/1-Config/Sources/Listen.class.cpp
+#        Source_Code/1-Config/Sources/Log.class.cpp)
+#
+#set(    ENGIN
+#        Source_Code/2-Engin/Sources/Epoll.class.cpp
+#        Source_Code/2-Engin/Sources/Socket.class.cpp
+#        Source_Code/2-Engin/Sources/Token.cpp
+#        Source_Code/2-Engin/Sources/Client.class.cpp)
+#
+#set(    MESSAGE
+#        Source_Code/3-Message/Sources/HttpMessage.Aclass.cpp
+#        Source_Code/3-Message/Sources/HttpHeadersRequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpGETRequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpPOSTRequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpDELETERequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpHeadersReponse.class.cpp
+##        Source_Code/3-Message/Sources/HttpBodyRequest.class.cpp
+#        Source_Code/3-Message/Sources/HttpBodyReponse.class.cpp
+#        Source_Code/3-Message/Sources/HttpReponse.class.cpp )
+#
+#set(    UTILS
+#        Source_Code/4-Utils/Template/PegParser.class.tpp
+#        Source_Code/4-Utils/Sources/Utils.cpp
+#        Source_Code/4-Utils/Template/recv_send.tpp )
+#
+##add_executable(webserv ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})
+#add_library(webserver_lib STATIC ${MAIN} ${CONFIG} ${ENGIN} ${MESSAGE} ${UTILS})
+#
+#add_executable(webserv main.cpp)
+#
+#target_link_libraries(webserv PRIVATE webserver_lib ${CMAKE_DL_LIBS})
 #
 #enable_testing()
 #

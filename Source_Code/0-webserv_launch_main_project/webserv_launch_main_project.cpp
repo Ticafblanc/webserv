@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Source_Code/0-Main/Includes/Headers.hpp>
+#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/1-Config/Includes/ConfigFile.class.hpp>
 #include <Source_Code/2-Engin/Includes/Epoll.class.hpp>
@@ -108,16 +108,17 @@ int main(int argc, char **argv){
         signal(SIGTERM, handleExit);
         signal(SIGHUP, handleReload);
         pathConfigFile = selectPath(argv, positionPathFileConfig);
+        Token     token;
+        Config webserv(token);
         try {
             PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
-            Token     token;
-            Config webserv(token);
             ConfigFile extractConfigFile(webserv, peg);
-            launcher(webserv);//@todo manage thread
         }
         catch (const std::exception &e) {
             std::cout << "Config error on => " << e.what() << std::endl;
         }
+        launcher(webserv);//@todo manage thread
+
     }
     exit(EXIT_FAILURE);
 }
