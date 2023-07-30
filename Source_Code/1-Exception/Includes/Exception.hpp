@@ -6,7 +6,7 @@
 #ifndef WEBSERVER_EXCEPTION_HPP
 #define WEBSERVER_EXCEPTION_HPP
 
-#include "Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp"
+#include "3-Message/Headers_external_library.hpp"
 
 class Exception : public std::exception{
 

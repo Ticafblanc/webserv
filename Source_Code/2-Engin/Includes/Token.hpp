@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_TOKEN_HPP
 #define WEBSERVER_TOKEN_HPP
 
-#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
+#include <3-Message/Headers_external_library.hpp>
 
 class Token {
 private:

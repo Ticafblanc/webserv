@@ -5,10 +5,10 @@
 #ifndef WEBSERVER_CONFIG_HPP
 #define WEBSERVER_CONFIG_HPP
 
-#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
+#include <3-Message/Headers_external_library.hpp>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
-#include <Source_Code/1-Config/Includes/Log.class.hpp>
+#include <Source_Code/5-Log/Includes/Log.class.hpp>
 #include <Source_Code/1-Config/Includes/Types.class.hpp>
 #include <Source_Code/1-Config/Includes/Code.class.hpp>
 #include <Source_Code/2-Engin/Includes/Token.hpp>

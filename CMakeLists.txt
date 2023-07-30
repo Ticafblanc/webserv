@@ -7,12 +7,13 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 include_directories(SYSTEM ./)
 
 add_subdirectory(Source_Code/5-Log)
+add_subdirectory(Source_Code/0-ClI)
 
-set(SOURCES_CODE Source_Code/0-webserv_launch_main_project/webserv_launch_main_project.cpp)
+set(SOURCES_CODE Source_Code/main.cpp)
 
 add_executable(WEBSERV ${SOURCES_CODE})
 
-target_link_libraries(WEBSERV ${LOG_LIB})
+target_link_libraries(WEBSERV ${LOG_LIB} ${CLI_LIB})
 
 
 

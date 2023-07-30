@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <Source_Code/0-webserv_launch_main_project/Headers_external_library.hpp>
 #include <Source_Code/1-Config/Includes/Config.hpp>
 #include <Source_Code/1-Config/Includes/ConfigFile.class.hpp>
 #include <Source_Code/2-Engin/Includes/Epoll.class.hpp>
+#include <Source_Code/0-ClI/Includes/Cli.class.hpp>
 
 void handleExit(int sig) {
     (void) sig;
@@ -47,9 +47,9 @@ static void checkFile(int argc, char **argv){
 
     try {
         PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
-        Token     token;
-        Config webserv(token);
-        ConfigFile extractConfigFile(webserv, peg);
+//        Token     token;
+//        Config webserv(token);
+//        ConfigFile extractConfigFile(webserv, peg);
     }
     catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
@@ -61,63 +61,71 @@ static void checkFile(int argc, char **argv){
 
 }
 
-static int checkOption(int argc, char **argv){
-    if (argc > 3){
-        std::cerr << "too many arguments" << std::endl;
-        return -1;
-    }
-    if (argc > 1) {
-        if (argv[1][0] == '-') {
-            if (argv[1][1] == 's')
-                (void)argv;//@todo webserv -s (stop quit reopen reload) SIGINT, SIGTERM shutdown SIGHUP reload
-            else if (argv[1][1] == 't')
-                checkFile(argc, argv);
-            else if (argv[1][1] == 'c' && argc == 3)
-                return 2;
-            std::cerr << "invalid option -" << argv[1][1] << std::endl;
-            return -1;
-        }
-        return 1;
-    }
-    return 0;
+
+
+//static void launcher(Config & config) {
+//    Epoll epoll(config);
+//    epoll.launchEpoll();
+//    while(true) {
+//        try {
+//            epoll.EpollWait();
+//        }catch (std::exception & e){
+//            config._accessLog.setIndent("");
+//            config._accessLog.setLogEnable(true);
+//            std::ostringstream oss;
+//            oss << "last event >> " << config._accessLog;
+//            config._errorLog.writeMessageLogFile(oss.str());
+//            config._errorLog.writeMessageLogFile(e.what());
+//        }
+//    }
+//}
+static bool isMainProgram(){
+    return (system("pidof webserv > /dev/null 2>&1") == 0);
 }
 
-static void launcher(Config & config) {
-    Epoll epoll(config);
-    epoll.launchEpoll();
-    while(true) {
-        try {
-            epoll.EpollWait();
-        }catch (std::exception & e){
-            config._accessLog.setIndent("");
-            config._accessLog.setLogEnable(true);
-            std::ostringstream oss;
-            oss << "last event >> " << config._accessLog;
-            config._errorLog.writeMessageLogFile(oss.str());
-            config._errorLog.writeMessageLogFile(e.what());
-        }
-    }
+static void initSignal(){
+    signal(SIGINT, handleExit);
+    signal(SIGTERM, handleExit);
+    signal(SIGHUP, handleReload);
 }
+
 
 int main(int argc, char **argv){
+    Cli cli(argc, argv);
+    try {
+        cli.checkArg();
+    }catch (std::exception& e){
+        return 1;
+    }
+
+    if (isMainProgram()){
+        std::cout << "Welcome to Webserv !!\n";
+        initSignal();
+        if (raise(SIGHUP) != 0){
+            std::cerr << "Erreur to launch Webserv";
+            return 1;
+        }
+        while (true);
+    } else{
+        std::cout << "Webserv is already open\n";
+        cli.
+    }
     std::string pathConfigFile;
     int         positionPathFileConfig = checkOption(argc, argv);
 
    if (positionPathFileConfig != -1) {
-        signal(SIGINT, handleExit);
-        signal(SIGTERM, handleExit);
-        signal(SIGHUP, handleReload);
+
         pathConfigFile = selectPath(argv, positionPathFileConfig);
-        Token     token;
-        Config webserv(token);
+//        Token     token;
+//        Config webserv(token);
         try {
             PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
-            ConfigFile extractConfigFile(webserv, peg);
+//            ConfigFile extractConfigFile(webserv, peg);
         }
         catch (const std::exception &e) {
             std::cout << "Config error on => " << e.what() << std::endl;
         }
-        launcher(webserv);//@todo manage thread
+//        launcher(webserv);//@todo manage thread
 
     }
     exit(EXIT_FAILURE);
