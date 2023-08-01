@@ -5,9 +5,12 @@
 
 #include <string>
 #include <iostream>
-#include <vector>
+#include <queue>
 #include <sstream>
+#include <fstream>
 #include <cstring>
+#include <cstdlib>
+#include <csignal>
 
 //#include <fstream>
 //#include <sys/epoll.h>
@@ -31,18 +34,30 @@ private:
 *====================================================================================
 */
 
-    bool                        _option;
-    bool                        _stop;
+    static Cli*                 _this;
+    pid_t                       _pid;
+    int                         _status;
+    volatile sig_atomic_t       _stop;
     bool                        _launch;
     bool                        _checkFile;
-    std::vector<std::string>    _argv;
+    std::queue<std::string>     _argv;
+    std::string                 _pathToConfigFile;
 /*
 *====================================================================================
 *|                                       Methode                                    |
 *====================================================================================
 */
-
-    static void printCliHelp();
+    void            setArg(int argc, char **argv);
+    void            checkArg();
+    static void     printCliHelp();
+    bool            isMainProgram();
+    void            checkOption(const std::string &option);
+    void            sendSignal(const std::string &command) const;
+    void            checkFile(const std::string &pathFile) const;
+    static void     initSignal();
+    static void     handleReload(int sig);
+    static void     handleExit(int sig);
+    static void     handleStop(int sig);
 
 /*>********************************public section**********************************/
 
@@ -100,15 +115,13 @@ public:
 *====================================================================================
 */
 
-    bool isEnd() const;
+    int getStatus() const;
 
-    bool isOption() const;
+    bool isStop() const;
 
-    bool isCheckFile() const;
+    bool isLaunch() const;
 
-    void checkOption();
-
-    void checkArg();
+    pid_t getPid() const;
 };
 
 

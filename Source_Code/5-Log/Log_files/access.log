@@ -1,0 +1,46 @@
+Epoll wait ...
+
+Mon Jul 31 14:17:43 2023
+
+open {
+	Event number [2] with an event fd [22] and events flag => [EPOLLIN]
+	Address [127.0.0.1:8080] with socket [22] on socket server [33]
+	ligne 1
+	ligne 2
+	
+Mon Jul 31 14:17:43 2023
+
+	open2 {
+		ligne 1
+		ligne 2
+		ligne 3
+		ligne 4
+	 }
+Mon Jul 31 14:17:43 2023
+
+	ligne 3
+	ligne 4
+ }
+Mon Jul 31 14:17:43 2023
+
+>>>> Failure[32584] <<<<
+
+ }
+Mon Jul 31 14:17:43 2023
+
+>>>> Failure[32585] <<<<
+
+ }
+Mon Jul 31 14:17:43 2023
+
+
+Mon Jul 31 14:17:43 2023
+
+open {
+	ligne 1
+	ligne 2
+		>>>> Failure[32586] <<<<
+
+ }
+Mon Jul 31 14:17:43 2023
+

@@ -9,7 +9,7 @@ include_directories(SYSTEM ./)
 add_subdirectory(Source_Code/5-Log)
 add_subdirectory(Source_Code/0-ClI)
 
-set(SOURCES_CODE Source_Code/main.cpp)
+set(SOURCES_CODE Source_Code/main.cpp Source_Code/4-Utils/Sources/Utils.cpp)
 
 add_executable(WEBSERV ${SOURCES_CODE})
 

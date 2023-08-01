@@ -17,7 +17,7 @@
 
 struct Config {
 
-    Config( Token & token);
+    Config();
 
     virtual ~Config() ;
 

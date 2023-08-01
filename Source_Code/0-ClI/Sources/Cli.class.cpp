@@ -2,18 +2,32 @@
 
 
 #include <Includes/Cli.class.hpp>
+#include <Source_Code/1-Config/Includes/ConfigFile.class.hpp>
 
-
-Cli::Cli(int argc, char ** argv) : _option(false), _stop(false), _launch(false), _checkFile(false), _argv(){
-    for (int i = 1; i < argc; ++i) {
-        _argv.push_back(argv[i]);
+Cli::Cli(int argc, char ** argv)
+: _pid(getpid()), _status(EXIT_SUCCESS), _stop(isMainProgram()), _launch(false), _checkFile(false), _argv(){
+    _this = this;
+    if (argc > 3) {
+        std::cerr << "Too much arguments" << std::endl;
+        _status = EXIT_FAILURE;
+        return;
     }
-
+    try{
+        setArg(argc, argv);
+        checkArg();
+    }catch (const std::exception & e){
+        std::cerr << "\n" << e.what() << std::endl;
+        printCliHelp();
+        _status = EXIT_FAILURE;
+        _stop = true;
+    }
 }
 
 Cli::~Cli() {}
 
-Cli::Cli(const Cli & other){}
+Cli::Cli(const Cli & other) : _checkFile(other._checkFile){
+
+}
 
 Cli &Cli::operator=(const Cli & rhs) {
     if (this != &rhs){
@@ -21,80 +35,155 @@ Cli &Cli::operator=(const Cli & rhs) {
     return *this;
 }
 
-void Cli::checkArg() {
-    if (_argv.size() > 2) {
-        printCliHelp();
-        throw std::runtime_error("");
+bool Cli::isMainProgram(){
+    std::ifstream ifs("5-Log/.Log_files/pid.log");
+    if (!ifs.is_open())
+        throw std::runtime_error("impossible to open pid.log");
+    std::vector<char> pidVec(100);
+    ifs.getline(pidVec.data(),100);
+    std::stringstream ss(pidVec.data());
+    pid_t pid = 0;
+    ss >> pid;
+    if (pid != 0){
+        std::cout << "Welcome to Webserv !!\n";
+        initSignal();
+        return false;
     }
-    checkOption();
+    std::cout << "Webserv already open!!\n";
+    _pid = pid;
+    return true;
 }
 
+void Cli::initSignal(){
+    signal(SIGINT, handleExit);//webserv -s quit
+    signal(SIGTERM, handleStop);//webserv -s stop
+    signal(SIGHUP, handleReload);//webserv -s reload
+}
+
+void Cli::setArg(int argc, char ** argv){
+    bool testMode = (argv[0][0] == '@');
+    for (int i = 1; i < argc && i < 3; ++i) {
+        std::istringstream iss(argv[i]);
+        while (!iss.eof()) {
+            std::string str;
+            iss >> std::ws >> str;
+            if (!str.empty())
+                _argv.push(str);
+            if (testMode)
+                std::cout << _argv.size() << _argv.back() << std::endl;
+        }
+    }
+}
+
+void Cli::checkArg() {
+    if (!_stop && _argv.empty())
+        checkFile(std::string());
+    else if (_argv.size() <= 2) {
+        while (true) {
+            if (_argv.front()[0] == '-')
+                checkOption(_argv.front());
+            else
+                checkFile(_argv.front());
+            if (_argv.empty())
+                return;
+        }
+    } else {
+        throw std::runtime_error("To much argument");
+    }
+}
+
+void Cli::checkOption(const std::string &option) {
+    if (option.find_first_not_of("-csth?") != std::string::npos) {
+        _argv.pop();
+        if (option.find_first_not_of("-csth?") != std::string::npos || option.size() <= 2) {
+            if ((option == "-?" || option == "-h") && _argv.empty())
+                return printCliHelp();
+            else if (option == "-s" && _stop)
+                return sendSignal(_argv.front());
+            else if (option == "-t" || (option == "-c" && !_stop))
+                return checkFile(_argv.front());
+        }
+        throw std::runtime_error("Option Invalid");
+    }
+}
+
+void Cli::sendSignal(const std::string &command) const {
+    if (command == "stop")
+        kill(_pid, SIGTERM);
+    else if (command == "reload")
+        kill(_pid, SIGHUP);
+    else if (command == "exit")
+        kill(_pid, SIGINT);
+    else
+        throw std::runtime_error("commande signal invalide");
+}
+
+void Cli::checkFile(const std::string &pathFile) const {
+    int positionPathFileConfig = (argc == 2) ? 0 : 2;
+    std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
+
+    try {
+        PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+//        Token     token;
+//        Config webserv(token);
+//        ConfigFile extractConfigFile(webserv, peg);
+    }
+    catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+        std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    std::cout << "webserv: configuration file " << pathConfigFile << " test is successful" << std::endl;
+    exit(EXIT_SUCCESS);
+
+}
 void Cli::printCliHelp(){
-    std::cerr << "Error arguments   usage : webserv [-csth?] [-c file] [-s signal] [-t file]"
-              << "\t\t-c file' Use an alternative configuration file."
+    std::cerr << "Webserv usage : webserv [-csth?] [-c file] [-s signal] [-t file]\n"
+              << "\t\t-c file' Use an alternative configuration file.\n"
+              << "\t\t-t' Don't run, just test the configuration file.\n"
               << "\t\t-s signal' Send signal to the master process.\n"
               << "\t\tstop' SIGTERM\n"
               << "\t\tquit' SIGQUIT\n"
-              << "\t\treload' SIGHUP "
-              << "\t\t-t' Don't run, just test the configuration file."
+              << "\t\treload' SIGHUP\n"
               << "\t\t-? | -h'               Print help."<< std::endl;
 }
 
-void  Cli::checkOption(){
-    for (std::vector<std::string>::iterator it = _argv.begin(); it != _argv.end(); ++it){
-        if ((*it)[0] == '-'){
-            (*it).erase(0);
-            if ((*it).find_first_not_of("csth?") == std::string::npos){
-                printCliHelp();
-                throw std::runtime_error("");
-            }
-            if ((*it) == "s")
-                (void)argv;//@todo webserv -s (stop quit reopen reload) SIGINT, SIGTERM shutdown SIGHUP reload
-            else if ((*it)[1] == 't')
-                checkFile(argc, argv);
-            else if ((*it)[1] == 'c' && argc == 3)
-                return 2;
-            std::cerr << "invalid option -" << argv[1][1] << std::endl;
-            return -1;
-        }
+void Cli::handleExit(int sig) {
+    if (sig == SIGINT){
+        kill(_this->_pid, SIGTERM);
     }
-    if (argc > 1) {
-        if (argv[1][0] == '-') {
-
-        }
-        return 1;
-    }
-    return 0;
-    std::istringstream iss(_argv[0]);
-    if (_argv[0] == "-s" && _argv.size() == 2){
-        if (_argv[1] == "stop" || _argv[1] == "reload")
-            _stop = true;
-        if (_argv[1] == "reload")
-            _launch = true;
-            killWebserv()
-
-    }
-        (void)_argv;//@todo webserv -s (stop reload) SIGINT, SIGTERM shutdown SIGHUP reload
-    else if (_argv[0] == "-t")
-        _checkFile = true;
-    else if (_argv[0] == "-ts" || _argv[0] == "-st"){
-(void)
-_argv;//@todo webserv -s (stop reload) SIGINT, SIGTERM shutdown SIGHUP reload
-_checkFile = true;
-}
-    else if (_argv[0] == "-c" && _argv.size() == 2)
-        return 2;
-
+    std::cout << "exit by signal" << std::endl;
+    exit(EXIT_SUCCESS);
 }
 
-bool Cli::isEnd() const {
+void Cli::handleStop(int sig) {
+    if (sig == SIGTERM){
+        _this->_stop = true;
+    }
+    std::cout << "Stop by signal" << std::endl;
+}
+
+void Cli::handleReload(int sig) {
+    if (sig == SIGHUP){
+        if (_this->_launch)
+            kill(_this->_pid, SIGTERM);
+    }
+    std::cout << "Reload by signal" << std::endl;
+    exit(EXIT_SUCCESS);
+}
+
+bool Cli::isStop() const {
     return _stop;
 }
 
-bool Cli::isCheckFile() const {
-    return _checkFile;
+bool Cli::isLaunch() const {
+    return _launch;
 }
 
-bool Cli::isOption() const {
-    return _option;
+int Cli::getStatus() const {
+    return _status;
+}
+
+pid_t Cli::getPid() const {
+    return _pid;
 }

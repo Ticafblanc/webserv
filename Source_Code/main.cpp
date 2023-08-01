@@ -15,20 +15,7 @@
 #include <Source_Code/2-Engin/Includes/Epoll.class.hpp>
 #include <Source_Code/0-ClI/Includes/Cli.class.hpp>
 
-void handleExit(int sig) {
-    (void) sig;
-    //@todo manage the end by signal
-//    printLogFile("/usr/local/var/log/log_error.txt");
-    std::cout << "exit by signal" << std::endl;
-    exit(EXIT_SUCCESS);
-}
 
-void handleReload(int sig) {
-    (void) sig;
-    //@todo manage the reload by signal
-    std::cout << "reload by signal" << std::endl;
-    exit(EXIT_SUCCESS);
-}
 
 
 const char * selectPath(char **argv, int positionPathFileConfig){
@@ -41,25 +28,7 @@ const char * selectPath(char **argv, int positionPathFileConfig){
         return argv[positionPathFileConfig];
 }
 
-static void checkFile(int argc, char **argv){
-    int positionPathFileConfig = (argc == 2) ? 0 : 2;
-    std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
 
-    try {
-        PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
-//        Token     token;
-//        Config webserv(token);
-//        ConfigFile extractConfigFile(webserv, peg);
-    }
-    catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
-        std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    std::cout << "webserv: configuration file " << pathConfigFile << " test is successful" << std::endl;
-    exit(EXIT_SUCCESS);
-
-}
 
 
 
@@ -79,54 +48,35 @@ static void checkFile(int argc, char **argv){
 //        }
 //    }
 //}
-static bool isMainProgram(){
-    return (system("pidof webserv > /dev/null 2>&1") == 0);
-}
-
-static void initSignal(){
-    signal(SIGINT, handleExit);
-    signal(SIGTERM, handleExit);
-    signal(SIGHUP, handleReload);
-}
 
 
-int main(int argc, char **argv){
+int main(int argc, char **argv) {
     Cli cli(argc, argv);
-    try {
-        cli.checkArg();
-    }catch (std::exception& e){
-        return 1;
+    while (!cli.isStop()) {
+        kill(cli.getPid(), SIGHUP);
+        pause();
     }
-
-    if (isMainProgram()){
-        std::cout << "Welcome to Webserv !!\n";
-        initSignal();
-        if (raise(SIGHUP) != 0){
-            std::cerr << "Erreur to launch Webserv";
-            return 1;
-        }
-        while (true);
-    } else{
-        std::cout << "Webserv is already open\n";
-        cli.
-    }
-    std::string pathConfigFile;
-    int         positionPathFileConfig = checkOption(argc, argv);
-
-   if (positionPathFileConfig != -1) {
-
-        pathConfigFile = selectPath(argv, positionPathFileConfig);
-//        Token     token;
-//        Config webserv(token);
-        try {
-            PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
-//            ConfigFile extractConfigFile(webserv, peg);
-        }
-        catch (const std::exception &e) {
-            std::cout << "Config error on => " << e.what() << std::endl;
-        }
-//        launcher(webserv);//@todo manage thread
-
-    }
-    exit(EXIT_FAILURE);
+    return cli.getStatus();
 }
+//    return cli.getStatus();
+//
+//    std::string pathConfigFile;
+//    int         positionPathFileConfig = checkOption(argc, argv);
+//
+//   if (positionPathFileConfig != -1) {
+//
+//        pathConfigFile = selectPath(argv, positionPathFileConfig);
+////        Token     token;
+////        Config webserv(token);
+//        try {
+//            PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+////            ConfigFile extractConfigFile(webserv, peg);
+//        }
+//        catch (const std::exception &e) {
+//            std::cout << "Config error on => " << e.what() << std::endl;
+//        }
+////        launcher(webserv);//@todo manage thread
+//
+//    }
+//    exit(EXIT_FAILURE);
+//}

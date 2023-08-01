@@ -52,8 +52,6 @@ bool isDirectory(std::string & path) {
 
 bool isFile(std::string & path) {
     struct stat statbuf;
-//    std::cout << "file"<< std::endl;
-
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISREG(statbuf.st_mode);

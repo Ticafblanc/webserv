@@ -7,8 +7,8 @@
 
 
 Log::Log()
-:_pathToPidLogFile("/webserv/Source_Code/5-Log/Log_files/pid.log"), _pathToConfigLogFile("/webserv/Source_Code/5-Log/Log_files/config.log"),
-_pathToAccessLogFile("/webserv/Source_Code/5-Log/Log_files/access.log"), _pathToErrorLogFile("/webserv/Source_Code/5-Log/Log_files/error.log"),
+:_pathToPidLogFile("/webserv/Source_Code/5-Log/.Log_files/pid.log"), _pathToConfigLogFile("/webserv/Source_Code/5-Log/.Log_files/config.log"),
+_pathToAccessLogFile("/webserv/Source_Code/5-Log/.Log_files/access.log"), _pathToErrorLogFile("/webserv/Source_Code/5-Log/.Log_files/error.log"),
 _accessLogBuffer(), _errorLogBuffer(), _indent(), _timestamp(), _endLog(false){
     setLog(_pathToPidLogFile);
     setLog(_pathToConfigLogFile);
@@ -35,6 +35,7 @@ Log::~Log() {
     pthread_mutex_destroy(&_threadMutexError);
     pthread_mutex_destroy(&_threadMutexAccess);
     pthread_mutex_destroy(&_threadMutexEndLog);
+    setLog(_pathToPidLogFile);
 }
 
 Log::Log(const Log & other)
