@@ -2,7 +2,6 @@
 
 #ifndef WEBSERVER_CLI_HPP
 #define WEBSERVER_CLI_HPP
-
 #include <string>
 #include <iostream>
 #include <queue>
@@ -11,6 +10,15 @@
 #include <cstring>
 #include <cstdlib>
 #include <csignal>
+#include <curses.h>
+#include "Source_Code/4-Utils/Includes/Utils.hpp"
+
+#define TESTMODE true
+
+#if BUILD_TESTS
+    #define TESTMODE true
+#endif
+
 
 //#include <fstream>
 //#include <sys/epoll.h>
@@ -33,13 +41,11 @@ private:
 *|                                       Member                                     |
 *====================================================================================
 */
-
     static Cli*                 _this;
     pid_t                       _pid;
     int                         _status;
-    volatile sig_atomic_t       _stop;
-    bool                        _launch;
-    bool                        _checkFile;
+    volatile sig_atomic_t       _exit;
+    volatile sig_atomic_t       _run;
     std::queue<std::string>     _argv;
     std::string                 _pathToConfigFile;
 /*
@@ -53,8 +59,8 @@ private:
     bool            isMainProgram();
     void            checkOption(const std::string &option);
     void            sendSignal(const std::string &command) const;
-    void            checkFile(const std::string &pathFile) const;
-    static void     initSignal();
+    void            checkFile(const std::string &pathFile);
+    static void initSignal();
     static void     handleReload(int sig);
     static void     handleExit(int sig);
     static void     handleStop(int sig);

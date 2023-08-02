@@ -16,21 +16,34 @@
 #include <Source_Code/0-ClI/Includes/Cli.class.hpp>
 
 
-
-
-const char * selectPath(char **argv, int positionPathFileConfig){
-    if(positionPathFileConfig == 0)
-        return "/webserv/Docker_build/etc/webserv/webserv.conf";
-//        return "/usr/local/etc/webserv/webserv.conf";
-    else if(positionPathFileConfig == 3 )
-        return "";
-    else
-        return argv[positionPathFileConfig];
+int main(int argc, char **argv) {
+    Cli cli(argc, argv);
+    while (!cli.isStop()) {
+        kill(cli.getPid(), SIGHUP);
+        pause();
+    }
+    return cli.getStatus();
 }
 
 
 
 
+//int positionPathFileConfig = (argc == 2) ? 0 : 2;
+//std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
+//
+//try {
+//PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+////        Token     token;
+////        Config webserv(token);
+////        ConfigFile extractConfigFile(webserv, peg);
+//}
+//catch (const std::exception &e) {
+//std::cerr << e.what() << std::endl;
+//std::cerr << "webserv: configuration file " << pathConfigFile << " test failed" << std::endl;
+//exit(EXIT_FAILURE);
+//}
+//std::cout << "webserv: configuration file " << pathConfigFile << " test is successful" << std::endl;
+//exit(EXIT_SUCCESS);
 
 //static void launcher(Config & config) {
 //    Epoll epoll(config);
@@ -50,14 +63,7 @@ const char * selectPath(char **argv, int positionPathFileConfig){
 //}
 
 
-int main(int argc, char **argv) {
-    Cli cli(argc, argv);
-    while (!cli.isStop()) {
-        kill(cli.getPid(), SIGHUP);
-        pause();
-    }
-    return cli.getStatus();
-}
+
 //    return cli.getStatus();
 //
 //    std::string pathConfigFile;

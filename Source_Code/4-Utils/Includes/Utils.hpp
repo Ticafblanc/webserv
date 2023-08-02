@@ -14,9 +14,9 @@
 std::string intToString(int number);
 std::string sizetToStringHex(std::size_t size);
 char** setEnvp(char **envp);
-bool isDirectory(std::string & path);
-bool isFile(std::string & path);
-bool isExec(std::string & path);
+bool isDirectory(const std::string & path);
+bool isFile(const std::string & path);
+bool isExec(const std::string & path);
 bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss);
 std::size_t stringToSizet(const std::string & str);
 std::string sizetToString(std::size_t size);

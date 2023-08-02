@@ -50,10 +50,11 @@ bool isDirectory(std::string & path) {
     return S_ISDIR(statbuf.st_mode);
 }
 
-bool isFile(std::string & path) {
+bool isFile(const std::string & path) {
     struct stat statbuf;
-    if (stat(path.c_str(), &statbuf) != 0)
+    if (stat(path.c_str(), &statbuf) != 0) {
         return false;
+    }
     return S_ISREG(statbuf.st_mode);
 }
 
