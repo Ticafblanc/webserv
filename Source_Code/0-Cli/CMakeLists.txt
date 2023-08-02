@@ -8,13 +8,15 @@ include_directories(SYSTEM ./)
 
 option(BUILD_TESTS "Build Cli test programs" OFF)
 
-set(SOURCES_CODE Sources/Cli.class.cpp)
+set(SOURCES_CODE
+        Sources/Cli.class.cpp
+        ../4-Utils/Sources/Utils.cpp)
 
 add_library(CLI_LIB STATIC ${SOURCES_CODE})
 
 if(BUILD_TESTS)
     add_definitions(-DTESTMODE)
-    add_executable(CLI_TEST main.cpp main.cpp ../4-Utils/Sources/Utils.cpp)
+    add_executable(CLI_TEST main.cpp main.cpp)
     target_link_libraries(CLI_TEST PRIVATE CLI_LIB ${CMAKE_DL_LIBS})
 endif()
 

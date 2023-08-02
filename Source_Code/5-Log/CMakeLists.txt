@@ -18,7 +18,8 @@ include_directories(SYSTEM ./)
 
 option(BUILD_TESTS "Build log test programs" OFF)
 
-set(SOURCES_CODE Sources/Log.class.cpp)
+set(SOURCES_CODE Sources/Log.class.cpp
+        ../4-Utils/Sources/Utils.cpp)
 
 add_library(LOG_LIB STATIC ${SOURCES_CODE})
 

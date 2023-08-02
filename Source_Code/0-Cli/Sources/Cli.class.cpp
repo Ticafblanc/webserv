@@ -36,7 +36,7 @@ Cli &Cli::operator=(const Cli & rhs) {
 }
 
 bool Cli::isMainProgram(){
-    std::ifstream ifs((TESTMODE) ? "/webserv/Source_Code/0-Cli/pid_test.log" : "/webserv/Source_Code/5-Log/..Log_files/pid.log");
+    std::ifstream ifs((TESTMODE) ? "/webserv/Source_Code/0-Cli/pid_test.log" : "/webserv/Source_Code/5-Log/.Log_files/pid.log");
     if (!ifs.is_open())
         throw std::runtime_error("impossible to open pid.log");
     std::vector<char> pidVec(100);
@@ -55,8 +55,10 @@ bool Cli::isMainProgram(){
 }
 
 void Cli::initSignal() {
+    std::signal(SIGTERM, handleExit);//webserv -s quit
     std::signal(SIGINT, handleExit);//webserv -s quit
-    std::signal(SIGTERM, handleStop);//webserv -s stop
+    std::signal(SIGUSR1, handleStop);//webserv -s stop
+    std::signal(SIGUSR2, handleLaunch);//webserv -s stop
     std::signal(SIGHUP, handleReload);//webserv -s reload
 }
 
@@ -114,7 +116,7 @@ void Cli::sendSignal(const std::string &command) const {
         std::cout << "send Signal : " << command << std::endl;
     }
     if (command == "stop") {
-        if (kill(_pid, SIGTERM) != 0)
+        if (kill(_pid, SIGUSR1) != 0)
             throw std::runtime_error(strerror(errno));
     }
     else if (command == "reload") {
@@ -156,15 +158,22 @@ void Cli::printCliHelp(){
 }
 
 void Cli::handleExit(int sig) {
-    if (sig == SIGINT) {
-        kill(_this->_pid, SIGTERM);
+    if (sig == SIGINT || sig == SIGTERM) {
+        kill(_this->_pid, SIGUSR1);
         _this->_exit = true;
         std::cout << "exit by signal" << std::endl;
     }
 }
 
 void Cli::handleStop(int sig) {
-    if (sig == SIGTERM){
+    if (sig == SIGUSR1){
+        _this->_run = false;
+        std::cout << "Stop by signal" << std::endl;
+    }
+}
+
+void Cli::handleLaunch(int sig) {
+    if (sig == SIGUSR2){
         _this->_run = false;
         std::cout << "Stop by signal" << std::endl;
     }

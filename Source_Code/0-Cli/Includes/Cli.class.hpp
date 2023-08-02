@@ -12,8 +12,10 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <csignal>
-#include "Source_Code/4-Utils/Includes/Utils.hpp"
-
+#include <Source_Code/4-Utils/Includes/Utils.hpp>
+#ifndef TESTMODE
+    #define TESTMODE false
+#endif
 class Cli {
 
 
@@ -49,6 +51,7 @@ private:
     static void     handleReload(int sig);
     static void     handleExit(int sig);
     static void     handleStop(int sig);
+    static void     handleLaunch(int sig);
 
 /*>********************************public section**********************************/
 
@@ -114,6 +117,5 @@ public:
 
     pid_t getPid() const;
 };
-
 
 # endif
