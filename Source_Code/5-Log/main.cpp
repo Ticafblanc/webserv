@@ -5,7 +5,13 @@ int main() {
     Log log_test;
     log_test.addToAccesLogBuffer("Epoll wait ...");
     log_test.openToAccesLogBuffer("open");
+#ifdef LINUX
     log_test.addEventToAccess( 2, 22, EPOLLIN);
+#endif
+#ifdef MAC
+    log_test.addEventToAccess( 2, 22, EVFILT_READ);
+#endif
+
     log_test.addClientToAccess("127.0.0.1", 8080, 22, 33);
     log_test.addToAccesLogBuffer("ligne 1");
     log_test.addToAccesLogBuffer("ligne 2");

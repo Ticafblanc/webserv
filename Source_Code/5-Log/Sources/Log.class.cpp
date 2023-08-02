@@ -7,8 +7,8 @@
 
 
 Log::Log()
-:_pathToPidLogFile("/webserv/Source_Code/5-Log/.Log_files/pid.log"), _pathToConfigLogFile("/webserv/Source_Code/5-Log/.Log_files/config.log"),
-_pathToAccessLogFile("/webserv/Source_Code/5-Log/.Log_files/access.log"), _pathToErrorLogFile("/webserv/Source_Code/5-Log/.Log_files/error.log"),
+:_pathToPidLogFile(_PATHTOPIDLOGFILE_), _pathToConfigLogFile(_PATHTOCONFIGLOGFILE_),
+_pathToAccessLogFile(_PATHTOACCESSLOGFILE_), _pathToErrorLogFile(_PATHTOERRORLOGFILE_),
 _accessLogBuffer(), _errorLogBuffer(), _indent(), _timestamp(), _endLog(false){
     setLog(_pathToPidLogFile);
     setLog(_pathToConfigLogFile);
@@ -84,7 +84,7 @@ void Log::setPathToErrorLogFile(const std::string &pathToLogFile) {
 bool Log::setLog(const std::string &pathToLogFile) {
     std::ofstream file(pathToLogFile.c_str(), std::ios::trunc);
     if (!file.is_open())
-        throw std::runtime_error("fail to open file " + pathToLogFile);
+        std::cerr << "fail to open file " <<  pathToLogFile << std::endl;
     file.close();
     return true;
 }
@@ -109,10 +109,18 @@ void Log::addEventToAccess(const int id, const int fd, const int events) {
     std::ostringstream oss;
     oss << _indent << "Event number [" << id
     << "] with an event fd [" << fd
+#ifdef LINUX
     << "] and events flag => [" << std::string((events & EPOLLOUT && events & EPOLLET) ? "EPOLLOUT | EPOLLET" :
                                                (events & EPOLLIN && events &EPOLLET) ? "EPOLLIN | EPOLLET" :
                                                ((events & EPOLLOUT) ? "EPOLLOUT" :
                                                 (events & EPOLLIN) ? "EPOLLIN" : "ERROR" ))
+#endif
+
+#ifdef MAC
+    << "] and events flag => [" << std::string((events & EVFILT_READ ) ? "EVFILT_READ" :
+                                               (events & EVFILT_WRITE) ? "EVFILT_WRITE" : "ERROR" )
+#endif
+
     << "]" << std::endl;
     pthread_mutex_lock(&(_threadMutexAccess));
     _accessLogBuffer.push(oss.str());
@@ -191,7 +199,7 @@ void* Log::checkBuffers(void * l) {
 void Log::flushErrorBuffers() {
     std::ofstream file(_pathToErrorLogFile.c_str(), std::ios::app);
     if (!file.is_open())
-        throw std::runtime_error("fail to open file " + _pathToErrorLogFile);
+        std::cerr <<"fail to open file " << _pathToErrorLogFile << std::endl;
     while(!_errorLogBuffer.empty()){
         file << _errorLogBuffer.front();
         _errorLogBuffer.pop();

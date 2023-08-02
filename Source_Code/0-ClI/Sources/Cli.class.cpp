@@ -36,7 +36,7 @@ Cli &Cli::operator=(const Cli & rhs) {
 }
 
 bool Cli::isMainProgram(){
-    std::ifstream ifs((TESTMODE) ? "/webserv/Source_Code/0-Cli/pid_test.log" : "/webserv/Source_Code/5-Log/.Log_files/pid.log");
+    std::ifstream ifs((TESTMODE) ? "/webserv/Source_Code/0-Cli/pid_test.log" : "/webserv/Source_Code/5-Log/..Log_files/pid.log");
     if (!ifs.is_open())
         throw std::runtime_error("impossible to open pid.log");
     std::vector<char> pidVec(100);
