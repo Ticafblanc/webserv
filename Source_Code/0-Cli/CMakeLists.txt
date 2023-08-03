@@ -6,6 +6,13 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
+option(DOCKER "Build log test programs" OFF)
+
+if(DOCKER)
+    message(STATUS "Compiling in container Docker...")
+    add_definitions(-DDOCKER)
+endif()
+
 option(BUILD_TESTS "Build Cli test programs" OFF)
 
 set(SOURCES_CODE

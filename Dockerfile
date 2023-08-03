@@ -13,6 +13,9 @@
 # set image release  Ubuntu 20.04 LTS
 FROM ubuntu:latest as baseUbuntu
 
+# set env for compiler
+ENV COMPILING_IN_CONTAINER=1
+
 # set a new docker
 RUN apt-get update \
     && apt-get install -y \

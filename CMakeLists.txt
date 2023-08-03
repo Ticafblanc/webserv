@@ -6,6 +6,15 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
+set(WEBSERV_DIRECTORY "${CMAKE_SOURCE_DIR}/.webserv")
+
+if(DOCKER)
+    message(STATUS "Compiling in container Docker...")
+    add_definitions(-DDOCKER)
+elseif(NOT EXISTS ${WEBSERV_DIRECTORY})
+        file(MAKE_DIRECTORY ${WEBSERV_DIRECTORY})
+endif()
+
 add_subdirectory(Source_Code/5-Log)
 add_subdirectory(Source_Code/0-Cli)
 

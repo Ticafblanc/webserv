@@ -4,7 +4,7 @@
 Cli* Cli::_this = NULL;
 
 Cli::Cli(int argc, char ** argv)
-: _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(false), _argv(){
+: _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(true), _argv(), _config(){
     _this = this;
     initSignal();
     if (argc > 3) {
@@ -18,7 +18,7 @@ Cli::Cli(int argc, char ** argv)
         checkArg();
     }catch (const std::exception & e){
         std::cerr << "\n" << e.what() << std::endl;
-        printCliHelp();
+//        printCliHelp();
         _status = EXIT_FAILURE;
         _exit = true;
     }
@@ -27,7 +27,7 @@ Cli::Cli(int argc, char ** argv)
 Cli::~Cli() {}
 
 Cli::Cli(const Cli & other)
-: _pid(other._pid), _status(other._status), _exit(other._exit), _run(other._run), _argv(other._argv) {}
+: _pid(other._pid), _status(other._status), _exit(other._exit), _run(other._run), _argv(other._argv), _config(other._config) {}
 
 Cli &Cli::operator=(const Cli & rhs) {
     if (this != &rhs){
@@ -36,7 +36,8 @@ Cli &Cli::operator=(const Cli & rhs) {
 }
 
 bool Cli::isMainProgram(){
-    std::ifstream ifs((TESTMODE) ? "/webserv/Source_Code/0-Cli/pid_test.log" : "/webserv/Source_Code/5-Log/.Log_files/pid.log");
+    std::ifstream ifs;
+    ifs.open(_PATHTOPIDLOGFILE_, std::ios::in | std::ios::out | std::ios::app);
     if (!ifs.is_open())
         throw std::runtime_error("impossible to open pid.log");
     std::vector<char> pidVec(100);
@@ -57,8 +58,8 @@ bool Cli::isMainProgram(){
 void Cli::initSignal() {
     std::signal(SIGTERM, handleExit);//webserv -s quit
     std::signal(SIGINT, handleExit);//webserv -s quit
-    std::signal(SIGUSR1, handleStop);//webserv -s stop
-    std::signal(SIGUSR2, handleLaunch);//webserv -s stop
+    std::signal(LAUNCH, handleLaunch);//webserv
+    std::signal(STOP, handleStop);//webserv
     std::signal(SIGHUP, handleReload);//webserv -s reload
 }
 
@@ -116,7 +117,7 @@ void Cli::sendSignal(const std::string &command) const {
         std::cout << "send Signal : " << command << std::endl;
     }
     if (command == "stop") {
-        if (kill(_pid, SIGUSR1) != 0)
+        if (kill(_pid, STOP) != 0)
             throw std::runtime_error(strerror(errno));
     }
     else if (command == "reload") {
@@ -142,8 +143,6 @@ void Cli::checkFile(const std::string &pathFile) {
         else
             throw std::runtime_error(pathFile + " is not config file");
     }
-    if (TESTMODE)
-        std::cout << "file is set : "<< _pathToConfigFile << std::endl;
 }
 
 void Cli::printCliHelp(){
@@ -159,14 +158,15 @@ void Cli::printCliHelp(){
 
 void Cli::handleExit(int sig) {
     if (sig == SIGINT || sig == SIGTERM) {
-        kill(_this->_pid, SIGUSR1);
+        kill(_this->_pid, STOP);
         _this->_exit = true;
         std::cout << "exit by signal" << std::endl;
     }
 }
 
 void Cli::handleStop(int sig) {
-    if (sig == SIGUSR1){
+    if (sig == SIGUSR2){
+        std::signal(LAUNCH, handleLaunch);//webserv -s stop
         _this->_run = false;
         std::cout << "Stop by signal" << std::endl;
     }
@@ -174,20 +174,25 @@ void Cli::handleStop(int sig) {
 
 void Cli::handleLaunch(int sig) {
     if (sig == SIGUSR2){
-        _this->_run = false;
-        std::cout << "Stop by signal" << std::endl;
+        std::cout << "launck by signal" << std::endl;
+        std::signal(STOP, handleStop);
+
     }
 }
 
 void Cli::handleReload(int sig) {
     if (sig == SIGHUP) {
-        kill(_this->_pid, SIGTERM);
         std::cout << "Reload by signal" << std::endl;
+        kill(_this->_pid, STOP);
     }
 }
 
 bool Cli::isStop() const {
     return _exit;
+}
+
+void Cli::setRun() {
+    _run = true;
 }
 
 bool Cli::isLaunch() const {

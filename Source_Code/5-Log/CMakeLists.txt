@@ -1,6 +1,22 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(webserver)
 
+set(CMAKE_CXX_STANDARD 98)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+
+include_directories(SYSTEM ./)
+
+set(LOG_DIRECTORY "${CMAKE_SOURCE_DIR}/.webserv/log")
+
+option(DOCKER "Build log test programs" OFF)
+
+if(DOCKER)
+    message(STATUS "Compiling in container Docker...")
+    add_definitions(-DDOCKER)
+elseif(NOT EXISTS ${LOG_DIRECTORY})
+        file(MAKE_DIRECTORY ${LOG_DIRECTORY})
+endif()
+
 if (UNIX AND NOT APPLE)
     message(STATUS "Compiling on Linux...")
     add_definitions(-DLINUX)
@@ -10,11 +26,6 @@ elseif (APPLE)
 elseif (WIN32)
     message(FATAL_ERROR "Windows doesn't work")
 endif()
-
-set(CMAKE_CXX_STANDARD 98)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
-
-include_directories(SYSTEM ./)
 
 option(BUILD_TESTS "Build log test programs" OFF)
 

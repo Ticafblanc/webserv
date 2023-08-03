@@ -13,9 +13,15 @@
 #include <unistd.h>
 #include <csignal>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
+#include <Source_code/5-Log/Includes/Log.class.hpp>
+#include <Source_code/1-Config/Includes/Config.hpp>
+
+#define LAUNCH SIGUSR1
+#define STOP SIGUSR2
 #ifndef TESTMODE
     #define TESTMODE false
 #endif
+
 class Cli {
 
 
@@ -35,6 +41,7 @@ private:
     volatile sig_atomic_t       _run;
     std::queue<std::string>     _argv;
     std::string                 _pathToConfigFile;
+    Config                      _config;
 /*
 *====================================================================================
 *|                                       Methode                                    |
@@ -116,6 +123,8 @@ public:
     bool isLaunch() const;
 
     pid_t getPid() const;
+
+    void setRun();
 };
 
 # endif

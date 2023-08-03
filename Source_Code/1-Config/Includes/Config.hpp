@@ -8,7 +8,7 @@
 #include <3-Message/Headers_external_library.hpp>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
-#include <Source_Code/5-Log/Includes/LogMac.class.hpp>
+//#include <Source_Code/5-Log/Includes/LogMac.class.hpp>
 #include <Source_Code/1-Config/Includes/Types.class.hpp>
 #include <Source_Code/1-Config/Includes/Code.class.hpp>
 #include <Source_Code/2-Engin/Includes/Token.hpp>
@@ -57,7 +57,7 @@ struct Config {
     Log                                                             _accessLog;//store access
     Log                                                             _errorLog;//store error
     Log                                                             _pidLog;//store PID
-    Token &                                                         _token;//Token class
+    Token                                                           _token;//Token class
     std::string                                                     _tok;//token for this
     char **                                                         _envp;//envp
     Config&                                                         _configBase;//reference on first config

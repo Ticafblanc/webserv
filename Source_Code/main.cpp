@@ -15,23 +15,17 @@
 //#include <Source_Code/2-Engin/Includes/Epoll.class.hpp>
 #include <Source_Code/0-ClI/Includes/Cli.class.hpp>
 
-
 int main(int argc, char **argv) {
     Cli cli(argc, argv);
     while (!cli.isStop()) {
-        kill(cli.getPid(), SIGHUP);
+        cli.setRun();
+        kill(cli.getPid(), CONFIG);
+        kill(cli.getPid(), LAUNCH);
         pause();
     }
     return cli.getStatus();
 }
 
-
-
-
-//int positionPathFileConfig = (argc == 2) ? 0 : 2;
-//std::string pathConfigFile(selectPath(argv, positionPathFileConfig));
-//
-//try {
 //PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
 ////        Token     token;
 ////        Config webserv(token);
