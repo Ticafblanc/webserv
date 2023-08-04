@@ -4,7 +4,7 @@
 Cli* Cli::_this = NULL;
 
 Cli::Cli(int argc, char ** argv)
-: _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(true), _argv(), _config(){
+: _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(false), _argv()/*, _config(*/{
     _this = this;
     initSignal();
     if (argc > 3) {
@@ -27,7 +27,7 @@ Cli::Cli(int argc, char ** argv)
 Cli::~Cli() {}
 
 Cli::Cli(const Cli & other)
-: _pid(other._pid), _status(other._status), _exit(other._exit), _run(other._run), _argv(other._argv), _config(other._config) {}
+: _pid(other._pid), _status(other._status), _exit(other._exit), _run(other._run), _argv(other._argv)/*, _config(other._config)*/ {}
 
 Cli &Cli::operator=(const Cli & rhs) {
     if (this != &rhs){
@@ -134,7 +134,7 @@ void Cli::sendSignal(const std::string &command) const {
 
 void Cli::checkFile(const std::string &pathFile) {
     if (TESTMODE)
-        std::cout << "check File : " << pathFile ;
+        std::cout << "check File : " << pathFile << std::endl ;
     if (pathFile.empty())
         _pathToConfigFile = "/webserv/Docker_build/etc/webserv/webserv.conf"; //"/usr/local/etc/webserv/webserv.conf"
     else{
@@ -158,23 +158,27 @@ void Cli::printCliHelp(){
 
 void Cli::handleExit(int sig) {
     if (sig == SIGINT || sig == SIGTERM) {
-        kill(_this->_pid, STOP);
+        if (TESTMODE)
+            std::cout << "exit by signal" << std::endl;
         _this->_exit = true;
-        std::cout << "exit by signal" << std::endl;
+        kill(_this->_pid, STOP);
+
     }
 }
 
 void Cli::handleStop(int sig) {
     if (sig == SIGUSR2){
-        std::signal(LAUNCH, handleLaunch);//webserv -s stop
+        if (TESTMODE)
+            std::cout << "Stop by signal" << std::endl;
+        std::signal(LAUNCH, handleLaunch);
         _this->_run = false;
-        std::cout << "Stop by signal" << std::endl;
     }
 }
 
 void Cli::handleLaunch(int sig) {
-    if (sig == SIGUSR2){
-        std::cout << "launck by signal" << std::endl;
+    if (sig == SIGUSR1){
+        if (TESTMODE)
+            std::cout << "launck by signal" << std::endl;
         std::signal(STOP, handleStop);
 
     }
@@ -182,7 +186,8 @@ void Cli::handleLaunch(int sig) {
 
 void Cli::handleReload(int sig) {
     if (sig == SIGHUP) {
-        std::cout << "Reload by signal" << std::endl;
+        if (TESTMODE)
+            std::cout << "Reload by signal" << std::endl;
         kill(_this->_pid, STOP);
     }
 }

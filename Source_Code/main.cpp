@@ -17,12 +17,10 @@
 
 int main(int argc, char **argv) {
     Cli cli(argc, argv);
-    while (!cli.isStop()) {
-        cli.setRun();
-        kill(cli.getPid(), CONFIG);
+     do {
         kill(cli.getPid(), LAUNCH);
         pause();
-    }
+    } while (!cli.isStop());
     return cli.getStatus();
 }
 
