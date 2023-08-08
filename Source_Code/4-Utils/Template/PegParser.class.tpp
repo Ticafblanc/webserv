@@ -3,7 +3,7 @@
 #ifndef WEBSERV_PEGPARSER_TPP
 #define WEBSERV_PEGPARSER_TPP
 
-#include <3-Message/Headers_external_library.hpp>
+#include <cstring>
 
 template <class T>
 class PegParser {

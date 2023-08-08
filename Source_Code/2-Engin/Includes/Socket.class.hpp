@@ -15,7 +15,7 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-#include <3-Message/Headers_external_library.hpp>
+#include <netinet/in.h>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
 class Socket {

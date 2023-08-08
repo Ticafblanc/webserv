@@ -171,6 +171,7 @@ public:
     void    addEventToAccess(const int id, const int fd, const int events);
     void    closeToAccesLogBuffer();
     void    addToErrorLogBuffer(const std::string &message);
+    void    addToPidLogBuffer(const std::string &message);
 
 /**
  * Public methode of Log class

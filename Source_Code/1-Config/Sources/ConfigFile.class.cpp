@@ -12,6 +12,10 @@
 
 #include <Source_Code/1-Config/Includes/ConfigFile.class.hpp>
 
+ConfigFile::ConfigFile(const std::string& pathToConfigFile)
+        : _parent(NULL), _config(), _peg(*(new PegParser<ConfigFile>(pathToConfigFile.c_str(), "#"))), _id() {
+    parseFile();
+}
 
 ConfigFile::ConfigFile(Config & config, PegParser<ConfigFile>& peg)
 : _parent(&config), _config(config), _peg(peg), _id() {

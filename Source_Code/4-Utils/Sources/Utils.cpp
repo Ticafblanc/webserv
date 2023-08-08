@@ -5,11 +5,11 @@
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
 
-//std::string intToString(int number) {
-//    std::ostringstream oss;
-//    oss << number;
-//    return oss.str();
-//}
+std::string intToString(int number) {
+    std::ostringstream oss;
+    oss << number;
+    return oss.str();
+}
 //
 //std::size_t stringToSizet(const std::string & str){
 //    ssize_t size;

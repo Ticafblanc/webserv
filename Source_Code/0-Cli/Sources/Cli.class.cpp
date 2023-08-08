@@ -59,8 +59,7 @@ void Cli::initSignal() {
     std::signal(SIGTERM, handleExit);//webserv -s quit
     std::signal(SIGINT, handleExit);//webserv -s quit
     std::signal(LAUNCH, handleLaunch);//webserv
-    std::signal(STOP, handleStop);//webserv
-    std::signal(SIGHUP, handleReload);//webserv -s reload
+    std::signal(SIGHUP, SIG_IGN);
 }
 
 void Cli::setArg(int argc, char ** argv){
@@ -179,8 +178,9 @@ void Cli::handleLaunch(int sig) {
     if (sig == SIGUSR1){
         if (TESTMODE)
             std::cout << "launck by signal" << std::endl;
-        std::signal(STOP, handleStop);
 
+        std::signal(STOP, handleStop);
+        std::signal(SIGHUP, handleReload);
     }
 }
 

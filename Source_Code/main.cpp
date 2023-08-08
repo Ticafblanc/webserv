@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     return cli.getStatus();
 }
 
-//PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");
+//;
 ////        Token     token;
 ////        Config webserv(token);
 ////        ConfigFile extractConfigFile(webserv, peg);

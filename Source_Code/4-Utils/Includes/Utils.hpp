@@ -13,7 +13,7 @@
 #include <filesystem>
 
 
-//std::string intToString(int number);
+std::string intToString(int number);
 //std::string sizetToStringHex(std::size_t size);
 //char** setEnvp(char **envp);
 //bool isDirectory(const std::string & path);

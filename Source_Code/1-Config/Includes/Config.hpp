@@ -5,14 +5,13 @@
 #ifndef WEBSERVER_CONFIG_HPP
 #define WEBSERVER_CONFIG_HPP
 
-#include <3-Message/Headers_external_library.hpp>
+#include <set>
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
-
-//#include <Source_Code/5-Log/Includes/LogMac.class.hpp>
+#include <Source_Code/5-Log/Includes/Log.class.hpp>
 #include <Source_Code/1-Config/Includes/Types.class.hpp>
 #include <Source_Code/1-Config/Includes/Code.class.hpp>
 #include <Source_Code/2-Engin/Includes/Token.hpp>
-#include <Source_Code/2-Engin/Includes/Socket.class.hpp>
+//#include <Source_Code/2-Engin/Includes/Socket.class.hpp>
 
 
 struct Config {
@@ -49,14 +48,12 @@ struct Config {
     Code                                                            _code;//code class
 
     /*data to store config*/
-    std::map<int, Socket*>                                                  _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
+//    std::map<int, Socket*>                                                  _mapFdSocket;// map int fd and Socket class for first : fd/server for server fd/client
     std::map<std::string, std::vector<std::pair<std::string, Config> > >    _mapTokenVectorUriConfig;//map id token and config child
     std::map<std::string, std::string>                                      _mapMimeType;//mime type data
 
     /*environnement de travail*/
-    Log                                                             _accessLog;//store access
-    Log                                                             _errorLog;//store error
-    Log                                                             _pidLog;//store PID
+    Log                                                             _log;//acces to log file
     Token                                                           _token;//Token class
     std::string                                                     _tok;//token for this
     char **                                                         _envp;//envp

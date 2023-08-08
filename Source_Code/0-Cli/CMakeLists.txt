@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(webserver)
+project(cli_lib)
 
 set(CMAKE_CXX_STANDARD 98)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
-option(DOCKER "Build log test programs" OFF)
+option(DOCKER "Build cli test programs" OFF)
 
 if(DOCKER)
     message(STATUS "Compiling in container Docker...")

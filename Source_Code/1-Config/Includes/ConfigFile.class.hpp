@@ -43,6 +43,17 @@ public:
  *          specified at start of webserv
  * @throw   none
  **/
+    ConfigFile(const std::string& pathToConfigFile);
+
+/**
+ * Constructor of ConfigFile class
+ *
+ * ConfigFile(Config & config, std::string & pathToConfigFile, char ** envp);
+ *
+ * @param   path_config_file is a std::string is a path to config file
+ *          specified at start of webserv
+ * @throw   none
+ **/
     ConfigFile(Config & config, PegParser<ConfigFile>& peg);
 
 /**

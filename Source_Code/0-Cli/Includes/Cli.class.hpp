@@ -17,7 +17,7 @@
 //#include <Source_code/1-Config/Includes/Config.hpp>
 
 #define LAUNCH SIGUSR1
-#define STOP SIGUSR2
+#define STOP SIGUSR1
 #ifndef TESTMODE
     #define TESTMODE false
 #endif

@@ -15,8 +15,9 @@ elseif(NOT EXISTS ${WEBSERV_DIRECTORY})
         file(MAKE_DIRECTORY ${WEBSERV_DIRECTORY})
 endif()
 
-add_subdirectory(Source_Code/5-Log)
 add_subdirectory(Source_Code/0-Cli)
+add_subdirectory(Source_Code/1-Config)
+add_subdirectory(Source_Code/5-Log)
 
 set(SOURCES_CODE Source_Code/main.cpp )
 

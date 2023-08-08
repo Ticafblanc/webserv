@@ -218,7 +218,13 @@ void Log::flushAccessBuffers() {
     file.close();
 }
 
-
+void    Log::addToPidLogBuffer(const std::string &message){
+    std::ofstream file(_pathToPidLogFile.c_str(), std::ios::app);
+    if (!file.is_open())
+        std::cerr << "fail to open file " <<  _pathToPidLogFile << std::endl;
+    file << message << std::endl;
+    file.close();
+}
 void Log::setEndLog() {
     pthread_mutex_lock(&(_threadMutexEndLog));
     _endLog = true;
