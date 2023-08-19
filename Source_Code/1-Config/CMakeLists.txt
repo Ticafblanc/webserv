@@ -20,7 +20,6 @@ set(SOURCES_CODE Sources/Config.cpp)
 add_library(CONFIG_LIB STATIC ${SOURCES_CODE})
 
 if(BUILD_TESTS)
-    add_subdirectory(../5-Log)
     add_definitions(-DTESTMODE)
     add_executable(CONFIG_TEST main.cpp)
     target_link_libraries(CONFIG_TEST PRIVATE CONFIG_LIB LOG_LIB ${CMAKE_DL_LIBS})

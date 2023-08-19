@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
 
 include_directories(SYSTEM ./)
 
+
 set(WEBSERV_DIRECTORY "${CMAKE_SOURCE_DIR}/.webserv")
 
 if(DOCKER)
@@ -17,7 +18,10 @@ endif()
 
 add_subdirectory(Source_Code/0-Cli)
 add_subdirectory(Source_Code/1-Config)
+add_subdirectory(Source_Code/2-Engin)
 add_subdirectory(Source_Code/5-Log)
+add_subdirectory(Source_Code/6-Token)
+add_subdirectory(Source_Code/7-PegParser)
 
 set(SOURCES_CODE Source_Code/main.cpp )
 
@@ -44,7 +48,7 @@ target_link_libraries(WEBSERV LOG_LIB CLI_LIB)
 #set(    ENGIN
 #        Source_Code/2-Engin/Sources/Epoll.class.cpp
 #        Source_Code/2-Engin/Sources/Socket.class.cpp
-#        Source_Code/2-Engin/Sources/Token.cpp
+#        Source_Code/2-Engin/Sources/Token.class.cpp
 #        Source_Code/2-Engin/Sources/Client.class.cpp)
 #
 #set(    MESSAGE

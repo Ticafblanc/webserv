@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
 }
 
 //;
-////        Token     token;
+////        Token.class     token;
 ////        Config webserv(token);
 ////        ConfigFile extractConfigFile(webserv, peg);
 //}
@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 //   if (positionPathFileConfig != -1) {
 //
 //        pathConfigFile = selectPath(argv, positionPathFileConfig);
-////        Token     token;
+////        Token.class     token;
 ////        Config webserv(token);
 //        try {
 //            PegParser<ConfigFile> peg(pathConfigFile.c_str(), "#");

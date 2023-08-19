@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2023-06-10.
 //
 
-#include <Source_Code/2-Engin/Includes/Token.hpp>
+#include <Includes/Token.class.hpp>
 
 const std::string &Token::generateToken() {
     const std::string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";

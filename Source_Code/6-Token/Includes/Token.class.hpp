@@ -2,9 +2,12 @@
 // Created by Matthis DoQuocBao on 2023-06-10.
 //
 
-#ifndef WEBSERVER_TOKEN_HPP
-#define WEBSERVER_TOKEN_HPP
+#ifndef WEBSERVER_TOKEN_CLASS_HPP
+#define WEBSERVER_TOKEN_CLASS_HPP
 
+#include <iostream>
+#include <vector>
+#include <cstdlib>
 
 class Token {
 private:
@@ -22,4 +25,4 @@ public:
     void removeToken(const std::string &token);
     std::pair<bool, std::vector<std::string>::iterator> checkToken(const std::string & token);
 };
-#endif //WEBSERVER_TOKEN_HPP
+#endif //WEBSERVER_TOKEN_CLASS_HPP

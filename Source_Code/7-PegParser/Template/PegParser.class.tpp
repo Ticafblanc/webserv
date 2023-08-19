@@ -4,6 +4,9 @@
 #define WEBSERV_PEGPARSER_TPP
 
 #include <cstring>
+#include <fstream>
+#include <sstream>
+#include <map>
 
 template <class T>
 class PegParser {
@@ -19,9 +22,9 @@ public:
 */
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- * 6-PegParser();
+ * 7-PegParser();
  *
  * @param   void
  * @throw   none
@@ -29,9 +32,9 @@ public:
     PegParser() : _stringStream(), _lineCommentCharacter() {};
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- * 6-PegParser(const char *pathFile);
+ * 7-PegParser(const char *pathFile);
  *
  * @param   pathFile is a path of file to parse
  * @throw   syntaxException if can't open th file
@@ -50,9 +53,9 @@ public:
     };
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- * 6-PegParser(const char *pathFile, std::string lineCommentCharacter);
+ * 7-PegParser(const char *pathFile, std::string lineCommentCharacter);
  *
  * @param   pathFile is a path of file to parse
  * @param   lineCommentCharacter is a line character indicates the line not to be processed
@@ -72,9 +75,9 @@ public:
     };
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- * 6-PegParser(std::string & stringToParse);
+ * 7-PegParser(std::string & stringToParse);
  *
  * @param   stringToParse
  * @throw   none
@@ -83,9 +86,9 @@ public:
             : _stringStream(stringToParse), _lineCommentCharacter(){};
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- * 6-PegParser(std::string & stringToParse);
+ * 7-PegParser(std::string & stringToParse);
  *
  * @param   stringStream& is a buffer to parse
  * @param   lineCommentCharacter is a line character indicates the line not to be processed
@@ -94,20 +97,20 @@ public:
     PegParser(const std::string & stringToParse, const std::string & lineCommentCharacter)
             : _stringStream(stringToParse), _lineCommentCharacter(lineCommentCharacter){};
 /**
-* Destructor of 6-PegParser.class
+* Destructor of 7-PegParser.class
 *
-* 6-PegParser);
+* 7-PegParser);
 *
 * @throw   none
 **/
     ~PegParser() {};
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
- *  6-PegParser(6-PegParser & other);
+ *  7-PegParser(7-PegParser & other);
  *
- * @param   other is 6-PegParser to copy
+ * @param   other is 7-PegParser to copy
  * @throw   none
  **/
     PegParser(PegParser & other)
@@ -116,13 +119,13 @@ public:
     };
 
 /**
- * Constructor of 6-PegParser.class
+ * Constructor of 7-PegParser.class
  *
  * warning loss the position after copy
  *
- * 6-PegParser& operator=(6-PegParser & rhs);
+ * 7-PegParser& operator=(7-PegParser & rhs);
  *
- * @param   rhs is 6-PegParser at right position of = operator to copy
+ * @param   rhs is 7-PegParser at right position of = operator to copy
  * @throw   none
  **/
     PegParser& operator=(const PegParser& rhs){
@@ -141,7 +144,7 @@ public:
 */
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *   template<class T>
     void findToken( std::map<std::string , std::string (T::*)()>&, char controlOperator);
@@ -175,7 +178,7 @@ public:
     }
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *   void parse(char controlOperator);
  *
@@ -203,7 +206,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *  bool checkIsEmpty();
  *
@@ -216,7 +219,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *  bool checkIsEndOfBloc(char endOfBlocCharacter);
  *
@@ -237,7 +240,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *   const std::stringstream &getStringStream() const;
  *
@@ -250,7 +253,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *   const std::stringstream &getStringStream() const;
  *
@@ -262,7 +265,7 @@ public:
         return _stringStream.str().substr(_stringStream.tellg());
     };
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *  void setStringStream(const std::stringstream &stringStream);
  *
@@ -276,7 +279,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *  const string &getLineCommentCharacter() const;
  *
@@ -289,7 +292,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  *   void setLineCommentCharacter(const string &lineCommentCharacter);
  *
@@ -302,7 +305,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  * void setMapToken();
  *
@@ -315,7 +318,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  * void setMapToken();
  *
@@ -329,7 +332,7 @@ public:
     };
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  * void setMapToken();
  *
@@ -343,7 +346,7 @@ public:
 
 /*
 *====================================================================================
-*|                                  Set map Token                                   |
+*|                                  Set map Token.class                                   |
 *====================================================================================
 */
 
@@ -453,7 +456,7 @@ public:
         setMapToken("Last-Modified:", &T::addToMapHttpHeader);
         setMapToken("Link:", &T::addToMapHttpHeader);
         setMapToken("Location:", &T::addToMapHttpHeader);
-        setMapToken("Lock-Token:", &T::addToMapHttpHeader);
+        setMapToken("Lock-Token.class:", &T::addToMapHttpHeader);
         setMapToken("Max-Forwards:", &T::addToMapHttpHeader);
         setMapToken("MIME-Version:", &T::addToMapHttpHeader);
         setMapToken("Origin:", &T::addToMapHttpHeader);
@@ -502,7 +505,7 @@ public:
 */
 
 /**
- * Class exception of 6-PegParser class
+ * Class exception of 7-PegParser class
  *
  * class syntaxException;
  *
@@ -515,7 +518,7 @@ public:
         /**
          * Constructor of syntaxException class
          *
-         * syntaxException(6-PegParser & config, const char* message);
+         * syntaxException(7-PegParser & config, const char* message);
          *
          * @param   message to store const char*
          * @throw   none
@@ -594,7 +597,7 @@ private:
 */
 
 /**
- * Public methode of 6-PegParser.class
+ * Public methode of 7-PegParser.class
  *
  * bool deleteComments();
  *
