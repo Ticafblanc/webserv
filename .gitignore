@@ -9,3 +9,4 @@ Bin/
 build
 cmake-build-debug-docker/
 cmake-build-debug/
+/cmake-build-unittest_docker/

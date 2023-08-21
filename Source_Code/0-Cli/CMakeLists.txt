@@ -23,7 +23,7 @@ add_library(CLI_LIB STATIC ${SOURCES_CODE})
 
 if(BUILD_TESTS)
     add_definitions(-DTESTMODE)
-    add_executable(CLI_TEST main.cpp main.cpp)
+    add_executable(CLI_TEST main.cpp)
     target_link_libraries(CLI_TEST PRIVATE CLI_LIB ${CMAKE_DL_LIBS})
 endif()
 
