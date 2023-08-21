@@ -20,7 +20,7 @@ add_executable(unitTestInit ${UNIT_TEST_INIT})
 target_link_libraries(unitTestInit webservlib)
 add_executable(unitTestLauncher ${UNIT_TEST_LAUNCHER})
 target_link_libraries(unitTestLauncher webservlib)
-add_executable(unitTestThrow ${UNIT_TEST_LAUNCHER})
+add_executable(unitTestThrow ${UNIT_TEST_THROW})
 target_link_libraries(unitTestThrow webservlib)
 
 add_test(NAME initTest COMMAND unitTestInit)

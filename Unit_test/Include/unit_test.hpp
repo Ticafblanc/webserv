@@ -23,7 +23,7 @@
 
 #define TEST_EQ(x, y)		\
 	if (x != y)				\
-		return (TEST_FAIL);	\
+		return (TEST_FAIL);  \
 
 #define TEST_NE(x, y)		\
 	if (x == y)				\
