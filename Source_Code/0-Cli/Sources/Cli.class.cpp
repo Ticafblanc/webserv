@@ -177,7 +177,7 @@ void Cli::handleStop(int sig) {
 void Cli::handleLaunch(int sig) {
     if (sig == SIGUSR1){
         if (TESTMODE)
-            std::cout << "launck by signal" << std::endl;
+            std::cout << "launch by signal" << std::endl;
 
         std::signal(STOP, handleStop);
         std::signal(SIGHUP, handleReload);
