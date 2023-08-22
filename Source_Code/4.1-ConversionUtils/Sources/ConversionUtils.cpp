@@ -8,3 +8,11 @@ std::string intToString(int number) {
     oss << number;
     return oss.str();
 }
+
+std::size_t hexaStringToSizet(const std::string & str){
+    ssize_t size;
+
+    std::istringstream iss(str);
+    iss >> std::hex >> size;
+    return size;
+}

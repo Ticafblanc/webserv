@@ -13,5 +13,6 @@
 #include <filesystem>
 
 std::string intToString(int number);
+std::size_t hexaStringToSizet(const std::string & str);
 
 #endif //WEBSERVER_CONVERSIONUTILS_HPP
