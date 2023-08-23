@@ -10,7 +10,7 @@ option(DOCKER "Build converter test programs" OFF)
 
 option(BUILD_TESTS "Build converter test programs" OFF)
 
-set(SOURCES_CODE Sources/Converter.cpp)
+set(SOURCES_CODE Sources/Converter.class.cpp)
 
 add_library(CONVERTER_LIB STATIC ${SOURCES_CODE})
 
