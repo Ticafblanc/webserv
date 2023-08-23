@@ -50,8 +50,7 @@ bool Cli::isMainProgram(){
         return false;
     }
     std::cout << "Webserv already open!!\n";
-    if (!TESTMODE)
-        _pid = pid;
+    _pid = pid;
     return true;
 }
 
