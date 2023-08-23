@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(conversionUtils_lib)
+project(converter_lib)
 
 set(CMAKE_CXX_STANDARD 98)
 SET(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra")
@@ -10,7 +10,7 @@ option(DOCKER "Build conversion utils test programs" OFF)
 
 option(BUILD_TESTS "Build conversion utils test programs" OFF)
 
-set(SOURCES_CODE Sources/ConversionUtils.cpp)
+set(SOURCES_CODE Sources/Converter.cpp)
 
 add_library(CONVERSION_UTILS_LIB STATIC ${SOURCES_CODE})
 

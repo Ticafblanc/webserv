@@ -2,8 +2,8 @@
 // Created by Ben on 2023-08-22.
 //
 
-#ifndef WEBSERVER_CONVERSIONUTILS_HPP
-#define WEBSERVER_CONVERSIONUTILS_HPP
+#ifndef WEBSERVER_CONVERTER_HPP
+#define WEBSERVER_CONVERTER_HPP
 
 #include <map>
 #include <sstream>
@@ -15,4 +15,4 @@
 std::string intToString(int number);
 std::size_t hexaStringToSizet(const std::string & str);
 
-#endif //WEBSERVER_CONVERSIONUTILS_HPP
+#endif //WEBSERVER_CONVERTER_HPP

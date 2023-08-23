@@ -2,7 +2,7 @@
 // Created by Ben on 2023-08-21.
 //
 #include <iostream>
-#include "Includes/ConversionUtils.hpp"
+#include "Includes/Converter.hpp"
 
 int main() {
     //basic test for int to string, i need to add more later
