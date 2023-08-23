@@ -11,10 +11,17 @@ int main() {
     std::cout << "intToString test" << std::endl;
     std::cout << string_test << '\n' << std::endl;
 
-    //basic test for string to sizet, i need to add more later
+    //basic test for hex string to sizet, i need to add more later
     size_t size_t_test;
     size_t_test = hexStringToSizet("42");
-    std::cout << "stringToSizeT test" << std::endl;
-    std::cout << size_t_test << std::endl;
+    std::cout << "hexStringToSizeT test" << std::endl;
+    std::cout << size_t_test << '\n' << std::endl;
+
+    //basic test for size_t to hex string, i need to add more later
+    std::string hex_string_test;
+    hex_string_test = sizetToStringHex(42);
+    std::cout << "sizetToStringHex test" << std::endl;
+    std::cout << hex_string_test << std::endl;
+
     return (0);
 }

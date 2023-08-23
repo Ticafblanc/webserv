@@ -17,7 +17,7 @@ std::size_t hexStringToSizet(const std::string & str){
     return size;
 }
 
-std::string sizetToString(std::size_t size){
+std::string sizetToStringHex(std::size_t size){
     std::ostringstream oss;
     oss << std::hex << size;
     return oss.str();

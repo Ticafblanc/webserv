@@ -14,5 +14,6 @@
 
 std::string intToString(int number);
 std::size_t hexStringToSizet(const std::string & str);
+std::string sizetToStringHex(std::size_t size);
 
 #endif //WEBSERVER_CONVERTER_HPP
