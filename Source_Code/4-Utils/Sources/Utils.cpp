@@ -4,18 +4,6 @@
 
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
-//std::string sizetToString(std::size_t size){
-//    std::ostringstream oss;
-//    oss << std::hex << size;
-//    return oss.str();
-//}
-//
-//std::string sizetToStringHex(std::size_t size){
-//    std::ostringstream oss;
-//    oss << std::hex << size;
-//    return oss.str();
-//}
-
 //std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
 //    std::vector<char*> env;
 //    for (size_t i = 0; i < envVec.size(); ++i) {
