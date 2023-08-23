@@ -4,17 +4,6 @@
 
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
-
-
-//
-//std::size_t stringToSizet(const std::string & str){
-//    ssize_t size;
-//
-//    std::istringstream iss(str);
-//    iss >> std::hex >> size;
-//    return size;
-//}
-//
 //std::string sizetToString(std::size_t size){
 //    std::ostringstream oss;
 //    oss << std::hex << size;

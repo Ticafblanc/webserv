@@ -13,7 +13,7 @@ int main() {
 
     //basic test for string to sizet, i need to add more later
     size_t size_t_test;
-    size_t_test = hexaStringToSizet("42");
+    size_t_test = hexStringToSizet("42");
     std::cout << "stringToSizeT test" << std::endl;
     std::cout << size_t_test << std::endl;
     return (0);

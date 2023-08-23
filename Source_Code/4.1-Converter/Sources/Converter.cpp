@@ -9,10 +9,16 @@ std::string intToString(int number) {
     return oss.str();
 }
 
-std::size_t hexaStringToSizet(const std::string & str){
+std::size_t hexStringToSizet(const std::string & str){
     ssize_t size;
 
     std::istringstream iss(str);
     iss >> std::hex >> size;
     return size;
+}
+
+std::string sizetToString(std::size_t size){
+    std::ostringstream oss;
+    oss << std::hex << size;
+    return oss.str();
 }
