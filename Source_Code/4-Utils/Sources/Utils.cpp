@@ -57,11 +57,7 @@
 //    return removeFile(path);
 //}
 
-//bool removeFile(std::string &path){
-//    if (remove(path.c_str()) != 0)
-//        return false;
-//    return true;
-//}
+
 
 //bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
 //    std::size_t min = 1024;
