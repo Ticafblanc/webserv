@@ -3,9 +3,12 @@
 //
 
 #include <Source_Code/4.2-FileSystem/Includes/FileSystem.hpp>
+#include <fstream>
 
 int main() {
-    bool isFileTest = isFile("/Users/ben/CLionProject/webserv/Makefile");
+    std::ofstream testFile("testFile");
+    bool isFileTest = isFile("testFile");
     std::cout << isFileTest << std::endl;
+    remove("testFile");
     return(0);
 }
