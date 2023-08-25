@@ -14,15 +14,6 @@
 //}
 
 
-//bool isDirectory(std::string & path) {
-//    struct stat statbuf;
-////    std::cout << "directory"<< std::endl;
-//
-//    if (stat(path.c_str(), &statbuf) != 0)
-//        return false;
-//    return S_ISDIR(statbuf.st_mode);
-//}
-
 
 
 //bool isExec(std::string & path) {
