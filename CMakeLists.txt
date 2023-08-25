@@ -22,11 +22,12 @@ add_subdirectory(Source_Code/2-Engin)
 add_subdirectory(Source_Code/3-Message)
 add_subdirectory(Source_Code/4-Utils)
 add_subdirectory(Source_Code/4.1-Converter)
+add_subdirectory(Source_Code/4.2-FileSystem)
 add_subdirectory(Source_Code/5-Log)
 add_subdirectory(Source_Code/6-Token)
 add_subdirectory(Source_Code/7-PegParser)
 
-set(SOURCES_CODE Source_Code/main.cpp )
+set(SOURCES_CODE Source_Code/main.cpp)
 
 add_executable(WEBSERV ${SOURCES_CODE})
 
