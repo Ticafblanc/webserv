@@ -15,7 +15,18 @@
 class Converter {
 public:
 
+    /**
+     * Constructor of converter class
+     *
+     * @param void
+     */
     Converter();
+
+    /**
+     * Destructor of converter class
+     *
+     * @throw nothing
+     */
     ~Converter();
 
     /**
