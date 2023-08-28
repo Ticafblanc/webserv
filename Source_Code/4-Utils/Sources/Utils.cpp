@@ -16,14 +16,7 @@
 
 
 
-//bool isExec(std::string & path) {
-//    struct stat statbuf;
-////    std::cout << "exec"<< std::endl;
-//    if (stat(path.c_str(), &statbuf) != 0)
-//        return false;
-//    return S_ISREG(statbuf.st_mode) && (statbuf.st_mode & S_IXUSR ||
-//            statbuf.st_mode & S_IXGRP ||statbuf.st_mode & S_IXOTH);
-//}
+
 //
 //bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss){
 //    DIR* directory = opendir(path.c_str());

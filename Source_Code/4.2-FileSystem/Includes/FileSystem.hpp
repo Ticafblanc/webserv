@@ -15,5 +15,6 @@
 bool isFile(const std::string & path);
 bool removeFile(std::string & path);
 bool isDirectory(const std::string & path);
+bool isExec(std::string & path);
 
 #endif //WEBSERVER_FILESYSTEM_HPP
