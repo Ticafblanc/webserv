@@ -25,8 +25,7 @@ bool isDirectory(const std::string & path) {
 }
 
 bool isExec(std::string & path) {
-    struct stat statbuf;
-//    std::cout << "exec"<< std::endl;
+    struct stat statbuf = {};
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISREG(statbuf.st_mode) && (statbuf.st_mode & S_IXUSR ||
