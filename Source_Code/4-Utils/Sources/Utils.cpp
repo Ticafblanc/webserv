@@ -33,22 +33,7 @@
 //    return true;
 //}
 
-//bool removeDirectory(std::string &path){
-//    DIR* directory = opendir(path.c_str());
-//    if (!directory)
-//        return removeFile(path);
-//    struct dirent* entry;
-//    while ((entry = readdir(directory)) != NULL) {
-//        if (std::string(entry->d_name) != "." || std::string(entry->d_name) != "..") {
-//            std::string entryPath = path + "/" + std::string(entry->d_name);
-//            if (isFile(entryPath))
-//                if (removeFile(entryPath))
-//                    continue;
-//        }
-//    }
-//    closedir(directory);
-//    return removeFile(path);
-//}
+
 
 
 
