@@ -7,7 +7,17 @@
 
 public Setter {
 public:
+    /**
+     * Constructor of the class setter
+     * @param void
+     * @throw nothing
+     */
     Setter();
+    /**
+     * Destructor of the class setter
+     * @param void
+     * @throw nothing
+     */
     ~Setter();
 };
 
