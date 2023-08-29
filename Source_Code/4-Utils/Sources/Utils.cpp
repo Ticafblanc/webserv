@@ -13,10 +13,6 @@
 //    return env;
 //}
 
-
-
-
-
 //
 //bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss){
 //    DIR* directory = opendir(path.c_str());
