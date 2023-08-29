@@ -19,4 +19,6 @@ bool removeFile(std::string & path);
 bool isDirectory(const std::string & path);
 bool removeDirectory(std::string & path);
 
+bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength);
+
 #endif //WEBSERVER_FILESYSTEM_HPP

@@ -33,24 +33,6 @@
 //    return true;
 //}
 
-
-
-
-
-//bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
-//    std::size_t min = 1024;
-
-//    while (!buffer.empty()){
-//        std::size_t size = std::min(buffer.size(), min);
-//        std::cout << path << " " << contentLength << " " << buffer.size() <<" " << size << std::endl;
-//        write(fd, buffer.data(), size);
-//        buffer.erase(buffer.begin(), buffer.begin() + size);
-//    }
-//    std::cout <<"end" <<  path << " " << contentLength << " " << buffer.size()<< std::endl;
-//    buffer.clear();
-//    return true;
-//}
-
 //std::vector<char*>  setPhpEnv(const std::string& method, const std::string& query, std::map<std::string, std::string>& headers) {
 //    std::vector<std::string> envVec;
 //
