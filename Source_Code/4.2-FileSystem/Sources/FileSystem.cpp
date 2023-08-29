@@ -3,7 +3,11 @@
 //
 #include <Source_Code/4.2-FileSystem/Includes/FileSystem.hpp>
 
-bool isFile(const std::string & path) {
+FileSystem::FileSystem() {}
+
+FileSystem::~FileSystem() {}
+
+bool FileSystem::isFile(const std::string & path) {
     struct stat statbuf = {};
     if (stat(path.c_str(), &statbuf) != 0) {
         return false;
@@ -11,20 +15,20 @@ bool isFile(const std::string & path) {
     return S_ISREG(statbuf.st_mode);
 }
 
-bool removeFile(std::string & path){
+bool FileSystem::removeFile(std::string & path){
     if (remove(path.c_str()) != 0)
         return false;
     return true;
 }
 
-bool isDirectory(const std::string & path) {
+bool FileSystem::isDirectory(const std::string & path) {
     struct stat statbuf = {};
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
     return S_ISDIR(statbuf.st_mode);
 }
 
-bool isExec(std::string & path) {
+bool FileSystem::isExec(std::string & path) {
     struct stat statbuf = {};
     if (stat(path.c_str(), &statbuf) != 0)
         return false;
@@ -32,7 +36,7 @@ bool isExec(std::string & path) {
             statbuf.st_mode & S_IXGRP ||statbuf.st_mode & S_IXOTH);
 }
 
-bool removeDirectory(std::string &path){
+bool FileSystem::removeDirectory(std::string &path){
     DIR* directory = opendir(path.c_str());
     if (!directory)
         return removeFile(path);
@@ -49,7 +53,8 @@ bool removeDirectory(std::string &path){
     return removeFile(path);
 }
 
-bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
+//will be use in the cgi
+bool FileSystem::extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
     std::string buffer;
     std::size_t min = 1024;
 

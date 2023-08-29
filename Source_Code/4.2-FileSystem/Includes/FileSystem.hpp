@@ -12,13 +12,21 @@
 #include <dirent.h>
 #include <filesystem>
 
-bool isFile(const std::string & path);
-bool isExec(std::string & path);
-bool removeFile(std::string & path);
+class FileSystem
+{
+public:
 
-bool isDirectory(const std::string & path);
-bool removeDirectory(std::string & path);
+    FileSystem();
+    ~FileSystem();
 
-bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength);
+    static bool isFile(const std::string & path);
+    static bool isExec(std::string & path);
+    static bool removeFile(std::string & path);
+
+    static bool isDirectory(const std::string & path);
+    static bool removeDirectory(std::string & path);
+
+    static bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength);
+};
 
 #endif //WEBSERVER_FILESYSTEM_HPP
