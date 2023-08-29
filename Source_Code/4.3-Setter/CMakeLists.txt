@@ -10,7 +10,7 @@ option(DOCKER "Build setter test programs" OFF)
 
 option(BUILD_TESTS "Build setter test programs" OFF)
 
-set(SOURCES_CODE Sources/Setter.cpp)
+set(SOURCES_CODE Sources/Setter.class.cpp)
 
 add_library(SETTER_LIB STATIC ${SOURCES_CODE})
 
