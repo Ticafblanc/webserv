@@ -2,8 +2,8 @@
 // Created by Ben on 2023-08-25.
 //
 
-#ifndef WEBSERVER_FILESYSTEM_HPP
-#define WEBSERVER_FILESYSTEM_HPP
+#ifndef WEBSERVER_FILESYSTEM_CLASS_HPP
+#define WEBSERVER_FILESYSTEM_CLASS_HPP
 
 #include <map>
 #include <iostream>
@@ -16,7 +16,18 @@ class FileSystem
 {
 public:
 
+    /**
+     * Constructor of FileSystem class
+     *
+     * @param void
+     */
     FileSystem();
+
+    /**
+     * Destructor of FileSystem class
+     *
+     * @throw nothing
+     */
     ~FileSystem();
 
     /**
@@ -63,4 +74,4 @@ public:
     static bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength);
 };
 
-#endif //WEBSERVER_FILESYSTEM_HPP
+#endif //WEBSERVER_FILESYSTEM_CLASS_HPP

@@ -2,7 +2,7 @@
 // Created by Ben on 2023-08-23.
 //
 
-#include <Source_Code/4.2-FileSystem/Includes/FileSystem.hpp>
+#include <Source_Code/4.2-FileSystem/Includes/FileSystem.class.hpp>
 #include <fstream>
 
 int main() {
@@ -61,5 +61,5 @@ int main() {
 //    }
 //    if (isDirectory("../../../Source_Code"))
 //        std::cout << "is Dir" << std::endl;
-//    if (isFile("../../../Source_Code/4.2-FileSystem/main.cpp"))
+//    if (isFile("../../../Source_Code/4.2-FileSystem.class/main.cpp"))
 //        std::cout << "is File" << std::endl;

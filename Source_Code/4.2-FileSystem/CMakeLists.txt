@@ -10,7 +10,7 @@ option(DOCKER "Build file system test programs" OFF)
 
 option(BUILD_TESTS "Build file system test programs" OFF)
 
-set(SOURCES_CODE Sources/FileSystem.cpp)
+set(SOURCES_CODE Sources/FileSystem.class.cpp)
 
 add_library(FILE_SYSTEM_LIB STATIC ${SOURCES_CODE})
 
