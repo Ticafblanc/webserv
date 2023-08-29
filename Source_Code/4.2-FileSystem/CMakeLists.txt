@@ -6,9 +6,9 @@ SET(CMAKE_CXX_FLAGS "-Wall -Werror -Wextra")
 
 include_directories(SYSTEM ./)
 
-option(DOCKER "Build conversion utils test programs" OFF)
+option(DOCKER "Build file system test programs" OFF)
 
-option(BUILD_TESTS "Build conversion utils test programs" OFF)
+option(BUILD_TESTS "Build file system test programs" OFF)
 
 set(SOURCES_CODE Sources/FileSystem.cpp)
 
