@@ -49,9 +49,10 @@ bool removeDirectory(std::string &path){
     return removeFile(path);
 }
 
+//will be use during the cgi part.
 bool extractFileToFd(const std::string & path, int fd, std::size_t & contentLength) {
-    std::string buffer;
     std::size_t min = 1024;
+    std::string buffer;
 
     while (!buffer.empty()){
         std::size_t size = std::min(buffer.size(), min);
