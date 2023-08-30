@@ -4,14 +4,7 @@
 
 #include <Source_Code/4-Utils/Includes/Utils.hpp>
 
-//std::vector<char*>  setEnvp(std::vector<std::string> & envVec) {
-//    std::vector<char*> env;
-//    for (size_t i = 0; i < envVec.size(); ++i) {
-//        env.push_back(const_cast<char*>(envVec[i].c_str()));
-//    }
-//    env.push_back(NULL);
-//    return env;
-//}
+
 
 //
 //bool autoIndexToHtml(std::string & path, std::string & url, std::ostringstream &oss){
