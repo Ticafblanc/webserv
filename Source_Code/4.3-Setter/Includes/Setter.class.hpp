@@ -27,7 +27,7 @@ public:
      */
     ~Setter();
 
-    std::vector<char*>  setEnvp(std::vector<std::string> & envVec);
+    static std::vector<char*>  setEnvp(std::vector<std::string> & envVec);
 };
 
 #endif //WEBSERVER_SETTER_CLASS_HPP
