@@ -28,6 +28,9 @@ public:
     ~Setter();
 
     static std::vector<char*>  setEnvp(std::vector<std::string> & envVec);
+    static std::vector<char*>  setPhpEnv(const std::string& method, const std::string& query,
+                                  std::map<std::string, std::string>& headers);
+    static std::vector<char*> setArgv(const std::string& executablePath, const std::string& filePath);
 };
 
 #endif //WEBSERVER_SETTER_CLASS_HPP
