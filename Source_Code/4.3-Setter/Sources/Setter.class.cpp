@@ -4,6 +4,9 @@
 
 #include <Source_Code/4.3-Setter/Includes/Setter.class.hpp>
 
+Setter::Setter() {}
+Setter::~Setter() {}
+
 std::vector<char*>  Setter::setEnvp(std::vector<std::string> & envVec) {
     std::vector<char*> env;
     for (size_t i = 0; i < envVec.size(); ++i) {
