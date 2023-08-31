@@ -5,8 +5,8 @@
 #include <iostream>
 
 int main (int argc, char **argv, char **envp) {
-    argv[0][0] = 'a';
-    std::cout << argc << '\n' << std::endl;
+    (void)argc;
+    (void)argv;
     std::vector<char*> charVec;
     std::vector<std::string> stringVec;
     for(int i = 0; envp[i]; i++) {
@@ -14,9 +14,15 @@ int main (int argc, char **argv, char **envp) {
         stringVec.push_back(envpString);
     }
     charVec = Setter::setEnvp(stringVec);
-    std::vector<char*>::iterator it;
-    for (it = charVec.begin(); it < charVec.end(); it++){
-        std::cout << *it << std::endl;
+    std::vector<char*>::iterator it = charVec.begin();
+    for (int i = 0; it < charVec.end(); i++, it++){
+        if (*it == NULL)
+            break;
+        std::string checkIt = *it;
+        if (checkIt.compare(envp[i]) == 0)
+            std::cout << *it << std::endl;
+        else
+            return (1);
     }
     return (0);
 }
