@@ -22,32 +22,9 @@
 //    return true;
 //}
 
-//std::vector<char*>  setPhpEnv(const std::string& method, const std::string& query, std::map<std::string, std::string>& headers) {
-//    std::vector<std::string> envVec;
+
 //
-//    envVec.push_back("REQUEST_METHOD=" + method);
-//    if (!query.empty()) {
-//        envVec.push_back("QUERY_STRING=" + query);
-//    }
-//    for (std::map<std::string, std::string>::iterator it = headers.begin();
-//    it != headers.end(); ++it) {
-//        std::string envVar = "HTTP_" + it->first;
-//        std::replace(envVar.begin(), envVar.end(), '-', '_');
-//        std::transform(envVar.begin(), envVar.end(), envVar.begin(), ::toupper);
-//        envVar += "=" + it->second;
-//        envVec.push_back(envVar);
-//    }
-//    return setEnvp(envVec);
-//}
-//
-//std::vector<char*> setArgv(const std::string& executablePath, const std::string& filePath){
-//    std::vector<char*> argv;
-//    argv.push_back(const_cast<char*>(executablePath.c_str()));
-//    argv.push_back(const_cast<char*>(filePath.c_str()));
-//    argv.push_back(NULL);
-//
-//    return argv;
-//}
+
 
 //bool launchChild(int * pipefdIn,int * pipefdOut, pid_t &pid,
 //                 std::vector<char*> argv, std::vector<char*> envp) {
