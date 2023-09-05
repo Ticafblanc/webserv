@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <filesystem>
+#include <vector>
 
 class Setter {
 public:
