@@ -12,7 +12,7 @@ std::vector<char*>  Setter::setEnvp(std::vector<std::string> & envVec) {
     for (size_t i = 0; i < envVec.size(); ++i) {
         env.push_back(const_cast<char*>(envVec[i].c_str()));
     }
-    env.push_back(NULL);
+    env.push_back(nullptr);
     return env;
 }
 
@@ -39,7 +39,7 @@ std::vector<char*> Setter::setArgv(const std::string& executablePath, const std:
     std::vector<char*> argv;
     argv.push_back(const_cast<char*>(executablePath.c_str()));
     argv.push_back(const_cast<char*>(filePath.c_str()));
-    argv.push_back(NULL);
+    argv.push_back(nullptr);
 
     return argv;
 }
