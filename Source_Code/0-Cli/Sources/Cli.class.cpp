@@ -141,6 +141,7 @@ void Cli::checkFile(const std::string &pathFile) {
         else
             throw std::runtime_error(pathFile + " is not config file");
     }
+    //@todo config file check
 }
 
 void Cli::printCliHelp(){
