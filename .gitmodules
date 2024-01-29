@@ -1,0 +1,11 @@
+[submodule "FlexiNode/.github"]
+  path = FlexiNode/.github
+  url = https://github.com/FlexiNode/.github.git
+
+[submodule "FlexiNode/PEG_parser"]
+  path = FlexiNode/PEG_parser
+  url = https://github.com/FlexiNode/PEG_parser.git
+
+[submodule "FlexiNode/log_manager"]
+  path = FlexiNode/log_manager
+  url = https://github.com/FlexiNode/log_manager.git
