@@ -40,14 +40,14 @@ bool Cli::isMainProgram() {
   fs.open(_PATHTOPIDLOGFILE_, fstream::in | fstream::out | fstream::app);
   if (!fs.is_open())
     throw runtime_error("impossible to open pid.log");
-  fs.seekg(0, std::ios::end);
+  fs.seekg(0, ios::end);
   bool isEmpty = (fs.tellg() == 0);
   if (isEmpty) {
     fs << _pid;
     fs.close();
     return true;
   }
-  fs.seekg(0, std::ios::beg);
+  fs.seekg(0, ios::beg);
   string str;
   getline(fs, str);
   fs.close();
@@ -149,76 +149,76 @@ void Cli::checkConfig() {
   }
 }
 
-  void Cli::printCliHelp() {
-    if (_this->_exit) {
-      _this->_exit = true;
+void Cli::printCliHelp() {
+  if (_this->_exit) {
+    _this->_exit = true;
+    clearPidFile();
+  }
+  cout << "Webserv usage : webserv [-csth?] [-c file] [-s signal] [-t file]\n"
+       << "\t\t-c file' Use an alternative configuration file.\n"
+       << "\t\t-t' Don't run, just test the configuration file.\n"
+       << "\t\t-s signal' Send signal to the master process.\n"
+       << "\t\tstart' LAUNCH\n"
+       << "\t\tstop' SIGTERM\n"
+       << "\t\tquit' SIGQUIT\n"
+       << "\t\treload' SIGHUP\n"
+       << "\t\t-? | -h'               Print help." << endl;
+}
+
+void Cli::clearPidFile() {
+  std::ofstream file(_PATHTOPIDLOGFILE_, std::ofstream::trunc);
+  if (!file.is_open())
+    std::cerr << "fail to open file " << _PATHTOPIDLOGFILE_ << std::endl;
+  else
+    file.close();
+}
+
+void Cli::handleExit(int sig) {
+  if (sig == SIGINT || sig == SIGTERM) {
+    if (!_this->isStop()) {
+      cout << "Quit server" << endl;
       clearPidFile();
+      _this->_exit = true;
     }
-    cout << "Webserv usage : webserv [-csth?] [-c file] [-s signal] [-t file]\n"
-         << "\t\t-c file' Use an alternative configuration file.\n"
-         << "\t\t-t' Don't run, just test the configuration file.\n"
-         << "\t\t-s signal' Send signal to the master process.\n"
-         << "\t\tstart' LAUNCH\n"
-         << "\t\tstop' SIGTERM\n"
-         << "\t\tquit' SIGQUIT\n"
-         << "\t\treload' SIGHUP\n"
-         << "\t\t-? | -h'               Print help." << endl;
+    kill(_this->_pid, STOP);
   }
+}
 
-  void Cli::clearPidFile() {
-    std::ofstream file(_PATHTOPIDLOGFILE_, std::ofstream::trunc);
-    if (!file.is_open())
-      std::cerr << "fail to open file " << _PATHTOPIDLOGFILE_ << std::endl;
-    else
-      file.close();
-  }
-
-  void Cli::handleExit(int sig) {
-    if (sig == SIGINT || sig == SIGTERM) {
-      if (!_this->isStop()) {
-        cout << "Quit server" << endl;
-        clearPidFile();
-        _this->_exit = true;
-      }
-      kill(_this->_pid, STOP);
+void Cli::handleStop(int sig) {
+  if (sig == STOP) {
+    if (!_this->isLaunch()) {
+      _this->setRun();
+      cout << "Stop server" << endl;
+      signal(LAUNCH, handleLaunch);
+      signal(SIGHUP, SIG_IGN);
     }
   }
+}
 
-  void Cli::handleStop(int sig) {
-    if (sig == STOP) {
-      if (!_this->isLaunch()) {
-        _this->setRun();
-        cout << "Stop server" << endl;
-        signal(LAUNCH, handleLaunch);
-        signal(SIGHUP, SIG_IGN);
-      }
+void Cli::handleLaunch(int sig) {
+  if (sig == LAUNCH) {
+    if (!_this->isLaunch()) {
+      _this->setRun();
+      cout << "Launch server" << endl;
+      signal(STOP, handleStop);
+      signal(SIGHUP, handleReload);
     }
   }
+}
 
-  void Cli::handleLaunch(int sig) {
-    if (sig == LAUNCH) {
-      if (!_this->isLaunch()) {
-        _this->setRun();
-        cout << "Launch server" << endl;
-        signal(STOP, handleStop);
-        signal(SIGHUP, handleReload);
-      }
-    }
+void Cli::handleReload(int sig) {
+  if (sig == SIGHUP) {
+    cout << "Reload server" << endl;
+    kill(_this->_pid, STOP);
   }
+}
 
-  void Cli::handleReload(int sig) {
-    if (sig == SIGHUP) {
-      cout << "Reload server" << endl;
-      kill(_this->_pid, STOP);
-    }
-  }
+bool Cli::isStop() const { return _exit; }
 
-  bool Cli::isStop() const { return _exit; }
+void Cli::setRun() { _run = _run == 0; }
 
-  void Cli::setRun() { _run = _run == 0; }
+bool Cli::isLaunch() const { return _run; }
 
-  bool Cli::isLaunch() const { return _run; }
+int Cli::getStatus() const { return _status; }
 
-  int Cli::getStatus() const { return _status; }
-
-  pid_t Cli::getPid() const { return _pid; }
+pid_t Cli::getPid() const { return _pid; }
