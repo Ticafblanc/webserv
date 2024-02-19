@@ -1,6 +1,6 @@
 
 
-#include "4-Utils/Includes/Utils.hpp"
+#include "40-Utils/Includes/Utils.hpp"
 #include "0-Cli/Includes/Cli.class.hpp"
 
 
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
 
 
-// static void launcher(Config & config) {
+// static void launcher(8-ConfigFile & config) {
 //     Epoll epoll(config);
 //     epoll.launchEpoll();
 //     while(true) {

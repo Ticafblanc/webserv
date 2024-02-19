@@ -5,10 +5,10 @@
 #ifndef WEBSERV_MAIN_HPP
 #define WEBSERV_MAIN_HPP
 
-#define _PATHTOPIDLOGFILE_ ".webserv/log/pid.log"
-#define _PATHTOCONFIGLOGFILE_ ".webserv/log/config.log"
-#define _PATHTOACCESSLOGFILE_ ".webserv/log/access.log"
-#define _PATHTOERRORLOGFILE_ ".webserv/log/error.log"
+#define PATH_TO_PID_LOG_FILE_ ".webserv/log/pid.log"
+#define PATHTOCONFIGLOGFILE_ ".webserv/log/config.log"
+#define PATHTOACCESSLOGFILE_ ".webserv/log/access.log"
+#define PATHTOERRORLOGFILE_ ".webserv/log/error.log"
 
 #include <algorithm>
 #include <arpa/inet.h>
@@ -43,10 +43,13 @@
 
 using namespace std;
 
+typedef pair<string, string> pairStrStr;
+typedef pair<int, int> pairIntInt;
 typedef vector<string> vecStr;
 typedef vector<string>::iterator vecStrIt;
 typedef vector<int> vecInt;
-typedef vector<pair<string, int>> vecFiles;
+typedef vector<pairStrStr> vecPairStrStr;
+typedef vecPairStrStr::iterator vecPairStrStrIt;
 typedef vector<char> vecChar;
 typedef set<string> setStr;
 typedef set<int> setInt;
@@ -54,11 +57,12 @@ typedef map<string, string> mapStrStr;
 typedef map<string, vecStr> mapStrVecStr;
 typedef map<string, vecStr>::iterator mapStrVecStrIt;
 typedef map<int, int> mapIntInt;
+typedef map<int, pairStrStr> mapIntPairStrStr;
 typedef map<int, string> mapIntStr;
-typedef pair<string, string> pairStrStr;
-typedef pair<int, int> pairIntInt;
-typedef pair<int, pairIntInt> pairIntIntD;
 typedef queue<string> queStr;
+
+template <class T> class PegParser;
+typedef PegParser<string> ppStr;
 
 const int BUFFER_SIZE = 1024;
 const int MAX_CLIENTS = 10;

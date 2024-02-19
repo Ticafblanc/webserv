@@ -37,7 +37,7 @@ Cli &Cli::operator=(const Cli &rhs) {
 
 bool Cli::isMainProgram() {
   fstream fs;
-  fs.open(_PATHTOPIDLOGFILE_, fstream::in | fstream::out | fstream::app);
+  fs.open(PATH_TO_PID_LOG_FILE_, fstream::in | fstream::out | fstream::app);
   if (!fs.is_open())
     throw runtime_error("impossible to open pid.log");
   fs.seekg(0, ios::end);
@@ -95,7 +95,7 @@ void Cli::checkOption(const string &option) {
     if (option.find_first_not_of("-csth?") != string::npos ||
         option.size() <= 2) {
       if ((option == "-?" || option == "-h") && _argv.empty())
-        return _this->printCliHelp();
+        return printCliHelp();
       else if (option == "-s" && _exit)
         return sendSignal(_argv.front());
       else if (option == "-t" || (option == "-c" && !_exit))
@@ -144,7 +144,7 @@ void Cli::checkConfig() {
     PegParser<ConfigFile> peg(_pathToConfigFile, "#");
     ConfigFile extractConfigFile(_config, peg);
   } catch (const std::exception &e) {
-    std::cout << "Config error on => " << e.what() << std::endl;
+    std::cout << "8-ConfigFile error on => " << e.what() << std::endl;
     throw runtime_error("error in config file");
   }
 }
@@ -166,9 +166,9 @@ void Cli::printCliHelp() {
 }
 
 void Cli::clearPidFile() {
-  std::ofstream file(_PATHTOPIDLOGFILE_, std::ofstream::trunc);
+  std::ofstream file(PATH_TO_PID_LOG_FILE_, std::ofstream::trunc);
   if (!file.is_open())
-    std::cerr << "fail to open file " << _PATHTOPIDLOGFILE_ << std::endl;
+    std::cerr << "fail to open file " << PATH_TO_PID_LOG_FILE_ << std::endl;
   else
     file.close();
 }

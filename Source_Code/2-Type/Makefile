@@ -10,97 +10,29 @@
 #                                                                              #
 # **************************************************************************** #
 
-PROJECT = webserv
-
-PATH_SOURCE_CODE = Source_code/
+PROJECT = type
 
 	#  BINARY  #
 
-BIN_PATH = $(PATH_SOURCE_CODE)Bin/
+BIN_PATH = ../Lib/
 
-BIN_NAME = $(PROJECT)
+BIN_NAME = lib$(PROJECT).a
 
-BIN = $(BIN_NAME)
+BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
 
 	#  INCLUDES  #
 
-INC_PATH = $(PATH_SOURCE_CODE)
+INC_PATH = ./Includes
 
 INC_FLAGS += -I $(INC_PATH)
 
 	#  SOURCES  #
 
-SRC_PATH = $(PATH_SOURCE_CODE)/
+SRC_PATH = Sources/
 
-SRC_NAME = main.cpp
+SRC_NAME = $(notdir $(wildcard Sources/*.cpp))
 
 SRC = $(addprefix $(SRC_PATH),$(SRC_NAME))
-
-	#  LIB  #
-
-LIB_INC_PATH = Includes/
-
-LIB_BIN_PATH = $(PATH_SOURCE_CODE)Lib/
-
-	#  0-CLI  #
-
-LIB_CLI_NAME = cli
-
-LIB_CLI_PATH = $(PATH_SOURCE_CODE)0-Cli/
-
-INC_FLAGS += -I $(LIB_CLI_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_CLI_NAME)
-
-	#  1-Code #
-
-LIB_CODE_NAME = code
-
-LIB_CODE_PATH = $(PATH_SOURCE_CODE)1-Code/
-
-INC_FLAGS += -I $(LIB_CODE_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_CODE_NAME)
-
-	#  2-Type #
-
-LIB_TYPE_NAME = type
-
-LIB_TYPE_PATH = $(PATH_SOURCE_CODE)2-Type/
-
-INC_FLAGS += -I $(LIB_TYPE_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_TYPE_NAME)
-
-	#  3-Listen #
-
-LIB_LISTEN_NAME = listen
-
-LIB_LISTEN_PATH = $(PATH_SOURCE_CODE)3-Listen/
-
-INC_FLAGS += -I $(LIB_LISTEN_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_LISTEN_NAME)
-
-	#  5-Socket #
-
-LIB_SOCKET_NAME = socket
-
-LIB_SOCKET_PATH = $(PATH_SOURCE_CODE)5-Socket/
-
-INC_FLAGS += -I $(LIB_SOCKET_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_SOCKET_NAME)
-
-	#  40-utils  #
-
-LIB_UTILS_NAME = utils
-
-LIB_UTILS_PATH = $(PATH_SOURCE_CODE)4-Utils/
-
-INC_FLAGS += -I $(LIB_UTILS_PATH)$(LIB_INC_PATH)
-
-LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_UTILS_NAME)
 
 	#  OBJECTS  #
 
@@ -113,6 +45,8 @@ OBJ = $(addprefix $(OBJ_PATH),$(OBJ_NAME))
 	#  FLAGS  #
 
 CC = c++
+
+AR = ar rc
 
 CC_FLAGS = -pedantic -std=c++98  -Wall -Wextra -Werror
 
@@ -156,40 +90,14 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@$(CC) $(CC_FLAGS) $(INC_FLAGS) -c $< -o $@
 		@echo $(BLUE) $(notdir $@) is created !!
 
-$(BIN): lib title directory $(OBJ)
-		@$(CC) $(OBJ) $(INC_FLAGS) $(LIB_FLAGS) -o $(BIN_NAME)
+$(BIN): title directory $(OBJ)
+		@$(AR) $(BIN) $(OBJ)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
 		@./$(BIN)
 
-test_filer: all
-		@./$(BIN) -t
-
-#HTTP = http://127.0.0.1:8081/
-#curl: curl --http1.1 -v $(HTTP)
-
-lib: cli code type listen socket utils
-
-cli:
-		@$(MAKE) -C $(LIB_CLI_PATH)
-
-code:
-		@$(MAKE) -C $(LIB_CODE_PATH)
-
-type:
-		@$(MAKE) -C $(LIB_TYPE_PATH)
-
-listen:
-		@$(MAKE) -C $(LIB_LISTEN_PATH)
-
-socket:
-		@$(MAKE) -C $(LIB_SOCKET_PATH)
-
-utils:
-		@$(MAKE) -C $(LIB_UTILS_PATH)
-
-title:
+title: 
 		@echo $(GREEN)******************$(PROJECT)******************
 
 directory: 	
@@ -199,17 +107,14 @@ directory:
 
 clean: 
 		@$(CL) $(OBJ)
-		@$(MAKE) clean -C $(LIB_CLI_PATH)
 		@echo $(RED) Object $(notdir $(OBJ)) is delete !
 
 fclean: clean 
 		@$(CL) $(BIN)
-		@$(MAKE) fclean -C $(LIB_CLI_PATH)
 		@echo $(RED) Binary $(notdir $(BIN)) is delete !
 
-finish:
+finish: 
 		@$(CL) $(BIN_PATH)
-		@$(CL) $(LIB_BIN_PATH)
 		@echo $(RED) All $(PROJECT) is delete !
 
 re:	fclean all

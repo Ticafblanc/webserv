@@ -3,8 +3,8 @@
 #ifndef WEBSERVER_CLI_HPP
 #define WEBSERVER_CLI_HPP
 
-#include "../../1-Config/Includes/ConfigFile.class.hpp"
-#include "../../4-Utils/Includes/Utils.hpp"
+#include "../../4-Config/Includes/Config.hpp"
+#include "../../40-Utils/Includes/Utils.hpp"
 
 #define LAUNCH SIGUSR1
 #define STOP SIGUSR2

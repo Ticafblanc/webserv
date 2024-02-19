@@ -3,10 +3,7 @@
 #ifndef WEBSERV_PEGPARSER_TPP
 #define WEBSERV_PEGPARSER_TPP
 
-#include <cstring>
-#include <fstream>
-#include <sstream>
-#include <map>
+#include "../../4-Utils/Includes/Utils.hpp"
 
 template <class T>
 class PegParser {
