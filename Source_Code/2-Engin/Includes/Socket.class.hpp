@@ -16,7 +16,7 @@
 #define WEBSERV_SOCKET_HPP
 
 #include <netinet/in.h>
-#include <Source_Code/4-Utils/Includes/Utils.hpp>
+#include "../../4-Utils/Includes/Utils.hpp"
 
 class Socket {
 
@@ -200,7 +200,7 @@ public:
  * @param   event instance to epoll_event
  * @throw   socket::socketException
  **/
-    explicit Socket(epoll_event &event, Socket * server);
+//    explicit Socket(epoll_event &event, Socket * server);
 
 /**
  * Destructor of 7-Socket class

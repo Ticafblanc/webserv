@@ -29,10 +29,7 @@
     #define _PATHTOACCESSLOGFILE_   "/webserv/Source_Code/5-Log/.Log_files/access.log"
     #define _PATHTOERRORLOGFILE_    "/webserv/Source_Code/5-Log/.Log_files/error.log"
 #else
-    #define _PATHTOPIDLOGFILE_      "../.webserv/log/pid.log"
-    #define _PATHTOCONFIGLOGFILE_   "../.webserv/log/config.log"
-    #define _PATHTOACCESSLOGFILE_   "../.webserv/log/access.log"
-    #define _PATHTOERRORLOGFILE_    "../.webserv/log/error.log"
+
 #endif
 
 class Log {

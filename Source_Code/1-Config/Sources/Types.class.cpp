@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2023-06-10.
 //
 
-#include <Source_Code/1-Config/Includes/Types.class.hpp>
+#include "../Includes/Types.class.hpp"
 
 
 Types::Types(const std::string& pathFile) : _peg(pathFile.c_str()), _mapMimeType(){

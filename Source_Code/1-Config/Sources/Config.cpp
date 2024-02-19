@@ -1,6 +1,6 @@
 
 
-#include <Source_Code/1-Config/Includes/Config.hpp>
+#include "../Includes/Config.hpp"
 
 
 Config::Config()
@@ -56,7 +56,7 @@ Config & Config::operator=(const Config & rhs){
         this->_cgiPass = rhs._cgiPass;
         this->_autoindex = rhs._autoindex;
         this->_code = rhs._code;
-//        this->_mapFdSocket = rhs._mapFdSocket;
+        this->_mapFdSocket = rhs._mapFdSocket;
         this->_mapMimeType = rhs._mapMimeType;
         this->_log = rhs._log;
         this->_token = rhs._token;

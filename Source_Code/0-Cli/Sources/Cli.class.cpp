@@ -1,213 +1,224 @@
 
-#include <Includes/Cli.class.hpp>
+#include "../Includes/Cli.class.hpp"
 
-Cli* Cli::_this = NULL;
+Cli *Cli::_this = NULL;
 
-Cli::Cli(int argc, char ** argv)
-: _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(false), _argv()/*, _config(*/{
-    _this = this;
-    initSignal();
-    if (argc > 3) {
-        std::cerr << "Too much arguments" << std::endl;
-        _status = EXIT_FAILURE;
-        return;
-    }
-    try{
-        _exit = isMainProgram();
-        setArg(argc, argv);
-        checkArg();
-    }catch (const std::exception & e){
-        std::cerr << "\n" << e.what() << std::endl;
-//        printCliHelp();
-        _status = EXIT_FAILURE;
-        _exit = true;
-    }
+Cli::Cli(int argc, char **argv)
+    : _pid(getpid()), _status(EXIT_SUCCESS), _exit(true), _run(false), _argv(),
+      _config() {
+  _this = this;
+  initSignal();
+  if (argc > 3) {
+    cerr << "Too much arguments" << endl;
+    _status = EXIT_FAILURE;
+    return;
+  }
+  try {
+    setArg(argc, argv);
+    checkArg();
+  } catch (const exception &e) {
+    cerr << e.what() << endl;
+    printCliHelp();
+    _status = EXIT_FAILURE;
+  }
 }
 
 Cli::~Cli() {}
 
-Cli::Cli(const Cli & other)
-: _pid(other._pid), _status(other._status), _exit(other._exit), _run(other._run), _argv(other._argv)/*, _config(other._config)*/ {}
+Cli::Cli(const Cli &other)
+    : _pid(other._pid), _status(other._status), _exit(other._exit),
+      _run(other._run), _argv(other._argv), _config(other._config) {}
 
-Cli &Cli::operator=(const Cli & rhs) {
-    if (this != &rhs){
-    }
-    return *this;
+Cli &Cli::operator=(const Cli &rhs) {
+  if (this != &rhs) {
+  }
+  return *this;
 }
 
-bool Cli::isMainProgram(){
-    std::ifstream ifs;
-    ifs.open(_PATHTOPIDLOGFILE_, std::ios::in | std::ios::out | std::ios::app);
-    if (!ifs.is_open())
-        throw std::runtime_error("impossible to open pid.log");
-    std::vector<char> pidVec(100);
-    ifs.getline(pidVec.data(),100);
-    std::stringstream ss(pidVec.data());
-    pid_t pid = 0;
-    ss >> pid;
-    if (pid == 0){
-        std::cout << "Welcome to Webserv !!\n";
-        return false;
-    }
-    std::cout << "Webserv already open!!\n";
-    if (!TESTMODE)
-        _pid = pid;
+bool Cli::isMainProgram() {
+  fstream fs;
+  fs.open(_PATHTOPIDLOGFILE_, fstream::in | fstream::out | fstream::app);
+  if (!fs.is_open())
+    throw runtime_error("impossible to open pid.log");
+  fs.seekg(0, std::ios::end);
+  bool isEmpty = (fs.tellg() == 0);
+  if (isEmpty) {
+    fs << _pid;
+    fs.close();
     return true;
+  }
+  fs.seekg(0, std::ios::beg);
+  string str;
+  getline(fs, str);
+  fs.close();
+  istringstream(str) >> _pid;
+  cout << "Webserv already open!!\nOn : [" << _pid << "]" << endl;
+  return false;
 }
 
 void Cli::initSignal() {
-    std::signal(SIGTERM, handleExit);//webserv -s quit
-    std::signal(SIGINT, handleExit);//webserv -s quit
-    std::signal(LAUNCH, handleLaunch);//webserv
-    std::signal(SIGHUP, SIG_IGN);
+  signal(SIGTERM, handleExit);  // webserv -s quit
+  signal(SIGINT, handleExit);   // webserv -s quit
+  signal(LAUNCH, handleLaunch); // webserv
+  signal(SIGHUP, SIG_IGN);
 }
 
-void Cli::setArg(int argc, char ** argv){
-    for (int i = 1; i < argc && i < 3; ++i) {
-        std::istringstream iss(argv[i]);
-        std::string str;
-        while (!iss.eof()) {
-            iss >> std::ws >> str;
-            if (!str.empty())
-                _argv.push(str);
-            str.clear();
-            if (TESTMODE)
-                std::cout << "set arg : " << _argv.back()  << " arg size : " << _argv.size()<< std::endl;
-        }
+void Cli::setArg(int argc, char **argv) {
+  for (int i = 1; i < argc && i < 3; ++i) {
+    istringstream iss(argv[i]);
+    string str;
+    while (!iss.eof()) {
+      iss >> ws >> str;
+      if (!str.empty())
+        _argv.push(str);
+      str.clear();
     }
+  }
 }
 
 void Cli::checkArg() {
-    if (!_exit && _argv.empty())
-        checkFile("");
-    else if (!_argv.empty() && _argv.size() <= 2) {
-        if (TESTMODE)
-            std::cout << "check arg : " << _argv.front() << std::endl;
-        if (_argv.front()[0] == '-')
-            checkOption(_argv.front());
-        else
-            checkFile(_argv.front());
-        if (_argv.empty())
-            return;
-    }else {
-        throw std::runtime_error("To much argument");
-    }
-}
-
-void Cli::checkOption(const std::string &option) {
-    if (TESTMODE)
-        std::cout << "check option : " << option << " option size : " << option.size()<< std::endl;
-    if (option.find_first_not_of("-csth?") == std::string::npos) {
-        _argv.pop();
-        if (option.find_first_not_of("-csth?") != std::string::npos || option.size() <= 2) {
-            if ((option == "-?" || option == "-h") && _argv.empty())
-                return printCliHelp();
-            else if (option == "-s" && _exit)
-                return sendSignal(_argv.front());
-            else if (option == "-t" || (option == "-c" && !_exit))
-                return checkFile(_argv.front());
-        }
-        throw std::runtime_error("Option Invalid");
-    }
-}
-
-void Cli::sendSignal(const std::string &command) const {
-    if (TESTMODE) {
-        std::cout << "send Signal : " << command << std::endl;
-    }
-    if (command == "stop") {
-        if (kill(_pid, STOP) != 0)
-            throw std::runtime_error(strerror(errno));
-    }
-    else if (command == "reload") {
-        if (kill(_pid, SIGHUP) != 0)
-            throw std::runtime_error(strerror(errno));
-    }
-    else if (command == "quit") {
-        if (kill(_pid, SIGINT) != 0)
-            throw std::runtime_error(strerror(errno));
-    }
+  if (!_exit && _argv.empty())
+    checkFile("");
+  else if (!_argv.empty() && _argv.size() <= 2) {
+    if (_argv.front()[0] == '-')
+      checkOption(_argv.front());
     else
-        throw std::runtime_error("commande signal invalide");
+      checkFile(_argv.front());
+  } else {
+    throw runtime_error("To much argument");
+  }
 }
 
-void Cli::checkFile(const std::string &pathFile) {
-    if (TESTMODE)
-        std::cout << "check File : " << pathFile << std::endl ;
-    if (pathFile.empty())
-        _pathToConfigFile = "/webserv/Docker_build/etc/webserv/webserv.conf"; //"/usr/local/etc/webserv/webserv.conf"
-    else{
-        if (isFile(pathFile) && pathFile.find_last_of(".conf") != std::string::npos)
-            _pathToConfigFile = pathFile;
-        else
-            throw std::runtime_error(pathFile + " is not config file");
+void Cli::checkOption(const string &option) {
+  if (option.find_first_not_of("-csth?") == string::npos) {
+    _argv.pop();
+    if (option.find_first_not_of("-csth?") != string::npos ||
+        option.size() <= 2) {
+      if ((option == "-?" || option == "-h") && _argv.empty())
+        return _this->printCliHelp();
+      else if (option == "-s" && _exit)
+        return sendSignal(_argv.front());
+      else if (option == "-t" || (option == "-c" && !_exit))
+        return checkFile(_argv.front());
     }
+    throw runtime_error("Option Invalid");
+  }
 }
 
-void Cli::printCliHelp(){
-    std::cout << "Webserv usage : webserv [-csth?] [-c file] [-s signal] [-t file]\n"
-              << "\t\t-c file' Use an alternative configuration file.\n"
-              << "\t\t-t' Don't run, just test the configuration file.\n"
-              << "\t\t-s signal' Send signal to the master process.\n"
-              << "\t\tstop' SIGTERM\n"
-              << "\t\tquit' SIGQUIT\n"
-              << "\t\treload' SIGHUP\n"
-              << "\t\t-? | -h'               Print help."<< std::endl;
+void Cli::sendSignal(const string &command) const {
+  if (!_this->isMainProgram()) {
+    if (command == "start") {
+      cout << "Start signal" << endl;
+      if (kill(_pid, LAUNCH) != 0)
+        throw runtime_error(strerror(errno));
+    } else if (command == "stop") {
+      cout << "Stop signal" << endl;
+      if (kill(_pid, STOP) != 0)
+        throw runtime_error(strerror(errno));
+    } else if (command == "reload") {
+      cout << "Reload signal" << endl;
+      if (kill(_pid, SIGHUP) != 0)
+        throw runtime_error(strerror(errno));
+    } else if (command == "quit") {
+      cout << "Quit signal" << endl;
+      if (kill(_pid, SIGINT) != 0)
+        throw runtime_error(strerror(errno));
+    } else
+      throw runtime_error("commande signal invalide");
+  } else
+    throw runtime_error("commande signal impossible on main programme");
 }
 
-void Cli::handleExit(int sig) {
+void Cli::checkFile(const string &pathFile) {
+  if (pathFile.empty())
+    _pathToConfigFile = "webserv.conf";
+  if (isFile(pathFile) && pathFile.find_last_of(".conf") != string::npos)
+    _pathToConfigFile = pathFile;
+  else
+    throw runtime_error(pathFile + " is not config file");
+  checkConfig();
+}
+
+void Cli::checkConfig() {
+  try {
+    PegParser<ConfigFile> peg(_pathToConfigFile, "#");
+    ConfigFile extractConfigFile(_config, peg);
+  } catch (const std::exception &e) {
+    std::cout << "Config error on => " << e.what() << std::endl;
+    throw runtime_error("error in config file");
+  }
+}
+
+  void Cli::printCliHelp() {
+    if (_this->_exit) {
+      _this->_exit = true;
+      clearPidFile();
+    }
+    cout << "Webserv usage : webserv [-csth?] [-c file] [-s signal] [-t file]\n"
+         << "\t\t-c file' Use an alternative configuration file.\n"
+         << "\t\t-t' Don't run, just test the configuration file.\n"
+         << "\t\t-s signal' Send signal to the master process.\n"
+         << "\t\tstart' LAUNCH\n"
+         << "\t\tstop' SIGTERM\n"
+         << "\t\tquit' SIGQUIT\n"
+         << "\t\treload' SIGHUP\n"
+         << "\t\t-? | -h'               Print help." << endl;
+  }
+
+  void Cli::clearPidFile() {
+    std::ofstream file(_PATHTOPIDLOGFILE_, std::ofstream::trunc);
+    if (!file.is_open())
+      std::cerr << "fail to open file " << _PATHTOPIDLOGFILE_ << std::endl;
+    else
+      file.close();
+  }
+
+  void Cli::handleExit(int sig) {
     if (sig == SIGINT || sig == SIGTERM) {
-        if (TESTMODE)
-            std::cout << "exit by signal" << std::endl;
+      if (!_this->isStop()) {
+        cout << "Quit server" << endl;
+        clearPidFile();
         _this->_exit = true;
-        kill(_this->_pid, STOP);
-
+      }
+      kill(_this->_pid, STOP);
     }
-}
+  }
 
-void Cli::handleStop(int sig) {
-    if (sig == SIGUSR2){
-        if (TESTMODE)
-            std::cout << "Stop by signal" << std::endl;
-        std::signal(LAUNCH, handleLaunch);
-        _this->_run = false;
+  void Cli::handleStop(int sig) {
+    if (sig == STOP) {
+      if (!_this->isLaunch()) {
+        _this->setRun();
+        cout << "Stop server" << endl;
+        signal(LAUNCH, handleLaunch);
+        signal(SIGHUP, SIG_IGN);
+      }
     }
-}
+  }
 
-void Cli::handleLaunch(int sig) {
-    if (sig == SIGUSR1){
-        if (TESTMODE)
-            std::cout << "launck by signal" << std::endl;
-
-        std::signal(STOP, handleStop);
-        std::signal(SIGHUP, handleReload);
+  void Cli::handleLaunch(int sig) {
+    if (sig == LAUNCH) {
+      if (!_this->isLaunch()) {
+        _this->setRun();
+        cout << "Launch server" << endl;
+        signal(STOP, handleStop);
+        signal(SIGHUP, handleReload);
+      }
     }
-}
+  }
 
-void Cli::handleReload(int sig) {
+  void Cli::handleReload(int sig) {
     if (sig == SIGHUP) {
-        if (TESTMODE)
-            std::cout << "Reload by signal" << std::endl;
-        kill(_this->_pid, STOP);
+      cout << "Reload server" << endl;
+      kill(_this->_pid, STOP);
     }
-}
+  }
 
-bool Cli::isStop() const {
-    return _exit;
-}
+  bool Cli::isStop() const { return _exit; }
 
-void Cli::setRun() {
-    _run = true;
-}
+  void Cli::setRun() { _run = _run == 0; }
 
-bool Cli::isLaunch() const {
-    return _run;
-}
+  bool Cli::isLaunch() const { return _run; }
 
-int Cli::getStatus() const {
-    return _status;
-}
+  int Cli::getStatus() const { return _status; }
 
-pid_t Cli::getPid() const {
-    return _pid;
-}
+  pid_t Cli::getPid() const { return _pid; }

@@ -5,13 +5,7 @@
 #ifndef WEBSERVER_UTILS_HPP
 #define WEBSERVER_UTILS_HPP
 
-#include <map>
-#include <sstream>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-#include <filesystem>
-
+#include "../../main.hpp"
 
 std::string intToString(int number);
 //std::string sizetToStringHex(std::size_t size);

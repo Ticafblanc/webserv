@@ -1,130 +1,117 @@
 
 
 #ifndef WEBSERVER_CLI_HPP
-# define WEBSERVER_CLI_HPP
+#define WEBSERVER_CLI_HPP
 
-#include <string>
-#include <iostream>
-#include <queue>
-#include <sstream>
-#include <fstream>
-#include <cstring>
-#include <cstdlib>
-#include <unistd.h>
-#include <csignal>
-#include <Source_Code/4-Utils/Includes/Utils.hpp>
-#include <Source_code/5-Log/Includes/Log.class.hpp>
-//#include <Source_code/1-Config/Includes/Config.hpp>
+#include "../../4-Utils/Includes/Utils.hpp"
+#include "../../1-Config/Includes/ConfigFile.class.hpp"
 
 #define LAUNCH SIGUSR1
-#define STOP SIGUSR1
-#ifndef TESTMODE
-    #define TESTMODE false
-#endif
+#define STOP SIGUSR2
+
 
 class Cli {
 
-
-/*>*******************************private section**********************************/
+  /*>***************************private section******************************/
 
 private:
+  /*
+   *============================================================================
+   *|                                  Member
+   *============================================================================
+   */
+  static Cli *_this;
+  pid_t _pid;
+  int _status;
+  volatile sig_atomic_t _exit;
+  volatile sig_atomic_t _run;
+  queue<std::string> _argv;
+  string _pathToConfigFile;
+  Config _config;
+  /*
+   *============================================================================
+   *|                                  Methode |
+   *============================================================================
+   */
+  void setArg(int argc, char **argv);
+  void checkArg();
+  static void printCliHelp();
+  bool isMainProgram();
+  void checkOption(const std::string &option);
+  void sendSignal(const std::string &command) const;
+  void checkFile(const std::string &pathFile);
+  void checkConfig();
+  static void initSignal();
+  static void handleReload(int sig);
+  static void handleExit(int sig);
+  static void handleStop(int sig);
+  static void handleLaunch(int sig);
+  static void clearPidFile();
 
-/*
-*====================================================================================
-*|                                       Member                                     |
-*====================================================================================
-*/
-    static Cli*                 _this;
-    pid_t                       _pid;
-    int                         _status;
-    volatile sig_atomic_t       _exit;
-    volatile sig_atomic_t       _run;
-    std::queue<std::string>     _argv;
-    std::string                 _pathToConfigFile;
-//    Config                      _config;
-/*
-*====================================================================================
-*|                                       Methode                                    |
-*====================================================================================
-*/
-    void            setArg(int argc, char **argv);
-    void            checkArg();
-    static void     printCliHelp();
-    bool            isMainProgram();
-    void            checkOption(const std::string &option);
-    void            sendSignal(const std::string &command) const;
-    void            checkFile(const std::string &pathFile);
-    static void     initSignal();
-    static void     handleReload(int sig);
-    static void     handleExit(int sig);
-    static void     handleStop(int sig);
-    static void     handleLaunch(int sig);
-
-/*>********************************public section**********************************/
+  /*>********************************public
+   * section**********************************/
 
 public:
+  /*
+   *====================================================================================
+   *|                                      Fonction |
+   *====================================================================================
+   */
 
-/*
-*====================================================================================
-*|                                      Fonction                                    |
-*====================================================================================
-*/
+  /**
+   * Constructor of Cli class
+   *
+   * Cli();
+   *
+   * @param   pathToCliFile
+   * @throw   none
+   **/
+  Cli(int argc, char **argv);
 
+  /**
+   * Destructor of Cli class
+   *
+   * ~Cli();
+   *
+   * @throw   none
+   **/
+  virtual ~Cli();
 
-/**
- * Constructor of Cli class
- *
- * Cli();
- *
- * @param   pathToCliFile
- * @throw   none
- **/
-    Cli(int argc, char ** argv);
+  /**
+   * Copy constructor of Cli class
+   *
+   *     Cli(const Cli &);
+   *
+   * @param   Cli instance
+   * @throw   none
+   **/
+  Cli(const Cli &);
 
-/**
- * Destructor of Cli class
- *
- * ~Cli();
- *
- * @throw   none
- **/
-    virtual ~Cli();
+  /**
+   * Operator overload= of Cli class
+   *
+   * Cli& operator=(const Cli &);
+   *
+   * @param   Cli
+   * @throw   none
+   **/
+  Cli &operator=(const Cli &);
 
-/**
- * Copy constructor of Cli class
- *
- *     Cli(const Cli &);
- *
- * @param   Cli instance
- * @throw   none
- **/
-    Cli(const Cli &);
+  /*
+   *====================================================================================
+   *|                                      Methode |
+   *====================================================================================
+   */
 
-/**
- * Operator overload= of Cli class
- *
- * Cli& operator=(const Cli &);
- *
- * @param   Cli
- * @throw   none
- **/
-    Cli &operator=(const Cli &);
+  int getStatus() const;
 
-/*
-*====================================================================================
-*|                                      Methode                                     |
-*====================================================================================
-*/
+  bool isStop() const;
 
-    int getStatus() const;
+  bool isLaunch() const;
 
-    bool isStop() const;
+  pid_t getPid() const;
 
-    bool isLaunch() const;
-
-    pid_t getPid() const;
-
-    void setRun();
+  void setRun();
 };
 
-# endif
+#endif

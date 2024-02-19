@@ -15,10 +15,9 @@
 #ifndef WEBSERV_CONFIG_HPP
 #define WEBSERV_CONFIG_HPP
 
-#include <3-Message/Headers_external_library.hpp>
-#include <Source_Code/1-Config/Includes/Config.hpp>
-#include <Source_Code/4-Utils/Template/PegParser.class.tpp>
-#include <Source_Code/1-Config/Includes/Listen.class.hpp>
+#include "../Includes/Config.hpp"
+#include "../../7-PegParser/Template/PegParser.class.tpp"
+#include "../Includes/Listen.class.hpp"
 
 class ConfigFile {
 
