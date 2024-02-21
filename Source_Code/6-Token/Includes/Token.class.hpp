@@ -5,9 +5,7 @@
 #ifndef WEBSERVER_TOKEN_CLASS_HPP
 #define WEBSERVER_TOKEN_CLASS_HPP
 
-#include <iostream>
-#include <vector>
-#include <cstdlib>
+#include "../../12-Utils/Includes/Utils.hpp"
 
 class Token {
 private:

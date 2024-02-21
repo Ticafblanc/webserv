@@ -5,7 +5,7 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-#include "../../40-Utils/Includes/Utils.hpp"
+#include "../../12-Utils/Includes/Utils.hpp"
 #include "../../10-Exception/Includes/Exception.hpp"
 
 class Socket {

@@ -29,9 +29,11 @@
 #include <netinet/in.h>
 #include <ostream>
 #include <poll.h>
+#include <pthread.h>
 #include <queue>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -60,6 +62,15 @@ typedef map<int, int> mapIntInt;
 typedef map<int, pairStrStr> mapIntPairStrStr;
 typedef map<int, string> mapIntStr;
 typedef queue<string> queStr;
+
+class Socket;
+typedef std::map<int, Socket *> mapFdSockPtr;
+typedef mapFdSockPtr::iterator mapFdSockPtrIt;
+
+struct Config;
+typedef pair<string, Config> pairStrConf;
+typedef vector<pairStrConf> vecPairStrConf;
+typedef map<string, vecPairStrConf> mapStrVecPairStrConf;
 
 template <class T> class PegParser;
 typedef PegParser<string> ppStr;

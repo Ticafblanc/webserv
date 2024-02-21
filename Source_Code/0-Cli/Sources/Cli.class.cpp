@@ -141,8 +141,8 @@ void Cli::checkFile(const string &pathFile) {
 
 void Cli::checkConfig() {
   try {
-    PegParser<ConfigFile> peg(_pathToConfigFile, "#");
-    ConfigFile extractConfigFile(_config, peg);
+//    PegParser<ConfigFile> peg(_pathToConfigFile, "#");
+//    ConfigFile extractConfigFile(_config, peg);
   } catch (const std::exception &e) {
     std::cout << "8-ConfigFile error on => " << e.what() << std::endl;
     throw runtime_error("error in config file");

@@ -12,13 +12,13 @@ Listen::~Listen() {}
 
 Listen::Listen(const Listen &other)
     : _config(other._config), _configBase(other._configBase),
-      _input(other._input), _ipAddress(other._ipAddress), _port(other._port) {}
+      _input(), _ipAddress(other._ipAddress), _port(other._port) {}
 
 Listen &Listen::operator=(const Listen &rhs) {
   if (this != &rhs) {
     this->_config = rhs._config;
     this->_configBase = rhs._configBase;
-    this->_input = rhs._input;
+//    this->_input = rhs._input;
     this->_ipAddress = rhs._ipAddress;
     this->_port = rhs._port;
   }
@@ -182,7 +182,7 @@ static bool check_ip_format(string ip, string &error) {
   return true;
 }
 
-void Listen::check_port(string port, sstring &error) {
+void Listen::check_port(string port, string &error) {
   int port_int;
   if (port.empty()) {
     error = "The address does not have a port.";

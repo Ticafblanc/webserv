@@ -82,6 +82,16 @@ INC_FLAGS += -I $(LIB_LISTEN_PATH)$(LIB_INC_PATH)
 
 LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_LISTEN_NAME)
 
+	#  4-Config #
+
+LIB_CONFIG_NAME = config
+
+LIB_CONFIG_PATH = $(PATH_SOURCE_CODE)4-Config/
+
+INC_FLAGS += -I $(LIB_CONFIG_PATH)$(LIB_INC_PATH)
+
+LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_CONFIG_NAME)
+
 	#  5-Socket #
 
 LIB_SOCKET_NAME = socket
@@ -92,15 +102,45 @@ INC_FLAGS += -I $(LIB_SOCKET_PATH)$(LIB_INC_PATH)
 
 LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_SOCKET_NAME)
 
-	#  40-utils  #
+	#  6-Token #
+
+LIB_TOKEN_NAME = token
+
+LIB_TOKEN_PATH = $(PATH_SOURCE_CODE)6-Token/
+
+INC_FLAGS += -I $(LIB_TOKEN_PATH)$(LIB_INC_PATH)
+
+LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_TOKEN_NAME)
+
+	#  10-Exception #
+
+LIB_EXCEPTION_NAME = exception
+
+LIB_EXCEPTION_PATH = $(PATH_SOURCE_CODE)10-Exception/
+
+INC_FLAGS += -I $(LIB_EXCEPTION_PATH)$(LIB_INC_PATH)
+
+LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_EXCEPTION_NAME)
+
+	#  12-utils  #
 
 LIB_UTILS_NAME = utils
 
-LIB_UTILS_PATH = $(PATH_SOURCE_CODE)4-Utils/
+LIB_UTILS_PATH = $(PATH_SOURCE_CODE)12-Utils/
 
 INC_FLAGS += -I $(LIB_UTILS_PATH)$(LIB_INC_PATH)
 
 LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_UTILS_NAME)
+
+	#  13-log  #
+
+LIB_LOG_NAME = log
+
+LIB_LOG_PATH = $(PATH_SOURCE_CODE)13-Log/
+
+INC_FLAGS += -I $(LIB_LOG_PATH)$(LIB_INC_PATH)
+
+LIB_FLAGS += -L $(LIB_BIN_PATH) -l $(LIB_LOG_NAME)
 
 	#  OBJECTS  #
 
@@ -169,7 +209,7 @@ test_filer: all
 #HTTP = http://127.0.0.1:8081/
 #curl: curl --http1.1 -v $(HTTP)
 
-lib: cli code type listen socket utils
+lib: utils log code type listen socket token exception config cli
 
 cli:
 		@$(MAKE) -C $(LIB_CLI_PATH)
@@ -183,11 +223,23 @@ type:
 listen:
 		@$(MAKE) -C $(LIB_LISTEN_PATH)
 
+config:
+		@$(MAKE) -C $(LIB_CONFIG_PATH)
+
 socket:
 		@$(MAKE) -C $(LIB_SOCKET_PATH)
 
+exception:
+		@$(MAKE) -C $(LIB_EXCEPTION_PATH)
+
+token:
+		@$(MAKE) -C $(LIB_TOKEN_PATH)
+
 utils:
 		@$(MAKE) -C $(LIB_UTILS_PATH)
+
+log:
+		@$(MAKE) -C $(LIB_LOG_PATH)
 
 title:
 		@echo $(GREEN)******************$(PROJECT)******************
@@ -200,11 +252,25 @@ directory:
 clean: 
 		@$(CL) $(OBJ)
 		@$(MAKE) clean -C $(LIB_CLI_PATH)
+		@$(MAKE) clean -C $(LIB_CODE_PATH)
+		@$(MAKE) clean -C $(LIB_TYPE_PATH)
+		@$(MAKE) clean -C $(LIB_LISTEN_PATH)
+		@$(MAKE) clean -C $(LIB_CONFIG_PATH)
+		@$(MAKE) clean -C $(LIB_SOCKET_PATH)
+		@$(MAKE) clean -C $(LIB_UTILS_PATH)
+		@$(MAKE) clean -C $(LIB_LOG_PATH)
 		@echo $(RED) Object $(notdir $(OBJ)) is delete !
 
 fclean: clean 
 		@$(CL) $(BIN)
 		@$(MAKE) fclean -C $(LIB_CLI_PATH)
+		@$(MAKE) fclean -C $(LIB_CODE_PATH)
+		@$(MAKE) fclean -C $(LIB_TYPE_PATH)
+		@$(MAKE) fclean -C $(LIB_LISTEN_PATH)
+		@$(MAKE) fclean -C $(LIB_CONFIG_PATH)
+		@$(MAKE) fclean -C $(LIB_SOCKET_PATH)
+		@$(MAKE) fclean -C $(LIB_UTILS_PATH)
+		@$(MAKE) fclean -C $(LIB_LOG_PATH)
 		@echo $(RED) Binary $(notdir $(BIN)) is delete !
 
 finish:

@@ -2,232 +2,181 @@
 // Created by Matthis DoQuocBao on 2023-06-05.
 //
 
-
-#include <Includes/Log.class.hpp>
-
+#include "../Includes/Log.class.hpp"
 
 Log::Log()
-:_pathToPidLogFile(_PATHTOPIDLOGFILE_), _pathToConfigLogFile(_PATHTOCONFIGLOGFILE_),
-_pathToAccessLogFile(_PATHTOACCESSLOGFILE_), _pathToErrorLogFile(_PATHTOERRORLOGFILE_),
-_accessLogBuffer(), _errorLogBuffer(), _indent(), _timestamp(), _endLog(false){
-    setLog(_pathToPidLogFile);
-    setLog(_pathToConfigLogFile);
-    setLog(_pathToAccessLogFile);
-    setLog(_pathToErrorLogFile);
-    if (pthread_mutex_init(&_threadMutexAccess, NULL) ||
-    pthread_mutex_init(&_threadMutexError, NULL) ||
-    pthread_mutex_init(&_threadMutexEndLog, NULL))
-        throw std::runtime_error("fail to init mutex");
-    pthread_create(&_threadIdCheck, NULL, &Log::checkBuffers, this);
+    : _pathToLogFile(), _logBuffer(), _countErrorFlushBuffer(), _indent("\t"),
+      _timestamp(), _threadIdCheck(), _threadMutexEndLog(), _threadMutexLog(),
+      _endLog(false), _errorId(), _timeToFlushBuffer(1),
+      _timeToFlushBufferSave(_timeToFlushBuffer) {
+  std::ostringstream oss;
+  oss << "logfile_" << getppid() << ".log";
+  _pathToLogFile = oss.str();
+  _setLogFile(_pathToLogFile);
+  _setMutex();
+  _setThread();
+}
+
+Log::Log(const string &pathToLogFile, int timeToFlush_buffer)
+    : _pathToLogFile(pathToLogFile), _logBuffer(), _countErrorFlushBuffer(),
+      _indent("\t"), _timestamp(), _threadIdCheck(), _threadMutexEndLog(),
+      _threadMutexLog(), _endLog(false), _errorId(),
+      _timeToFlushBuffer(timeToFlush_buffer),
+      _timeToFlushBufferSave(_timeToFlushBuffer) {
+  _setLogFile(_pathToLogFile);
+  _setMutex();
+  _setThread();
 }
 
 Log::~Log() {
-    setEndLog();
-    pthread_mutex_lock(&(_threadMutexAccess));
-    if (!_accessLogBuffer.empty())
-        flushAccessBuffers();
-    pthread_mutex_unlock(&(_threadMutexAccess));
-    pthread_mutex_lock(&(_threadMutexError));
-    if (!_errorLogBuffer.empty())
-        flushErrorBuffers();
+  try {
+    _setEndLog();
+  } catch (const std::exception &e) {
+    cerr << e.what() << endl;
+  }
+  if (_threadIdCheck) {
     pthread_join(_threadIdCheck, NULL);
-    pthread_mutex_unlock(&(_threadMutexError));
-    pthread_mutex_destroy(&_threadMutexError);
-    pthread_mutex_destroy(&_threadMutexAccess);
+  }
+}
+
+Log::Log(const Log &other)
+    : _pathToLogFile(other._pathToLogFile), _logBuffer(other._logBuffer),
+      _countErrorFlushBuffer(other._countErrorFlushBuffer),
+      _indent(other._indent), _timestamp(other._timestamp),
+      _endLog(other._endLog), _errorId(other._errorId),
+      _timeToFlushBuffer(other._timeToFlushBuffer),
+      _timeToFlushBufferSave(_timeToFlushBuffer) {
+  _setMutex();
+  _setThread();
+}
+
+Log &Log::operator=(Log rhs) {
+  if (this != &rhs) {
+    _setEndLog();
+    swap(_pathToLogFile, rhs._pathToLogFile);
+    swap(_logBuffer, rhs._logBuffer);
+    swap(_countErrorFlushBuffer, rhs._countErrorFlushBuffer);
+    swap(_indent, rhs._indent);
+    swap(_timestamp, rhs._timestamp);
+    swap(_endLog, rhs._endLog);
+    swap(_errorId, rhs._errorId);
+    swap(_timeToFlushBuffer, rhs._timeToFlushBuffer);
+    swap(_timeToFlushBufferSave, rhs._timeToFlushBufferSave);
+    _setMutex();
+    _setThread();
+  }
+  return *this;
+}
+
+void Log::setPathToLogFile(const string &pathToLogFile) {
+  _pathToLogFile = pathToLogFile;
+  _setLogFile(_pathToLogFile);
+}
+
+std::string Log::getPathToLogFile() const { return _pathToLogFile; }
+
+void Log::_setThread() {
+  try {
+    if (pthread_create(&_threadIdCheck, NULL, &Log::_checkBuffers, this)) {
+      throw std::runtime_error(
+          "Failed to create thread in setMutexAndThread()");
+    }
+  } catch (const std::exception &e) {
+    pthread_mutex_destroy(&_threadMutexLog);
     pthread_mutex_destroy(&_threadMutexEndLog);
-    setLog(_pathToPidLogFile);
+    cerr << e.what() << endl;
+  }
 }
 
-Log::Log(const Log & other)
-:_pathToPidLogFile(other._pathToPidLogFile), _pathToConfigLogFile(other._pathToConfigLogFile),
-_pathToAccessLogFile(other._pathToAccessLogFile), _pathToErrorLogFile(other._pathToErrorLogFile),
-_accessLogBuffer(other._accessLogBuffer), _errorLogBuffer(other._errorLogBuffer), _indent(other._indent),
-_timestamp(other._timestamp),_endLog(other._endLog){}
-
-Log &Log::operator=(const Log & rhs) {
-    if (this != &rhs){
-        this->_pathToPidLogFile = rhs._pathToPidLogFile;
-        this->_pathToConfigLogFile = rhs._pathToConfigLogFile;
-        this->_pathToAccessLogFile = rhs._pathToAccessLogFile;
-        this->_pathToErrorLogFile = rhs._pathToErrorLogFile;
-        this->_accessLogBuffer = rhs._accessLogBuffer;
-        this->_errorLogBuffer = rhs._accessLogBuffer;
-        this->_indent = rhs._indent;
-        this->_timestamp = rhs._timestamp;
-        this->_endLog = rhs._endLog;
-    }
-    return *this;
+void Log::_setMutex() {
+  if (pthread_mutex_init(&_threadMutexLog, NULL) ||
+      pthread_mutex_init(&_threadMutexEndLog, NULL))
+    throw runtime_error("fail to init mutex");
 }
 
-void Log::setPathToPidLogFile(const std::string &pathToLogFile) {
-    if (setLog(pathToLogFile))
-        _pathToPidLogFile = pathToLogFile;
+void Log::_setLogFile(const std::string &pathToLogFile) {
+  ofstream file(pathToLogFile.c_str(), std::ios::trunc);
+  if (!file.is_open())
+    throw runtime_error("Failed to open file " + _pathToLogFile);
+  file.close();
 }
 
-void Log::setPathToConfigLogFile(const std::string &pathToLogFile) {
-    if (setLog(pathToLogFile))
-        _pathToConfigLogFile = pathToLogFile;
-
+void Log::setTime() {
+  _timestamp = time(NULL);
+  ostringstream oss;
+  oss << asctime(localtime(&_timestamp));
+  pthread_mutex_lock(&(_threadMutexLog));
+  _logBuffer.push(oss.str());
+  pthread_mutex_unlock(&(_threadMutexLog));
 }
 
-void Log::setPathToAccessLogFile(const std::string &pathToLogFile) {
-    if (setLog(pathToLogFile))
-        _pathToAccessLogFile = pathToLogFile;
-
-}
-
-void Log::setPathToErrorLogFile(const std::string &pathToLogFile) {
-    if (setLog(pathToLogFile))
-        _pathToErrorLogFile = pathToLogFile;
-}
-
-bool Log::setLog(const std::string &pathToLogFile) {
-    std::ofstream file(pathToLogFile.c_str(), std::ios::trunc);
-    if (!file.is_open())
-        std::cerr << "fail to open file " <<  pathToLogFile << std::endl;
-    file.close();
-    return true;
-}
-
-std::string Log::setTime() {
-    _timestamp = std::time(NULL);
-    std::ostringstream oss;
-    oss << "\n" << std::asctime(std::localtime(&_timestamp)) ;
-    return oss.str();
-}
-
-void Log::addIndent() {
-    _indent += "\t";
-}
-
-void Log::removeIndent() {
-    if (!_indent.empty())
-        _indent.erase(0, 1);
-}
-
-void Log::addEventToAccess(const int id, const int fd, const int events) {
-    std::ostringstream oss;
-    oss << _indent << "Event number [" << id
-    << "] with an event fd [" << fd
-#ifdef LINUX
-    << "] and events flag => [" << std::string((events & EPOLLOUT && events & EPOLLET) ? "EPOLLOUT | EPOLLET" :
-                                               (events & EPOLLIN && events &EPOLLET) ? "EPOLLIN | EPOLLET" :
-                                               ((events & EPOLLOUT) ? "EPOLLOUT" :
-                                                (events & EPOLLIN) ? "EPOLLIN" : "ERROR" ))
-#endif
-
-#ifdef MAC
-    << "] and events flag => [" << std::string((events & EVFILT_READ ) ? "EVFILT_READ" :
-                                               (events & EVFILT_WRITE) ? "EVFILT_WRITE" : "ERROR" )
-#endif
-
-    << "]" << std::endl;
-    pthread_mutex_lock(&(_threadMutexAccess));
-    _accessLogBuffer.push(oss.str());
-    pthread_mutex_unlock(&(_threadMutexAccess));
-    return ;
-}
-
-void Log::addClientToAccess(const std::string& ipAddress, const int port, const int clientSocket, const int serverSocket) {
-    std::ostringstream oss;
-    oss << _indent << "Address [" << ipAddress << ":"
-    << port << "] with socket [" << clientSocket << "] on socket server ["
-    << serverSocket <<  "]" << std::endl;
-    pthread_mutex_lock(&(_threadMutexAccess));
-    _accessLogBuffer.push(oss.str());
-    pthread_mutex_unlock(&(_threadMutexAccess));
-    return ;
-}
-
-
-void Log::failure() {
-    std::ostringstream oss;
-    oss << _indent << ">>>> Failure[" << _errorId << "] <<<<"  << std::endl;
-    addToAccesLogBuffer(oss.str());
-    closeToAccesLogBuffer();
-}
-
-void Log::openToAccesLogBuffer(const std::string &message) {
-    addToAccesLogBuffer(setTime() + "\n" + _indent + message + " {");
-    addIndent();
-}
-
-void Log::addToAccesLogBuffer(const std::string &message) {
-    std::ostringstream oss;
+void Log::log(const string &message) {
+  if (_countErrorFlushBuffer <= 5) {
+    ostringstream oss;
     oss << _indent << message << std::endl;
-    pthread_mutex_lock(&(_threadMutexAccess));
-    _accessLogBuffer.push(oss.str());
-    pthread_mutex_unlock(&(_threadMutexAccess));
+    pthread_mutex_lock(&(_threadMutexLog));
+    _logBuffer.push(oss.str());
+    pthread_mutex_unlock(&(_threadMutexLog));
+  }
 }
 
-void Log::closeToAccesLogBuffer() {
-    removeIndent();
-    addToAccesLogBuffer( " }" + setTime());
-}
-
-void Log::addToErrorLogBuffer(const std::string &message) {
-    _errorId++;
-    failure();
-    std::ostringstream oss;
-    oss << setTime() <<" [" << _errorId << "] " << message << std::endl;
-    pthread_mutex_lock(&(_threadMutexError));
-    _errorLogBuffer.push(oss.str());
-    pthread_mutex_unlock(&(_threadMutexError));
-}
-
-void* Log::checkBuffers(void * l) {
-    Log* log = static_cast<Log*>(l);
-    pthread_mutex_lock(&(log->_threadMutexEndLog));
-    while (!log->_endLog) {
-        pthread_mutex_unlock(&(log->_threadMutexEndLog));
-        pthread_mutex_lock(&(log->_threadMutexAccess));
-        if (!log->_accessLogBuffer.empty())
-            log->flushAccessBuffers();
-        pthread_mutex_unlock(&(log->_threadMutexAccess));
-        pthread_mutex_lock(&(log->_threadMutexError));
-        if (!log->_errorLogBuffer.empty())
-            log->flushErrorBuffers();
-        pthread_mutex_unlock(&(log->_threadMutexError));
-        sleep(1);//add flag debug
-        pthread_mutex_lock(&(log->_threadMutexEndLog));
-    }
+void *Log::_checkBuffers(void *l) {
+  Log *log = static_cast<Log *>(l);
+  pthread_mutex_lock(&(log->_threadMutexEndLog));
+  while (!log->_endLog) {
     pthread_mutex_unlock(&(log->_threadMutexEndLog));
-    std::cout << "end" <<std::endl;
-    return l;
+    pthread_mutex_lock(&(log->_threadMutexLog));
+    if (!log->_logBuffer.empty())
+      log->_flushBuffers();
+    pthread_mutex_unlock(&(log->_threadMutexLog));
+    sleep(log->_timeToFlushBuffer);
+    pthread_mutex_lock(&(log->_threadMutexEndLog));
+  }
+  pthread_mutex_unlock(&(log->_threadMutexEndLog));
+  return l;
 }
 
-void Log::flushErrorBuffers() {
-    std::ofstream file(_pathToErrorLogFile.c_str(), std::ios::app);
+void Log::_flushBuffers() {
+  _countErrorFlushBuffer++;
+  ofstream file(_pathToLogFile.c_str(), ios::app);
+  try {
     if (!file.is_open())
-        std::cerr <<"fail to open file " << _pathToErrorLogFile << std::endl;
-    while(!_errorLogBuffer.empty()){
-        file << _errorLogBuffer.front();
-        _errorLogBuffer.pop();
+      throw runtime_error("Failed to open file " + _pathToLogFile);
+    while (!_logBuffer.empty()) {
+      file << _logBuffer.front();
+      _logBuffer.pop();
     }
     file.close();
+  } catch (const exception &e) {
+    cerr << e.what() << endl;
+  }
+  if (_countErrorFlushBuffer > 5) {
+    queStr empty;
+    swap(_logBuffer, empty);
+    _timeToFlushBuffer *= _countErrorFlushBuffer;
+  } else {
+    _timeToFlushBuffer = _timeToFlushBufferSave;
+    _countErrorFlushBuffer = 0;
+  }
 }
 
-void Log::flushAccessBuffers() {
-    std::ofstream file(_pathToAccessLogFile.c_str(), std::ios::app);
-    if (!file.is_open())
-        throw std::runtime_error("fail to open file " + _pathToAccessLogFile);
-    while(!_accessLogBuffer.empty()){
-        file << _accessLogBuffer.front();
-        _accessLogBuffer.pop();
-    }
-    file.close();
+void Log::_setEndLog() {
+  pthread_mutex_lock(&(_threadMutexEndLog));
+  _endLog = true;
+  pthread_mutex_unlock(&(_threadMutexEndLog));
+  pthread_mutex_lock(&(_threadMutexLog));
+  if (!_logBuffer.empty())
+    _flushBuffers();
+  pthread_mutex_unlock(&(_threadMutexLog));
+  pthread_join(_threadIdCheck, NULL);
+  pthread_mutex_destroy(&_threadMutexLog);
+  pthread_mutex_destroy(&_threadMutexEndLog);
 }
 
-void    Log::addToPidLogBuffer(const std::string &message){
-    std::ofstream file(_pathToPidLogFile.c_str(), std::ios::app);
-    if (!file.is_open())
-        std::cerr << "fail to open file " <<  _pathToPidLogFile << std::endl;
-    file << message << std::endl;
-    file.close();
-}
-void Log::setEndLog() {
-    pthread_mutex_lock(&(_threadMutexEndLog));
-    _endLog = true;
-    pthread_mutex_unlock(&(_threadMutexEndLog));
+int Log::getTimeToFlushBuffer() const { return _timeToFlushBuffer; }
+
+void Log::setTimeToFlushBuffer(int timeToFlushBuffer) {
+  _timeToFlushBuffer = timeToFlushBuffer;
 }
 
+const queStr &Log::getLogBuffer() const { return _logBuffer; }

@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_EXCEPTION_HPP
 #define WEBSERVER_EXCEPTION_HPP
 
-#include "../../40-Utils/Includes/Utils.hpp"
+#include "../../12-Utils/Includes/Utils.hpp"
 
 class Exception : public std::exception {
 

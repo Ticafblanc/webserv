@@ -5,7 +5,7 @@
 #ifndef WEBSERVER_TYPES_HPP
 #define WEBSERVER_TYPES_HPP
 
-#include "../../4-Utils/Includes/Utils.hpp"
+#include "../../12-Utils/Includes/Utils.hpp"
 #include "../../7-PegParser/Template/PegParser.class.tpp"
 
 
@@ -19,6 +19,16 @@ public:
    *|                           Member Fonction
    *============================================================================
    */
+
+  /**
+   * Constructor of Types.class class
+   *
+   * Types();
+   *
+   * @param   void
+   * @throw   none
+   **/
+  Types();
 
   /**
    * Constructor of Types.class class

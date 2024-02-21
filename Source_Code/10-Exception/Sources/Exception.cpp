@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2023-06-05.
 //
 
-#include <Source_Code/0-Main/Includes/Exception.hpp>
+#include "../Includes/Exception.hpp"
 
 Exception::Exception(const char * message, int code)
         : _message(message), _code(code){}
