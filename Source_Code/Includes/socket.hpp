@@ -5,6 +5,86 @@
 #ifndef WEBSERV_SOCKET_HPP
 #define WEBSERV_SOCKET_HPP
 
-class Socket {};
+#include "configuration.hpp"
+#include "utils.hpp"
+
+#define MAX_CONNECTION 9999
+
+#define MSG_NOSIGNAL_ 0
+
+class Socket {
+protected:
+  int _sd;
+
+private:
+  int _option_buffer;
+  struct sockaddr_in _address;
+  struct Configuration::server _server_config;
+
+    /**
+   *  @brief Create the socket and give is socket descriptor.
+   *  The socket is under IPV4 protocol (PF_INET / AF_INET)
+   *  and is a support of dialog guaranteeing the data
+   *  integrity.
+   *
+   * 	@throw if the socket can't be create.
+     */
+  void createSocketDescriptor(void);
+
+  /**
+ *  @brief Set the options socket.
+ *  Set the socket to be at the Socket level and
+ *  set that the address is an reusable local address,
+ *  same for port.
+ *
+ * 	@throw if the options can't be set to the socket.
+   */
+  void setSocketOptions(void);
+
+  /**
+ * 	@brief Set the socket to be nonblocking socket.
+ *
+ * 	@throw if the attributes can't be set to the socket.
+   */
+  void setSocketNonBlocking(void);
+
+  /**
+ * 	@brief Initialisation of the address informations.
+ * 	It's based on the same protocol than the socket,
+ * 	the address is attached to any of the possibilities and
+ * 	the port defined is the configuration file.
+ *
+ * 	@param port the port to bin the addres.
+   */
+  void initAddress(int port);
+
+  /**
+ * 	@brief Bind the socket to the address.
+ *
+ * 	@throw if the socket can't be bind.
+   */
+  void bindSocket(void);
+
+  /**
+ * 	@brief Set the socket to be a listener.
+ * 	That permetted that it can use accept() the
+ * 	incoming connections.
+ *
+ * @throw if the socket can't be set to listener.
+   */
+  void socketListener(void);
+
+public:
+  Socket(const struct Configuration::server &server);
+  Socket(int sd, const struct Configuration::server &server);
+  Socket(int sd);
+  Socket(const Socket &copy);
+  virtual ~Socket();
+  Socket &operator=(const Socket &op);
+
+  int getSocketDescriptor(void);
+  struct Configuration::server getServerConfiguration(void);
+  void setToDefault(void);
+};
 
 #endif // WEBSERV_SOCKET_HPP

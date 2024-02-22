@@ -44,12 +44,12 @@ void Configuration::_parseConfig(string file) {
 void Configuration::_parseServer(string source, size_t line_start,
                                  size_t line_end) {
   server s;
-  std::vector<std::string> line;
+  vecStr line;
 
   s = _defaultServer();
   for (size_t n = line_start + 1; n < line_end; ++n) {
     if (!isSkippable(source, n)) {
-      std::vector<std::string> words = splitWhitespace(getLine(source, n));
+      vecStr words = splitWhitespace(getLine(source, n));
       if (words.size() > 0 && words[0] == "location") {
         s.locations.push_back(
             _parseLocation(source, n, getClosingBracket(source, n)));

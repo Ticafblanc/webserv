@@ -4,14 +4,14 @@
 
 #include "../Includes/utils.hpp"
 
-void throwError(const std::exception& ex)
+void throwError(const exception& ex)
 {
-  std::cerr << "\033[1m\033[31mERROR \033[0m: " << ex.what() << '\n';
+  cerr << "\033[1m\033[31mERROR \033[0m: " << ex.what() << '\n';
 }
 
-void outError(const std::string& msg)
+void printError(const string& msg)
 {
-  std::cerr << "\033[1m\033[31mERROR \033[0m: " << msg << '\n';
+  cerr << "\033[1m\033[31mERROR \033[0m: " << msg << '\n';
 }
 
 int treat(int sd, Headers &header_block, Configuration::server server_conf)

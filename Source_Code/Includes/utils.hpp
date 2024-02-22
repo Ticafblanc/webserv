@@ -60,7 +60,7 @@ public:
 };
 
 void throwError(const std::exception& ex);
-void outError(const std::string& msg);
+void printError(const std::string& msg);
 int treat(int sd, Headers &header_block, Configuration::server server_conf);
 void endServer(int signal);
 

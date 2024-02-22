@@ -14,7 +14,7 @@ PROJECT = webserv
 
 	#  BINARY  #
 
-BIN_PATH = ../Bin/
+BIN_PATH = Bin/
 
 BIN_NAME = $(PROJECT)
 
