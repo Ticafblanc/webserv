@@ -9,7 +9,6 @@ char **envp;
 Server server;
 SocketManager<Socket *> sm;
 Configuration test;
-extern e
 
 int main(int argc, char **argv, char **env) {
   if (argc > 2) {
