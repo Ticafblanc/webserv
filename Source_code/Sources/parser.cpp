@@ -207,8 +207,8 @@ bool isSkippable(std::string source, size_t line)
 
 size_t uIntegerParam(std::string param, size_t line)
 {
-  size_t value;
-  std::istringstream convert(param);
+  ssize_t value;
+  istringstream convert(param);
 
   if (!(convert >> value))
     throw ParsingException(line, "'" + param + "' is not a positive integer.");

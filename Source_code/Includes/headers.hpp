@@ -6,6 +6,8 @@
 #define WEBSERV_HEADERS_HPP
 
 #include "parser.hpp"
+#include "utils.hpp"
+
 
 class Headers {
 public:

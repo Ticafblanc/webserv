@@ -24,7 +24,7 @@ public:
     char time_buffer[100];
     bzero(time_buffer, 100);
     gettimeofday(&current_time, NULL);
-    strftime(time_buffer,100,"%F %R:%S", localtime(&current_time.tv_sec));
+//    strftime(time_buffere_buffer,100, localtime(&current_time.tv_sec));
     cout << "[" << time_buffer << "] : " << msg << endl;
   }
 };

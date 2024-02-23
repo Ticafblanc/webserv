@@ -4,6 +4,7 @@
 
 #include "../Includes/cgi.hpp"
 
+
 extern char **g_envp;
 
 /**
@@ -14,7 +15,7 @@ extern char **g_envp;
  * @param conf the server configuration
  * @param location the current location conf
  */
-CGI::CGI(std::string cgi_path, std::string ressource_path, HeadersBlock request, Configuration::server conf, Configuration::location location)
+CGI::CGI(std::string cgi_path, std::string ressource_path, Headers request, Configuration::server conf, Configuration::location location)
     : _cgi_path(cgi_path), _ressource_path(ressource_path), _request(request), _conf(conf), _location(location)
 {}
 

@@ -1,5 +1,5 @@
 all:
-	@$(MAKE) -C Source_code
+	@$(MAKE) -C ./Source_code
 
 clean:
 	@$(MAKE) clean -C Source_code

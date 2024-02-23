@@ -76,10 +76,25 @@ typedef pair<string, Config> pairStrConf;
 typedef vector<pairStrConf> vecPairStrConf;
 typedef map<string, vecPairStrConf> mapStrVecPairStrConf;
 
+class Server;
+extern Server server;
+
+template<class T>class SocketManager;
+extern SocketManager<Socket *> sm;
+
+class Configuration;
+extern Configuration test;
+
+class Configuration::server;
+typedef vector<Configuration::server> vecServ;
+
 template <class T> class PegParser;
 typedef PegParser<string> ppStr;
 
+extern char **envp;
+
 const int BUFFER_SIZE = 1024;
 const int MAX_CLIENTS = 10;
+
 
 #endif // WEBSERV_MAIN_HPP

@@ -7,6 +7,7 @@
 #include "configuration.hpp"
 #include "headers.hpp"
 #include "main.hpp"
+#include "utils.hpp"
 
 class CGI {
 private:
@@ -15,22 +16,22 @@ private:
   Headers _request;
   Configuration::server _conf;
   Configuration::location _location;
-  std::map<std::string, std::string> _getParams(void);
-  std::string _getQueryString(void);
+  std::map<std::string, std::string> _getParams();
+  std::string _getQueryString();
   char **_convertParams(std::map<std::string, std::string> args);
   void _freeArgs(char **args);
   char *_newStr(std::string source);
   std::string _execCGI(char **args);
-  char **_getExecArgs(void);
-  std::string _getScriptName(void);
+  char **_getExecArgs();
+  std::string _getScriptName();
   std::string _removeQueryArgs(std::string query);
 
 public:
-  CGI(void);
-  CGI(std::string cgi_path, std::string ressource_path, HeadersBlock request,
+  CGI();
+  CGI(std::string cgi_path, std::string ressource_path, Headers request,
       Configuration::server conf, Configuration::location location);
-  ~CGI(void);
-  std::string getOutput(void);
+  ~CGI();
+  std::string getOutput();
 };
 
 class CGIException : public std::exception {
