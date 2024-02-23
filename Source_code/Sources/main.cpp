@@ -5,10 +5,10 @@
 // #include "../includes/RequestInterpretor.hpp"
 // #include "../includes/HeadersBlock.hpp"
 
-char **envp;
-Server server;
-SocketManager<Socket *> sm;
-Configuration test;
+//char **envp;
+//extern Server server;
+//extern SocketManager<Socket *> sm;
+//extern Configuration test;
 
 int main(int argc, char **argv, char **env) {
   if (argc > 2) {

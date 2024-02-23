@@ -85,9 +85,6 @@ extern SocketManager<Socket *> sm;
 class Configuration;
 extern Configuration test;
 
-class Configuration::server;
-typedef vector<Configuration::server> vecServ;
-
 template <class T> class PegParser;
 typedef PegParser<string> ppStr;
 
