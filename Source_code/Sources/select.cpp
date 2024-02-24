@@ -2,17 +2,17 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#include "../Includes/server.hpp"
+#include "../Includes/select.hpp"
 
-Server::Server() : _sm(), _sub_sm() {}
+Select::Select() : _sm(), _sub_sm() {}
 
-Server::Server(SocketManager<Socket *> sm) : _sm(sm), _sub_sm() {}
+Select::Select(SocketManager<Socket *> sm) : _sm(sm), _sub_sm() {}
 
-Server::Server(const Server &copy) : _sm(copy._sm), _sub_sm(copy._sub_sm) {}
+Select::Select(const Select &copy) : _sm(copy._sm), _sub_sm(copy._sub_sm) {}
 
-Server::~Server() {}
+Select::~Select() {}
 
-Server &Server::operator=(const Server &op) {
+Select &Select::operator=(const Select &op) {
   if (&op == this)
     return (*this);
   this->_sm = op._sm;
@@ -33,7 +33,7 @@ static std::string ft_inet_ntoa(struct in_addr in) {
   return (buffer.str());
 }
 
-int Server::acceptConnection(int sd, int max_sd, fd_set *read_set,
+int Select::acceptConnection(int sd, int max_sd, fd_set *read_set,
                              fd_set *write_set,
                              SocketManager<Client *> &sub_sm) {
   int new_sd = 0;
@@ -107,7 +107,7 @@ static size_t getContentLen(std::string request) {
   return (0);
 }
 
-int Server::receiveConnection(int sd, std::string &request) {
+int Select::receiveConnection(int sd, std::string &request) {
   char buffer_recv[BUFFER_SIZE_READ + 1];
   bzero(buffer_recv, BUFFER_SIZE_READ + 1);
   int rc = 0;
@@ -142,7 +142,7 @@ int Server::receiveConnection(int sd, std::string &request) {
   return (1);
 }
 
-int Server::closeConnection(int sd, int max_sd, fd_set *read_set,
+int Select::closeConnection(int sd, int max_sd, fd_set *read_set,
                             fd_set *write_set) {
   Log("Close client connection : " + itoa(sd));
   close(sd);
@@ -154,7 +154,7 @@ int Server::closeConnection(int sd, int max_sd, fd_set *read_set,
   return (max_sd);
 }
 
-std::string Server::getServerName(const Headers &hb) {
+std::string Select::getServerName(const Headers &hb) {
   std::string server_name;
 
   for (size_t i = 0; i < hb.getHeaderFields().size(); i++) {
@@ -166,7 +166,7 @@ std::string Server::getServerName(const Headers &hb) {
       else
         server_name = hb.getHeaderFields()[i]._field_value.substr(
             0, hb.getHeaderFields()[i]._field_value.length());
-      DEBUG("Server Name = " << server_name)
+      DEBUG("Select Name = " << server_name)
       break;
     }
   }
@@ -180,7 +180,7 @@ template <class T> static bool vector_contain(std::vector<T> tab, T obj) {
   return (false);
 }
 
-void Server::verifyDefaultServer() {
+void Select::verifyDefaultServer() {
   int actual_check = -1;
   std::vector<int> checked_ports;
   std::vector<Socket *> actual_set;
@@ -205,7 +205,7 @@ void Server::verifyDefaultServer() {
   }
 }
 
-void Server::loop() {
+void Select::loop() {
   fd_set read_set;
   fd_set write_set;
 
@@ -249,21 +249,21 @@ void Server::loop() {
                                       hasContent(client_socket.getRequest()));
             Log("End head request treatment for : " + itoa(client_sd));
             std::string server_name = this->getServerName(header);
-            Socket *last = this->_sm.getBySDandHost(
-                client_socket.getParent()->getSocketDescriptor(), server_name);
+//            Socket *last = this->_sm.getBySDandHost(
+//                client_socket.getParent()->getSocketDescriptor(), server_name);
             size_t len = header.getPlainRequest().length();
             if (header.getPlainRequest() == "\r\n" || len < 9)
               throw(throwMessage("Empty request"));
-            if (treat(client_sd, header,
-                      (*last).getServerConfiguration()) == -1) {
-              max_sd = this->closeConnection(
-                  client_sd, max_sd, &master_rest_set, &master_write_set);
-              delete this->_sub_sm.getSockets()[client];
-              this->_sub_sm.getSockets().erase(
-                  this->_sub_sm.getSockets().begin() + client);
-              client--;
-              continue;
-            }
+//            if (treat(client_sd, header,
+//                      (*last).getServerConfiguration()) == -1) {
+//              max_sd = this->closeConnection(
+//                  client_sd, max_sd, &master_rest_set, &master_write_set);
+//              delete this->_sub_sm.getSockets()[client];
+//              this->_sub_sm.getSockets().erase(
+//                  this->_sub_sm.getSockets().begin() + client);
+//              client--;
+//              continue;
+//            }
             client_socket.getRequest().clear();
             client_socket.setReceived(false);
             client_treat = true;
@@ -291,7 +291,7 @@ void Server::loop() {
   }
 }
 
-void Server::closeServer(void) {
+void Select::closeServer(void) {
   for (size_t client = 0; client < this->_sub_sm.getSockets().size();
        client++) {
     close(this->_sub_sm.getSockets()[client]->getSocketDescriptor());
@@ -302,7 +302,7 @@ void Server::closeServer(void) {
 
   for (size_t server = 0; server < this->_sm.getSockets().size(); server++) {
     close(this->_sm.getSockets()[server]->getSocketDescriptor());
-    Log("Server closed : " +
+    Log("Select closed : " +
         itoa(this->_sm.getSockets()[server]->getSocketDescriptor()));
     delete this->_sm.getSockets()[server];
   }

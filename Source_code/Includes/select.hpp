@@ -2,14 +2,25 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#ifndef WEBSERV_SERVER_HPP
-#define WEBSERV_SERVER_HPP
+#ifndef WEBSERV_SELECT_HPP
+#define WEBSERV_SELECT_HPP
 
 #include "socketManager.hpp"
 #include "headers.hpp"
 #include "utils.hpp"
 
-class Server {
+class Select {
+
+public:
+  Select();
+  Select(SocketManager<Socket *> sm);
+  Select(const Select &copy);
+  ~Select();
+  Select &operator=(const Select &op);
+
+  void loop();
+  void closeServer();
+
 private:
   SocketManager<Socket *> _sm;
   SocketManager<Client *> _sub_sm;
@@ -68,15 +79,6 @@ private:
   void verifyDefaultServer();
   int getChunk(int sd, vecStr &request);
 
-public:
-  Server();
-  Server(SocketManager<Socket *> sm);
-  Server(const Server &copy);
-  ~Server();
-  Server &operator=(const Server &op);
-
-  void loop();
-  void closeServer();
 };
 
-#endif // WEBSERV_SERVER_HPP
+#endif // WEBSERV_SELECT_HPP
