@@ -29,7 +29,9 @@ bool checkWordFormat(const string &str);
 //                                         "client_max_body_size",
 //                                         0};
 
-std::string readFile(std::string file);
+string readFile(string file);
+bool isExecutablePath(const string& path, const string& extension) ;
+
 
 /**
  * Count the number of lines in a string.

@@ -4,38 +4,48 @@
 
 #include "../Includes/select.hpp"
 
-Select::Select() : _sm(), _sub_sm() {}
+Select *Select::_this = NULL;
 
-Select::Select(SocketManager<Socket *> sm) : _sm(sm), _sub_sm() {}
+Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
+    : _run(true), _serverManager(sm), _clientManager(cm) {
+  _this = this;
+}
 
-Select::Select(const Select &copy) : _sm(copy._sm), _sub_sm(copy._sub_sm) {}
+Select::Select(const Select &copy)
+    : _run(true), _serverManager(copy._serverManager),
+      _clientManager(copy._clientManager) {
+  _this = this;
+}
 
 Select::~Select() {}
 
-Select &Select::operator=(const Select &op) {
-  if (&op == this)
-    return (*this);
-  this->_sm = op._sm;
-  this->_sub_sm = op._sub_sm;
-  return (*this);
-}
-
-static std::string ft_inet_ntoa(struct in_addr in) {
-  std::stringstream buffer;
-
-  unsigned char *bytes = (unsigned char *)&in;
-  for (int cur_bytes = 0; cur_bytes < 4; cur_bytes++) {
-    buffer << (int)bytes[cur_bytes];
-    if (cur_bytes != 3)
-      buffer << '.';
+Select &Select::operator=(const Select &rhs) {
+  if (this != &rhs) {
+    _this = this;
+    _run = rhs._run;
+    _serverManager = rhs._serverManager;
+    _clientManager = rhs._clientManager;
   }
-  DEBUG("INET NTOA = " << buffer.str())
-  return (buffer.str());
+  return *this;
 }
+
+// static std::string ft_inet_ntoa(struct in_addr in) {
+//   std::stringstream buffer;
+//
+//   unsigned char *bytes = (unsigned char *)&in;
+//   for (int cur_bytes = 0; cur_bytes < 4; cur_bytes++) {
+//     buffer << (int)bytes[cur_bytes];
+//     if (cur_bytes != 3)
+//       buffer << '.';
+//   }
+//   DEBUG("INET NTOA = " << buffer.str())
+//   return (buffer.str());
+// }
 
 int Select::acceptConnection(int sd, int max_sd, fd_set *read_set,
                              fd_set *write_set,
-                             SocketManager<Client *> &sub_sm) {
+                             SocketManager<Client> &sub_serverManager) {
+  (void)sub_serverManager;
   int new_sd = 0;
 
   DEBUG("Readable socket")
@@ -51,8 +61,8 @@ int Select::acceptConnection(int sd, int max_sd, fd_set *read_set,
   // std::cout << "new_sd"
 
   Log("New client connection : " + itoa(new_sd));
-  sub_sm.registerSocket(new Client(this->_sm.getBySD(sd),
-                                      ft_inet_ntoa(client.sin_addr), new_sd));
+  //  sub_serverManager.registerSocket(new Client(
+  //      &_serverManager.getBySD(sd), ft_inet_ntoa(client.sin_addr), new_sd));
   FD_SET(new_sd, read_set);
   FD_SET(new_sd, write_set);
   if (new_sd > max_sd)
@@ -113,6 +123,7 @@ int Select::receiveConnection(int sd, std::string &request) {
   int rc = 0;
   rc = read(sd, buffer_recv, BUFFER_SIZE_READ);
   if (rc > 0) {
+    cout << buffer_recv << endl;
     request.append(buffer_recv);
     size_t pos;
     int has_content = hasContent(request);
@@ -182,107 +193,124 @@ template <class T> static bool vector_contain(std::vector<T> tab, T obj) {
 
 void Select::verifyDefaultServer() {
   int actual_check = -1;
-  std::vector<int> checked_ports;
-  std::vector<Socket *> actual_set;
+  vector<int> checked_ports;
+  vector<Socket> actual_set;
 
-  for (size_t i = 0; i < this->_sm.getSockets().size(); i++) {
-    actual_check = this->_sm.getSockets()[i]->getServerConfiguration().port;
+  for (size_t i = 0; i < this->_serverManager.getSockets().size(); i++) {
+    actual_check =
+        this->_serverManager.getSockets()[i].getServerConfiguration().port;
     if (vector_contain<int>(checked_ports, actual_check) == false) {
       bool has_default = false;
-      for (size_t j = 0; j < this->_sm.getSockets().size(); j++)
-        if ((int)this->_sm.getSockets()[j]->getServerConfiguration().port ==
-            actual_check)
-          actual_set.push_back(this->_sm.getSockets()[j]);
+      for (size_t j = 0; j < this->_serverManager.getSockets().size(); j++)
+        if ((int)this->_serverManager.getSockets()[j]
+                .getServerConfiguration()
+                .port == actual_check)
+          actual_set.push_back(this->_serverManager.getSockets()[j]);
       for (size_t f = 0; f < actual_set.size(); f++)
         if (vector_contain<std::string>(
-                actual_set[f]->getServerConfiguration().names,
+                actual_set[f].getServerConfiguration().names,
                 "default_server") == true)
           has_default = true;
       if (has_default == false)
-        actual_set[0]->setToDefault();
+        actual_set[0].setToDefault();
       checked_ports.push_back(actual_check);
     }
   }
 }
 
-void Select::loop() {
-  fd_set read_set;
-  fd_set write_set;
+void Select::endServer(int signal) {
+  (void)signal;
+  _this->_run = false;
+  cout << "goodbay" << endl;
+}
 
-  fd_set master_rest_set;
-  fd_set master_write_set;
+void Select::checkServer(fd_set &readSet, int &maxSd, fd_set &masterRestSet,
+                         fd_set &masterWriteSet) {
+  for (size_t server = 0; server < this->_serverManager.getSockets().size();
+       server++) {
+    int serverSd =
+        this->_serverManager.getSockets()[server].getSocketDescriptor();
+    if (FD_ISSET(serverSd, &readSet))
+      maxSd = this->acceptConnection(serverSd, maxSd, &masterRestSet,
+                                     &masterWriteSet, _clientManager);
+  }
+}
 
-  int max_sd;
+void Select::checkClient(fd_set &readSet, int &maxSd, fd_set &masterRestSet,
+                         fd_set &masterWriteSet) {
+  for (size_t client = 0;
+       client < this->_clientManager.getSockets().size(); client++) {
+    int rtn;
+    Client &client_socket = this->_clientManager.getSockets()[client];
+    int client_sd = client_socket.getSocketDescriptor();
+    bool client_treat = false;
 
-  master_rest_set = this->_sm.getSDSet();
-  FD_ZERO(&master_write_set);
-  max_sd = this->_sm.getLastSD();
-
-  verifyDefaultServer();
-  while (42) {
-    read_set = master_rest_set;
-    write_set = master_write_set;
-    try {
-      select(max_sd + 1, &read_set, &write_set, NULL, NULL);
-      /* Servers */
-      for (size_t server = 0; server < this->_sm.getSockets().size();
-           server++) {
-        int server_sd = this->_sm.getSockets()[server]->getSocketDescriptor();
-        if (FD_ISSET(server_sd, &read_set))
-          max_sd = this->acceptConnection(server_sd, max_sd, &master_rest_set,
-                                          &master_write_set, this->_sub_sm);
+    if (FD_ISSET(client_sd, &write_set) &&
+        client_socket.informationReceived() == true) {
+      try {
+        Headers header(client_socket.getRequest(),
+                       client_socket.getClientIp(),
+                       hasContent(client_socket.getRequest()));
+        std::string server_name = this->getServerName(header);
+        //            Socket *last = this->_serverManager.getBySDandHost(
+        //                client_socket.getParent()->getSocketDescriptor(),
+        //                server_name);
+        size_t len = header.getPlainRequest().length();
+        if (header.getPlainRequest() == "\r\n" || len < 9)
+          throw(throwMessage("Empty request"));
+        //            if (treat(client_sd, header,
+        //                      (*last).getServerConfiguration()) == -1) {
+        //              max_sd = this->closeConnection(
+        //                  client_sd, max_sd, &master_rest_set,
+        //                  &master_write_set);
+        //              delete this->_clientManager.getSockets()[client];
+        //              this->_clientManager.getSockets().erase(
+        //                  this->_clientManager.getSockets().begin() +
+        //                  client);
+        //              client--;
+        //              continue;
+        //            }
+        client_socket.getRequest().clear();
+        client_socket.setReceived(false);
+        client_treat = true;
+      } catch (const std::exception &e) {
+        throwError(e);
       }
+    }
 
-      /* Clients */
-      for (size_t client = 0; client < this->_sub_sm.getSockets().size();
-           client++) {
-        int rtn;
-        Client &client_socket = *this->_sub_sm.getSockets()[client];
-        int client_sd = client_socket.getSocketDescriptor();
-        bool client_treat = false;
+    if (FD_ISSET(client_sd, &read_set) && client_treat == false) {
+      if ((rtn = this->receiveConnection(
+               client_sd, client_socket.getRequest())) < 0) {
+        max_sd = this->closeConnection(
+            client_sd, max_sd, &master_rest_set, &master_write_set);
+        //            delete this->_clientManager.getSockets()[client];
+        this->_clientManager.getSockets().erase(
+            this->_clientManager.getSockets().begin() + client);
+        client--;
+      } else if (rtn == 0)
+        client_socket.setReceived(true);
+    }
+}
 
-        if (FD_ISSET(client_sd, &write_set) &&
-            client_socket.informationReceived() == true) {
-          try {
-            Headers header(client_socket.getRequest(),
-                                      client_socket.getClientIp(),
-                                      hasContent(client_socket.getRequest()));
-            Log("End head request treatment for : " + itoa(client_sd));
-            std::string server_name = this->getServerName(header);
-//            Socket *last = this->_sm.getBySDandHost(
-//                client_socket.getParent()->getSocketDescriptor(), server_name);
-            size_t len = header.getPlainRequest().length();
-            if (header.getPlainRequest() == "\r\n" || len < 9)
-              throw(throwMessage("Empty request"));
-//            if (treat(client_sd, header,
-//                      (*last).getServerConfiguration()) == -1) {
-//              max_sd = this->closeConnection(
-//                  client_sd, max_sd, &master_rest_set, &master_write_set);
-//              delete this->_sub_sm.getSockets()[client];
-//              this->_sub_sm.getSockets().erase(
-//                  this->_sub_sm.getSockets().begin() + client);
-//              client--;
-//              continue;
-//            }
-            client_socket.getRequest().clear();
-            client_socket.setReceived(false);
-            client_treat = true;
-          } catch (const std::exception &e) {
-            throwError(e);
-          }
-        }
+void Select::loop() {
+  signal(SIGINT, endServer);
+  fd_set readSet;
+  fd_set writeSet;
+  fd_set masterRestSet;
+  fd_set masterWriteSet;
+  int maxSd;
+  masterRestSet = this->_serverManager.getSDSet();
+  FD_ZERO(&masterWriteSet);
+  maxSd = _serverManager.getLastSD();
+  verifyDefaultServer();
+  while (_run) {
+    readSet = masterRestSet;
+    writeSet = masterWriteSet;
+    try {
+      if (select(maxSd + 1, &readSet, &writeSet, NULL, NULL) >= 0) {
+        checkServer(readSet, maxSd, masterRestSet, masterWriteSet);
+        checkClient(readSet, maxSd, masterRestSet, masterWriteSet);
 
-        if (FD_ISSET(client_sd, &read_set) && client_treat == false) {
-          if ((rtn = this->receiveConnection(client_sd,
-                                             client_socket.getRequest())) < 0) {
-            max_sd = this->closeConnection(client_sd, max_sd, &master_rest_set,
-                                           &master_write_set);
-            delete this->_sub_sm.getSockets()[client];
-            this->_sub_sm.getSockets().erase(
-                this->_sub_sm.getSockets().begin() + client);
-            client--;
-          } else if (rtn == 0)
-            client_socket.setReceived(true);
         }
       }
     } catch (const std::exception &e) {
@@ -291,19 +319,20 @@ void Select::loop() {
   }
 }
 
-void Select::closeServer(void) {
-  for (size_t client = 0; client < this->_sub_sm.getSockets().size();
+void Select::closeServer() {
+  for (size_t client = 0; client < this->_clientManager.getSockets().size();
        client++) {
-    close(this->_sub_sm.getSockets()[client]->getSocketDescriptor());
+    close(this->_clientManager.getSockets()[client].getSocketDescriptor());
     Log("Client connection closed : " +
-        itoa(this->_sub_sm.getSockets()[client]->getSocketDescriptor()));
-    delete this->_sub_sm.getSockets()[client];
+        itoa(this->_clientManager.getSockets()[client].getSocketDescriptor()));
+    //    delete this->_clientManager.getSockets()[client];
   }
 
-  for (size_t server = 0; server < this->_sm.getSockets().size(); server++) {
-    close(this->_sm.getSockets()[server]->getSocketDescriptor());
+  for (size_t server = 0; server < this->_serverManager.getSockets().size();
+       server++) {
+    close(this->_serverManager.getSockets()[server].getSocketDescriptor());
     Log("Select closed : " +
-        itoa(this->_sm.getSockets()[server]->getSocketDescriptor()));
-    delete this->_sm.getSockets()[server];
+        itoa(this->_serverManager.getSockets()[server].getSocketDescriptor()));
+    //    delete this->_serverManager.getSockets()[server];
   }
 }

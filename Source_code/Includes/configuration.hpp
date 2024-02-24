@@ -22,6 +22,10 @@ struct Location {
   vecStr cgiExtension;
   string cgiPath;
   Location();
+  Location(const Location& other);
+  ~Location();
+
+  Location &operator=(const Location& rhs);
   void parse(const string &block);
   void checkDefault();
 
@@ -53,6 +57,10 @@ struct Server {
   size_t clientMaxBodySize;
   vecLoc locations;
   Server();
+  Server(const Server& other);
+  ~Server();
+
+  Server &operator=(const Server& rhs);
   void parse(const string &block);
   void checkDefault();
 
@@ -66,6 +74,7 @@ private:
 };
 
 typedef vector<Server> vecServ;
+typedef vecServ::iterator vecServIt;
 
 class Configuration {
 
@@ -85,12 +94,7 @@ public:
    * Get servers configuration
    * @return servers configurations
    */
-  vecServ getServers();
-
-  /**
-   * Prints an entire configuration to ensure parsing is good
-   */
-  void print();
+  vecServ &getServers();
 
 private:
   vecServ _servers;

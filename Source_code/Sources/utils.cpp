@@ -32,10 +32,4 @@ void printError(const string& msg)
 //  return (0);
 //}
 
-void endServer(int signal)
-{
-  (void)signal;
-  //  server.closeServer();
-  Log("Ending server...");
-  exit(0);
-}
+

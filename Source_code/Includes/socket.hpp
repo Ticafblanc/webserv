@@ -15,11 +15,9 @@
 class Socket {
 protected:
   int _sd;
-
-private:
   int _option_buffer;
   struct sockaddr_in _address;
-  struct Server _server_config;
+  struct Server &_server_config;
 
     /**
    *  @brief Create the socket and give is socket descriptor.
@@ -75,15 +73,15 @@ private:
   void socketListener();
 
 public:
-  Socket(const struct Server &server);
-  Socket(int sd, const struct Server &server);
-  Socket(int sd);
+  Socket(struct Server &server);
+  Socket(int sd, struct Server &server);
+//  Socket(int sd);
   Socket(const Socket &copy);
   virtual ~Socket();
   Socket &operator=(const Socket &op);
 
   int getSocketDescriptor();
-  struct Server getServerConfiguration();
+  struct Server &getServerConfiguration();
   void setToDefault();
 };
 
