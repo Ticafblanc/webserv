@@ -5,54 +5,57 @@
 #ifndef WEBSERV_REQUEST_HPP
 #define WEBSERV_REQUEST_HPP
 
+#include "headers.hpp"
+#include "cgi.hpp"
+
 class Request {
 private:
-  std::string _ressource;
-  HeadersBlock _header_block;
-  Configuration::server _conf;
-  Configuration::location _location;
-  std::string _get(std::string ressource_path,
-                   std::map<std::string, std::string> headers,
+  string _ressource;
+  Headers _header_block;
+  Server _conf;
+  Location _location;
+  string _get(string ressource_path,
+                   map<string, string> headers,
                    bool send_body = true);
-  std::string _head(std::string ressource_path,
-                    std::map<std::string, std::string> headers);
-  std::string _post(std::string ressource_path,
-                    std::map<std::string, std::string> headers);
-  std::string _put(std::string ressource_path,
-                   std::map<std::string, std::string> headers);
-  std::string _delete(std::string ressource_path,
-                      std::map<std::string, std::string> headers);
-  std::string _trace(std::map<std::string, std::string> headers);
-  std::string _options(std::map<std::string, std::string> headers);
-  std::string _wrongMethod(void);
-  std::string _generateResponse(size_t code,
-                                std::map<std::string, std::string> headers,
-                                std::string content);
-  std::string _generateResponse(size_t code,
-                                std::map<std::string, std::string> headers,
+  string _head(string ressource_path,
+                    map<string, string> headers);
+  string _post(string ressource_path,
+                    map<string, string> headers);
+  string _put(string ressource_path,
+                   map<string, string> headers);
+  string _delete(string ressource_path,
+                      map<string, string> headers);
+  string _trace(map<string, string> headers);
+  string _options(map<string, string> headers);
+  string _wrongMethod();
+  string _generateResponse(size_t code,
+                                map<string, string> headers,
+                                string content);
+  string _generateResponse(size_t code,
+                                map<string, string> headers,
                                 const unsigned char *content,
                                 size_t content_size);
-  std::string _getStatusDescription(size_t code);
-  std::string _getErrorHTMLPage(size_t code);
-  std::string _getListingHTMLPage(std::string path, std::string ressource);
-  std::string _getMIMEType(std::string filename);
-  std::string _getDateHeader(void);
-  std::string _formatTimestamp(time_t timestamp);
-  Configuration::location _getLocation(std::string ressource);
-  bool _isMethodAllowed(std::string method);
-  std::string _formatRessource(std::string ressource);
-  bool _shouldCallCGI(std::string ressource_path);
-  std::string _addCGIHeaders(std::string response);
-  std::string _getCGIStatus(std::string response);
+  string _getStatusDescription(size_t code);
+  string _getErrorHTMLPage(size_t code);
+  string _getListingHTMLPage(string path, string ressource);
+  string _getMIMEType(string filename);
+  string _getDateHeader();
+  string _formatTimestamp(time_t timestamp);
+  Location _getLocation(string ressource);
+  bool _isMethodAllowed(string method);
+  string _formatRessource(string ressource);
+  bool _shouldCallCGI(string ressource_path);
+  string _addCGIHeaders(string response);
+  string _getCGIStatus(string response);
 
 public:
-  RequestInterpretor(
-      HeadersBlock &header_block,
-      Configuration::server serverConf = Configuration::server());
-  RequestInterpretor(const RequestInterpretor &other);
-  RequestInterpretor &operator=(const RequestInterpretor &other);
-  ~RequestInterpretor(void);
-  std::string getResponse(void);
+  Request(
+      Headers &header_block,
+      Server serverConf = Server());
+  Request(const Request &other);
+  Request &operator=(const Request &other);
+  ~Request();
+  string getResponse();
 };
 
 #endif // WEBSERV_REQUEST_HPP

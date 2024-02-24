@@ -6,40 +6,39 @@
 #define WEBSERV_CGI_HPP
 #include "configuration.hpp"
 #include "headers.hpp"
-#include "main.hpp"
 #include "utils.hpp"
-
+extern char** envp;
 class CGI {
 private:
-  std::string _cgi_path;
-  std::string _ressource_path;
+  string _cgi_path;
+  string _ressource_path;
   Headers _request;
-  Configuration::server _conf;
-  Configuration::location _location;
-  std::map<std::string, std::string> _getParams();
-  std::string _getQueryString();
-  char **_convertParams(std::map<std::string, std::string> args);
+  Server &_conf;
+  Location &_location;
+  map<string, string> _getParams();
+  string _getQueryString();
+  char **_convertParams(map<string, string> args);
   void _freeArgs(char **args);
-  char *_newStr(std::string source);
-  std::string _execCGI(char **args);
+  char *_newStr(string source);
+  string _execCGI(char **args);
   char **_getExecArgs();
-  std::string _getScriptName();
-  std::string _removeQueryArgs(std::string query);
+  string _getScriptName();
+  string _removeQueryArgs(string query);
 
 public:
   CGI();
-  CGI(std::string cgi_path, std::string ressource_path, Headers request,
-      Configuration::server conf, Configuration::location location);
+  CGI(string cgi_path, string ressource_path, Headers request,
+      Server &conf, Location &location);
   ~CGI();
-  std::string getOutput();
+  string getOutput();
 };
 
-class CGIException : public std::exception {
+class CGIException : public exception {
 private:
-  std::string _msg;
+  string _msg;
 
 public:
-  CGIException(std::string message = "Unable to execute CGI.")
+  CGIException(string message = "Unable to execute CGI.")
       : _msg(message){};
   ~CGIException() throw(){};
   const char *what() const throw() { return (_msg.c_str()); };

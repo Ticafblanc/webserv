@@ -5,7 +5,15 @@
 #ifndef WEBSERV_PARSER_HPP
 #define WEBSERV_PARSER_HPP
 
-#include "main.hpp"
+#include "utils.hpp"
+
+bool splitBlocks(vecStr &split, const string &str, const string &pattern,
+                 vecStr &otherInfo);
+void splitPattern(vecStr &split, const string &str, const char &pattern);
+
+bool readFile(const string &file, string &fileString);
+
+bool checkWordFormat(const string &str);
 
 static const char *server_properties[] = {"listen", "server_name", "error_page",
                                           "root", 0};
@@ -21,8 +29,7 @@ static const char *route_properties[] = {"method",
                                          "client_max_body_size",
                                          0};
 
-static const char *methods[] = {"GET",     "HEAD",    "POST",  "PUT", "DELETE",
-                                "CONNECT", "OPTIONS", "TRACE", 0};
+std::string readFile(std::string file);
 
 /**
  * Count the number of lines in a string.
@@ -73,14 +80,6 @@ vector<string> splitWhitespace(string source);
 bool isPropertyNameValid(string name, const char **valid_names);
 
 /**
- * Reads a file into a std::string
- * @throw ParsingException if the file does not exists
- * @param file the file to read
- * @return a string containing the file content
- */
-string readFile(string file);
-
-/**
  * Reads a file into a std::vector of unsigned char
  * @throw ParsingException if the file does not exists
  * @param file the file to read
@@ -103,7 +102,7 @@ string getLine(string, size_t line);
  * @param line the line to check
  * @return wether we want to skip the line or not
  */
-bool isSkippable(string source, size_t line);
+bool isSkippable(istringstream &line);
 
 /**
  * Does the given line in source has a '{' as last char

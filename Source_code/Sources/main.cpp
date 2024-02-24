@@ -1,44 +1,53 @@
 
 
-#include "../Includes/main.hpp"
-#include "../Includes/server.hpp"
+
+#include "../Includes/select.hpp"
 // #include "../includes/RequestInterpretor.hpp"
 // #include "../includes/HeadersBlock.hpp"
 
-//char **envp;
-//extern Server server;
-//extern SocketManager<Socket *> sm;
-//extern Configuration test;
+char **envp;
 
-int main(int argc, char **argv, char **env) {
+static pairBoolStr checkArg(int argc, char **argv, char **env){
+  //testlsdkljfljslkjd
   if (argc > 2) {
     printError("Please use : ./WebServ <path>");
-    return (1);
+    return make_pair(false, "");
   }
   envp = env;
   string path = argc == 2 ? argv[1] : "../conf/webserv.conf";
-  try {
-    test = Configuration(path);
-    for (int i = 0; i < (int)test.getServers().size(); i++) {
-      Socket *exist = NULL;
-      for (size_t j = 0; j < sm.getSockets().size(); j++)
-        if (sm.getSockets()[j]->getServerConfiguration().port ==
-            test.getServers()[i].port)
-          exist = sm.getSockets()[j];
-      if (exist == NULL)
-        sm.registerSocket(new Socket(test.getServers()[i]));
-      else
-        sm.registerSocket(
-            new Socket(exist->getSocketDescriptor(), test.getServers()[i]));
-      Log("Server created on port " + itoa(test.getServers()[i].port) + " : " +
-          itoa(sm.getSockets()[i]->getSocketDescriptor()));
+  return make_pair(true, path);
+}
+
+int main(int argc, char **argv, char **env) {
+  pairBoolStr ret = checkArg(argc, argv, env);
+  if (ret.first) {
+//    Select select;
+//    SocketManager<Socket *> socketManager;
+    Configuration config;
+    try {
+      config.parseConfig(ret.second);
+//      for (int i = 0; i < (int)config.getServers().size(); i++) {
+//        Socket *socket = NULL;
+//        for (size_t j = 0; j < socketManager.getSockets().size(); j++)
+//          if (socketManager.getSockets()[j]->getServerConfiguration().port ==
+//              config.getServers()[i].port)
+//            socket = socketManager.getSockets()[j];
+//        if (socket == NULL)
+//          socketManager.registerSocket(new Socket(config.getServers()[i]));
+//        else
+//          socketManager.registerSocket(
+//              new Socket(socket->getSocketDescriptor(), config.getServers()[i]));
+//        Log("Select created on port " + itoa(config.getServers()[i].port) +
+//            " : " + itoa(socketManager.getSockets()[i]->getSocketDescriptor()));
+//      }
+//      select = Select(socketManager);
+//      socketManager.getSockets().clear();
+//      signal(SIGINT, endServer);
+//      select.loop();
+    } catch (const std::exception &e) {
+      throwError(e);
     }
-    server = Server(sm);
-    sm.getSockets().clear();
-    signal(SIGINT, endServer);
-    server.loop();
-  } catch (const std::exception &e) {
-    throwError(e);
+    return EXIT_SUCCESS;
   }
-  return (0);
+  return EXIT_FAILURE;
 }

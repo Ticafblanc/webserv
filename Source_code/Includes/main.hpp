@@ -19,7 +19,6 @@
 #include <cstring>
 #include <ctime>
 #include <dirent.h>
-#include <errno.h>
 #include <exception>
 #include <fcntl.h>
 #include <filesystem>
@@ -36,7 +35,6 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
-#include <string.h>
 #include <string>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -51,6 +49,7 @@ using namespace std;
 
 typedef pair<string, string> pairStrStr;
 typedef pair<int, int> pairIntInt;
+typedef pair<bool, string> pairBoolStr;
 typedef vector<string> vecStr;
 typedef vector<string>::iterator vecStrIt;
 typedef vector<int> vecInt;
@@ -72,26 +71,25 @@ typedef std::map<int, Socket *> mapFdSockPtr;
 typedef mapFdSockPtr::iterator mapFdSockPtrIt;
 
 struct Config;
-typedef pair<string, Config> pairStrConf;
-typedef vector<pairStrConf> vecPairStrConf;
-typedef map<string, vecPairStrConf> mapStrVecPairStrConf;
+// typedef pair<string, Config> pairStrConf;
+// typedef vector<pairStrConf> vecPairStrConf;
+// typedef map<string, vecPairStrConf> mapStrVecPairStrConf;
 
-class Server;
-extern Server server;
+// class Select;
+// extern Select server;
 
-template<class T>class SocketManager;
-extern SocketManager<Socket *> sm;
+// template<class T>class SocketManager;
+// extern SocketManager<Socket *> sm;
 
-class Configuration;
-extern Configuration test;
+// class Configuration;
+// extern Configuration test;
 
-template <class T> class PegParser;
-typedef PegParser<string> ppStr;
+// template <class T> class PegParser;
+// typedef PegParser<string> ppStr;
 
 extern char **envp;
 
 const int BUFFER_SIZE = 1024;
 const int MAX_CLIENTS = 10;
-
 
 #endif // WEBSERV_MAIN_HPP

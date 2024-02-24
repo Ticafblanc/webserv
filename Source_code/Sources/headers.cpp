@@ -170,19 +170,19 @@ Headers::Headers(const std::string &request, const std::string &client_ip,
     size_t pos = block_lines[0].find(" ");
     std::string first_word = block_lines[0].substr(0, block_lines[0].find(" "));
     if (pos != std::string::npos) {
-      int methods_number = 0;
-      int i;
-      while (methods[methods_number++])
-        ;
+//      int methods_number = 0;
+//      int i;
+//      while (methods[methods_number++])
+//        ;
 
-      for (i = 0; i < methods_number && methods[i]; i++) {
-        if (first_word == methods[i]) {
-          this->getRequestLine(block_lines);
-          break;
-        }
-      }
-      if (methods[i] == NULL)
-        this->getStatusLine(block_lines);
+//      for (i = 0; i < methods_number /*&& methods[i]*/; i++) {
+//        if (first_word == methods[i]) {
+//          this->getRequestLine(block_lines);
+//          break;
+//        }
+//      }
+//      if (methods[i] == NULL)
+//        this->getStatusLine(block_lines);
     }
     size_t end_headers = this->getHeaderFileds(block_lines);
     while (42) {

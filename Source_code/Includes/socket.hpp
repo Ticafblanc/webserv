@@ -19,7 +19,7 @@ protected:
 private:
   int _option_buffer;
   struct sockaddr_in _address;
-  struct Configuration::server _server_config;
+  struct Server _server_config;
 
     /**
    *  @brief Create the socket and give is socket descriptor.
@@ -29,7 +29,7 @@ private:
    *
    * 	@throw if the socket can't be create.
      */
-  void createSocketDescriptor(void);
+  void createSocketDescriptor();
 
   /**
  *  @brief Set the options socket.
@@ -39,14 +39,14 @@ private:
  *
  * 	@throw if the options can't be set to the socket.
    */
-  void setSocketOptions(void);
+  void setSocketOptions();
 
   /**
  * 	@brief Set the socket to be nonblocking socket.
  *
  * 	@throw if the attributes can't be set to the socket.
    */
-  void setSocketNonBlocking(void);
+  void setSocketNonBlocking();
 
   /**
  * 	@brief Initialisation of the address informations.
@@ -63,7 +63,7 @@ private:
  *
  * 	@throw if the socket can't be bind.
    */
-  void bindSocket(void);
+  void bindSocket();
 
   /**
  * 	@brief Set the socket to be a listener.
@@ -72,19 +72,19 @@ private:
  *
  * @throw if the socket can't be set to listener.
    */
-  void socketListener(void);
+  void socketListener();
 
 public:
-  Socket(const struct Configuration::server &server);
-  Socket(int sd, const struct Configuration::server &server);
+  Socket(const struct Server &server);
+  Socket(int sd, const struct Server &server);
   Socket(int sd);
   Socket(const Socket &copy);
   virtual ~Socket();
   Socket &operator=(const Socket &op);
 
-  int getSocketDescriptor(void);
-  struct Configuration::server getServerConfiguration(void);
-  void setToDefault(void);
+  int getSocketDescriptor();
+  struct Server getServerConfiguration();
+  void setToDefault();
 };
 
 #endif // WEBSERV_SOCKET_HPP

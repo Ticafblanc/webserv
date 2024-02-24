@@ -37,7 +37,7 @@ void Socket::socketListener(void) {
     throw(throwMessageErrno("Set socket to listener"));
 }
 
-Socket::Socket(const struct Configuration::server &server)
+Socket::Socket(const struct Server &server)
     : _sd(-1), _option_buffer(), _server_config(server) {
   try {
     this->createSocketDescriptor();
@@ -52,7 +52,7 @@ Socket::Socket(const struct Configuration::server &server)
   }
 }
 
-Socket::Socket(int sd, const struct Configuration::server &server)
+Socket::Socket(int sd, const struct Server &server)
     : _sd(sd), _server_config(server) {}
 
 Socket::Socket(int sd) : _sd(sd) {}
@@ -75,7 +75,7 @@ Socket &Socket::operator=(const Socket &op) {
 
 int Socket::getSocketDescriptor(void) { return (this->_sd); }
 
-struct Configuration::server Socket::getServerConfiguration(void) {
+struct Server Socket::getServerConfiguration(void) {
   return (this->_server_config);
 }
 

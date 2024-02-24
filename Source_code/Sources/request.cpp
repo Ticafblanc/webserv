@@ -9,7 +9,7 @@
  * @param request the string repreesentation of the HTTP request
  * @param serverConf the server configuration
  */
-RequestInterpretor::RequestInterpretor(HeadersBlock & header_block, Configuration::server serverConf)
+Request::Request(Headers & header_block, Server serverConf)
     : _header_block(header_block), _conf(serverConf)
 {
   if (this->_header_block.isRequest())
@@ -19,16 +19,16 @@ RequestInterpretor::RequestInterpretor(HeadersBlock & header_block, Configuratio
   DEBUG("location: " + this->_location.name);
 }
 
-RequestInterpretor::RequestInterpretor(const RequestInterpretor &other)
+Request::Request(const Request &other)
     : _header_block(other._header_block)
 {
   *this = other;
 }
 
-RequestInterpretor::~RequestInterpretor(void)
+Request::~Request(void)
 {}
 
-RequestInterpretor &RequestInterpretor::operator=(const RequestInterpretor &other)
+Request &Request::operator=(const Request &other)
 {
   this->_header_block = other._header_block;
   this->_ressource = other._ressource;
@@ -42,14 +42,14 @@ RequestInterpretor &RequestInterpretor::operator=(const RequestInterpretor &othe
  * @return a string representing the HTTP response
  * @todo implement the case when the method isn't correct
  */
-std::string RequestInterpretor::getResponse(void)
+string Request::getResponse(void)
 {
-  std::map<std::string, std::string> headers;
-  std::string method = _header_block.getRequestLine()._method;
-  std::string ressource_path;
+  map<string, string> headers;
+  string method = _header_block.getRequestLine()._method;
+  string ressource_path;
 
   headers["Content-Type"] = _getMIMEType("a.html");
-  if (_header_block.getContent().size() > _location.client_max_body_size)
+  if (_header_block.getContent().size() > _conf.clientMaxBodySize)
     return (_generateResponse(413, headers, method != "HEAD" ? _getErrorHTMLPage(413) : ""));
   if (!_isMethodAllowed(method))
     return (_wrongMethod());
@@ -61,7 +61,7 @@ std::string RequestInterpretor::getResponse(void)
     return (_generateResponse(200, headers, ""));
   ressource_path = _location.root;
   if (ressource_path[ressource_path.size() - 1] == '/')
-    ressource_path = std::string(ressource_path, 0, ressource_path.size() - 1);
+    ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
   ressource_path += _ressource;
   DEBUG("ressource path: " + ressource_path);
   if (pathType(ressource_path, NULL) == 2)
@@ -84,11 +84,11 @@ std::string RequestInterpretor::getResponse(void)
     DEBUG("call CGI for this request");
     try
     {
-      return (_addCGIHeaders(CGI(_location.cgi_path, ressource_path, _header_block, _conf, _location).getOutput()));
+      return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path, _header_block, _conf, _location).getOutput()));
     }
-    catch (const std::exception &e)
+    catch (const exception &e)
     {
-      std::cerr << e.what() << std::endl;
+      cerr << e.what() << endl;
       return (_generateResponse(500, headers, method != "HEAD" ?_getErrorHTMLPage(500) : ""));
     }
   }
@@ -110,9 +110,9 @@ std::string RequestInterpretor::getResponse(void)
  * @param ressource_path the path of the ressource to GET on the disk
  * @return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_get(std::string ressource_path, std::map<std::string, std::string> headers, bool send_body)
+string Request::_get(string ressource_path, map<string, string> headers, bool send_body)
 {
-  std::vector<unsigned char> content_bytes;
+  vector<unsigned char> content_bytes;
   unsigned char *ressource_content;
   time_t file_date;
   try
@@ -126,7 +126,7 @@ std::string RequestInterpretor::_get(std::string ressource_path, std::map<std::s
       return (_generateResponse(200, headers, ressource_content, content_bytes.size()));
     return (_generateResponse(200, headers, ""));
   }
-  catch (const std::exception &e)
+  catch (const exception &e)
   {
     return (_generateResponse(403, headers, send_body ? _getErrorHTMLPage(403) : ""));
   }
@@ -138,7 +138,7 @@ std::string RequestInterpretor::_get(std::string ressource_path, std::map<std::s
  * @param ressource_path the path of the ressource to GET on the disk
  * @return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_head(std::string ressource_path, std::map<std::string, std::string> headers)
+string Request::_head(string ressource_path, map<string, string> headers)
 {
   return (_get(ressource_path, headers, false));
 }
@@ -148,20 +148,20 @@ std::string RequestInterpretor::_head(std::string ressource_path, std::map<std::
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_post(std::string ressource_path, std::map<std::string, std::string> headers)
+string Request::_post(string ressource_path, map<string, string> headers)
 {
   // struct stat   buffer;
   int fd = -1;
   int rtn = 0;
   int type;
-  std::string path;
+  string path;
 
-  if (_location.upload_path.size() > 0)
-  {
-    std::string file = std::string(_header_block.getRequestLine()._request_target, _location.name.size());
-    path = _location.upload_path + "/" + file;
-  }
-  else
+//  if (_location.upload_path.size() > 0)
+//  {
+//    string file = string(_header_block.getRequestLine()._request_target, _location.name.size());
+//    path = _location.upload_path + "/" + file;
+//  }
+//  else
     path = ressource_path;
   DEBUG("POST path: " + path);
   type = pathType(path, NULL);
@@ -188,7 +188,7 @@ std::string RequestInterpretor::_post(std::string ressource_path, std::map<std::
     else
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
   }
-  catch (std::exception & ex)
+  catch (exception & ex)
   {
     throwError(ex);
   }
@@ -200,19 +200,19 @@ std::string RequestInterpretor::_post(std::string ressource_path, std::map<std::
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_put(std::string ressource_path, std::map<std::string, std::string> headers)
+string Request::_put(string ressource_path, map<string, string> headers)
 {
   int fd = -1;
   int rtn = 0;
   int type;
-  std::string path;
+  string path;
 
-  if (_location.upload_path.size() > 0)
-  {
-    std::string file = std::string(_header_block.getRequestLine()._request_target, _location.name.size());
-    path = _location.upload_path + "/" + file;
-  }
-  else
+//  if (_location.upload_path.size() > 0)
+//  {
+//    string file = string(_header_block.getRequestLine()._request_target, _location.name.size());
+//    path = _location.upload_path + "/" + file;
+//  }
+//  else
     path = ressource_path;
   DEBUG("PUT path: " + path);
   type = pathType(path, NULL);
@@ -238,7 +238,7 @@ std::string RequestInterpretor::_put(std::string ressource_path, std::map<std::s
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
     headers["Content-Location"] = _header_block.getRequestLine()._request_target;
   }
-  catch (std::exception & ex)
+  catch (exception & ex)
   {
     throwError(ex);
     return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
@@ -251,7 +251,7 @@ std::string RequestInterpretor::_put(std::string ressource_path, std::map<std::s
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_delete(std::string ressource_path, std::map<std::string, std::string> headers)
+string Request::_delete(string ressource_path, map<string, string> headers)
 {
   int type;
 
@@ -269,7 +269,7 @@ std::string RequestInterpretor::_delete(std::string ressource_path, std::map<std
  * @param headers a map representing HTTP headers of the reponse.
  * @return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_trace(std::map<std::string, std::string> headers)
+string Request::_trace(map<string, string> headers)
 {
   headers["Content-Type"] = "message/http";
   return (_generateResponse(200, headers, _header_block.getPlainRequest()));
@@ -280,14 +280,14 @@ std::string RequestInterpretor::_trace(std::map<std::string, std::string> header
  * @param headers a map representing HTTP headers of the reponse.
  * @return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_options(std::map<std::string, std::string> headers)
+string Request::_options(map<string, string> headers)
 {
   headers.erase("Content-Type");
-  std::string allowed;
+  string allowed;
 
   for (size_t i = 0; i < _location.methods.size(); ++i)
   {
-    allowed += _location.methods[i];
+//    allowed += _location.methods[i];
     if (i < _location.methods.size() - 1)
       allowed += ", ";
   }
@@ -299,14 +299,14 @@ std::string RequestInterpretor::_options(std::map<std::string, std::string> head
  * Returns a 405 response in case of not allowed method
  * @return the string representation of the HTTP response
  */
-std::string RequestInterpretor::_wrongMethod(void)
+string Request::_wrongMethod(void)
 {
-  std::map<std::string, std::string> headers;
-  std::string allowed;
+  map<string, string> headers;
+  string allowed;
 
   for (size_t i = 0; i < _location.methods.size(); ++i)
   {
-    allowed += _location.methods[i];
+//    allowed += _location.methods[i];
     if (i < _location.methods.size() - 1)
       allowed += ", ";
   }
@@ -322,13 +322,13 @@ std::string RequestInterpretor::_wrongMethod(void)
  * @param size the size in bytes of the content
  * @return the string representation of a HTTP response
  */
-std::string RequestInterpretor::_generateResponse(size_t code, std::map<std::string, std::string> headers, const unsigned char *content, size_t content_size)
+string Request::_generateResponse(size_t code, map<string, string> headers, const unsigned char *content, size_t content_size)
 {
-  std::string response;
-  std::map<std::string, std::string>::iterator it;
+  string response;
+  map<string, string>::iterator it;
 
   headers["Content-Length"] = uIntegerToString(content_size);
-  headers["Server"] = "webserv";
+  headers["Select"] = "webserv";
   headers["Date"] = _getDateHeader();
   response += "HTTP/1.1 ";
   response += uIntegerToString(code) + " ";
@@ -352,7 +352,7 @@ std::string RequestInterpretor::_generateResponse(size_t code, std::map<std::str
  * @param content the string representation of the content
  * @return the string representation of a HTTP response
  */
-std::string RequestInterpretor::_generateResponse(size_t code, std::map<std::string, std::string> headers, std::string content)
+string Request::_generateResponse(size_t code, map<string, string> headers, string content)
 {
   return (_generateResponse(code, headers, reinterpret_cast<const unsigned char *>(content.c_str()), content.size()));
 }
@@ -362,9 +362,9 @@ std::string RequestInterpretor::_generateResponse(size_t code, std::map<std::str
  * @param code the HTTP status code
  * @return the corresponding reason description
  */
-std::string RequestInterpretor::_getStatusDescription(size_t code)
+string Request::_getStatusDescription(size_t code)
 {
-  std::map<std::size_t, std::string> m;
+  map<size_t, string> m;
 
   m[100] = "Continue";
   m[101] = "Switching Protocols";
@@ -401,7 +401,7 @@ std::string RequestInterpretor::_getStatusDescription(size_t code)
   m[416] = "Range Not Satisfiable";
   m[417] = "Expectation Failed";
   m[426] = "Upgrade Required";
-  m[500] = "Internal Server Error";
+  m[500] = "Internal Select Error";
   m[501] = "Not Implemented";
   m[502] = "Bad Gateway";
   m[503] = "Service Unavailable";
@@ -416,12 +416,12 @@ std::string RequestInterpretor::_getStatusDescription(size_t code)
  * @param status the status of the response
  * @return a HTML page describing the error
  */
-std::string RequestInterpretor::_getErrorHTMLPage(size_t code)
+string Request::_getErrorHTMLPage(size_t code)
 {
-  std::string base;
+  string base;
 
-  if (_conf.error_pages.count(code) > 0)
-    return (readFile(_conf.error_pages[code]));
+  if (_conf.errorPages.count(code) > 0)
+    return (readFile(_conf.errorPages[code]));
   base = readFile("./assets/error.html");
   base = replace(base, "$1", uIntegerToString(code));
   base = replace(base, "$2", _getStatusDescription(code));
@@ -434,11 +434,11 @@ std::string RequestInterpretor::_getErrorHTMLPage(size_t code)
  * @param ressource the ressource the user tried to reach
  * @return a HTML page that lists the content of the given directory
  */
-std::string RequestInterpretor::_getListingHTMLPage(std::string path, std::string ressource)
+string Request::_getListingHTMLPage(string path, string ressource)
 {
-  std::string base;
-  std::string listing;
-  std::string link_base;
+  string base;
+  string listing;
+  string link_base;
   size_t i;
   struct dirent *en;
   DIR *dr;
@@ -452,7 +452,7 @@ std::string RequestInterpretor::_getListingHTMLPage(std::string path, std::strin
   if (link_base[link_base.size() - 1] != '/')
     link_base += '/';
   while ((en = readdir(dr)) != 0)
-    listing += "<li><a href=\"" + link_base + std::string(en->d_name) +  "\">" + std::string(en->d_name) + "</a></li>";
+    listing += "<li><a href=\"" + link_base + string(en->d_name) +  "\">" + string(en->d_name) + "</a></li>";
   closedir(dr);
   base = replace(base, "$2", listing);
   return (base);
@@ -463,10 +463,10 @@ std::string RequestInterpretor::_getListingHTMLPage(std::string path, std::strin
  * @param filename
  * @return the MIME type for the given filename
  */
-std::string RequestInterpretor::_getMIMEType(std::string filename)
+string Request::_getMIMEType(string filename)
 {
-  std::map<std::string, std::string> m;
-  std::string ext;
+  map<string, string> m;
+  string ext;
   size_t i;
 
   i = filename.size() - 1;
@@ -474,7 +474,7 @@ std::string RequestInterpretor::_getMIMEType(std::string filename)
     --i;
   if (i == 0)
     return ("text/plain");
-  ext = std::string(filename, i + 1, filename.size() - i);
+  ext = string(filename, i + 1, filename.size() - i);
   m["aac"] = "audio/aac";
   m["abw"] = "application/x-abiword";
   m["arc"] = "application/octet-stream";
@@ -554,25 +554,25 @@ std::string RequestInterpretor::_getMIMEType(std::string filename)
  * @example ressource "/" in configurations "/wordpress", "/upload" and "/" will return "/"
  * @example ressource "/wordpress/index.php" in configurations "/wordpress", "/upload" and "/" will return "/wordpress"
  */
-Configuration::location RequestInterpretor::_getLocation(std::string ressource)
+Location Request::_getLocation(string ressource)
 {
   size_t max_length;
   size_t max_index;
 
   for (size_t i = 0; i < _conf.locations.size(); ++i)
   {
-    if (_conf.locations[i].name == ressource)
+    if (_conf.locations[i].path == ressource)
       return (_conf.locations[i]);
   }
   max_length = 0;
   max_index = 0;
   for (size_t i = 0; i < _conf.locations.size(); ++i)
   {
-    if (ressource.rfind(_conf.locations[i].name, 0) == 0)
+    if (ressource.rfind(_conf.locations[i].path, 0) == 0)
     {
-      if (_conf.locations[i].name.size() > max_length)
+      if (_conf.locations[i].path.size() > max_length)
       {
-        max_length = _conf.locations[i].name.size();
+        max_length = _conf.locations[i].path.size();
         max_index = i;
       }
     }
@@ -584,7 +584,7 @@ Configuration::location RequestInterpretor::_getLocation(std::string ressource)
  * Get the current HTTP formatted date
  * @return a string representing the current date formatted for HTTP header
  */
-std::string RequestInterpretor::_getDateHeader(void)
+string Request::_getDateHeader()
 {
   struct timeval now;
   struct timezone tz;
@@ -598,7 +598,7 @@ std::string RequestInterpretor::_getDateHeader(void)
  * @param timestamp the timestamp in second of the date
  * @return a string representation of the date according to HTTP standard
  */
-std::string RequestInterpretor::_formatTimestamp(time_t timestamp)
+string Request::_formatTimestamp(time_t timestamp)
 {
   char buffer[33];
   struct tm *ts;
@@ -607,7 +607,7 @@ std::string RequestInterpretor::_formatTimestamp(time_t timestamp)
   ts   = localtime(&timestamp);
   last = strftime(buffer, 32, "%a, %d %b %Y %T GMT", ts);
   buffer[last] = '\0';
-  return (std::string(buffer));
+  return (string(buffer));
 }
 
 /**
@@ -615,12 +615,13 @@ std::string RequestInterpretor::_formatTimestamp(time_t timestamp)
  * @param method the HTTP method
  * @return wether the method is accepted on this location or not
  */
-bool RequestInterpretor::_isMethodAllowed(std::string method)
+bool Request::_isMethodAllowed(string method)
 {
+  (void)method;
   for (size_t i = 0; i < _location.methods.size(); ++i)
   {
-    if (_location.methods[i] == method)
-      return (true);
+//    if (_location.methods[i] == method)
+//      return (true);
   }
   return (false);
 }
@@ -631,18 +632,18 @@ bool RequestInterpretor::_isMethodAllowed(std::string method)
  * @return ressource without location name and args
  * @example "/wordpress/index.php?page_id=12" with location "/wordpress" will give "/index.php"
  */
-std::string RequestInterpretor::_formatRessource(std::string ressource)
+string Request::_formatRessource(string ressource)
 {
-  std::string res;
+  string res;
   size_t i;
 
   i = 0;
   res = ressource;
-  res.replace(0, this->_location.name.size(), "/");
+  res.replace(0, this->_location.path.size(), "/");
   res = replace(res, "//", "/");
   while (res[i] && res[i] != '?')
     ++i;
-  res = std::string(res, 0, i);
+  res = string(res, 0, i);
   return (res);
 }
 
@@ -650,23 +651,23 @@ std::string RequestInterpretor::_formatRessource(std::string ressource)
  * Detect if we should use a CGI for this file
  * @return wether we should use the CGI for the current request
  */
-bool RequestInterpretor::_shouldCallCGI(std::string ressource_path)
+bool Request::_shouldCallCGI(string ressource_path)
 {
   size_t i;
-  std::string ext;
+  string ext;
 
 
-  if (_location.cgi_path.size() == 0)
+  if (_location.cgiPath.size() == 0)
     return (false);
   i = ressource_path.size() - 1;
   while (i > 0 && ressource_path[i] != '.')
     --i;
   if (i >= ressource_path.size())
     return (false);
-  ext = std::string(ressource_path, i + 1, ressource_path.size() - i);
-  for (size_t j = 0; j < _location.cgi_extension.size(); ++j)
+  ext = string(ressource_path, i + 1, ressource_path.size() - i);
+  for (size_t j = 0; j < _location.cgiExtension.size(); ++j)
   {
-    if (_location.cgi_extension[j] == ext)
+    if (_location.cgiExtension[j] == ext)
       return (true);
   }
   return (false);
@@ -677,14 +678,14 @@ bool RequestInterpretor::_shouldCallCGI(std::string ressource_path)
  * @param response the HTTP response out of the CGI
  * @return the same HTTP response with additional headers
  */
-std::string RequestInterpretor::_addCGIHeaders(std::string response)
+string Request::_addCGIHeaders(string response)
 {
-  std::string res;
+  string res;
   size_t size;
   int header_char_count = 0;
 
-  std::string headers = response;
-  if (response.find("\r\n\r\n") != std::string::npos)
+  string headers = response;
+  if (response.find("\r\n\r\n") != string::npos)
     headers = response.substr(0, response.find("\r\n\r\n"));
   if (headers != "")
   {
@@ -692,7 +693,7 @@ std::string RequestInterpretor::_addCGIHeaders(std::string response)
       if (headers[i] != '\n' && headers[i] != '\r')
         header_char_count++;
   }
-  size = response.size() - std::count(response.begin(), response.end(), '\n') - std::count(response.begin(), response.end(), '\r') - header_char_count;
+  size = response.size() - count(response.begin(), response.end(), '\n') - count(response.begin(), response.end(), '\r') - header_char_count;
   res = response;
   res = "Content-Length: " + uIntegerToString(size) + "\r\n" + res;
   res = "Date: " + _getDateHeader() + "\r\n" + res;
@@ -708,9 +709,9 @@ std::string RequestInterpretor::_addCGIHeaders(std::string response)
  * @param response the CGI response
  * @return a string containing the code and status if found, an empty string if not
  */
-std::string RequestInterpretor::_getCGIStatus(std::string response)
+string Request::_getCGIStatus(string response)
 {
-  std::vector<std::string> splits;
+  vector<string> splits;
 
   for (size_t i = 0; i < countLines(response); ++i)
   {

@@ -4,12 +4,310 @@
 
 #include "../Includes/configuration.hpp"
 
-Configuration::Configuration() {}
-
-Configuration::Configuration(string file) {
-  _parseConfig(file);
-  _completeConfig();
+static const setStr createSetMethods() {
+  setStr temp;
+  temp.insert("GET");
+  temp.insert("HEAD");
+  temp.insert("POST");
+  temp.insert("PUT");
+  temp.insert("DELETE");
+  temp.insert("CONNECT");
+  temp.insert("OPTIONS");
+  temp.insert("TRACE");
+  return temp;
 }
+
+static size_t myAtoi(string &str, bool &succeed) {
+  for (size_t i = 0; i < str.length(); i++) {
+    if (!isdigit(str.c_str()[i])) {
+      succeed = false;
+      return (-1);
+    }
+  }
+  succeed = true;
+  return (atoi(str.c_str()));
+}
+
+void Server::_setMaxClientBody(vecStr words) {
+  bool success;
+
+  if (clientMaxBodySize > 0)
+    throw throwMessage("client_size already defined");
+  if (words.size() != 2)
+    throw throwMessage("need client_size SIZE");
+  clientMaxBodySize = myAtoi(words[1], success);
+  if (!success)
+    throw throwMessage("wrong size for client_size");
+  if (clientMaxBodySize == 0)
+    clientMaxBodySize = std::numeric_limits<size_t>::max();
+}
+
+void Server::_setErrorPages(vecStr words) {
+  std::pair<int, std::string> err;
+  size_t res;
+  bool success;
+
+  if (words.size() != 3)
+    throw throwMessage("need error ERROR_NUM ERROR_PAGE");
+  res = myAtoi(words[1], success);
+  if (!success || res > 599)
+    throw throwMessage("invalid ERROR_NUM");
+  err.first = res;
+  if (!checkWordFormat(words[2]))
+    throw throwMessage("invalid ERROR_URL");
+  err.second = words[2];
+  errorPages.insert(err);
+}
+
+void Server::_setRoot(vecStr words) {
+  if (!root.empty())
+    throw throwMessage("root already defined");
+  if (words.size() != 2)
+    throw throwMessage("need \"root PATH\"");
+  if (!checkWordFormat(words[1]))
+    throw throwMessage("invalid PATH for root");
+  root = words[1];
+  if (root[root.size() - 1] == '/')
+    root = root.substr(0, root.size() - 1);
+}
+
+static bool checkHostFormat(const string &str) {
+  vecStr addr;
+  size_t n;
+  bool success;
+
+  splitPattern(addr, str, '.');
+  if (addr.size() != 4)
+    return (false);
+  for (size_t i = 0; i < addr.size(); i++) {
+    n = myAtoi(addr[i], success);
+    if (!success || n > 255)
+      return false;
+  }
+  return true;
+}
+
+void Server::_setListen(vecStr words) {
+  vecStr addr;
+  bool success;
+  size_t res;
+
+  if (!host.empty() && port > 0)
+    throw throwMessage("host and port already defined");
+  if (words.size() != 2)
+    throw throwMessage("need listen HOST:PORT");
+  splitPattern(addr, words[1], ':');
+  if (addr.size() != 2)
+    throw throwMessage("need listen HOST:PORT");
+  if (addr[0] == "localhost")
+    host = "127.0.0.1";
+  else {
+    if (!checkHostFormat(addr[0]))
+      throw throwMessage("wrong HOST format");
+    host = addr[0];
+  }
+  res = myAtoi(addr[1], success);
+  if (!success || res > 65535)
+    throw throwMessage("wrong PORT");
+  port = res;
+}
+
+void Server::_setServerNames(vecStr words) {
+  if (!names.empty())
+    throw throwMessage("server name already defined");
+  if (words.size() < 2)
+    throw throwMessage("need at least one server name");
+  for (vecStrIt it = words.begin(); it != words.end(); ++it) {
+    if (!checkWordFormat(*it))
+      throw throwMessage("unvalid SERVER_NAME " + *it);
+    names.push_back(*it);
+  }
+}
+
+void Server::_findMapServerSet(const vecStr &lines) {
+  for (vecStr::const_iterator vecIt = lines.begin() + 1;
+       vecIt != lines.end() - 1; ++vecIt) {
+    vecStr words;
+    splitPattern(words, *vecIt, ' ');
+    mapServerSetIt it = mss.find(words.front());
+    if (it == mss.end())
+      throw throwMessage("unknown keyword \"" + words[0] + "\"");
+    ((this->*(it->second))(words));
+  }
+}
+
+void Server::checkDefault() {
+  if (names.empty())
+    names.push_back("localhost");
+  if (host.empty())
+    host = "127.0.0.1";
+  if (port == 0)
+    port = 80;
+  if (root.empty())
+    root = "/";
+  if (clientMaxBodySize == 0)
+    clientMaxBodySize = 1048576;
+  if (locations.empty()) {
+    locations.push_back(Location());
+    locations.back().checkDefault();
+  }
+}
+
+void Server::parse(const string &bock) {
+  vecStr locBlocks;
+  vecStr serverInfo;
+  if (!splitBlocks(locBlocks, bock, "location", serverInfo))
+    throw throwMessage("miss match brace { } in location block");
+  _findMapServerSet(serverInfo);
+  for (vecStr::iterator it = locBlocks.begin(); it != locBlocks.end(); ++it) {
+    locations.push_back(Location());
+    locations.back().parse(*it);
+    if(locations.back().root.empty())
+      locations.back().root = root;
+  }
+  checkDefault();
+}
+
+Server::Server()
+    : names(), host(), port(), root(), errorPages(), clientMaxBodySize(),
+      locations() {
+  mss["server_name"] = &Server::_setServerNames;
+  mss["listen"] = &Server::_setListen;
+  mss["root"] = &Server::_setRoot;
+  mss["error_page"] = &Server::_setErrorPages;
+  mss["client_max_body_size"] = &Server::_setMaxClientBody;
+}
+
+void Location::_setCgiPath(vecStr words) {
+  if (!cgiPath.empty())
+    throw throwMessage("cgi_path already defined");
+  if (words.size() != 2)
+    throw throwMessage("need cgi_path value");
+  if (!checkWordFormat(words[1]))
+    throw throwMessage("invalid cgi_path");
+  cgiPath = words[1];
+}
+
+void Location::_setCgiExtension(vecStr words) {
+  if (!cgiExtension.empty())
+    throw throwMessage("cgi_extension already defined");
+  if (words.size() != 2)
+    throw throwMessage("need cgi_extension value");
+  if (!checkWordFormat(words[1]))
+    throw throwMessage("invalid cgi_extension");
+  cgiExtension.push_back(words[1]);
+}
+
+void Location::_setUrlRedirection(vecStr words) {
+  if (!uriReturn.empty())
+    throw throwMessage("return already defined");
+  if (words.size() != 2)
+    throw throwMessage("need return REDIR_URL");
+  if (!checkWordFormat(words[1]))
+    throw throwMessage("invalid REDIR_URL");
+  uriReturn = words[1];
+}
+
+void Location::_setIndex(vecStr words) {
+  if (!index.empty())
+    throw throwMessage("index already defined");
+  if (words.size() < 2)
+    throw throwMessage("need at least one index page");
+  for (size_t i = 1; i < words.size(); i++) {
+    if (!checkWordFormat(words[i]))
+      throw throwMessage("invalid INDEX");
+    index = words[i];
+  }
+}
+
+void Location::_setAutoIndex(vecStr words) {
+  if (words.size() != 2 || (words[1] != "on" && words[1] != "off"))
+    throw throwMessage("autoindex needs 'on' or 'off'");
+  autoindex = (words[1] == "on");
+}
+
+void Location::_setMethods(vecStr words) {
+  setStr strMethods = createSetMethods();
+  if (!methods.empty())
+    throw throwMessage("methods already defined");
+  if (words.size() < 2)
+    throw throwMessage("need at least one method");
+  for (size_t i = 1; i < words.size(); i++) {
+    if (strMethods.find(words[i]) != strMethods.end())
+      methods.insert(words[i]);
+    else
+      throw throwMessage("unknown method \"" + words[i] + "\"");
+  }
+}
+
+void Location::_setRoot(vecStr words) {
+  if (!root.empty())
+    throw throwMessage("root already defined");
+  if (words.size() != 2)
+    throw throwMessage("need \"root PATH\"");
+  if (!checkWordFormat(words[1]))
+    throw throwMessage("invalid PATH for root");
+  root = words[1];
+  if (root[root.size() - 1] == '/')
+    root = root.substr(0, root.size() - 1);
+}
+
+void Location::_findMapLocationSet(const vecStr &lines) {
+  for (vecStr::const_iterator vecIt = lines.begin() + 1;
+       vecIt != lines.end() - 1; ++vecIt) {
+    vecStr words;
+    splitPattern(words, *vecIt, ' ');
+    mapLocationSetIt it = mls.find(words.front());
+    if (it == mls.end())
+      throw throwMessage("unknown keyword \"" + words[0] + "\"");
+    ((this->*(it->second))(words));
+  }
+}
+
+void Location::checkDefault() {
+  if (path.empty())
+    path = "/";
+  if (methods.empty())
+    methods = createSetMethods();
+  if (index.empty())
+    index = "index.html";
+}
+
+bool Location::_setPath(const string &str) {
+  vecStr words;
+
+  splitPattern(words, str, ' ');
+  if (words.size() != 3 || words[2] != "{" || !checkWordFormat(words[1]))
+    return (false);
+  path = words[1];
+  return true;
+}
+
+void Location::parse(const string &bock) {
+  vecStr block;
+  vecStr locationInfo;
+  splitBlocks(block, bock, "error", locationInfo);
+  if (!_setPath(locationInfo[0])) {
+    throw throwMessage(
+        "Location block wrong definition [expected] location path {}");
+  }
+  _findMapLocationSet(locationInfo);
+  checkDefault();
+}
+
+Location::Location()
+    : path(), root(), methods(), autoindex(false), index(), cgiExtension(),
+      cgiPath() {
+  mls["methods"] = &Location::_setMethods;
+  mls["root"] = &Location::_setRoot;
+  mls["autoindex"] = &Location::_setAutoIndex;
+  mls["index"] = &Location::_setIndex;
+  mls["return"] = &Location::_setUrlRedirection;
+  mls["cgi_extension"] = &Location::_setCgiExtension;
+  mls["cgi_path"] = &Location::_setCgiPath;
+}
+
+Configuration::Configuration() {}
 
 Configuration &Configuration::operator=(const Configuration &other) {
   this->_servers = other._servers;
@@ -18,252 +316,74 @@ Configuration &Configuration::operator=(const Configuration &other) {
 
 Configuration::~Configuration() {}
 
-void Configuration::_parseConfig(string file) {
-  string file_content;
-  size_t i;
-  size_t size;
-  vecStr line;
+void Configuration::parseConfig(const string &pathFile) {
+  string fileString;
+  vecStr serverBlocks;
+  vecStr configInfo;
 
-  i = 0;
-  file_content = readFile(file);
-  size = countLines(file_content);
-  while (i < size) {
-    if (!isSkippable(file_content, i)) {
-      line = splitWhitespace(getLine(file_content, i));
-      if (line.size() > 0 && line[0] == "server") {
-        _parseServer(file_content, i, getClosingBracket(file_content, i));
-        i = getClosingBracket(file_content, i);
-      } else
-        throw ParsingException(i, "Unexpected token '" + line[0] + "'.");
-    }
-    ++i;
+  if (!readFile(pathFile, fileString))
+    throw throwMessage("Fail to open file");
+  if (!splitBlocks(serverBlocks, fileString, "server", configInfo))
+    throw throwMessage("matching { } issues in a server block");
+  if (!configInfo.empty())
+    throw throwMessage("not only server blocks");
+  for (vecStr::iterator it = serverBlocks.begin(); it != serverBlocks.end();
+       ++it) {
+    _servers.push_back(Server());
+    _servers.back().parse(*it);
   }
-  _validateConfig();
-}
-
-void Configuration::_parseServer(string source, size_t line_start,
-                                 size_t line_end) {
-  server s;
-  vecStr line;
-
-  s = _defaultServer();
-  for (size_t n = line_start + 1; n < line_end; ++n) {
-    if (!isSkippable(source, n)) {
-      vecStr words = splitWhitespace(getLine(source, n));
-      if (words.size() > 0 && words[0] == "location") {
-        s.locations.push_back(
-            _parseLocation(source, n, getClosingBracket(source, n)));
-        n = getClosingBracket(source, n);
-      } else
-        _parseServerProperty(source, n, s);
-    }
-  }
-  _servers.push_back(s);
-}
-
-void Configuration::_parseServerProperty(string source, size_t n,
-                                         server &s) {
-  std::vector<std::string> line;
-
-  line = parseProperty(source, n, "server");
-  if (line[0] == server_properties[0]) {
-    if (line.size() != 3)
-      throw ParsingException(n, std::string(server_properties[0]) +
-                                    " <port> <host>;");
-    s.port = uIntegerParam(line[1], n);
-    s.host = line[2];
-  }
-  if (line[0] == server_properties[1]) {
-    for (size_t i = 1; i < line.size(); ++i)
-      s.names.push_back(line[i]);
-  }
-  if (line[0] == server_properties[2]) {
-    if (line.size() != 3)
-      throw ParsingException(n, std::string(server_properties[2]) +
-                                    "<code> <file>;");
-    s.error_pages[uIntegerParam(line[1], n)] = line[2];
-  }
-  if (line[0] == server_properties[3]) {
-    s.root = line[1];
-  }
-}
-
-Configuration::location Configuration::_parseLocation(string source,
-                                                      size_t line_start,
-                                                      size_t line_end) {
-  location loc;
-  vecStr line;
-
-  loc = _defaultLocation();
-  line = splitWhitespace(getLine(source, line_start));
-  if (line.size() != 3)
-    throw ParsingException(line_start, "Location should have a name.");
-  loc.name = line[1];
-  for (size_t n = line_start + 1; n < line_end; ++n) {
-    if (!isSkippable(source, n))
-      _parseLocationProperty(source, n, loc);
-  }
-  return (loc);
-}
-
-void Configuration::_parseLocationProperty(string source, size_t n,
-                                           location &l) {
-  vecStr line;
-  char last;
-
-  line = parseProperty(source, n, "route");
-  if (line[0] == route_properties[0]) {
-    for (size_t i = 1; i < line.size(); ++i) {
-      if (!isMethodValid(line[i]))
-        throw ParsingException(n, "'" + line[i] + "' is not a valid method.");
-      else
-        l.methods.push_back(line[i]);
-    }
-  }
-  if (line[0] == route_properties[1])
-    l.root = line[1];
-  if (line[0] == route_properties[2])
-    l.autoindex = boolParam(line[1], n);
-  if (line[0] == route_properties[3])
-    l.index = line[1];
-  if (line[0] == route_properties[4]) {
-    for (size_t i = 1; i < line.size(); ++i)
-      l.cgi_extension.push_back(line[i]);
-  }
-  if (line[0] == route_properties[5])
-    l.cgi_path = line[1];
-  if (line[0] == route_properties[6])
-    l.upload_enable = boolParam(line[1], n);
-  if (line[0] == route_properties[7])
-    l.upload_path = line[1];
-  if (line[0] == route_properties[8]) {
-    if (line.size() != 2)
-      throw ParsingException(n, string(server_properties[3]) +
-                                    " <size[K,M,G]>;");
-    l.client_max_body_size = uIntegerParam(line[1], n);
-    last = line[1][line[1].size() - 1];
-    if (last == 'K' || last == 'k')
-      l.client_max_body_size *= 1024;
-    else if (last == 'M' || last == 'm')
-      l.client_max_body_size *= 1024 * 1024;
-    else if (last == 'G' || last == 'G')
-      l.client_max_body_size *= 1024 * 1024 * 1024;
-    else if (!std::isdigit(last))
-      throw ParsingException(n, string(server_properties[3]) +
-                                    " <size[K,M,G]>;");
+  if (_servers.empty()) {
+    _servers.push_back(Server());
+    _servers.back().checkDefault();
   }
 }
 
 void Configuration::print() {
-  std::map<int, std::string>::iterator it;
-  std::vector<location>::iterator it2;
-
-  for (size_t i = 0; i < _servers.size(); i++) {
-    std::cout << "- Server" << std::endl;
-    std::cout << "   * server_name: ";
-    for (size_t j = 0; j < _servers[i].names.size(); ++j)
-      std::cout << _servers[i].names[j] << " ";
-    std::cout << std::endl;
-    std::cout << "   * host: " + _servers[i].host << std::endl;
-    std::cout << "   * port: " + uIntegerToString(_servers[i].port)
-              << std::endl;
-    std::cout << "   * root: " + _servers[i].root << std::endl;
-    it = _servers[i].error_pages.begin();
-    while (it != _servers[i].error_pages.end()) {
-      std::cout << "   * error_page for " + uIntegerToString(it->first) + ": " +
-                       it->second
-                << std::endl;
-      ++it;
-    }
-    it2 = _servers[i].locations.begin();
-    while (it2 != _servers[i].locations.end()) {
-      std::cout << "   - Location " + it2->name << std::endl;
-      std::cout << "     * methods: ";
-      for (size_t j = 0; j < it2->methods.size(); ++j)
-        std::cout << it2->methods[j] + " ";
-      std::cout << std::endl;
-      std::cout << "     * root: " << it2->root << std::endl;
-      std::cout << "     * cgi_extension: ";
-      for (size_t j = 0; j < it2->cgi_extension.size(); ++j)
-        std::cout << it2->cgi_extension[j] << " ";
-      std::cout << std::endl;
-      std::cout << "     * cgi_path: " << it2->cgi_path << std::endl;
-      std::cout << "     * autoindex: " << it2->autoindex << std::endl;
-      std::cout << "     * upload_enable: " << it2->upload_enable << std::endl;
-      std::cout << "     * upload_path: " << it2->upload_path << std::endl;
-      std::cout << "     * client_max_body_size: " +
-                       uIntegerToString(it2->client_max_body_size)
-                << std::endl;
-      ++it2;
-    }
-  }
+//  std::map<int, std::string>::iterator it;
+//  std::vector<location>::iterator it2;
+//
+//  for (size_t i = 0; i < _servers.size(); i++) {
+//    std::cout << "- Select" << std::endl;
+//    std::cout << "   * server_name: ";
+//    for (size_t j = 0; j < _servers[i].names.size(); ++j)
+//      std::cout << _servers[i].names[j] << " ";
+//    std::cout << std::endl;
+//    std::cout << "   * host: " + _servers[i].host << std::endl;
+//    std::cout << "   * port: " + uIntegerToString(_servers[i].port)
+//              << std::endl;
+//    std::cout << "   * root: " + _servers[i].root << std::endl;
+//    it = _servers[i].error_pages.begin();
+//    while (it != _servers[i].error_pages.end()) {
+//      std::cout << "   * error_page for " + uIntegerToString(it->first) + ": " +
+//                       it->second
+//                << std::endl;
+//      ++it;
+//    }
+//    it2 = _servers[i].locations.begin();
+//    while (it2 != _servers[i].locations.end()) {
+//      std::cout << "   - Location " + it2->name << std::endl;
+//      std::cout << "     * methods: ";
+//      for (size_t j = 0; j < it2->methods.size(); ++j)
+//        std::cout << it2->methods[j] + " ";
+//      std::cout << std::endl;
+//      std::cout << "     * root: " << it2->root << std::endl;
+//      std::cout << "     * cgi_extension: ";
+//      for (size_t j = 0; j < it2->cgi_extension.size(); ++j)
+//        std::cout << it2->cgi_extension[j] << " ";
+//      std::cout << std::endl;
+//      std::cout << "     * cgi_path: " << it2->cgi_path << std::endl;
+//      std::cout << "     * autoindex: " << it2->autoindex << std::endl;
+//      std::cout << "     * upload_enable: " << it2->upload_enable << std::endl;
+//      std::cout << "     * upload_path: " << it2->upload_path << std::endl;
+//      std::cout << "     * client_max_body_size: " +
+//                       uIntegerToString(it2->client_max_body_size)
+//                << std::endl;
+//      ++it2;
+//    }
+//  }
 }
 
-std::vector<Configuration::server> Configuration::getServers() {
+vecServ Configuration::getServers() {
   return (_servers);
 }
 
-void Configuration::_validateConfig() {
-  if (_servers.size() == 0)
-    throw ParsingException(
-        0, "Your configuration file must provide at least one server.");
-  for (size_t i = 0; i < _servers.size(); ++i) {
-    for (size_t j = 0; j < _servers[i].locations.size(); ++j) {
-      if (_servers[i].locations[j].cgi_path.size() > 0 &&
-          pathType(_servers[i].locations[j].cgi_path, 0) != 1)
-        throw ParsingException(0, "The cgi path '" +
-                                      _servers[i].locations[j].cgi_path +
-                                      "' is not a valid file.");
-    }
-  }
-  for (size_t i = 0; i < _servers.size(); ++i) {
-    for (size_t j = 0; j < _servers.size(); ++j) {
-      if (i != j) {
-        if (_servers[i].host == "127.0.0.1")
-          _servers[i].host = "localhost";
-        if (_servers[j].host == "127.0.0.1")
-          _servers[j].host = "localhost";
-        if (_servers[i].host == _servers[j].host &&
-            _servers[i].port == _servers[j].port)
-          throw ParsingException(0, "Two servers have the same host and port.");
-      }
-    }
-  }
-}
-
-
-Configuration::server Configuration::_defaultServer() {
-  server s;
-
-  s.port = 80;
-  s.host = "127.0.0.1";
-  s.root = "";
-  return (s);
-}
-
-Configuration::location Configuration::_defaultLocation() {
-  location l;
-
-  l.name = "/";
-  l.root = "";
-  l.index = "";
-  l.autoindex = false;
-  l.cgi_path = "";
-  l.upload_enable = false;
-  l.upload_path = "";
-  l.client_max_body_size = 1048576;
-  return (l);
-}
-
-void Configuration::_completeConfig() {
-  for (size_t i = 0; i < _servers.size(); ++i) {
-    if (_servers[i].locations.size() == 0)
-      _servers[i].locations.push_back(_defaultLocation());
-    for (size_t j = 0; j < _servers[i].locations.size(); ++j) {
-      if (_servers[i].locations[j].methods.size() == 0)
-        _servers[i].locations[j].methods.push_back("GET");
-      if (_servers[i].locations[j].root.size() == 0)
-        _servers[i].locations[j].root = _servers[i].root;
-    }
-  }
-}

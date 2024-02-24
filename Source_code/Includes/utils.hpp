@@ -61,7 +61,7 @@ public:
 
 void throwError(const std::exception& ex);
 void printError(const std::string& msg);
-int treat(int sd, Headers &header_block, Configuration::server server_conf);
+//int treat(int sd, Headers &header_block, Server server_conf);
 void endServer(int signal);
 
 #endif // WEBSERV_UTILS_HPP
