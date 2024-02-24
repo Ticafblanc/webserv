@@ -196,7 +196,7 @@ Headers::Headers(const std::string &request, const std::string &client_ip,
         this->pushContent(block_lines[i]);
     else if (content_type == 2) {
       while (42) {
-        size_t nbr_char = std::stoi(block_lines[end_headers].c_str(), 0, 16);
+        size_t nbr_char = 0; /*= std::stoi(block_lines[end_headers].c_str(), 0, 16);*/
         end_headers++;
         if (nbr_char == 0)
           break;

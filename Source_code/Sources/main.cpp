@@ -7,25 +7,26 @@
 
 char **envp;
 
-static pairBoolStr checkArg(int argc, char **argv, char **env){
-  //testlsdkljfljslkjd
-  if (argc > 2) {
-    printError("Please use : ./WebServ <path>");
-    return make_pair(false, "");
-  }
-  envp = env;
-  string path = argc == 2 ? argv[1] : "../conf/webserv.conf";
-  return make_pair(true, path);
+static pairBoolStr checkArg(int argc, char **argv, char **env) {
+    if (argc > 2) {
+        printError("Please use : ./WebServ <path>");
+        return make_pair(false, "");
+    }
+    envp = env;
+    string path = argc == 2 ? argv[1] : "../conf/webserv.conf";
+    return make_pair(true, path);
 }
 
 int main(int argc, char **argv, char **env) {
-  pairBoolStr ret = checkArg(argc, argv, env);
-  if (ret.first) {
+    pairBoolStr ret = checkArg(argc, argv, env);
+    if (ret.first) {
 //    Select select;
 //    SocketManager<Socket *> socketManager;
-    Configuration config;
-    try {
-      config.parseConfig(ret.second);
+        Configuration config;
+        try {
+            cout << "coucou" << endl;
+            config.parseConfig(ret.second);
+            cout << "coucou" << endl;
 //      for (int i = 0; i < (int)config.getServers().size(); i++) {
 //        Socket *socket = NULL;
 //        for (size_t j = 0; j < socketManager.getSockets().size(); j++)
@@ -44,10 +45,11 @@ int main(int argc, char **argv, char **env) {
 //      socketManager.getSockets().clear();
 //      signal(SIGINT, endServer);
 //      select.loop();
-    } catch (const std::exception &e) {
-      throwError(e);
+        } catch (const std::exception &e) {
+            throwError(e);
+        }
+        return EXIT_SUCCESS;
     }
-    return EXIT_SUCCESS;
-  }
-  return EXIT_FAILURE;
+    cout << "end" << endl;
+    return EXIT_FAILURE;
 }

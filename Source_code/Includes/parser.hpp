@@ -15,19 +15,19 @@ bool readFile(const string &file, string &fileString);
 
 bool checkWordFormat(const string &str);
 
-static const char *server_properties[] = {"listen", "server_name", "error_page",
-                                          "root", 0};
-
-static const char *route_properties[] = {"method",
-                                         "root",
-                                         "autoindex",
-                                         "index",
-                                         "cgi_extension",
-                                         "cgi_path",
-                                         "upload_enable",
-                                         "upload_path",
-                                         "client_max_body_size",
-                                         0};
+//static const char *server_properties[] = {"listen", "server_name", "error_page",
+//                                          "root", 0};
+//
+//static const char *route_properties[] = {"method",
+//                                         "root",
+//                                         "autoindex",
+//                                         "index",
+//                                         "cgi_extension",
+//                                         "cgi_path",
+//                                         "upload_enable",
+//                                         "upload_path",
+//                                         "client_max_body_size",
+//                                         0};
 
 std::string readFile(std::string file);
 

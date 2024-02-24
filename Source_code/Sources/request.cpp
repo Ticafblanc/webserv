@@ -600,13 +600,14 @@ string Request::_getDateHeader()
  */
 string Request::_formatTimestamp(time_t timestamp)
 {
+    (void)timestamp;
   char buffer[33];
-  struct tm *ts;
-  size_t last;
+//  struct tm *ts;
+//  size_t last;
 
-  ts   = localtime(&timestamp);
-  last = strftime(buffer, 32, "%a, %d %b %Y %T GMT", ts);
-  buffer[last] = '\0';
+//  ts   = localtime(&timestamp);
+//  last = strftime(bufferuffer, 32, "%a, %d %b %Y %T GMT", ts);
+//  buffer[last] = '\0';
   return (string(buffer));
 }
 
