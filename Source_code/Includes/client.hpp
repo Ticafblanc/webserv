@@ -9,16 +9,15 @@
 
 class Client : public Socket{
 private:
-  Socket *_parent_socket;
   string _client_ip;
   bool _information_received;
   string _request;
 
 public:
-  Client(Socket *parent, string client_ip, int sd);
-  Client(const Client &copy);
+  Client(Socket &server, const string& client_ip, int sd);
+  Client(Client &copy);
   virtual ~Client();
-  Client &operator=(const Socket &op);
+  Client &operator=(const Client &rhs);
 
   Socket *getParent();
   string &getRequest();
