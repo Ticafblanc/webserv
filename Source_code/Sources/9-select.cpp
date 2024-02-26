@@ -106,7 +106,7 @@ bool Select::recvHeader(Client &clt) {
     size_t pos = clt.getRequest().find("\r\n\r\n");
     if (pos != string::npos) {
       clt.getHeader() = clt.getRequest().substr(0, pos + 2);
-      clt.getRequest() = clt.getRequest().substr(pos + 3);
+      clt.getRequest() = clt.getRequest().substr(pos + 4);
       return true;
     }
   }
@@ -118,9 +118,7 @@ ssize_t Select::recvBuffer(Client &clt) {
   bzero(buffer, BUFFER_SIZE + 1);
   ssize_t rc = recv(clt.getSd(), buffer, BUFFER_SIZE, 0);
   if (rc > 0) {
-    cout << buffer << endl;
     clt.getRequest().append(buffer);
-    cout << clt.getRequest() << endl;
   }
   return rc;
 }
@@ -128,9 +126,8 @@ ssize_t Select::recvBuffer(Client &clt) {
 void Select::recvMessage(Client &clt, set<int> &sds, fd_set *fdSets) {
   ssize_t ret = recvBuffer(clt);
   if (ret > 0) {
-    cout << "recv  > 0" << endl;
-    //    if (recvHeader(clt))
-    //      _headers[clt.getSd()].parse();
+    if (recvHeader(clt))
+          _headers[clt.getSd()].parse();
     //    if (_headers[clt.getSd()].isGood())
     //      _request[clt.getSd()].checkIfComplet();
   } else if (ret == 0 /*|| _headers[clt.getSd()].isCloseConnection()*/) {
@@ -140,7 +137,7 @@ void Select::recvMessage(Client &clt, set<int> &sds, fd_set *fdSets) {
 }
 
 void Select::checkClient(fd_set *fdSets, int *intVal, set<int> &sds) {
-  while(*intVal > 0) {
+  while (*intVal > 0) {
     for (SocketManager<Client>::mapSockIt it =
              _clientManager.getSockets().begin();
          it != _clientManager.getSockets().end(); ++it) {
@@ -161,7 +158,6 @@ void Select::checkClient(fd_set *fdSets, int *intVal, set<int> &sds) {
     (*intVal)--;
   }
 }
-
 
 static void resetCountError(int &countError) { countError = 3; }
 static bool countErrorIsValid(int &countError) { return countError-- > 0; }
