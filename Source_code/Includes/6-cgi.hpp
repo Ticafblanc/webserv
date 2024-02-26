@@ -10,6 +10,7 @@
 
 class CGI {
 private:
+  Headers *_headers;
   string _cgi_path;
   string _ressource_path;
   Headers _request;
@@ -27,8 +28,7 @@ private:
 
 public:
   CGI();
-  CGI(string cgi_path, string ressource_path, Headers request,
-      Server &conf, Location &location);
+  CGI(Headers &headers);
   ~CGI();
   string getOutput();
 };

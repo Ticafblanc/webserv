@@ -25,41 +25,24 @@ private:
   volatile sig_atomic_t _run;
   socketServer &_serverManager;
   socketClient &_clientManager;
+  map<int, Headers> _headers;
+  map<int, Request> _request;
+  map<int, Response> _response;
+  map<int, CGI> _cgi;
 
   static void endServer(int signal);
 
-  void checkServer(fd_set *fdSets, int *intVal);
-  static void acceptConnection(const int &sd, int *intVal, fd_set *fdSets);
+  void checkServer(fd_set *fdSets, int *intVal, set<int> &sds);
+  void acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets);
+  void closeConnection(const int &sd, set<int> &sds, fd_set *fdSets);
 
+  void checkClient(fd_set *fdSets, int *intVal, set<int> &sds);
+  void recvMessage(Client & clt, set<int> &sds, fd_set *fdSets);
+  static ssize_t recvBuffer(Client &clt);
+  static bool recvHeader(Client &clt);
 
-  void checkClient(fd_set *fdSets, int *intVal);
-  int recvMessage(Client & clt);
-  int sendMessage(Client &clt);
-
-  /**
-   *  @brief Close the connection with the socket
-   *  descriptor (not listener). Remove the socket of
-   *  the set to treat.
-   *
-   *  @param sd the socket descriptor.
-   *  @param max_sd the number of socket.
-   *  @param master_set the master set containing all the final
-   *      the socket descriptor.
-   *  @return the new number of socket descriptor.
-   */
-  int closeConnection(int sd, int max_sd, fd_set *read_set, fd_set *write_set);
-
-  /**
-   *  @brief Give the server name where the client want
-   *  to access.
-   *  @todo add throw if host not found.
-   *
-   *  @param hb the headers block containing the host parameter.
-   *  @return the server name.
-   */
-  std::string getServerName(const Headers &hb);
-
-  int getChunk(int sd, vecStr &request);
+  void sendMessage(Client &clt, set<int> &sds, fd_set *fdSets);
+  ssize_t sendBuffer(Client &clt) ;
 };
 
 #endif // WEBSERV_SELECT_HPP

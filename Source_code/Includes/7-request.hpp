@@ -9,6 +9,8 @@
 
 class Request {
 private:
+  Headers *_headers;
+  CGI *_cgi;
   string _ressource;
   Headers _header_block;
   Server _conf;
@@ -48,9 +50,8 @@ private:
   string _getCGIStatus(string response);
 
 public:
-  Request(
-      Headers &header_block,
-      Server serverConf = Server());
+  Request();
+  Request(Headers &headers, CGI &cgi);
   Request(const Request &other);
   Request &operator=(const Request &other);
   ~Request();

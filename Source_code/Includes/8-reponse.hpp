@@ -7,6 +7,10 @@
 
 #include "7-request.hpp"
 
-class reponse {};
+class Response {
+
+  Response();
+  Response(Request & request);
+};
 
 #endif // WEBSERV_REPONSE_HPP

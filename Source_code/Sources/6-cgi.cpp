@@ -12,10 +12,11 @@
  * @param conf the server configuration
  * @param location the current location conf
  */
-CGI::CGI(std::string cgi_path, std::string ressource_path, Headers request,
-         Server &conf, Location &location)
-    : _cgi_path(cgi_path), _ressource_path(ressource_path), _request(request),
-      _conf(conf), _location(location) {}
+CGI::CGI(Headers &headers)
+    : _headers(&headers),_cgi_path(), _ressource_path(), _request(), _conf(*new Server),
+      _location(*new Location) {
+  (void)_headers;
+}
 
 CGI::~CGI() {}
 
@@ -81,7 +82,7 @@ std::string CGI::_execCGI(char **args) {
     _freeArgs(exec_args);
   }
   Log("End CGI");
-//  return (readFile("/tmp/webserv_cgi"));
+  //  return (readFile("/tmp/webserv_cgi"));
   return "";
 }
 
@@ -176,7 +177,7 @@ std::map<std::string, std::string> CGI::_getParams() {
       _removeQueryArgs(_request.getRequestLine()._request_target);
   args["REMOTE_IDENT"] = "";
   args["REDIRECT_STATUS"] = "200";
-  args["REMOTE_ADDR"] = _request.getClientIP();
+//  args["REMOTE_ADDR"] = _request.getClientIP();
   args["SCRIPT_NAME"] =
       _location.path +
       ((_location.path[_location.path.length() - 1] == '/') ? "" : "/") +

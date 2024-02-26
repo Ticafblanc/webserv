@@ -71,7 +71,6 @@ extern char **envp;
 // macro for select int[3] intVal
 #define RETURN_VALUE 0
 #define COUNT_ERROR 1
-#define GREATER_SDS 2
 
 // macro for select for max connection
 #define MAX_CONNECTION 100

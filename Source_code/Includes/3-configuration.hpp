@@ -52,7 +52,7 @@ struct Server {
   vecStr names;
   bool defaultServer;
   string host;
-  size_t port;
+  uint16_t port;
   string root;
   mapIntStr errorPages;
   size_t clientMaxBodySize;

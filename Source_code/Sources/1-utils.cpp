@@ -4,8 +4,6 @@
 
 #include "../Includes/1-utils.hpp"
 
-
-
 void throwError(const exception &ex) {
   cerr << "\033[1m\033[31mERROR \033[0m: " << ex.what() << '\n';
 }

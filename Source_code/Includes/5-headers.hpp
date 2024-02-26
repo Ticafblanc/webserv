@@ -31,7 +31,7 @@ private:
   struct status_line _status_line;
   vector<struct header_field> _header_fields;
   bool _is_request;
-  string _client_ip;
+  Client *_client;
   string _content;
   string _raw_request;
 
@@ -71,8 +71,8 @@ private:
   int getHeaderFileds(vector<string> lines);
 
 public:
-  Headers(const string &request, const string &client_ip,
-               int content_type);
+  Headers();
+  Headers(Client & clt);
   Headers(const Headers &copy);
   ~Headers();
   Headers &operator=(const Headers &op);

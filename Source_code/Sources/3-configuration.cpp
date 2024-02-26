@@ -97,7 +97,7 @@ void Server::_setListen(vecStr words) {
   if (words.size() < 2)
     throw throwMessage("need listen HOST:PORT");
   splitPattern(addr, words[1], ':');
-  if (addr.size() != 2 || addr.size() != 1)
+  if (addr.size() != 2 && addr.size() != 1)
     throw throwMessage("need listen HOST:PORT");
   if (addr.size() == 2 && addr[0] == "localhost")
     host = "127.0.0.1";

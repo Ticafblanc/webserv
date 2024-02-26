@@ -20,10 +20,15 @@ void Socket::setSocketNonBlocking() {
     throw(throwMessageErrno("Socket to nonblocking"));
 }
 
-void Socket::initAddress(int port) {
+void Socket::initAddress() {
   _address.sin_family = AF_INET;
-  _address.sin_addr.s_addr = INADDR_ANY;
-  _address.sin_port = htons(port);
+  _address.sin_addr.s_addr = inet_addr(_ipAddress.c_str());
+  _address.sin_port = htons(_port);
+}
+
+void Socket::getSockaddrIn() {
+  _ipAddress = inet_ntoa(_address.sin_addr);
+  _port = ntohs(_address.sin_port);
 }
 
 void Socket::bindSocket() {
@@ -36,18 +41,24 @@ void Socket::socketListener() {
     throw(throwMessageErrno("Set socket to listener"));
 }
 
+void Socket::closeSd() {
+  close(_sd);
+  _sd = 0;
+}
+
 static void setServersConfig(struct Server &server, mapStrServ &serversConfig) {
   for (vecStrIt i = server.names.begin(); i != server.names.end(); ++i)
-    serversConfig[*i] = server;
+    serversConfig[*i] = &server;
 }
 
 Socket::Socket(struct Server &server)
-    : _sd(-1), _optionBuffer(), _serversConfig(), _defaultServer(NULL) {
+    : _ipAddress(server.host), _port(server.port), _sd(-1), _optionBuffer(),
+      _serversConfig(), _defaultServer(NULL) {
   try {
     createSocketDescriptor();
     setSocketOptions();
     setSocketNonBlocking();
-    initAddress(server.port);
+    initAddress();
     bindSocket();
     socketListener();
   } catch (const std::exception &e) {
@@ -61,21 +72,28 @@ static void setServersConfigIf(struct Server &server,
                                mapStrServ &serversConfig) {
   for (vecStrIt i = server.names.begin(); i != server.names.end(); ++i)
     if (serversConfig.find(*i) == serversConfig.end())
-      serversConfig[*i] = server;
+      serversConfig[*i] = &server;
 }
 
 void Socket::add(struct Server &server) {
   setServersConfigIf(server, _serversConfig);
 }
 
+Socket::Socket()
+    : _ipAddress(), _port(), _sd(), _optionBuffer(), _address(),
+      _serversConfig(), _defaultServer(NULL) {}
+
 Socket::Socket(const Socket &copy)
-    : _sd(copy._sd), _optionBuffer(copy._optionBuffer), _address(copy._address),
+    : _ipAddress(copy._ipAddress), _port(copy._port), _sd(copy._sd),
+      _optionBuffer(copy._optionBuffer), _address(copy._address),
       _serversConfig(copy._serversConfig), _defaultServer(NULL) {}
 
 Socket::~Socket() {}
 
 Socket &Socket::operator=(const Socket &rhs) {
   if (this != &rhs) {
+    _ipAddress = rhs._ipAddress;
+    _port = rhs._port;
     _sd = rhs._sd;
     _optionBuffer = rhs._optionBuffer;
     _address = rhs._address;
@@ -85,7 +103,7 @@ Socket &Socket::operator=(const Socket &rhs) {
   return (*this);
 }
 
-int Socket::getSocketDescriptor() const { return _sd; }
+int Socket::getSd() const { return _sd; }
 
 mapStrServ &Socket::getServerConfiguration() { return _serversConfig; }
 
@@ -93,42 +111,43 @@ bool Socket::isDefault() {
   if (!_defaultServer) {
     for (mapStrServIt i = _serversConfig.begin(); i != _serversConfig.end();
          ++i) {
-      if (i->second.isDefault()) {
-        _defaultServer = &i->second;
+      if (i->second->isDefault()) {
+        _defaultServer = i->second;
         return true;
       }
     }
   }
   return false;
 }
+const string &Socket::getIpAddress() const { return _ipAddress; }
+const uint16_t &Socket::getPort() const { return _port; }
 
-Client::Client(Socket &server, const string &client_ip, int sd)
-    : Socket(server), _client_ip(client_ip), _information_received(false),
-      _request() {
+Client::Client(Socket &server, const sockaddr_in &address, int sd)
+    : Socket(server), _endRecv(false), _request() {
+  _address = address;
   _sd = sd;
+  getSockaddrIn();
 }
 
+Client::Client() : Socket(), _endRecv(), _request() {}
+
 Client::Client(const Client &copy)
-    : Socket(copy), _client_ip(copy._client_ip),
-      _information_received(copy._information_received),
-      _request(copy._request) {}
+    : Socket(copy), _endRecv(copy._endRecv), _request(copy._request) {}
 
 Client::~Client() {}
 
 Client &Client::operator=(const Client &rhs) {
   if (this != &rhs) {
     Socket::operator=(rhs);
-    _client_ip = rhs._client_ip;
-    _information_received = rhs._information_received;
+    _endRecv = rhs._endRecv;
     _request = rhs._request;
   }
   return *this;
 }
 
-std::string &Client::getRequest() { return (this->_request); }
+string &Client::getHeader() { return (this->_header); }
+string &Client::getRequest() { return (this->_request); }
 
-std::string Client::getClientIp() { return (this->_client_ip); }
+bool Client::isEndRecv() const { return (this->_endRecv); }
 
-bool Client::informationReceived() { return (this->_information_received); }
-
-void Client::setReceived(bool val) { this->_information_received = val; }
+void Client::setReceived(bool val) { this->_endRecv = val; }

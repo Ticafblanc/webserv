@@ -5,13 +5,17 @@
 #include "../Includes/7-request.hpp"
 
 /**
- * Creates a request interpretor from the request string and a server configuration
+ * Creates a request interpretor from the request string and a server
+ * configuration
  * @param request the string repreesentation of the HTTP request
  * @param serverConf the server configuration
  */
-Request::Request(Headers & header_block, Server serverConf)
-    : _header_block(header_block), _conf(serverConf)
-{
+Request::Request() : _headers(), _cgi(),_header_block(), _conf() {}
+
+Request::Request(Headers &headers, CGI &cgi)
+    : _headers(&headers), _cgi(&cgi), _header_block(), _conf() {
+  (void)_headers;
+  (void)_cgi;
   if (this->_header_block.isRequest())
     this->_ressource = this->_header_block.getRequestLine()._request_target;
   this->_location = _getLocation(_ressource);
@@ -19,17 +23,13 @@ Request::Request(Headers & header_block, Server serverConf)
   DEBUG("location: " + this->_location.name);
 }
 
-Request::Request(const Request &other)
-    : _header_block(other._header_block)
-{
+Request::Request(const Request &other) : _header_block(other._header_block) {
   *this = other;
 }
 
-Request::~Request(void)
-{}
+Request::~Request(void) {}
 
-Request &Request::operator=(const Request &other)
-{
+Request &Request::operator=(const Request &other) {
   this->_header_block = other._header_block;
   this->_ressource = other._ressource;
   this->_conf = other._conf;
@@ -42,66 +42,74 @@ Request &Request::operator=(const Request &other)
  * @return a string representing the HTTP response
  * @todo implement the case when the method isn't correct
  */
-string Request::getResponse(void)
-{
-  map<string, string> headers;
-  string method = _header_block.getRequestLine()._method;
-  string ressource_path;
-
-  headers["Content-Type"] = _getMIMEType("a.html");
-  if (_header_block.getContent().size() > _conf.clientMaxBodySize)
-    return (_generateResponse(413, headers, method != "HEAD" ? _getErrorHTMLPage(413) : ""));
-  if (!_isMethodAllowed(method))
-    return (_wrongMethod());
-  if (method == "TRACE")
-    return (_trace(headers));
-  else if (method == "OPTIONS")
-    return (_options(headers));
-  else if (method == "CONNECT")
-    return (_generateResponse(200, headers, ""));
-  ressource_path = _location.root;
-  if (ressource_path[ressource_path.size() - 1] == '/')
-    ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
-  ressource_path += _ressource;
-  DEBUG("ressource path: " + ressource_path);
-  if (pathType(ressource_path, NULL) == 2)
-  {
-    DEBUG("ressource path: " + ressource_path + ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/") + _location.index);
-    if (_location.index.length() > 0)
-      ressource_path = ressource_path + ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/") + _location.index;
-    else
-    {
-      if (_location.autoindex)
-        return (_generateResponse(200, headers, method != "HEAD" ? _getListingHTMLPage(ressource_path, _ressource) : ""));
-      else
-        return (_generateResponse(403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
-    }
-  }
-  if (pathType(ressource_path, NULL) == 0 && method != "PUT" && method != "POST")
-    return (_generateResponse(404, headers, method != "HEAD" ? _getErrorHTMLPage(404) : ""));
-  if (_shouldCallCGI(ressource_path))
-  {
-    DEBUG("call CGI for this request");
-    try
-    {
-      return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path, _header_block, _conf, _location).getOutput()));
-    }
-    catch (const exception &e)
-    {
-      cerr << e.what() << endl;
-      return (_generateResponse(500, headers, method != "HEAD" ?_getErrorHTMLPage(500) : ""));
-    }
-  }
-  if (method == "GET")
-    return _get(ressource_path, headers);
-  else if (method == "HEAD")
-    return _head(ressource_path, headers);
-  else if (method == "POST")
-    return _post(ressource_path, headers);
-  else if (method == "PUT")
-    return (_put(ressource_path, headers));
-  else if (method == "DELETE")
-    return (_delete(ressource_path, headers));
+string Request::getResponse(void) {
+//  map<string, string> headers;
+//  string method = _header_block.getRequestLine()._method;
+//  string ressource_path;
+//
+//  headers["Content-Type"] = _getMIMEType("a.html");
+//  if (_header_block.getContent().size() > _conf.clientMaxBodySize)
+//    return (_generateResponse(413, headers,
+//                              method != "HEAD" ? _getErrorHTMLPage(413) : ""));
+//  if (!_isMethodAllowed(method))
+//    return (_wrongMethod());
+//  if (method == "TRACE")
+//    return (_trace(headers));
+//  else if (method == "OPTIONS")
+//    return (_options(headers));
+//  else if (method == "CONNECT")
+//    return (_generateResponse(200, headers, ""));
+//  ressource_path = _location.root;
+//  if (ressource_path[ressource_path.size() - 1] == '/')
+//    ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
+//  ressource_path += _ressource;
+//  DEBUG("ressource path: " + ressource_path);
+//  if (pathType(ressource_path, NULL) == 2) {
+//    DEBUG("ressource path: " + ressource_path +
+//          ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/") +
+//          _location.index);
+//    if (_location.index.length() > 0)
+//      ressource_path =
+//          ressource_path +
+//          ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/") +
+//          _location.index;
+//    else {
+//      if (_location.autoindex)
+//        return (_generateResponse(
+//            200, headers,
+//            method != "HEAD" ? _getListingHTMLPage(ressource_path, _ressource)
+//                             : ""));
+//      else
+//        return (_generateResponse(
+//            403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
+//    }
+//  }
+//  if (pathType(ressource_path, NULL) == 0 && method != "PUT" &&
+//      method != "POST")
+//    return (_generateResponse(404, headers,
+//                              method != "HEAD" ? _getErrorHTMLPage(404) : ""));
+//  if (_shouldCallCGI(ressource_path)) {
+//    DEBUG("call CGI for this request");
+//    try {
+//      return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path,
+//                                 _header_block, _conf, _location)
+//                                 .getOutput()));
+//    } catch (const exception &e) {
+//      cerr << e.what() << endl;
+//      return (_generateResponse(
+//          500, headers, method != "HEAD" ? _getErrorHTMLPage(500) : ""));
+//    }
+//  }
+//  if (method == "GET")
+//    return _get(ressource_path, headers);
+//  else if (method == "HEAD")
+//    return _head(ressource_path, headers);
+//  else if (method == "POST")
+//    return _post(ressource_path, headers);
+//  else if (method == "PUT")
+//    return (_put(ressource_path, headers));
+//  else if (method == "DELETE")
+//    return (_delete(ressource_path, headers));
   return ("");
 }
 
@@ -110,27 +118,27 @@ string Request::getResponse(void)
  * @param ressource_path the path of the ressource to GET on the disk
  * @return the string representation of the HTTP response
  */
-string Request::_get(string ressource_path, map<string, string> headers, bool send_body)
-{
+string Request::_get(string ressource_path, map<string, string> headers,
+                     bool send_body) {
   vector<unsigned char> content_bytes;
   unsigned char *ressource_content;
   time_t file_date;
-  try
-  {
+  try {
     content_bytes = readBinaryFile(ressource_path);
     ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
     headers["Content-Type"] = _getMIMEType(ressource_path);
     pathType(ressource_path, &file_date);
     headers["Last-Modified"] = _formatTimestamp(file_date);
     if (send_body)
-      return (_generateResponse(200, headers, ressource_content, content_bytes.size()));
+      return (_generateResponse(200, headers, ressource_content,
+                                content_bytes.size()));
     return (_generateResponse(200, headers, ""));
+  } catch (const exception &e) {
+    return (_generateResponse(403, headers,
+                              send_body ? _getErrorHTMLPage(403) : ""));
   }
-  catch (const exception &e)
-  {
-    return (_generateResponse(403, headers, send_body ? _getErrorHTMLPage(403) : ""));
-  }
-  return (_generateResponse(500, headers, send_body ? _getErrorHTMLPage(500) : ""));
+  return (
+      _generateResponse(500, headers, send_body ? _getErrorHTMLPage(500) : ""));
 }
 
 /**
@@ -138,8 +146,7 @@ string Request::_get(string ressource_path, map<string, string> headers, bool se
  * @param ressource_path the path of the ressource to GET on the disk
  * @return the string representation of the HTTP response
  */
-string Request::_head(string ressource_path, map<string, string> headers)
-{
+string Request::_head(string ressource_path, map<string, string> headers) {
   return (_get(ressource_path, headers, false));
 }
 
@@ -148,48 +155,43 @@ string Request::_head(string ressource_path, map<string, string> headers)
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-string Request::_post(string ressource_path, map<string, string> headers)
-{
+string Request::_post(string ressource_path, map<string, string> headers) {
   // struct stat   buffer;
   int fd = -1;
   int rtn = 0;
   int type;
   string path;
 
-//  if (_location.upload_path.size() > 0)
-//  {
-//    string file = string(_header_block.getRequestLine()._request_target, _location.name.size());
-//    path = _location.upload_path + "/" + file;
-//  }
-//  else
-    path = ressource_path;
+  //  if (_location.upload_path.size() > 0)
+  //  {
+  //    string file = string(_header_block.getRequestLine()._request_target,
+  //    _location.name.size()); path = _location.upload_path + "/" + file;
+  //  }
+  //  else
+  path = ressource_path;
   DEBUG("POST path: " + path);
   type = pathType(path, NULL);
-  try
-  {
-    if (type == 1)
-    {
+  try {
+    if (type == 1) {
       if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
         throw(throwMessageErrno("TO CHANGE"));
-      write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+      write(fd, _header_block.getContent().c_str(),
+            _header_block.getContent().length());
       close(fd);
       rtn = 200;
-      headers["Content-Location"] = _header_block.getRequestLine()._request_target;
-    }
-    else if (type == 0)
-    {
+      headers["Content-Location"] =
+          _header_block.getRequestLine()._request_target;
+    } else if (type == 0) {
       if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) == -1)
         return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-      write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+      write(fd, _header_block.getContent().c_str(),
+            _header_block.getContent().length());
       close(fd);
       rtn = 201;
       headers["Location"] = _header_block.getRequestLine()._request_target;
-    }
-    else
+    } else
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-  }
-  catch (exception & ex)
-  {
+  } catch (exception &ex) {
     throwError(ex);
   }
   return (_generateResponse(rtn, headers, ""));
@@ -200,46 +202,41 @@ string Request::_post(string ressource_path, map<string, string> headers)
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-string Request::_put(string ressource_path, map<string, string> headers)
-{
+string Request::_put(string ressource_path, map<string, string> headers) {
   int fd = -1;
   int rtn = 0;
   int type;
   string path;
 
-//  if (_location.upload_path.size() > 0)
-//  {
-//    string file = string(_header_block.getRequestLine()._request_target, _location.name.size());
-//    path = _location.upload_path + "/" + file;
-//  }
-//  else
-    path = ressource_path;
+  //  if (_location.upload_path.size() > 0)
+  //  {
+  //    string file = string(_header_block.getRequestLine()._request_target,
+  //    _location.name.size()); path = _location.upload_path + "/" + file;
+  //  }
+  //  else
+  path = ressource_path;
   DEBUG("PUT path: " + path);
   type = pathType(path, NULL);
-  try
-  {
-    if (type == 0)
-    {
+  try {
+    if (type == 0) {
       if ((fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) == -1)
         throw(throwMessageErrno("TO CHANGE"));
-      write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+      write(fd, _header_block.getContent().c_str(),
+            _header_block.getContent().length());
       close(fd);
       rtn = 201;
-    }
-    else if (type == 1)
-    {
+    } else if (type == 1) {
       if ((fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644)) == -1)
         throw(throwMessageErrno("Create file on put"));
-      write(fd, _header_block.getContent().c_str(), _header_block.getContent().length());
+      write(fd, _header_block.getContent().c_str(),
+            _header_block.getContent().length());
       close(fd);
       rtn = 204;
-    }
-    else
+    } else
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-    headers["Content-Location"] = _header_block.getRequestLine()._request_target;
-  }
-  catch (exception & ex)
-  {
+    headers["Content-Location"] =
+        _header_block.getRequestLine()._request_target;
+  } catch (exception &ex) {
     throwError(ex);
     return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
   }
@@ -251,13 +248,11 @@ string Request::_put(string ressource_path, map<string, string> headers)
  *	@param ressource_path the path of the ressource to GET on the disk
  * 	@return the string representation of the HTTP response
  */
-string Request::_delete(string ressource_path, map<string, string> headers)
-{
+string Request::_delete(string ressource_path, map<string, string> headers) {
   int type;
 
   type = pathType(ressource_path, NULL);
-  if (type == 1)
-  {
+  if (type == 1) {
     unlink(ressource_path.c_str());
     return (_generateResponse(200, headers, ""));
   }
@@ -269,8 +264,7 @@ string Request::_delete(string ressource_path, map<string, string> headers)
  * @param headers a map representing HTTP headers of the reponse.
  * @return the string representation of the HTTP response
  */
-string Request::_trace(map<string, string> headers)
-{
+string Request::_trace(map<string, string> headers) {
   headers["Content-Type"] = "message/http";
   return (_generateResponse(200, headers, _header_block.getPlainRequest()));
 }
@@ -280,14 +274,12 @@ string Request::_trace(map<string, string> headers)
  * @param headers a map representing HTTP headers of the reponse.
  * @return the string representation of the HTTP response
  */
-string Request::_options(map<string, string> headers)
-{
+string Request::_options(map<string, string> headers) {
   headers.erase("Content-Type");
   string allowed;
 
-  for (size_t i = 0; i < _location.methods.size(); ++i)
-  {
-//    allowed += _location.methods[i];
+  for (size_t i = 0; i < _location.methods.size(); ++i) {
+    //    allowed += _location.methods[i];
     if (i < _location.methods.size() - 1)
       allowed += ", ";
   }
@@ -299,19 +291,20 @@ string Request::_options(map<string, string> headers)
  * Returns a 405 response in case of not allowed method
  * @return the string representation of the HTTP response
  */
-string Request::_wrongMethod(void)
-{
+string Request::_wrongMethod(void) {
   map<string, string> headers;
   string allowed;
 
-  for (size_t i = 0; i < _location.methods.size(); ++i)
-  {
-//    allowed += _location.methods[i];
+  for (size_t i = 0; i < _location.methods.size(); ++i) {
+    //    allowed += _location.methods[i];
     if (i < _location.methods.size() - 1)
       allowed += ", ";
   }
   headers["Allow"] = allowed;
-  return (_generateResponse(405, headers, _header_block.getRequestLine()._method != "HEAD" ?_getErrorHTMLPage(405) : ""));
+  return (_generateResponse(405, headers,
+                            _header_block.getRequestLine()._method != "HEAD"
+                                ? _getErrorHTMLPage(405)
+                                : ""));
 }
 
 /**
@@ -322,8 +315,9 @@ string Request::_wrongMethod(void)
  * @param size the size in bytes of the content
  * @return the string representation of a HTTP response
  */
-string Request::_generateResponse(size_t code, map<string, string> headers, const unsigned char *content, size_t content_size)
-{
+string Request::_generateResponse(size_t code, map<string, string> headers,
+                                  const unsigned char *content,
+                                  size_t content_size) {
   string response;
   map<string, string>::iterator it;
 
@@ -334,8 +328,7 @@ string Request::_generateResponse(size_t code, map<string, string> headers, cons
   response += uIntegerToString(code) + " ";
   response += _getStatusDescription(code) + "\r\n";
   it = headers.begin();
-  while (it != headers.end())
-  {
+  while (it != headers.end()) {
     response += it->first + ": " + it->second + "\r\n";
     ++it;
   }
@@ -352,9 +345,11 @@ string Request::_generateResponse(size_t code, map<string, string> headers, cons
  * @param content the string representation of the content
  * @return the string representation of a HTTP response
  */
-string Request::_generateResponse(size_t code, map<string, string> headers, string content)
-{
-  return (_generateResponse(code, headers, reinterpret_cast<const unsigned char *>(content.c_str()), content.size()));
+string Request::_generateResponse(size_t code, map<string, string> headers,
+                                  string content) {
+  return (_generateResponse(
+      code, headers, reinterpret_cast<const unsigned char *>(content.c_str()),
+      content.size()));
 }
 
 /**
@@ -362,8 +357,7 @@ string Request::_generateResponse(size_t code, map<string, string> headers, stri
  * @param code the HTTP status code
  * @return the corresponding reason description
  */
-string Request::_getStatusDescription(size_t code)
-{
+string Request::_getStatusDescription(size_t code) {
   map<size_t, string> m;
 
   m[100] = "Continue";
@@ -416,8 +410,7 @@ string Request::_getStatusDescription(size_t code)
  * @param status the status of the response
  * @return a HTML page describing the error
  */
-string Request::_getErrorHTMLPage(size_t code)
-{
+string Request::_getErrorHTMLPage(size_t code) {
   string base;
 
   if (_conf.errorPages.count(code) > 0)
@@ -434,8 +427,7 @@ string Request::_getErrorHTMLPage(size_t code)
  * @param ressource the ressource the user tried to reach
  * @return a HTML page that lists the content of the given directory
  */
-string Request::_getListingHTMLPage(string path, string ressource)
-{
+string Request::_getListingHTMLPage(string path, string ressource) {
   string base;
   string listing;
   string link_base;
@@ -447,12 +439,14 @@ string Request::_getListingHTMLPage(string path, string ressource)
   base = replace(base, "$1", ressource);
   dr = opendir(path.c_str());
   i = 0;
-  while (_header_block.getRequestLine()._request_target[i] && _header_block.getRequestLine()._request_target[i] != '?')
+  while (_header_block.getRequestLine()._request_target[i] &&
+         _header_block.getRequestLine()._request_target[i] != '?')
     link_base += _header_block.getRequestLine()._request_target[i++];
   if (link_base[link_base.size() - 1] != '/')
     link_base += '/';
   while ((en = readdir(dr)) != 0)
-    listing += "<li><a href=\"" + link_base + string(en->d_name) +  "\">" + string(en->d_name) + "</a></li>";
+    listing += "<li><a href=\"" + link_base + string(en->d_name) + "\">" +
+               string(en->d_name) + "</a></li>";
   closedir(dr);
   base = replace(base, "$2", listing);
   return (base);
@@ -463,8 +457,7 @@ string Request::_getListingHTMLPage(string path, string ressource)
  * @param filename
  * @return the MIME type for the given filename
  */
-string Request::_getMIMEType(string filename)
-{
+string Request::_getMIMEType(string filename) {
   map<string, string> m;
   string ext;
   size_t i;
@@ -488,7 +481,8 @@ string Request::_getMIMEType(string filename)
   m["css"] = "text/css";
   m["csv"] = "text/csv";
   m["doc"] = "application/msword";
-  m["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  m["docx"] = "application/"
+              "vnd.openxmlformats-officedocument.wordprocessingml.document";
   m["eot"] = "application/vnd.ms-fontobject";
   m["epub"] = "application/epub+zip";
   m["gif"] = "image/gif";
@@ -515,7 +509,8 @@ string Request::_getMIMEType(string filename)
   m["png"] = "image/png";
   m["pdf"] = "application/pdf";
   m["ppt"] = "application/vnd.ms-powerpoint";
-  m["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+  m["pptx"] = "application/"
+              "vnd.openxmlformats-officedocument.presentationml.presentation";
   m["rar"] = "application/x-rar-compressed";
   m["rtf"] = "application/rtf";
   m["sh"] = "application/x-sh";
@@ -535,7 +530,8 @@ string Request::_getMIMEType(string filename)
   m["woff2"] = "font/woff2";
   m["xhtml"] = "application/xhtml+xml";
   m["xls"] = "application/vnd.ms-excel";
-  m["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  m["xlsx"] =
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   m["xml"] = "application/xml";
   m["xul"] = "application/vnd.mozilla.xul+xml";
   m["zip"] = "application/zip";
@@ -551,27 +547,24 @@ string Request::_getMIMEType(string filename)
  * Get the right location in configuration based on the asked ressource
  * @param ressource the asked ressource
  * @return the location configuration object
- * @example ressource "/" in configurations "/wordpress", "/upload" and "/" will return "/"
- * @example ressource "/wordpress/index.php" in configurations "/wordpress", "/upload" and "/" will return "/wordpress"
+ * @example ressource "/" in configurations "/wordpress", "/upload" and "/"
+ * will return "/"
+ * @example ressource "/wordpress/index.php" in configurations "/wordpress",
+ * "/upload" and "/" will return "/wordpress"
  */
-Location Request::_getLocation(string ressource)
-{
+Location Request::_getLocation(string ressource) {
   size_t max_length;
   size_t max_index;
 
-  for (size_t i = 0; i < _conf.locations.size(); ++i)
-  {
+  for (size_t i = 0; i < _conf.locations.size(); ++i) {
     if (_conf.locations[i].path == ressource)
       return (_conf.locations[i]);
   }
   max_length = 0;
   max_index = 0;
-  for (size_t i = 0; i < _conf.locations.size(); ++i)
-  {
-    if (ressource.rfind(_conf.locations[i].path, 0) == 0)
-    {
-      if (_conf.locations[i].path.size() > max_length)
-      {
+  for (size_t i = 0; i < _conf.locations.size(); ++i) {
+    if (ressource.rfind(_conf.locations[i].path, 0) == 0) {
+      if (_conf.locations[i].path.size() > max_length) {
         max_length = _conf.locations[i].path.size();
         max_index = i;
       }
@@ -584,8 +577,7 @@ Location Request::_getLocation(string ressource)
  * Get the current HTTP formatted date
  * @return a string representing the current date formatted for HTTP header
  */
-string Request::_getDateHeader()
-{
+string Request::_getDateHeader() {
   struct timeval now;
   struct timezone tz;
 
@@ -598,16 +590,15 @@ string Request::_getDateHeader()
  * @param timestamp the timestamp in second of the date
  * @return a string representation of the date according to HTTP standard
  */
-string Request::_formatTimestamp(time_t timestamp)
-{
-    (void)timestamp;
+string Request::_formatTimestamp(time_t timestamp) {
+  (void)timestamp;
   char buffer[33];
-//  struct tm *ts;
-//  size_t last;
+  //  struct tm *ts;
+  //  size_t last;
 
-//  ts   = localtime(&timestamp);
-//  last = strftime(bufferuffer, 32, "%a, %d %b %Y %T GMT", ts);
-//  buffer[last] = '\0';
+  //  ts   = localtime(&timestamp);
+  //  last = strftime(bufferuffer, 32, "%a, %d %b %Y %T GMT", ts);
+  //  buffer[last] = '\0';
   return (string(buffer));
 }
 
@@ -616,13 +607,11 @@ string Request::_formatTimestamp(time_t timestamp)
  * @param method the HTTP method
  * @return wether the method is accepted on this location or not
  */
-bool Request::_isMethodAllowed(string method)
-{
+bool Request::_isMethodAllowed(string method) {
   (void)method;
-  for (size_t i = 0; i < _location.methods.size(); ++i)
-  {
-//    if (_location.methods[i] == method)
-//      return (true);
+  for (size_t i = 0; i < _location.methods.size(); ++i) {
+    //    if (_location.methods[i] == method)
+    //      return (true);
   }
   return (false);
 }
@@ -631,10 +620,10 @@ bool Request::_isMethodAllowed(string method)
  * Remove location name and arguments from ressource
  * @param ressource
  * @return ressource without location name and args
- * @example "/wordpress/index.php?page_id=12" with location "/wordpress" will give "/index.php"
+ * @example "/wordpress/index.php?page_id=12" with location "/wordpress"
+ * will give "/index.php"
  */
-string Request::_formatRessource(string ressource)
-{
+string Request::_formatRessource(string ressource) {
   string res;
   size_t i;
 
@@ -652,11 +641,9 @@ string Request::_formatRessource(string ressource)
  * Detect if we should use a CGI for this file
  * @return wether we should use the CGI for the current request
  */
-bool Request::_shouldCallCGI(string ressource_path)
-{
+bool Request::_shouldCallCGI(string ressource_path) {
   size_t i;
   string ext;
-
 
   if (_location.cgiPath.size() == 0)
     return (false);
@@ -666,8 +653,7 @@ bool Request::_shouldCallCGI(string ressource_path)
   if (i >= ressource_path.size())
     return (false);
   ext = string(ressource_path, i + 1, ressource_path.size() - i);
-  for (size_t j = 0; j < _location.cgiExtension.size(); ++j)
-  {
+  for (size_t j = 0; j < _location.cgiExtension.size(); ++j) {
     if (_location.cgiExtension[j] == ext)
       return (true);
   }
@@ -675,12 +661,12 @@ bool Request::_shouldCallCGI(string ressource_path)
 }
 
 /**
- * Add mendatory server headers to a CGI HTTP response, if status is returned we get it to form HTTP status
+ * Add mendatory server headers to a CGI HTTP response, if status is
+ * returned we get it to form HTTP status
  * @param response the HTTP response out of the CGI
  * @return the same HTTP response with additional headers
  */
-string Request::_addCGIHeaders(string response)
-{
+string Request::_addCGIHeaders(string response) {
   string res;
   size_t size;
   int header_char_count = 0;
@@ -688,13 +674,13 @@ string Request::_addCGIHeaders(string response)
   string headers = response;
   if (response.find("\r\n\r\n") != string::npos)
     headers = response.substr(0, response.find("\r\n\r\n"));
-  if (headers != "")
-  {
+  if (headers != "") {
     for (size_t i = 0; i < headers.length(); i++)
       if (headers[i] != '\n' && headers[i] != '\r')
         header_char_count++;
   }
-  size = response.size() - count(response.begin(), response.end(), '\n') - count(response.begin(), response.end(), '\r') - header_char_count;
+  size = response.size() - count(response.begin(), response.end(), '\n') -
+         count(response.begin(), response.end(), '\r') - header_char_count;
   res = response;
   res = "Content-Length: " + uIntegerToString(size) + "\r\n" + res;
   res = "Date: " + _getDateHeader() + "\r\n" + res;
@@ -708,14 +694,13 @@ string Request::_addCGIHeaders(string response)
 /**
  * Get CGI response status if any
  * @param response the CGI response
- * @return a string containing the code and status if found, an empty string if not
+ * @return a string containing the code and status if found, an empty string
+ * if not
  */
-string Request::_getCGIStatus(string response)
-{
+string Request::_getCGIStatus(string response) {
   vector<string> splits;
 
-  for (size_t i = 0; i < countLines(response); ++i)
-  {
+  for (size_t i = 0; i < countLines(response); ++i) {
     splits = splitWhitespace(getLine(response, i));
     if (splits.size() == 3 && splits[0] == "Status:")
       return (splits[1] + " " + splits[2]);
