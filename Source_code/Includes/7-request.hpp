@@ -5,8 +5,7 @@
 #ifndef WEBSERV_REQUEST_HPP
 #define WEBSERV_REQUEST_HPP
 
-#include "headers.hpp"
-#include "cgi.hpp"
+#include "6-cgi.hpp"
 
 class Request {
 private:

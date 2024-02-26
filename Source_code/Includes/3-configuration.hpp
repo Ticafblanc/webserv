@@ -5,7 +5,7 @@
 #ifndef WEBSERV_CONFIGURATION_HPP
 #define WEBSERV_CONFIGURATION_HPP
 
-#include "parser.hpp"
+#include "2-parser.hpp"
 
 struct Location {
   typedef void (Location::*locationSet)(vecStr words);
@@ -50,6 +50,7 @@ struct Server {
   typedef mapServerSet::iterator mapServerSetIt;
   mapServerSet mss;
   vecStr names;
+  bool defaultServer;
   string host;
   size_t port;
   string root;
@@ -63,6 +64,7 @@ struct Server {
   Server &operator=(const Server& rhs);
   void parse(const string &block);
   void checkDefault();
+  bool isDefault() const;
 
 private:
   void _findMapServerSet(const vecStr &lines);

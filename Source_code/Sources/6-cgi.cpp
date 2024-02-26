@@ -2,8 +2,7 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#include "../Includes/cgi.hpp"
-
+#include "../Includes/6-cgi.hpp"
 
 /**
  * Creates a new CGI object

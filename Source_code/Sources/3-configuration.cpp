@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#include "../Includes/configuration.hpp"
+#include "../Includes/3-configuration.hpp"
 
 static const setStr createSetMethods() {
   setStr temp;
@@ -92,14 +92,14 @@ void Server::_setListen(vecStr words) {
   bool success;
   size_t res;
 
-  if (!host.empty() && port > 0)
+  if (!host.empty() || port > 0)
     throw throwMessage("host and port already defined");
-  if (words.size() != 2)
+  if (words.size() < 2)
     throw throwMessage("need listen HOST:PORT");
   splitPattern(addr, words[1], ':');
-  if (addr.size() != 2)
+  if (addr.size() != 2 || addr.size() != 1)
     throw throwMessage("need listen HOST:PORT");
-  if (addr[0] == "localhost")
+  if (addr.size() == 2 && addr[0] == "localhost")
     host = "127.0.0.1";
   else {
     if (!checkHostFormat(addr[0]))
@@ -168,9 +168,11 @@ void Server::parse(const string &bock) {
   checkDefault();
 }
 
+bool Server::isDefault() const { return defaultServer; }
+
 Server::Server()
-    : names(), host(), port(), root(), errorPages(), clientMaxBodySize(),
-      locations() {
+    : names(), defaultServer(false), host(), port(), root(), errorPages(),
+      clientMaxBodySize(), locations() {
   mss["server_name"] = &Server::_setServerNames;
   mss["listen"] = &Server::_setListen;
   mss["root"] = &Server::_setRoot;
@@ -179,9 +181,10 @@ Server::Server()
 }
 
 Server::Server(const Server &other)
-    : mss(other.mss), names(other.names), host(other.host), port(other.port),
-      root(other.root), errorPages(other.errorPages),
-      clientMaxBodySize(other.clientMaxBodySize), locations(other.locations) {}
+    : mss(other.mss), names(other.names), defaultServer(other.defaultServer),
+      host(other.host), port(other.port), root(other.root),
+      errorPages(other.errorPages), clientMaxBodySize(other.clientMaxBodySize),
+      locations(other.locations) {}
 
 Server::~Server() {}
 
@@ -189,6 +192,7 @@ Server &Server::operator=(const Server &rhs) {
   if (this != &rhs) {
     mss = rhs.mss;
     names = rhs.names;
+    defaultServer = rhs.defaultServer;
     host = rhs.host;
     port = rhs.port;
     root = rhs.root;
@@ -387,6 +391,17 @@ static bool checkSameServer(vecServ &servers) {
   return true;
 }
 
+static void verifyDefaultServer(vecServ &servers) {
+  for (vecServIt i = servers.begin(); i != servers.end(); ++i) {
+    if (checkVectorContain<std::string>(i->names, "default_server").first) {
+      i->defaultServer = true;
+      return;
+    }
+  }
+  servers.begin()->names.push_back("default_server");
+  servers.begin()->defaultServer = true;
+}
+
 void Configuration::parseConfig(const string &pathFile) {
   string fileString;
   vecStr serverBlocks;
@@ -406,9 +421,12 @@ void Configuration::parseConfig(const string &pathFile) {
   if (_servers.empty()) {
     _servers.push_back(Server());
     _servers.back().checkDefault();
+    _servers.back().names.push_back("default_server");
+  } else {
+    if (!checkSameServer(_servers))
+      throw throwMessage("2 same listen");
+    verifyDefaultServer(_servers);
   }
-  if (!checkSameServer(_servers))
-    throw throwMessage("2 same listen");
 }
 
 vecServ &Configuration::getServers() { return _servers; }
