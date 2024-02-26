@@ -1,10 +1,25 @@
 
 
-#include "../Includes/select.hpp"
-// #include "../includes/RequestInterpretor.hpp"
+#include "../Includes/9-select.hpp"
 
 char **envp;
-
+//void Select::closeServer() {
+//  for (size_t client = 0; client < _clientManager.getSockets().size();
+//       client++) {
+//    close(_clientManager.getSockets()[client].getSocketDescriptor());
+//    Log("Client connection closed : " +
+//        itoa(_clientManager.getSockets()[client].getSocketDescriptor()));
+//    //    delete _clientManager.getSockets()[client];
+//  }
+//
+//  for (size_t server = 0; server < _serverManager.getSockets().size();
+//       server++) {
+//    close(_serverManager.getSockets()[server].getSocketDescriptor());
+//    Log("Select closed : " +
+//        itoa(_serverManager.getSockets()[server].getSocketDescriptor()));
+//    //    delete _serverManager.getSockets()[server];
+//  }
+//}
 static pairBoolStr checkArg(int argc, char **argv, char **env) {
   if (argc > 2) {
     printError("Please use : ./WebServ <path>");

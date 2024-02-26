@@ -2,23 +2,23 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#include "../Includes/utils.hpp"
+#include "../Includes/1-utils.hpp"
 
-void throwError(const exception& ex)
-{
+
+
+void throwError(const exception &ex) {
   cerr << "\033[1m\033[31mERROR \033[0m: " << ex.what() << '\n';
 }
 
-void printError(const string& msg)
-{
+void printError(const string &msg) {
   cerr << "\033[1m\033[31mERROR \033[0m: " << msg << '\n';
 }
 
-//int treat(int sd, Headers &header_block, Server server_conf)
+// int treat(int sd, Headers &header_block, Server server_conf)
 //{
-//  (void)sd;
-//  (void)header_block;
-//  (void)server_conf;
+//   (void)sd;
+//   (void)header_block;
+//   (void)server_conf;
 ////  string response = Request(header_block, server_conf).getResponse();
 ////
 ////  Log("Send response to : " + itoa(sd));
@@ -31,5 +31,3 @@ void printError(const string& msg)
 ////  }
 //  return (0);
 //}
-
-

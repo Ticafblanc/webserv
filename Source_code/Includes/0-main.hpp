@@ -66,30 +66,23 @@ typedef map<int, pairStrStr> mapIntPairStrStr;
 typedef map<int, string> mapIntStr;
 typedef queue<string> queStr;
 
-class Socket;
-typedef std::map<int, Socket *> mapFdSockPtr;
-typedef mapFdSockPtr::iterator mapFdSockPtrIt;
-
-struct Config;
-// typedef pair<string, Config> pairStrConf;
-// typedef vector<pairStrConf> vecPairStrConf;
-// typedef map<string, vecPairStrConf> mapStrVecPairStrConf;
-
-// class Select;
-// extern Select server;
-
-// template<class T>class SocketManager;
-// extern SocketManager<Socket *> sm;
-
-// class Configuration;
-// extern Configuration test;
-
-// template <class T> class PegParser;
-// typedef PegParser<string> ppStr;
-
 extern char **envp;
 
-const int BUFFER_SIZE = 1024;
-const int MAX_CLIENTS = 10;
+// macro for select int[3] intVal
+#define RETURN_VALUE 0
+#define COUNT_ERROR 1
+#define GREATER_SDS 2
+
+// macro for select for max connection
+#define MAX_CONNECTION 100
+
+// macro for select fd_set[4] fdSets
+#define READ_SDS 0
+#define WRITE_SDS 1
+#define TMP_READ_SDS 2
+#define TMP_WRITE_SDS 3
+
+// macro for recv/send data
+#define BUFFER_SIZE 1024
 
 #endif // WEBSERV_MAIN_HPP
