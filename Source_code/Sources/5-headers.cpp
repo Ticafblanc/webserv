@@ -4,171 +4,18 @@
 
 #include "../Includes/5-headers.hpp"
 
-static std::string alpha =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-static std::string digit = "0123456789";
-
-static bool isValidReasonPhrase(std::string reason_phrase) {
-  if (reason_phrase.length() == 0)
-    return (false);
-  for (size_t i = 0; i < reason_phrase.length(); i++)
-    if (reason_phrase[i] != '\t' && reason_phrase[i] != ' ' &&
-        !((unsigned long)reason_phrase[i] >= (unsigned long)20 &&
-          (unsigned long)reason_phrase[i] <= (unsigned long)126))
-      return (false);
-  return (true);
-}
-
-static bool isValidStatusCode(std::string status_code) {
-  if (status_code.length() != 3)
-    return (false);
-  for (size_t cur = 0; cur < status_code.length(); cur++)
-    if (digit.find(status_code[cur]) == std::string::npos)
-      return (false);
-  return (true);
-}
-
-static bool isValidHTTPVersion(std::string http_version) {
-  if (http_version.length() != 8)
-    return (false);
-  if (http_version[0] == 'H' && http_version[1] == 'T' &&
-      http_version[2] == 'T' && http_version[3] == 'P' &&
-      http_version[4] == '/' &&
-      digit.find(http_version[5]) != std::string::npos &&
-      http_version[6] == '.' &&
-      digit.find(http_version[7]) != std::string::npos)
-    return (true);
-  return (false);
-}
-
-static bool isValidToken(std::string token) {
-  std::string vchars = "!#$%&'*+-.^_`|~" + digit + alpha;
-
-  if (token.length() == 0)
-    return (false);
-  for (size_t cur = 0; cur < token.length(); cur++)
-    if (vchars.find(token[cur]) == std::string::npos)
-      return (false);
-  return (true);
-}
-
-void Headers::getLines(std::string msg, std::vector<std::string> *lines) {
-  size_t start = 0;
-  size_t end = msg.find("\n");
-  while (end != std::string::npos) {
-    (*lines).push_back(msg.substr(start, end - start));
-    start = end + 1;
-    end = msg.find("\n", start);
-  }
-  (*lines).push_back(msg.substr(start, end - start));
-}
-
-void Headers::getRequestLine(std::vector<std::string> lines) {
-  // Method
-  this->_request_line._method = lines[0].substr(0, lines[0].find(' '));
-  if (isValidToken(this->_request_line._method) == false)
-    throw(throwMessage("Request line not well formated (method)."));
-  lines[0].erase(0, this->_request_line._method.length() + 1);
-
-  // Request Target
-  this->_request_line._request_target = lines[0].substr(0, lines[0].find(' '));
-  lines[0].erase(0, this->_request_line._request_target.length() + 1);
-
-  // HTTP-version
-  if (lines[0].find('\r') != std::string::npos)
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find('\r'));
-  else if (lines[0].find('\n') != std::string::npos)
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find('\n'));
-  else
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find(' '));
-  if (isValidHTTPVersion(this->_request_line._http_version) == false)
-    throw(throwMessage("Request line not well formated (http version) : " +
-                       this->_request_line._http_version));
-  this->_is_request = true;
-}
-
-void Headers::getStatusLine(std::vector<std::string> lines) {
-  std::string first_word = lines[0].substr(0, lines[0].find(" "));
-  std::string tmp;
-
-  // HTTP-version
-  this->_status_line._http_version = first_word;
-  if (isValidHTTPVersion(this->_status_line._http_version) == false)
-    throw(throwMessage("Status line not well formated (http_version)."));
-  lines[0].erase(0, first_word.length() + 1);
-
-  // Status code
-  tmp = lines[0].substr(0, lines[0].find(" "));
-  if (isValidStatusCode(tmp) == false)
-    throw(throwMessage("Status line not well formated (status code)."));
-  this->_status_line._status_code = std::atoi(tmp.c_str());
-  lines[0].erase(0, tmp.length() + 1);
-
-  // Reason phrase
-  if (lines[0].find('\r') != std::string::npos)
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find('\r'));
-  else if (lines[0].find('\n') != std::string::npos)
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find('\n'));
-  else
-    this->_request_line._http_version = lines[0].substr(0, lines[0].find(' '));
-  this->_status_line._reason_phrase = lines[0].substr(0, lines[0].find(' '));
-  if (isValidReasonPhrase(this->_status_line._reason_phrase) == false)
-    throw(throwMessage("Status line not well formated (reason phrase)."));
-
-  this->_is_request = false;
-}
-
-int Headers::getHeaderFileds(std::vector<std::string> lines) {
-  size_t i = 1;
-
-  size_t lines_size = lines.size();
-  for (i = 1; i < lines_size; i++) {
-    struct header_field field;
-    size_t posin;
-
-    DEBUG("CHECKED = " << lines[i]);
-
-    // Empty
-    if (lines[i] == "\r" || lines[i].length() == 0)
-      return (i);
-
-    // Field name
-    if ((posin = lines[i].find(':')) == std::string::npos)
-      throw(throwMessage("Header field name not well formated : " + lines[i]));
-    field._field_name = lines[i].substr(0, posin);
-    if (!isValidToken(field._field_name))
-      throw(throwMessage("Header field name not well formated : " + lines[i]));
-    lines[i].erase(0, posin + 1);
-
-    // OWS
-    if (lines[i][0] == ' ')
-      lines[i].erase(0, 1);
-
-    // Field value
-    if (lines[i].find('\r') != std::string::npos)
-      field._field_value = lines[i].substr(0, lines[i].find('\r'));
-    else if (lines[i].find('\n') != std::string::npos)
-      field._field_value = lines[i].substr(0, lines[i].find('\n'));
-    else
-      field._field_value = lines[i].substr(0, lines[i].length());
-
-    this->_header_fields.push_back(field);
-  }
-  return (i);
-}
-
 Headers::Headers()
-    : _firstLine(), _headerFields(), _isRequest(false),
-      _client(NULL), _content(), _rawRequest() {}
+    : _firstLine(5), _headerFields(), _isRequest(false), _client(NULL),
+      _content(), _rawRequest() {}
 
 Headers::Headers(Client &clt)
-    : _firstLine(), _isRequest(false),
-      _client(&clt), _content(), _rawRequest() {}
+    : _firstLine(5), _isRequest(false), _client(&clt), _content(),
+      _rawRequest() {}
 
 Headers::Headers(const Headers &copy)
     : _firstLine(copy._firstLine), _headerFields(copy._headerFields),
-      _isRequest(copy._isRequest), _client(copy._client), _content(copy._content),
-      _rawRequest(copy._rawRequest) {}
+      _isRequest(copy._isRequest), _client(copy._client),
+      _content(copy._content), _rawRequest(copy._rawRequest) {}
 
 Headers::~Headers() {}
 
@@ -183,6 +30,196 @@ Headers &Headers::operator=(const Headers &rhs) {
   }
   return *this;
 }
+
+bool Headers::isValidFirstLine() {
+  //  if (_firstLine[HTTP_V] == "HTTP/1.1" && )
+  return true;
+}
+bool Headers::extractData() {
+  istringstream b(_client->getHeader());
+  string line, token, value;
+  size_t i = 0;
+  if (getline(b >> ws, line, '\r')) {
+    istringstream fl(line);
+    fl >> ws >> _firstLine[METHOD] >> _firstLine[PATH] >> _firstLine[HTTP_V];
+  } else
+    return false;
+  while (getline(b >> ws, line, '\r') && ++i) {
+    istringstream bufferLine(line);
+    if (getline(bufferLine >> ws, token, ':'))
+      if (getline(bufferLine >> ws, value))
+        _headerFields[token] = value;
+    cout << _headerFields.find(token)->first << " : "
+         << _headerFields.find(token)->second << endl;
+  }
+  return i == _headerFields.size();
+}
+
+bool Headers::findRessource() {
+  _server = _client->getServerByHost(_headerFields["Host"]);
+  _location = _server->getLocationByRessource(_firstLine[PATH]);
+
+  return true; }
+
+void Headers::parse() {
+  if (extractData())
+    if (!findRessource())
+      cout << "coucuo" << endl;
+    else
+      _firstLine[STATUS_CODE] = "404";
+
+  else
+    _firstLine[STATUS_CODE] = "400";
+}
+
+// static std::string alpha =
+//     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+// static std::string digit = "0123456789";
+
+// static bool isValidReasonPhrase(std::string reason_phrase) {
+//   if (reason_phrase.length() == 0)
+//     return (false);
+//   for (size_t i = 0; i < reason_phrase.length(); i++)
+//     if (reason_phrase[i] != '\t' && reason_phrase[i] != ' ' &&
+//         !((unsigned long)reason_phrase[i] >= (unsigned long)20 &&
+//           (unsigned long)reason_phrase[i] <= (unsigned long)126))
+//       return (false);
+//   return (true);
+// }
+
+// static bool isValidStatusCode(std::string status_code) {
+//   if (status_code.length() != 3)
+//     return (false);
+//   for (size_t cur = 0; cur < status_code.length(); cur++)
+//     if (digit.find(status_code[cur]) == std::string::npos)
+//       return (false);
+//   return (true);
+// }
+
+// static bool isValidToken(std::string token) {
+//   std::string vchars = "!#$%&'*+-.^_`|~" + digit + alpha;
+//
+//   if (token.length() == 0)
+//     return (false);
+//   for (size_t cur = 0; cur < token.length(); cur++)
+//     if (vchars.find(token[cur]) == std::string::npos)
+//       return (false);
+//   return (true);
+// }
+
+// void Headers::getLines(std::string msg, std::vector<std::string> *lines) {
+//   size_t start = 0;
+//   size_t end = msg.find("\n");
+//   while (end != std::string::npos) {
+//     (*lines).push_back(msg.substr(start, end - start));
+//     start = end + 1;
+//     end = msg.find("\n", start);
+//   }
+//   (*lines).push_back(msg.substr(start, end - start));
+// }
+
+// void Headers::getRequestLine(std::vector<std::string> lines) {
+//  Method
+//  this->_request_line._method = lines[0].substr(0, lines[0].find(' '));
+//  if (isValidToken(this->_request_line._method) == false)
+//    throw(throwMessage("Request line not well formated (method)."));
+//  lines[0].erase(0, this->_request_line._method.length() + 1);
+//
+//  // Request Target
+//  this->_request_line._request_target = lines[0].substr(0, lines[0].find('
+//  ')); lines[0].erase(0, this->_request_line._request_target.length() + 1);
+//
+//  // HTTP-version
+//  if (lines[0].find('\r') != std::string::npos)
+//    this->_request_line._http_version = lines[0].substr(0,
+//    lines[0].find('\r'));
+//  else if (lines[0].find('\n') != std::string::npos)
+//    this->_request_line._http_version = lines[0].substr(0,
+//    lines[0].find('\n'));
+//  else
+//    this->_request_line._http_version = lines[0].substr(0, lines[0].find('
+//    '));
+//  if (isValidHTTPVersion(this->_request_line._http_version) == false)
+//    throw(throwMessage("Request line not well formated (http version) : " +
+//                       this->_request_line._http_version));
+//  this->_is_request = true;
+//}
+//
+// void Headers::getStatusLine(std::vector<std::string> lines) {
+//  std::string first_word = lines[0].substr(0, lines[0].find(" "));
+//  std::string tmp;
+//
+//  // HTTP-version
+//  this->_status_line._http_version = first_word;
+//  if (isValidHTTPVersion(this->_status_line._http_version) == false)
+//    throw(throwMessage("Status line not well formated (http_version)."));
+//  lines[0].erase(0, first_word.length() + 1);
+//
+//  // Status code
+//  tmp = lines[0].substr(0, lines[0].find(" "));
+//  if (isValidStatusCode(tmp) == false)
+//    throw(throwMessage("Status line not well formated (status code)."));
+//  this->_status_line._status_code = std::atoi(tmp.c_str());
+//  lines[0].erase(0, tmp.length() + 1);
+//
+//  // Reason phrase
+//  if (lines[0].find('\r') != std::string::npos)
+//    this->_request_line._http_version = lines[0].substr(0,
+//    lines[0].find('\r'));
+//  else if (lines[0].find('\n') != std::string::npos)
+//    this->_request_line._http_version = lines[0].substr(0,
+//    lines[0].find('\n'));
+//  else
+//    this->_request_line._http_version = lines[0].substr(0, lines[0].find('
+//    '));
+//  this->_status_line._reason_phrase = lines[0].substr(0, lines[0].find(' '));
+//  if (isValidReasonPhrase(this->_status_line._reason_phrase) == false)
+//    throw(throwMessage("Status line not well formated (reason phrase)."));
+//
+//  this->_is_request = false;
+//}
+
+// int Headers::getHeaderFileds(std::vector<std::string> lines) {
+//   size_t i = 1;
+//
+//   size_t lines_size = lines.size();
+//   for (i = 1; i < lines_size; i++) {
+//     struct header_field field;
+//     size_t posin;
+//
+//     DEBUG("CHECKED = " << lines[i]);
+//
+//      Empty
+//     if (lines[i] == "\r" || lines[i].length() == 0)
+//       return (i);
+//
+//      Field name
+//     if ((posin = lines[i].find(':')) == std::string::npos)
+//       throw(throwMessage("Header field name not well formated : " +
+//       lines[i]));
+//     field._field_name = lines[i].substr(0, posin);
+//     if (!isValidToken(field._field_name))
+//       throw(throwMessage("Header field name not well formated : " +
+//       lines[i]));
+//     lines[i].erase(0, posin + 1);
+//
+//      OWS
+//     if (lines[i][0] == ' ')
+//       lines[i].erase(0, 1);
+//
+//      Field value
+//     if (lines[i].find('\r') != std::string::npos)
+//       field._field_value = lines[i].substr(0, lines[i].find('\r'));
+//     else if (lines[i].find('\n') != std::string::npos)
+//       field._field_value = lines[i].substr(0, lines[i].find('\n'));
+//     else
+//       field._field_value = lines[i].substr(0, lines[i].length());
+//
+////    this->_header_fields.push_back(field);
+////  }
+////  return (i);
+//}
+
 // std::string server_name = getServerName(header);
 //             Socket *last = _serverManager.getBySDandHost(
 //                 client_socket.getParent()->getSd(),
@@ -210,24 +247,7 @@ Headers &Headers::operator=(const Headers &rhs) {
 //   }
 //   return (0);
 // }
-// std::string Select::getServerName(const Headers &hb) {
-//   std::string server_name;
 //
-//   for (size_t i = 0; i < hb.getHeaderFields().size(); i++) {
-//     DEBUG("Header name = " << hb.getHeaderFields()[i]._field_name)
-//     if (hb.getHeaderFields()[i]._field_name == "Host") {
-//       size_t pos = hb.getHeaderFields()[i]._field_value.find(':');
-//       if (pos != std::string::npos)
-//         server_name = hb.getHeaderFields()[i]._field_value.substr(0, pos);
-//       else
-//         server_name = hb.getHeaderFields()[i]._field_value.substr(
-//             0, hb.getHeaderFields()[i]._field_value.length());
-//       DEBUG("Select Name = " << server_name)
-//       break;
-//     }
-//   }
-//   return (server_name);
-// }
 ///* return 0 = nop, 1 = classic content, 2 = chunked*/
 // static int hasContent(std::string request) {
 //   size_t pos_in = 0;
@@ -321,45 +341,25 @@ Headers &Headers::operator=(const Headers &rhs) {
 //     throw(throwMessage("Can't parse header."));
 //   }
 // }
-bool Headers::isRequest(void) const { return (this->_is_request); }
+bool Headers::isRequest(void) const { return (this->_isRequest); }
 
 void Headers::pushContent(std::string buffer) { this->_content += buffer; }
 
-//struct Headers::request_line Headers::getRequestLine(void) const {
-//  return (this->_request_line);
-//}
+// struct Headers::request_line Headers::getRequestLine(void) const {
+//   return (this->_request_line);
+// }
 
-//struct Headers::status_line Headers::getStatusLine(void) const {
-//  return (this->_status_line);
-//}
+// struct Headers::status_line Headers::getStatusLine(void) const {
+//   return (this->_status_line);
+// }
 //
-//std::vector<struct Headers::header_field> Headers::getHeaderFields(void) const {
-//  return (this->_header_fields);
-//}
+// std::vector<struct Headers::header_field> Headers::getHeaderFields(void)
+// const {
+//   return (this->_header_fields);
+// }
 
 std::string Headers::getContent(void) const { return (this->_content); }
 
-std::ostream &operator<<(std::ostream &out, const Headers &hb) {
-  if (hb.isRequest()) {
-    out << "START LINE = ";
-    out << hb.getRequestLine()._method << " | ";
-    out << hb.getRequestLine()._request_target;
-    out << " | " << hb.getRequestLine()._http_version << std::endl;
-  } else {
-    out << "START LINE = ";
-    out << hb.getStatusLine()._http_version << " | ";
-    out << hb.getStatusLine()._status_code;
-    out << " | " << hb.getStatusLine()._reason_phrase << std::endl;
-  }
-
-  for (size_t i = 0; i < hb.getHeaderFields().size(); i++) {
-    out << "HEADER_FIELD = ";
-    out << hb.getHeaderFields()[i]._field_name << " | ";
-    out << hb.getHeaderFields()[i]._field_value << std::endl;
-  }
-  return (out);
-}
-
 // std::string Headers::getClientIP(void) const { return (_client_ip); }
 
-std::string Headers::getPlainRequest(void) const { return (_raw_request); }
+std::string Headers::getPlainRequest(void) const { return (_rawRequest); }

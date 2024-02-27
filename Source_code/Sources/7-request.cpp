@@ -16,9 +16,9 @@ Request::Request(Headers &headers, CGI &cgi)
     : _headers(&headers), _cgi(&cgi), _header_block(), _conf() {
   (void)_headers;
   (void)_cgi;
-  if (this->_header_block.isRequest())
-    this->_ressource = this->_header_block.getRequestLine()._request_target;
-  this->_location = _getLocation(_ressource);
+//  if (this->_header_block.isRequest())
+//    this->_ressource = this->_header_block.getRequestLine()._request_target;
+//  this->_location = _getLocation(_ressource);
   this->_ressource = _formatRessource(this->_ressource);
   DEBUG("location: " + this->_location.name);
 }
@@ -179,8 +179,8 @@ string Request::_post(string ressource_path, map<string, string> headers) {
             _header_block.getContent().length());
       close(fd);
       rtn = 200;
-      headers["Content-Location"] =
-          _header_block.getRequestLine()._request_target;
+//      headers["Content-Location"] =
+//          _header_block.getRequestLine()._request_target;
     } else if (type == 0) {
       if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) == -1)
         return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
@@ -188,7 +188,7 @@ string Request::_post(string ressource_path, map<string, string> headers) {
             _header_block.getContent().length());
       close(fd);
       rtn = 201;
-      headers["Location"] = _header_block.getRequestLine()._request_target;
+//      headers["Location"] = _header_block.getRequestLine()._request_target;
     } else
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
   } catch (exception &ex) {
@@ -234,8 +234,8 @@ string Request::_put(string ressource_path, map<string, string> headers) {
       rtn = 204;
     } else
       return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-    headers["Content-Location"] =
-        _header_block.getRequestLine()._request_target;
+//    headers["Content-Location"] =
+//        _header_block.getRequestLine()._request_target;
   } catch (exception &ex) {
     throwError(ex);
     return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
@@ -291,21 +291,21 @@ string Request::_options(map<string, string> headers) {
  * Returns a 405 response in case of not allowed method
  * @return the string representation of the HTTP response
  */
-string Request::_wrongMethod(void) {
-  map<string, string> headers;
-  string allowed;
-
-  for (size_t i = 0; i < _location.methods.size(); ++i) {
-    //    allowed += _location.methods[i];
-    if (i < _location.methods.size() - 1)
-      allowed += ", ";
-  }
-  headers["Allow"] = allowed;
-  return (_generateResponse(405, headers,
-                            _header_block.getRequestLine()._method != "HEAD"
-                                ? _getErrorHTMLPage(405)
-                                : ""));
-}
+//string Request::_wrongMethod {
+//  map<string, string> headers;
+//  string allowed;
+//
+//  for (size_t i = 0; i < _location.methods.size(); ++i) {
+//    //    allowed += _location.methods[i];
+//    if (i < _location.methods.size() - 1)
+//      allowed += ", ";
+//  }
+//  headers["Allow"] = allowed;
+//  return "";/*(_generateResponse(405, headers,
+//                            _header_block.getRequestLine()._method != "HEAD"
+//                                ? _getErrorHTMLPage(405)
+//                                : ""));*/
+//}
 
 /**
  * Creates a HTTP response based on given code and content
@@ -431,17 +431,17 @@ string Request::_getListingHTMLPage(string path, string ressource) {
   string base;
   string listing;
   string link_base;
-  size_t i;
+//  size_t i;
   struct dirent *en;
   DIR *dr;
 
   base = readFile("./assets/listing.html");
   base = replace(base, "$1", ressource);
   dr = opendir(path.c_str());
-  i = 0;
-  while (_header_block.getRequestLine()._request_target[i] &&
-         _header_block.getRequestLine()._request_target[i] != '?')
-    link_base += _header_block.getRequestLine()._request_target[i++];
+//  i = 0;
+//  while (_header_block.getRequestLine()._request_target[i] &&
+//         _header_block.getRequestLine()._request_target[i] != '?')
+//    link_base += _header_block.getRequestLine()._request_target[i++];
   if (link_base[link_base.size() - 1] != '/')
     link_base += '/';
   while ((en = readdir(dr)) != 0)
@@ -552,26 +552,7 @@ string Request::_getMIMEType(string filename) {
  * @example ressource "/wordpress/index.php" in configurations "/wordpress",
  * "/upload" and "/" will return "/wordpress"
  */
-Location Request::_getLocation(string ressource) {
-  size_t max_length;
-  size_t max_index;
 
-  for (size_t i = 0; i < _conf.locations.size(); ++i) {
-    if (_conf.locations[i].path == ressource)
-      return (_conf.locations[i]);
-  }
-  max_length = 0;
-  max_index = 0;
-  for (size_t i = 0; i < _conf.locations.size(); ++i) {
-    if (ressource.rfind(_conf.locations[i].path, 0) == 0) {
-      if (_conf.locations[i].path.size() > max_length) {
-        max_length = _conf.locations[i].path.size();
-        max_index = i;
-      }
-    }
-  }
-  return (_conf.locations[max_index]);
-}
 
 /**
  * Get the current HTTP formatted date

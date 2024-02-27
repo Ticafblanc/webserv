@@ -92,24 +92,26 @@ void Server::_setListen(vecStr words) {
   bool success;
   size_t res;
 
-  if (!host.empty() || port > 0)
+  if (!ipAddress.empty() || port > 0)
     throw throwMessage("host and port already defined");
   if (words.size() < 2)
     throw throwMessage("need listen HOST:PORT");
   splitPattern(addr, words[1], ':');
-  if (addr.size() != 2 && addr.size() != 1)
+  if (addr.size() != 2)
     throw throwMessage("need listen HOST:PORT");
-  if (addr.size() == 2 && addr[0] == "localhost")
-    host = "127.0.0.1";
+  host.push_back(words[1]);
+  if (addr[0] == "localhost")
+    ipAddress = "127.0.0.1";
   else {
     if (!checkHostFormat(addr[0]))
       throw throwMessage("wrong HOST format");
-    host = addr[0];
+    ipAddress = addr[0];
   }
   res = myAtoi(addr[1], success);
   if (!success || res > 65535)
     throw throwMessage("wrong PORT");
   port = res;
+  host.push_back(ipAddress + ":" + addr[1]);
 }
 
 void Server::_setServerNames(vecStr words) {
@@ -137,10 +139,13 @@ void Server::_findMapServerSet(const vecStr &lines) {
 }
 
 void Server::checkDefault() {
-  if (names.empty())
+  if (names.empty()) {
     names.push_back("localhost");
-  if (host.empty())
-    host = "127.0.0.1";
+    names.push_back("localhost:80");
+    names.push_back("127.0.0.1:80");
+  }
+  if (ipAddress.empty())
+    ipAddress = "127.0.0.1";
   if (port == 0)
     port = 80;
   if (root.empty())
@@ -148,8 +153,8 @@ void Server::checkDefault() {
   if (clientMaxBodySize == 0)
     clientMaxBodySize = 1048576;
   if (locations.empty()) {
-    locations.push_back(Location());
-    locations.back().checkDefault();
+    locations[root] = Location();
+    locations[root].checkDefault();
   }
 }
 
@@ -160,19 +165,32 @@ void Server::parse(const string &bock) {
     throw throwMessage("miss match brace { } in location block");
   _findMapServerSet(serverInfo);
   for (vecStr::iterator it = locBlocks.begin(); it != locBlocks.end(); ++it) {
-    locations.push_back(Location());
-    locations.back().parse(*it);
-    if (locations.back().root.empty())
-      locations.back().root = root;
+    Location tmpLoc;
+    tmpLoc.parse(*it);
+    locations[tmpLoc.path] = tmpLoc;
   }
+  names.insert(names.begin(), host.begin(), host.end());
   checkDefault();
 }
 
 bool Server::isDefault() const { return defaultServer; }
 
+Location *Server::getLocationByRessource(const string &path) {
+  string tmpPath(path);
+  while (!tmpPath.empty()) {
+    mapStrLoc::iterator tmp = locations.find(path);
+    if (tmp != locations.end())
+      return &tmp->second;
+    else
+      tmpPath.pop_back();
+  }
+  return &defaultLocation;
+}
+
 Server::Server()
-    : names(), defaultServer(false), host(), port(), root(), errorPages(),
-      clientMaxBodySize(), locations() {
+    : names(), defaultServer(false), host(), ipAddress(), port(), root(),
+      errorPages(), clientMaxBodySize(), locations(), defaultLocation() {
+  defaultLocation.checkDefault();
   mss["server_name"] = &Server::_setServerNames;
   mss["listen"] = &Server::_setListen;
   mss["root"] = &Server::_setRoot;
@@ -182,9 +200,10 @@ Server::Server()
 
 Server::Server(const Server &other)
     : mss(other.mss), names(other.names), defaultServer(other.defaultServer),
-      host(other.host), port(other.port), root(other.root),
-      errorPages(other.errorPages), clientMaxBodySize(other.clientMaxBodySize),
-      locations(other.locations) {}
+      host(other.host), ipAddress(other.ipAddress), port(other.port),
+      root(other.root), errorPages(other.errorPages),
+      clientMaxBodySize(other.clientMaxBodySize), locations(other.locations),
+      defaultLocation(other.defaultLocation) {}
 
 Server::~Server() {}
 
@@ -194,11 +213,13 @@ Server &Server::operator=(const Server &rhs) {
     names = rhs.names;
     defaultServer = rhs.defaultServer;
     host = rhs.host;
+    ipAddress = rhs.ipAddress;
     port = rhs.port;
     root = rhs.root;
     errorPages = rhs.errorPages;
     clientMaxBodySize = rhs.clientMaxBodySize;
     locations = rhs.locations;
+    defaultLocation = rhs.defaultLocation;
   }
   return *this;
 }
@@ -395,6 +416,7 @@ static void verifyDefaultServer(vecServ &servers) {
   for (vecServIt i = servers.begin(); i != servers.end(); ++i) {
     if (checkVectorContain<std::string>(i->names, "default_server").first) {
       i->defaultServer = true;
+      rotate(servers.begin(), i, i + 1);
       return;
     }
   }

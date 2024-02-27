@@ -42,7 +42,7 @@ private:
 };
 
 
-typedef vector<Location> vecLoc;
+typedef map<string, Location> mapStrLoc;
 
 struct Server {
   typedef void (Server::*serverSet)(vecStr words);
@@ -51,12 +51,14 @@ struct Server {
   mapServerSet mss;
   vecStr names;
   bool defaultServer;
-  string host;
+  vecStr host;
+  string ipAddress;
   uint16_t port;
   string root;
   mapIntStr errorPages;
   size_t clientMaxBodySize;
-  vecLoc locations;
+  mapStrLoc locations;
+  Location defaultLocation;
   Server();
   Server(const Server& other);
   ~Server();
@@ -65,6 +67,7 @@ struct Server {
   void parse(const string &block);
   void checkDefault();
   bool isDefault() const;
+  Location *getLocationByRessource(const string &ressource) ;
 
 private:
   void _findMapServerSet(const vecStr &lines);

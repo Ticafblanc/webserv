@@ -58,6 +58,7 @@ typedef vecPairStrStr::iterator vecPairStrStrIt;
 typedef vector<char> vecChar;
 typedef set<string> setStr;
 typedef set<int> setInt;
+typedef set<int>::iterator setIntIt;
 typedef map<string, string> mapStrStr;
 typedef map<string, vecStr> mapStrVecStr;
 typedef map<string, vecStr>::iterator mapStrVecStrIt;
@@ -84,11 +85,13 @@ extern char **envp;
 // macro for recv/send data
 #define BUFFER_SIZE 1024
 
-//macro for Header
+//macro for Header firstline
 #define METHOD 0
 #define PATH 1
-#define HTTP_VERSION 2
+#define HTTP_V 2
 #define STATUS_CODE 3
 #define RAISON_PHRASE 4
+
+//
 
 #endif // WEBSERV_MAIN_HPP

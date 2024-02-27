@@ -33,7 +33,7 @@ protected:
 
 public:
   Socket();
-  explicit Socket(struct Server &server);
+  explicit Socket(struct Server &server, Server * defaultServer);
   Socket(const Socket &copy);
   virtual ~Socket();
   Socket &operator=(const Socket &op);
@@ -44,6 +44,7 @@ public:
   const uint16_t &getPort() const;
   mapStrServ &getServerConfiguration();
   bool isDefault();
+  Server *getServerByHost(const string &host) ;
   void closeSd();
 };
 
@@ -107,28 +108,25 @@ public:
 
   Client &getClientBySD(const int &sd) { return _sockets[sd]; }
 
-  T &getBySdAndHost(const int &sd, const string &host) {
-    mapStrServ &tmp = _sockets[sd].getServerConfiguration();
-    mapStrServIt pos = tmp.find(host);
-    if (pos == tmp.end())
-      return _defaultSocket;
-    return pos->second;
-  }
+
 
   static pair<bool, int> checkSameListen(Server &server, mapSock &sock) {
     for (mapSockIt itT = sock.begin(); itT != sock.end(); ++itT) {
       if (itT->second.getPort() == server.port &&
-          itT->second.getIpAddress() == server.host)
+          itT->second.getIpAddress() == server.ipAddress)
         return make_pair(false, itT->first);
     }
     return make_pair(true, 0);
   }
 
   void setServerSocket(vecServ &server) {
+    Server * defaultServer = NULL;
+    if (server.begin()->isDefault())
+      defaultServer = &*server.begin();
     for (vecServIt itServ = server.begin(); itServ != server.end(); ++itServ) {
       pair<bool, int> ret = checkSameListen(*itServ, _sockets);
       if (ret.first)
-        registerSocketAndCheckDefaultServer(Socket(*itServ));
+        registerSocketAndCheckDefaultServer(Socket(*itServ, defaultServer));
       else
         _sockets[ret.second].add(*itServ);
     }

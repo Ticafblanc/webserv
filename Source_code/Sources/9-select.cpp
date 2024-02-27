@@ -46,7 +46,7 @@ void Select::acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets) {
   }
   Client clt(_serverManager.getSocketBySD(sd), client, newSd);
   _clientManager.registerSocket(clt);
-  //  _headers[newSd] = Headers(_clientManager.getClientBySD(newSd));
+  _headers[newSd] = Headers(_clientManager.getClientBySD(newSd));
   //  _cgi[newSd] = CGI(_headers[newSd]);
   //  _request[newSd] = Request(_headers[newSd]);
   //  _response[newSd] = Response(_request[newSd]);
@@ -56,12 +56,15 @@ void Select::acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets) {
   cout << "accepte conextion " << newSd << endl;
 }
 
-void Select::closeConnection(const int &sd, set<int> &sds, fd_set *fdSets) {
-  FD_CLR(sd, &fdSets[READ_SDS]);
-  FD_CLR(sd, &fdSets[WRITE_SDS]);
-  if (_serverManager.closeSocket(sd) || _clientManager.closeSocket(sd))
-    sds.erase(sd);
-  cout << "close conextion " << sd << endl;
+void Select::closeConnection(setInt &toClose, set<int> &sds, fd_set *fdSets) {
+  for (setIntIt it = toClose.begin(); it != toClose.end(); ++it) {
+    int sd = *it;
+    FD_CLR(*it, &fdSets[READ_SDS]);
+    FD_CLR(*it, &fdSets[WRITE_SDS]);
+    if (_serverManager.closeSocket(*it) || _clientManager.closeSocket(*it))
+      sds.erase(*it);
+    cout << "close conextion " << sd << endl;
+  }
 }
 
 void Select::checkServer(fd_set *fdSets, int *intVal, set<int> &sds) {
@@ -74,6 +77,14 @@ void Select::checkServer(fd_set *fdSets, int *intVal, set<int> &sds) {
       } catch (const std::exception &e) {
         throwError(e);
       }
+  }
+  while (*intVal) {
+    try {
+      acceptConnection(_serverManager.getSockets().begin()->first, sds, fdSets);
+    } catch (const std::exception &e) {
+      throwError(e);
+    }
+    (*intVal)--;
   }
 }
 
@@ -93,10 +104,10 @@ ssize_t Select::sendBuffer(Client &clt) {
   return rc;
 }
 
-void Select::sendMessage(Client &clt, set<int> &sds, fd_set *fdSets) {
+void Select::sendMessage(Client &clt, set<int> &toClose) {
   ssize_t ret = sendBuffer(clt);
   if (ret == 0) {
-    closeConnection(clt.getSd(), sds, fdSets);
+    toClose.insert(clt.getSd());
   } else if (ret < 0)
     throwError(throwMessageErrno("send error"));
 }
@@ -123,40 +134,38 @@ ssize_t Select::recvBuffer(Client &clt) {
   return rc;
 }
 
-void Select::recvMessage(Client &clt, set<int> &sds, fd_set *fdSets) {
+void Select::recvMessage(Client &clt, set<int> &toClose) {
   ssize_t ret = recvBuffer(clt);
   if (ret > 0) {
     if (recvHeader(clt))
-          _headers[clt.getSd()].parse();
+      _headers[clt.getSd()].parse();
     //    if (_headers[clt.getSd()].isGood())
     //      _request[clt.getSd()].checkIfComplet();
   } else if (ret == 0 /*|| _headers[clt.getSd()].isCloseConnection()*/) {
-    closeConnection(clt.getSd(), sds, fdSets);
+    toClose.insert(clt.getSd());
   } else
     throwError(throwMessageErrno("Recv error"));
 }
 
 void Select::checkClient(fd_set *fdSets, int *intVal, set<int> &sds) {
-  while (*intVal > 0) {
-    for (SocketManager<Client>::mapSockIt it =
-             _clientManager.getSockets().begin();
-         it != _clientManager.getSockets().end(); ++it) {
-      try {
-        if (FD_ISSET(it->first, &fdSets[TMP_READ_SDS]) && (*intVal)-- &&
-            !it->second.isEndRecv()) {
-          recvMessage(it->second, sds, fdSets);
-          break;
-        } else if (FD_ISSET(it->first, &fdSets[TMP_WRITE_SDS]) && (*intVal)-- &&
-                   it->second.isEndRecv()) {
-          sendMessage(it->second, sds, fdSets);
-          break;
-        }
-      } catch (const std::exception &e) {
-        throwError(e);
+  set<int> toClose;
+  for (SocketManager<Client>::mapSockIt it =
+           _clientManager.getSockets().begin();
+       (*intVal) && it != _clientManager.getSockets().end(); ++it) {
+    try {
+      if (FD_ISSET(it->first, &fdSets[TMP_READ_SDS]) && (*intVal)-- &&
+          !it->second.isEndRecv()) {
+        recvMessage(it->second, toClose);
       }
+      if (FD_ISSET(it->first, &fdSets[TMP_WRITE_SDS]) && (*intVal)-- &&
+          it->second.isEndRecv()) {
+        sendMessage(it->second, toClose);
+      }
+    } catch (const std::exception &e) {
+      throwError(e);
     }
-    (*intVal)--;
   }
+  closeConnection(toClose, sds, fdSets);
 }
 
 static void resetCountError(int &countError) { countError = 3; }
@@ -199,8 +208,8 @@ void Select::loop() {
                                   &fdSets[TMP_WRITE_SDS], NULL, NULL);
     if (intVal[RETURN_VALUE] >= 0) {
       resetCountError(intVal[COUNT_ERROR]);
-      checkServer(fdSets, &intVal[RETURN_VALUE], sds);
       checkClient(fdSets, &intVal[RETURN_VALUE], sds);
+      checkServer(fdSets, &intVal[RETURN_VALUE], sds);
     } else if (intVal[RETURN_VALUE] < 0 &&
                !countErrorIsValid(intVal[COUNT_ERROR]) && usleep(1000))
       throwError(throwMessageErrno("Select error"));

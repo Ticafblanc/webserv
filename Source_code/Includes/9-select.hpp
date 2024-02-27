@@ -34,14 +34,14 @@ private:
 
   void checkServer(fd_set *fdSets, int *intVal, set<int> &sds);
   void acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets);
-  void closeConnection(const int &sd, set<int> &sds, fd_set *fdSets);
+  void closeConnection(set<int> &toClose, set<int> &sds, fd_set *fdSets);
 
   void checkClient(fd_set *fdSets, int *intVal, set<int> &sds);
-  void recvMessage(Client & clt, set<int> &sds, fd_set *fdSets);
+  void recvMessage(Client & clt, set<int> &toClose);
   static ssize_t recvBuffer(Client &clt);
   static bool recvHeader(Client &clt);
 
-  void sendMessage(Client &clt, set<int> &sds, fd_set *fdSets);
+  void sendMessage(Client &clt, set<int> &toClose);
   ssize_t sendBuffer(Client &clt) ;
 };
 

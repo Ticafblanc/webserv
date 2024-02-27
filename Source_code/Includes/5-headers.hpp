@@ -13,9 +13,14 @@ private:
   mapStrStr _headerFields;
   bool _isRequest;
   Client *_client;
+  Server *_server;
+  Location *_location;
   string _content;
   string _rawRequest;
 
+  bool extractData();
+  bool isValidFirstLine();
+  bool findRessource();
 
   void getLines(string msg, vector<string> *lines);
   void getRequestLine(vector<string> lines);
@@ -24,11 +29,12 @@ private:
 
 public:
   Headers();
-  Headers(Client & clt);
+  explicit Headers(Client & clt);
   Headers(const Headers &copy);
   ~Headers();
   Headers &operator=(const Headers &op);
 
+  void parse();
   bool isRequest(void) const;
   void pushContent(string buffer);
 

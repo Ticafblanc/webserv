@@ -42,7 +42,7 @@ private:
   string _getMIMEType(string filename);
   string _getDateHeader();
   string _formatTimestamp(time_t timestamp);
-  Location _getLocation(string ressource);
+//  Location _getLocation(string ressource);
   bool _isMethodAllowed(string method);
   string _formatRessource(string ressource);
   bool _shouldCallCGI(string ressource_path);

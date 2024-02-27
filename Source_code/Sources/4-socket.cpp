@@ -51,9 +51,9 @@ static void setServersConfig(struct Server &server, mapStrServ &serversConfig) {
     serversConfig[*i] = &server;
 }
 
-Socket::Socket(struct Server &server)
-    : _ipAddress(server.host), _port(server.port), _sd(-1), _optionBuffer(),
-      _serversConfig(), _defaultServer(NULL) {
+Socket::Socket(struct Server &server, Server * defaultServer)
+    : _ipAddress(server.ipAddress), _port(server.port), _sd(-1), _optionBuffer(),
+      _serversConfig(), _defaultServer(defaultServer) {
   try {
     createSocketDescriptor();
     setSocketOptions();
@@ -119,20 +119,29 @@ bool Socket::isDefault() {
   }
   return false;
 }
+
+Server * Socket::getServerByHost(const string &host) {
+  mapStrServIt pos = _serversConfig.find(host);
+  if (pos == _serversConfig.end())
+    return _defaultServer;
+  return &*pos->second;
+}
+
 const string &Socket::getIpAddress() const { return _ipAddress; }
 const uint16_t &Socket::getPort() const { return _port; }
 
 Client::Client(Socket &server, const sockaddr_in &address, int sd)
-    : Socket(server), _endRecv(false), _request() {
+    : Socket(server), _endRecv(false), _header(), _request() {
   _address = address;
   _sd = sd;
   getSockaddrIn();
 }
 
-Client::Client() : Socket(), _endRecv(), _request() {}
+Client::Client() : Socket(), _endRecv(), _header(), _request() {}
 
 Client::Client(const Client &copy)
-    : Socket(copy), _endRecv(copy._endRecv), _request(copy._request) {}
+    : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
+      _request(copy._request) {}
 
 Client::~Client() {}
 
@@ -140,14 +149,15 @@ Client &Client::operator=(const Client &rhs) {
   if (this != &rhs) {
     Socket::operator=(rhs);
     _endRecv = rhs._endRecv;
+    _header = rhs._header;
     _request = rhs._request;
   }
   return *this;
 }
 
-string &Client::getHeader() { return (this->_header); }
-string &Client::getRequest() { return (this->_request); }
+string &Client::getHeader() { return _header; }
+string &Client::getRequest() { return _request; }
 
-bool Client::isEndRecv() const { return (this->_endRecv); }
+bool Client::isEndRecv() const { return _endRecv; }
 
-void Client::setReceived(bool val) { this->_endRecv = val; }
+void Client::setReceived(bool val) { _endRecv = val; }
