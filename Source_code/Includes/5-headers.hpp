@@ -11,21 +11,9 @@ class Headers {
 private:
   vecStr _firstLine;
   mapStrStr _headerFields;
-  bool _isRequest;
   Client *_client;
-  Server *_server;
-  Location *_location;
-  string _content;
-  string _rawRequest;
 
   bool extractData();
-  bool isValidFirstLine();
-  bool findRessource();
-
-  void getLines(string msg, vector<string> *lines);
-  void getRequestLine(vector<string> lines);
-  void getStatusLine(vector<string> lines);
-  int getHeaderFileds(vector<string> lines);
 
 public:
   Headers();
@@ -35,15 +23,10 @@ public:
   Headers &operator=(const Headers &op);
 
   void parse();
-  bool isRequest(void) const;
-  void pushContent(string buffer);
 
-  struct request_line getRequestLine(void) const;
-  struct status_line getStatusLine(void) const;
-  vector<struct header_field> getHeaderFields(void) const;
-  string getContent(void) const;
-  string getClientIP(void) const;
-  string getPlainRequest(void) const;
+  vecStr &getFirstLine();
+  mapStrStr &getHeaderFields();
+  Client *getClient() ;
 };
 
 ostream &operator<<(ostream &out, const Headers &hb);
