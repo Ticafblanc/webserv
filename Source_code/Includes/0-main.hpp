@@ -84,4 +84,11 @@ extern char **envp;
 // macro for recv/send data
 #define BUFFER_SIZE 1024
 
+//macro for Header
+#define METHOD 0
+#define PATH 1
+#define HTTP_VERSION 2
+#define STATUS_CODE 3
+#define RAISON_PHRASE 4
+
 #endif // WEBSERV_MAIN_HPP

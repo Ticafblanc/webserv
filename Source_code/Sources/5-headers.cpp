@@ -158,187 +158,184 @@ int Headers::getHeaderFileds(std::vector<std::string> lines) {
 }
 
 Headers::Headers()
-    : _request_line(), _status_line(), _header_fields(), _is_request(false),
-      _client(NULL), _content(), _raw_request() {}
+    : _firstLine(), _headerFields(), _isRequest(false),
+      _client(NULL), _content(), _rawRequest() {}
 
-Headers::Headers(Client & clt)
-    : _request_line(), _status_line(), _header_fields(), _is_request(false),
-      _client(&clt), _content(), _raw_request() {}
-
+Headers::Headers(Client &clt)
+    : _firstLine(), _isRequest(false),
+      _client(&clt), _content(), _rawRequest() {}
 
 Headers::Headers(const Headers &copy)
-    : _request_line(copy._request_line), _status_line(copy._status_line),
-      _header_fields(copy._header_fields), _is_request(copy._is_request),
-      _client(copy._client), _content(copy._content),
-      _raw_request(copy._raw_request) {}
+    : _firstLine(copy._firstLine), _headerFields(copy._headerFields),
+      _isRequest(copy._isRequest), _client(copy._client), _content(copy._content),
+      _rawRequest(copy._rawRequest) {}
 
 Headers::~Headers() {}
 
-Headers &Headers::operator=(const Headers &op) {
-  if (&op == this)
-    return (*this);
-  _request_line = op._request_line;
-  _status_line = op._status_line;
-  _header_fields = op._header_fields;
-  _is_request = op._is_request;
-  _client = op._client;
-  _content = op._content;
-  _raw_request = op._raw_request;
-  return (*this);
+Headers &Headers::operator=(const Headers &rhs) {
+  if (this != &rhs) {
+    _firstLine = rhs._firstLine;
+    _headerFields = rhs._headerFields;
+    _isRequest = rhs._isRequest;
+    _client = rhs._client;
+    _content = rhs._content;
+    _rawRequest = rhs._rawRequest;
+  }
+  return *this;
 }
-//std::string server_name = getServerName(header);
-//            Socket *last = _serverManager.getBySDandHost(
-//                client_socket.getParent()->getSd(),
-//                server_name);
+// std::string server_name = getServerName(header);
+//             Socket *last = _serverManager.getBySDandHost(
+//                 client_socket.getParent()->getSd(),
+//                 server_name);
 
-//size_t len = header.getPlainRequest().length();
-//if (header.getPlainRequest() == "\r\n" || len < 9)
-//  throw(throwMessage("Empty request"));
-//static size_t getContentLen(std::string request) {
-//  size_t pos_in = 0;
-//  std::string line;
+// size_t len = header.getPlainRequest().length();
+// if (header.getPlainRequest() == "\r\n" || len < 9)
+//   throw(throwMessage("Empty request"));
+// static size_t getContentLen(std::string request) {
+//   size_t pos_in = 0;
+//   std::string line;
 //
-//  size_t pos = 0;
-//  size_t end = request.find("\n");
-//  while (end != std::string::npos) {
-//    line = request.substr(pos, end - pos);
-//    if (((pos_in = line.find("Content-Length")) != std::string::npos) &&
-//        pos_in == 0)
-//      return (atoi(line.substr(line.find(":") + 2, line.length()).c_str()));
-//    if ((pos_in = request.find("\r\n\r\n")) != std::string::npos &&
-//        pos_in == pos)
-//      break;
-//    pos = end + 1;
-//    end = request.find("\n", pos);
-//  }
-//  return (0);
-//}
-//std::string Select::getServerName(const Headers &hb) {
-//  std::string server_name;
+//   size_t pos = 0;
+//   size_t end = request.find("\n");
+//   while (end != std::string::npos) {
+//     line = request.substr(pos, end - pos);
+//     if (((pos_in = line.find("Content-Length")) != std::string::npos) &&
+//         pos_in == 0)
+//       return (atoi(line.substr(line.find(":") + 2, line.length()).c_str()));
+//     if ((pos_in = request.find("\r\n\r\n")) != std::string::npos &&
+//         pos_in == pos)
+//       break;
+//     pos = end + 1;
+//     end = request.find("\n", pos);
+//   }
+//   return (0);
+// }
+// std::string Select::getServerName(const Headers &hb) {
+//   std::string server_name;
 //
-//  for (size_t i = 0; i < hb.getHeaderFields().size(); i++) {
-//    DEBUG("Header name = " << hb.getHeaderFields()[i]._field_name)
-//    if (hb.getHeaderFields()[i]._field_name == "Host") {
-//      size_t pos = hb.getHeaderFields()[i]._field_value.find(':');
-//      if (pos != std::string::npos)
-//        server_name = hb.getHeaderFields()[i]._field_value.substr(0, pos);
-//      else
-//        server_name = hb.getHeaderFields()[i]._field_value.substr(
-//            0, hb.getHeaderFields()[i]._field_value.length());
-//      DEBUG("Select Name = " << server_name)
-//      break;
-//    }
-//  }
-//  return (server_name);
-//}
+//   for (size_t i = 0; i < hb.getHeaderFields().size(); i++) {
+//     DEBUG("Header name = " << hb.getHeaderFields()[i]._field_name)
+//     if (hb.getHeaderFields()[i]._field_name == "Host") {
+//       size_t pos = hb.getHeaderFields()[i]._field_value.find(':');
+//       if (pos != std::string::npos)
+//         server_name = hb.getHeaderFields()[i]._field_value.substr(0, pos);
+//       else
+//         server_name = hb.getHeaderFields()[i]._field_value.substr(
+//             0, hb.getHeaderFields()[i]._field_value.length());
+//       DEBUG("Select Name = " << server_name)
+//       break;
+//     }
+//   }
+//   return (server_name);
+// }
 ///* return 0 = nop, 1 = classic content, 2 = chunked*/
-//static int hasContent(std::string request) {
-//  size_t pos_in = 0;
-//  std::string line;
+// static int hasContent(std::string request) {
+//   size_t pos_in = 0;
+//   std::string line;
 //
-//  size_t pos = 0;
-//  size_t end = request.find("\n");
-//  while (end != string::npos) {
-//    line = request.substr(pos, end - pos);
-//    if ((pos_in = line.find("Transfer-Encoding: chunked")) !=
-//            std::string::npos &&
-//        pos_in == 0)
-//      return (2);
-//    else if (((pos_in = line.find("Content")) != std::string::npos) &&
-//             pos_in == 0)
-//      return (1);
-//    if ((pos_in = request.find("\r\n\r\n")) != std::string::npos &&
-//        pos_in == pos)
-//      break;
-//    pos = end + 1;
-//    end = request.find("\n", pos);
-//  }
-//  return (0);
-//}
-//  std::vector<std::string> block_lines;
+//   size_t pos = 0;
+//   size_t end = request.find("\n");
+//   while (end != string::npos) {
+//     line = request.substr(pos, end - pos);
+//     if ((pos_in = line.find("Transfer-Encoding: chunked")) !=
+//             std::string::npos &&
+//         pos_in == 0)
+//       return (2);
+//     else if (((pos_in = line.find("Content")) != std::string::npos) &&
+//              pos_in == 0)
+//       return (1);
+//     if ((pos_in = request.find("\r\n\r\n")) != std::string::npos &&
+//         pos_in == pos)
+//       break;
+//     pos = end + 1;
+//     end = request.find("\n", pos);
+//   }
+//   return (0);
+// }
+//   std::vector<std::string> block_lines;
 //
-//  getLines(request, &block_lines);
-//  try {
-//    if (block_lines.size() < 1)
-//      throw(throwMessage("Not valid header (size to low)"));
-//    size_t pos = block_lines[0].find(" ");
-//    std::string first_word = block_lines[0].substr(0, block_lines[0].find("
-//    ")); if (pos != std::string::npos) {
-//      //      int methods_number = 0;
-//      //      int i;
-//      //      while (methods[methods_number++])
-//      //        ;
+//   getLines(request, &block_lines);
+//   try {
+//     if (block_lines.size() < 1)
+//       throw(throwMessage("Not valid header (size to low)"));
+//     size_t pos = block_lines[0].find(" ");
+//     std::string first_word = block_lines[0].substr(0, block_lines[0].find("
+//     ")); if (pos != std::string::npos) {
+//       //      int methods_number = 0;
+//       //      int i;
+//       //      while (methods[methods_number++])
+//       //        ;
 //
-//      //      for (i = 0; i < methods_number /*&& methods[i]*/; i++) {
-//      //        if (first_word == methods[i]) {
-//      //          this->getRequestLine(block_lines);
-//      //          break;
-//      //        }
-//      //      }
-//      //      if (methods[i] == NULL)
-//      //        this->getStatusLine(block_lines);
-//    }
-//    size_t end_headers = this->getHeaderFileds(block_lines);
-//    while (42) {
-//      if (end_headers < block_lines.size() && block_lines[end_headers] ==
-//      "\r")
-//        end_headers++;
-//      else
-//        break;
-//    }
-//    if (content_type != 2) /* Non chunked transfer */
-//      for (size_t i = end_headers; i < block_lines.size(); i++)
-//        this->pushContent(block_lines[i]);
-//    else if (content_type == 2) {
-//      while (42) {
-//        size_t nbr_char =
-//            0; /*= std::stoi(block_lines[end_headers].c_str(), 0, 16);*/
-//        end_headers++;
-//        if (nbr_char == 0)
-//          break;
-//        std::string new_line;
-//        for (size_t i = 0; i < nbr_char; i++) {
-//          size_t pos_cut = nbr_char;
-//          std::string line = block_lines[end_headers];
-//          size_t line_len = line.length();
-//          if (nbr_char > line_len - 1)
-//            pos_cut = line_len;
-//          new_line.append(line.substr(0, pos_cut));
-//          if (line_len - 1 < nbr_char - i) {
-//            new_line.append("\n");
-//            i++;
-//          }
-//          end_headers++;
-//          i += pos_cut;
-//        }
-//        if (block_lines[end_headers][0] == '\r') {
-//          new_line.append("\n");
-//          end_headers++;
-//        }
-//        this->pushContent(new_line);
-//      }
-//    }
-//  } catch (const std::exception &e) {
-//    throwError(e);
-//    exit(0);
-//    throw(throwMessage("Can't parse header."));
-//  }
-//}
+//       //      for (i = 0; i < methods_number /*&& methods[i]*/; i++) {
+//       //        if (first_word == methods[i]) {
+//       //          this->getRequestLine(block_lines);
+//       //          break;
+//       //        }
+//       //      }
+//       //      if (methods[i] == NULL)
+//       //        this->getStatusLine(block_lines);
+//     }
+//     size_t end_headers = this->getHeaderFileds(block_lines);
+//     while (42) {
+//       if (end_headers < block_lines.size() && block_lines[end_headers] ==
+//       "\r")
+//         end_headers++;
+//       else
+//         break;
+//     }
+//     if (content_type != 2) /* Non chunked transfer */
+//       for (size_t i = end_headers; i < block_lines.size(); i++)
+//         this->pushContent(block_lines[i]);
+//     else if (content_type == 2) {
+//       while (42) {
+//         size_t nbr_char =
+//             0; /*= std::stoi(block_lines[end_headers].c_str(), 0, 16);*/
+//         end_headers++;
+//         if (nbr_char == 0)
+//           break;
+//         std::string new_line;
+//         for (size_t i = 0; i < nbr_char; i++) {
+//           size_t pos_cut = nbr_char;
+//           std::string line = block_lines[end_headers];
+//           size_t line_len = line.length();
+//           if (nbr_char > line_len - 1)
+//             pos_cut = line_len;
+//           new_line.append(line.substr(0, pos_cut));
+//           if (line_len - 1 < nbr_char - i) {
+//             new_line.append("\n");
+//             i++;
+//           }
+//           end_headers++;
+//           i += pos_cut;
+//         }
+//         if (block_lines[end_headers][0] == '\r') {
+//           new_line.append("\n");
+//           end_headers++;
+//         }
+//         this->pushContent(new_line);
+//       }
+//     }
+//   } catch (const std::exception &e) {
+//     throwError(e);
+//     exit(0);
+//     throw(throwMessage("Can't parse header."));
+//   }
+// }
 bool Headers::isRequest(void) const { return (this->_is_request); }
 
 void Headers::pushContent(std::string buffer) { this->_content += buffer; }
 
-struct Headers::request_line Headers::getRequestLine(void) const {
-  return (this->_request_line);
-}
+//struct Headers::request_line Headers::getRequestLine(void) const {
+//  return (this->_request_line);
+//}
 
-struct Headers::status_line Headers::getStatusLine(void) const {
-  return (this->_status_line);
-}
-
-std::vector<struct Headers::header_field> Headers::getHeaderFields(void) const {
-  return (this->_header_fields);
-}
+//struct Headers::status_line Headers::getStatusLine(void) const {
+//  return (this->_status_line);
+//}
+//
+//std::vector<struct Headers::header_field> Headers::getHeaderFields(void) const {
+//  return (this->_header_fields);
+//}
 
 std::string Headers::getContent(void) const { return (this->_content); }
 
@@ -363,6 +360,6 @@ std::ostream &operator<<(std::ostream &out, const Headers &hb) {
   return (out);
 }
 
-//std::string Headers::getClientIP(void) const { return (_client_ip); }
+// std::string Headers::getClientIP(void) const { return (_client_ip); }
 
 std::string Headers::getPlainRequest(void) const { return (_raw_request); }
