@@ -45,10 +45,12 @@ bool Headers::extractData() {
 
 void Headers::parse() {
   if (extractData()) {
-    _firstLine[STATUS_CODE] = "400";
+    _client->setReceived(true);
+    setFirstLine(STATUS_CODE, "400");
   }
 }
 
 vecStr &Headers::getFirstLine() { return _firstLine; }
 mapStrStr &Headers::getHeaderFields() { return _headerFields; }
 Client *Headers::getClient() { return _client; }
+void Headers::setFirstLine(const int & pos, const string &value) { _firstLine[pos] = value; }

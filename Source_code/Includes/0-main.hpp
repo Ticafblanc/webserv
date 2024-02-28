@@ -57,6 +57,7 @@ typedef vector<pairStrStr> vecPairStrStr;
 typedef vecPairStrStr::iterator vecPairStrStrIt;
 typedef vector<char> vecChar;
 typedef set<string> setStr;
+typedef set<string>::iterator setStrIt;
 typedef set<int> setInt;
 typedef set<int>::iterator setIntIt;
 typedef map<string, string> mapStrStr;

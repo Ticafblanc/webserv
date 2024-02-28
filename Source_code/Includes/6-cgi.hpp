@@ -11,11 +11,10 @@
 class CGI {
 private:
   Headers *_headers;
-  string _cgi_path;
-  string _ressource_path;
+  string _cgiPath;
+  string _ressourcePath;
   Headers _request;
-  Server &_conf;
-  Location &_location;
+
   map<string, string> _getParams();
   string _getQueryString();
   char **_convertParams(map<string, string> args);

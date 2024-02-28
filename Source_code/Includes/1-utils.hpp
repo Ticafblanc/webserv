@@ -15,7 +15,7 @@
 
 template <class T>
 pair<bool, typename vector<T>::iterator> checkVectorContain(vector<T> &vec,
-                                                               T obj) {
+                                                            T obj) {
   for (typename vector<T>::iterator i = vec.begin(); i != vec.end(); ++i)
     if (*i == obj)
       return make_pair(true, i);
@@ -63,7 +63,17 @@ public:
   virtual const char *what() const throw() { return (_msg.c_str()); }
 };
 
-void throwError(const std::exception &ex);
-void printError(const std::string &msg);
+void throwError(const exception &ex);
+void printError(const string &msg);
+string itoa(int nb);
+bool isDirectory(string &path);
+bool isFile(const string &path);
+bool isExec(const string &path);
+int pathType(const string &path);
+string setTime();
+bool autoIndexToHtml(string & path, string & url, ostringstream &oss);
+bool removeDirectory(string &path);
+bool removeFile(string &path);
+bool extractFileToFd(const string & path, int fd, size_t & contentLength);
 
 #endif // WEBSERV_UTILS_HPP

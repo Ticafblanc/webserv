@@ -10,6 +10,10 @@
 class Headers {
 private:
   vecStr _firstLine;
+
+public:
+
+private:
   mapStrStr _headerFields;
   Client *_client;
 
@@ -25,6 +29,7 @@ public:
   void parse();
 
   vecStr &getFirstLine();
+  void setFirstLine(const int & pos, const string &value);
   mapStrStr &getHeaderFields();
   Client *getClient() ;
 };

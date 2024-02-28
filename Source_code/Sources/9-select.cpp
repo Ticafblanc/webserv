@@ -15,8 +15,7 @@ Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
 Select::Select(const Select &copy)
     : _run(true), _serverManager(copy._serverManager),
       _clientManager(copy._clientManager), _headers(copy._headers),
-      _request(copy._request), _response(copy._response), _cgi(copy._cgi) {
-  _this = this;
+      _request(), _response(copy._response), _cgi(copy._cgi) {
 }
 
 Select::~Select() {}
@@ -28,7 +27,7 @@ Select &Select::operator=(const Select &rhs) {
     _serverManager = rhs._serverManager;
     _clientManager = rhs._clientManager;
     _headers = rhs._headers;
-    _request = rhs._request;
+//    _request = rhs._request;
     _response = rhs._response;
     _cgi = rhs._cgi;
   }
@@ -47,9 +46,9 @@ void Select::acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets) {
   Client clt(_serverManager.getSocketBySD(sd), client, newSd);
   _clientManager.registerSocket(clt);
   _headers[newSd] = Headers(_clientManager.getClientBySD(newSd));
-  //  _cgi[newSd] = CGI(_headers[newSd]);
-  //  _request[newSd] = Request(_headers[newSd]);
-  //  _response[newSd] = Response(_request[newSd]);
+  _cgi[newSd] = CGI(_headers[newSd]);
+  _request[newSd] = Request(_headers[newSd], _cgi[newSd]);
+  //  _response[newSd] = Response(_request[newSd], _cgi[newSd]);
   FD_SET(newSd, &fdSets[READ_SDS]);
   FD_SET(newSd, &fdSets[WRITE_SDS]);
   sds.insert(newSd);
@@ -137,10 +136,9 @@ ssize_t Select::recvBuffer(Client &clt) {
 void Select::recvMessage(Client &clt, set<int> &toClose) {
   ssize_t ret = recvBuffer(clt);
   if (ret > 0) {
-    if (recvHeader(clt))
+    if (clt.getHeader().empty() && recvHeader(clt))
       _headers[clt.getSd()].parse();
-    //    if (_headers[clt.getSd()].isGood())
-    //      _request[clt.getSd()].checkIfComplet();
+    _request[clt.getSd()].manageRequest();
   } else if (ret == 0 /*|| _headers[clt.getSd()].isCloseConnection()*/) {
     toClose.insert(clt.getSd());
   } else

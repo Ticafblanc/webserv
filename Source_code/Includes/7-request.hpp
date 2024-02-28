@@ -1,7 +1,8 @@
 //
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
-
+//bool isValidFirstLine();
+//bool findRessource();
 #ifndef WEBSERV_REQUEST_HPP
 #define WEBSERV_REQUEST_HPP
 
@@ -11,23 +12,25 @@ class Request {
 private:
   Headers *_headers;
   CGI *_cgi;
-  string _ressource;
-  Headers _header_block;
-  Server _conf;
-  Location _location;
-  string _get(string ressource_path,
-                   map<string, string> headers,
-                   bool send_body = true);
-  string _head(string ressource_path,
-                    map<string, string> headers);
-  string _post(string ressource_path,
-                    map<string, string> headers);
-  string _put(string ressource_path,
-                   map<string, string> headers);
-  string _delete(string ressource_path,
-                      map<string, string> headers);
-  string _trace(map<string, string> headers);
-  string _options(map<string, string> headers);
+  Client* _client;
+  Server *_server;
+  Location *_location;
+  bool _complete;
+  typedef void (Request::*manager)();
+  manager manage;
+
+  void method();
+
+
+  void _get();
+  void _head();
+  void _post();
+  void _put();
+  void _delete();
+  void _connect();
+  void _trace();
+  void _options();
+
   string _wrongMethod();
   string _generateResponse(size_t code,
                                 map<string, string> headers,
@@ -55,6 +58,7 @@ public:
   Request(const Request &other);
   Request &operator=(const Request &other);
   ~Request();
+  void manageRequest();
   string getResponse();
 };
 

@@ -67,8 +67,8 @@ void Server::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw throwMessage("invalid PATH for root");
   root = words[1];
-  if (root[root.size() - 1] == '/')
-    root = root.substr(0, root.size() - 1);
+//  if (root[root.size() - 1] == '/')
+//    root = root.substr(0, root.size() - 1);
 }
 
 static bool checkHostFormat(const string &str) {
@@ -296,8 +296,8 @@ void Location::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw throwMessage("invalid PATH for root");
   root = words[1];
-  if (root[root.size() - 1] == '/')
-    root = root.substr(0, root.size() - 1);
+//  if (root[root.size() - 1] == '/')
+//    root = root.substr(0, root.size() - 1);
 }
 
 void Location::_findMapLocationSet(const vecStr &lines) {
@@ -382,6 +382,7 @@ Location &Location::operator=(const Location &rhs) {
   }
   return *this;
 }
+
 Configuration::Configuration() {}
 
 Configuration &Configuration::operator=(const Configuration &other) {

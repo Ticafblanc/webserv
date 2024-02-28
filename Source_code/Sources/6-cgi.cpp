@@ -13,10 +13,7 @@
  * @param location the current location conf
  */
 CGI::CGI(Headers &headers)
-    : _headers(&headers),_cgi_path(), _ressource_path(), _request(), _conf(*new Server),
-      _location(*new Location) {
-  (void)_headers;
-}
+    : _headers(&headers), _cgiPath(), _ressourcePath(), _request() {}
 
 CGI::~CGI() {}
 
@@ -68,14 +65,15 @@ std::string CGI::_execCGI(char **args) {
           "Cannot create temporary file to catch CGI output in /tmp.");
     dup2(tmp_fd, 1);
     dup2(tmp_fd, 2);
-    exec_res = execve(_cgi_path.c_str(), exec_args, args);
+//    exec_res = execve(_cgi_path.c_str(), exec_args, args);
     close(0);
     close(tmp_fd);
     close(fd[0]);
     exit(0);
   } else {
     close(fd[0]);
-    write(fd[1], _request.getContent().c_str(), _request.getContent().length());
+    //    write(fd[1], _request.getContent().c_str(),
+    //    _request.getContent().length());
     close(fd[1]);
     waitpid(-1, NULL, 0);
     _freeArgs(args);
@@ -95,8 +93,8 @@ char **CGI::_getExecArgs() {
 
   if (!(args = (char **)malloc(sizeof(char *) * 3)))
     return (0);
-  args[0] = _newStr(_cgi_path);
-  args[1] = _newStr(_ressource_path);
+//  args[0] = _newStr(_cgi_path);
+//  args[1] = _newStr(_ressource_path);
   args[2] = 0;
   return (args);
 }
@@ -159,63 +157,65 @@ char *CGI::_newStr(std::string source) {
  */
 std::map<std::string, std::string> CGI::_getParams() {
   std::map<std::string, std::string> args;
-//  std::string tmp;
-//  size_t i;
-//  size_t j;
-//
-//  args["GATEWAY_INTERFACE"] = "CGI/1.1";
-//  args["PATH_TRANSLATED"] = _ressource_path;
-//  args["QUERY_STRING"] = _getQueryString();
-//  args["REQUEST_METHOD"] = _request.getRequestLine()._method;
-//  args["CONTENT_LENGTH"] = uIntegerToString(_request.getContent().length());
-//  for (size_t u = 0; u < _request.getHeaderFields().size(); u++)
-//    if (_request.getHeaderFields()[u]._field_name == "Content-Type") {
-//      DEBUG("CONTENT GIVEN = " << _request.getHeaderFields()[u]._field_value)
-//      args["CONTENT_TYPE"] = _request.getHeaderFields()[u]._field_value;
-//    }
-//  args["REQUEST_URI"] =
-//      _removeQueryArgs(_request.getRequestLine()._request_target);
-//  args["REMOTE_IDENT"] = "";
-//  args["REDIRECT_STATUS"] = "200";
-////  args["REMOTE_ADDR"] = _request.getClientIP();
-//  args["SCRIPT_NAME"] =
-//      _location.path +
-//      ((_location.path[_location.path.length() - 1] == '/') ? "" : "/") +
-//      replace(_ressource_path, _location.root, "");
-//  args["PATH_INFO"] =
-//      _removeQueryArgs(_request.getRequestLine()._request_target);
-//  args["SCRIPT_FILENAME"] = _ressource_path;
-//  args["SERVER_NAME"] = _conf.host;
-//  args["SERVER_PORT"] = uIntegerToString(_conf.port);
-//  args["SERVER_PROTOCOL"] = "HTTP/1.1";
-//  args["SERVER_SOFTWARE"] = "webserv/1.0";
-//  for (size_t a = 0; a < _request.getHeaderFields().size(); ++a) {
-//    tmp = _request.getHeaderFields()[a]._field_name;
-//    tmp = replace(tmp, "-", "_");
-//    for (size_t b = 0; b < tmp.size(); ++b)
-//      tmp[b] = toupper(tmp[b]);
-//    args["HTTP_" + tmp] = _request.getHeaderFields()[a]._field_value;
-//  }
-//  i = 0;
-//  while (envp[i]) {
-//    j = 0;
-//    while (envp[i][j] && envp[i][j] != '=')
-//      j++;
-//    args[std::string(envp[i], 0, j)] =
-//        std::string(envp[i], j + 1, std::string(envp[i]).size() - j);
-//    ++i;
-//  }
+  //  std::string tmp;
+  //  size_t i;
+  //  size_t j;
+  //
+  //  args["GATEWAY_INTERFACE"] = "CGI/1.1";
+  //  args["PATH_TRANSLATED"] = _ressource_path;
+  //  args["QUERY_STRING"] = _getQueryString();
+  //  args["REQUEST_METHOD"] = _request.getRequestLine()._method;
+  //  args["CONTENT_LENGTH"] = uIntegerToString(_request.getContent().length());
+  //  for (size_t u = 0; u < _request.getHeaderFields().size(); u++)
+  //    if (_request.getHeaderFields()[u]._field_name == "Content-Type") {
+  //      DEBUG("CONTENT GIVEN = " <<
+  //      _request.getHeaderFields()[u]._field_value) args["CONTENT_TYPE"] =
+  //      _request.getHeaderFields()[u]._field_value;
+  //    }
+  //  args["REQUEST_URI"] =
+  //      _removeQueryArgs(_request.getRequestLine()._request_target);
+  //  args["REMOTE_IDENT"] = "";
+  //  args["REDIRECT_STATUS"] = "200";
+  ////  args["REMOTE_ADDR"] = _request.getClientIP();
+  //  args["SCRIPT_NAME"] =
+  //      _location.path +
+  //      ((_location.path[_location.path.length() - 1] == '/') ? "" : "/") +
+  //      replace(_ressource_path, _location.root, "");
+  //  args["PATH_INFO"] =
+  //      _removeQueryArgs(_request.getRequestLine()._request_target);
+  //  args["SCRIPT_FILENAME"] = _ressource_path;
+  //  args["SERVER_NAME"] = _conf.host;
+  //  args["SERVER_PORT"] = uIntegerToString(_conf.port);
+  //  args["SERVER_PROTOCOL"] = "HTTP/1.1";
+  //  args["SERVER_SOFTWARE"] = "webserv/1.0";
+  //  for (size_t a = 0; a < _request.getHeaderFields().size(); ++a) {
+  //    tmp = _request.getHeaderFields()[a]._field_name;
+  //    tmp = replace(tmp, "-", "_");
+  //    for (size_t b = 0; b < tmp.size(); ++b)
+  //      tmp[b] = toupper(tmp[b]);
+  //    args["HTTP_" + tmp] = _request.getHeaderFields()[a]._field_value;
+  //  }
+  //  i = 0;
+  //  while (envp[i]) {
+  //    j = 0;
+  //    while (envp[i][j] && envp[i][j] != '=')
+  //      j++;
+  //    args[std::string(envp[i], 0, j)] =
+  //        std::string(envp[i], j + 1, std::string(envp[i]).size() - j);
+  //    ++i;
+  //  }
   return (args);
 }
 
 std::string CGI::_getScriptName() {
-//  size_t i;
+  //  size_t i;
 
-//  i = 0;
-//  while (_request.getRequestLine()._request_target[i] &&
-//         _request.getRequestLine()._request_target[i] != '?')
-//    ++i;
-  return "";/* (std::string(_request.getRequestLine()._request_target, 0, i));*/
+  //  i = 0;
+  //  while (_request.getRequestLine()._request_target[i] &&
+  //         _request.getRequestLine()._request_target[i] != '?')
+  //    ++i;
+  return ""; /* (std::string(_request.getRequestLine()._request_target, 0,
+                i));*/
 }
 
 /**
@@ -224,15 +224,15 @@ std::string CGI::_getScriptName() {
  * @example "index.php?a=42&page_id=32&c=21" -> "a=42&page_id=32&c=21"
  */
 std::string CGI::_getQueryString() {
-//  size_t i;
-//
-//  i = 0;
-//  while (_request.getRequestLine()._request_target[i] &&
-//         _request.getRequestLine()._request_target[i] != '?')
-//    ++i;
-//  if (_request.getRequestLine()._request_target[i] == '?')
-//    ++i;
-//  return (std::string(_request.getRequestLine()._request_target, i, -i));
+  //  size_t i;
+  //
+  //  i = 0;
+  //  while (_request.getRequestLine()._request_target[i] &&
+  //         _request.getRequestLine()._request_target[i] != '?')
+  //    ++i;
+  //  if (_request.getRequestLine()._request_target[i] == '?')
+  //    ++i;
+  //  return (std::string(_request.getRequestLine()._request_target, i, -i));
   return "";
 }
 
