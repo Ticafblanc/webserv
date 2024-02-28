@@ -131,35 +131,43 @@ const string &Socket::getIpAddress() const { return _ipAddress; }
 const uint16_t &Socket::getPort() const { return _port; }
 Server *Socket::getDefaultServer() const { return _defaultServer; }
 
-Client::Client(Socket &server, const sockaddr_in &address, int sd, int sds[2])
+Client::Client(Socket &server, const sockaddr_in &address, int sd, int sds[4])
     : Socket(server), _endRecv(false), _header(), _request(), _server(NULL),
       _location(NULL) {
   _address = address;
   _sd = sd;
   getSockaddrIn();
-  _sds[0] = sds[0];
-  _sds[1] = sds[1];
+  _sdIn[0] = sds[0];
+  _sdIn[1] = sds[1];
+  _sdOut[0] = sds[3];
+  _sdOut[1] = sds[3];
 }
 
 Client::Client()
     : Socket(), _endRecv(), _header(), _request(), _server(_defaultServer),
-      _location(&_server->defaultLocation), _sds() {}
+      _location(&_server->defaultLocation), _sdIn(), _sdOut() {}
 
 Client::Client(const Client &copy)
     : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
       _request(copy._request), _server(copy._server), _location(copy._location),
-      _sds() {
-  _sds[0] = copy._sds[0];
-  _sds[1] = copy._sds[1];
+      _sdIn(), _sdOut() {
+  _sdOut[0] = copy._sdOut[0];
+  _sdOut[1] = copy._sdOut[1];
+  _sdOut[0] = copy._sdOut[0];
+  _sdOut[1] = copy._sdOut[1];
 }
 
 Client::~Client() {}
 
 void Client::closeSd() {
-  close(_sds[0]);
-  close(_sds[1]);
-  _sds[0] = 0;
-  _sds[1] = 0;
+  close(_sdIn[0]);
+  close(_sdIn[1]);
+  _sdIn[0] = 0;
+  _sdIn[1] = 0;
+  close(_sdOut[0]);
+  close(_sdOut[1]);
+  _sdOut[0] = 0;
+  _sdOut[1] = 0;
   Socket::closeSd();
 }
 
@@ -171,8 +179,10 @@ Client &Client::operator=(const Client &rhs) {
     _request = rhs._request;
     _server = rhs._server;
     _location = rhs._location;
-    _sds[0] = rhs._sds[0];
-    _sds[1] = rhs._sds[1];
+    _sdIn[0] = rhs._sdIn[0];
+    _sdOut[1] = rhs._sdOut[1];
+    _sdIn[0] = rhs._sdIn[0];
+    _sdOut[1] = rhs._sdOut[1];
   }
   return *this;
 }
@@ -195,4 +205,5 @@ void Client::setLocation(Location *location) { _location = location; }
 bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
-const int *Client::getSds() const { return _sds; }
+const int *Client::getSdIn() const { return _sdIn; }
+const int *Client::getSdOut() const { return _sdOut; }

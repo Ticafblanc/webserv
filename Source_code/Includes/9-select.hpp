@@ -37,11 +37,13 @@ private:
   void closeConnection(set<int> &toClose, set<int> &sds, fd_set *fdSets);
 
   void checkClient(fd_set *fdSets, int *intVal, set<int> &sds);
-  void recvMessage(Client &clt, set<int> &toClose);
+  bool recvMessage(Client &clt, set<int> &toClose);
   static ssize_t recvBuffer(Client &clt);
   static bool recvHeader(Client &clt);
 
-  void sendMessage(Client &clt, set<int> &toClose);
+  bool isSend(int sd, fd_set &fd, Client &clt, setInt &);
+  bool isRecv(int sd, fd_set &fd, Client &clt, setInt &);
+  bool sendMessage(Client &clt, set<int> &toClose);
   ssize_t sendBuffer(Client &clt);
 
   void checkCgi(fd_set *fdSets, int *intVal, set<int> &sds);

@@ -61,7 +61,14 @@ void Request::manageRequest() {
 }
 
 void Request::initCgi() {
-  _cgi.exec();
+  if(!_cgi->launchChild())
+    throw throwMessageErrno("error launch child");
+  manage = ;
+}
+void Request::initCgi() {
+  if(!_cgi->launchChild())
+    throw throwMessageErrno("error launch child");
+  manage = ;
 }
 
 

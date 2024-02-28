@@ -4,45 +4,33 @@
 
 #include "../Includes/6-cgi.hpp"
 
-CGI::CGI(Headers &headers) : _headers(&headers) {}
+CGI::CGI(Headers &headers) : _headers(&headers), _pid(), _time() {}
 
 CGI::~CGI() {}
 
-int CGI::exec() {
-  int exec_res = 0;
-  char **exec_args;
-  int tmp_fd;
+bool CGI::launchChild() {
+  _pid = fork();
+  if (_pid == -1)
+    return false;
+  if (_pid == 0) {
+    dup2(_headers->getClient()->getSdIn()[STDIN_FILENO], STDIN_FILENO);
+    close(_headers->getClient()->getSdOut()[STDIN_FILENO]);
+    dup2(_headers->getClient()->getSdOut()[STDOUT_FILENO], STDOUT_FILENO);
+    close(_headers->getClient()->getSdIn()[STDOUT_FILENO]);
+    execve(_headers->getCgiEnv()[0], _headers->getCgiEnv().data(),
+           _headers->getCgiEnv().data());
+    //check free and sigpipe
+    exit(EXIT_FAILURE);
+  }
+  return true;
+}
 
-  (void)exec_res;
-
-  Log("Call CGI.");
-  exec_args = _getExecArgs();
-  if (pipe(fd) == -1)
-    throw CGIException("Cannot create pip to execute CGI.");
-  pid = fork();
-  if (pid == 0) {
-    close(fd[1]);
-    dup2(fd[0], 0);
-    tmp_fd =
-        open("/tmp/webserv_cgi", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (tmp_fd < 0)
-      throw CGIException(
-          "Cannot create temporary file to catch CGI output in /tmp.");
-    dup2(tmp_fd, 1);
-    dup2(tmp_fd, 2);
-    //    exec_res = execve(_cgi_path.c_str(), exec_args, args);
-    close(0);
-    close(tmp_fd);
-    close(fd[0]);
-    exit(0);
-  } else {
-    close(fd[0]);
-    //    write(fd[1], _request.getContent().c_str(),
-    //    _request.getContent().length());
-    close(fd[1]);
-    waitpid(-1, NULL, 0);
-    _freeArgs(args);
-    _freeArgs(exec_args);
+//    write(fd[1], _request.getContent().c_str(),
+//    _request.getContent().length());
+close(fd[1]);
+waitpid(-1, NULL, 0);
+_freeArgs(args);
+_freeArgs(exec_args);
   }
   Log("End CGI");
   //  return (readFile("/tmp/webserv_cgi"));

@@ -55,7 +55,8 @@ protected:
   string _request;
   Server *_server;
   Location *_location;
-  int _sds[2];
+  int _sdIn[2];
+  int _sdOut[2];
 
 public:
   Client();
@@ -74,7 +75,8 @@ public:
   void setServer(Server *server);
   Location *getLocation() const;
   void setLocation(Location *location);
-  const int *getSds() const ;
+  const int *getSdIn() const ;
+  const int *getSdOut() const ;
   void closeSd();
 
 };

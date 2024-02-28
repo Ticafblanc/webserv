@@ -30,7 +30,7 @@ public:
   CGI(Headers &headers);
   ~CGI();
 
-  int exec();
+  bool launchChild();
 };
 
 class CGIException : public exception {
