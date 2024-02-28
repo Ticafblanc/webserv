@@ -11,16 +11,16 @@
 class CGI {
 private:
   Headers *_headers;
-  string _cgiPath;
-  string _ressourcePath;
-  Headers _request;
+  int _fd[2];
+  pid_t _pid;
+  time_t  _time;
+
 
   map<string, string> _getParams();
   string _getQueryString();
   char **_convertParams(map<string, string> args);
   void _freeArgs(char **args);
   char *_newStr(string source);
-  string _execCGI(char **args);
   char **_getExecArgs();
   string _getScriptName();
   string _removeQueryArgs(string query);
@@ -29,7 +29,8 @@ public:
   CGI();
   CGI(Headers &headers);
   ~CGI();
-  string getOutput();
+
+  int exec();
 };
 
 class CGIException : public exception {

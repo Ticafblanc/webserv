@@ -16,9 +16,9 @@ Request::Request()
 
 Request::Request(Headers &headers, CGI &cgi)
     : _headers(&headers), _cgi(&cgi), _client(headers.getClient()),
-      _server(_client->getServerByHost(headers.getHeaderFields()["Host"])),
-      _location(_server->getLocationByRessource(headers.getFirstLine()[PATH])),
-      _complete(false), manage(&Request::method) {}
+      _server(_client->getDefaultServer()),
+      _location(&_server->defaultLocation), _complete(false),
+      manage(NULL) {}
 
 Request::Request(const Request &other)
     : _headers(other._headers), _cgi(other._cgi), _client(other._client),
@@ -40,15 +40,30 @@ Request &Request::operator=(const Request &other) {
   return (*this);
 }
 void Request::manageRequest() {
-  if (_client->isEndRecv())
-    return;
-  while (!_complete)
-    (this->*manage)();
-  if (_headers->getFirstLine()[STATUS_CODE].empty())
-    _complete = false;
-  else
+  if (!manage) {
+    if (_client->getLocation()->isCgi())
+      manage = &Request::initCgi;
+    else
+      manage = &Request::method;
+  }
+  _complete = false;
+  while (!_complete) {
+    try {
+      (this->*manage)();
+    } catch (const exception &e) {
+      _headers->setFirstLine(STATUS_CODE, "500");
+    }
+  }
+  if (!_headers->getFirstLine()[STATUS_CODE].empty()){
     _client->setReceived(true);
+    manage = NULL;
+  }
 }
+
+void Request::initCgi() {
+  _cgi.exec();
+}
+
 
 void Request::method() {
   map<string, manager> mapTmp;
@@ -64,27 +79,16 @@ void Request::method() {
   if (tmp != _location->methods.end())
     manage = mapTmp[*tmp];
   else {
-    _headers->setFirstLine(STATUS_CODE, "505");
+    _headers->setFirstLine(STATUS_CODE, "405");
     _complete = true;
   }
 }
 
-bool Request::checkRessource() {
-  string root = _location->root.empty() ? _server->root : _location->root;
-  root += _headers->getFirstLine()[PATH];
-  int type = pathType(root);
-  if (!type)
-    return false;
-  if (type == 3)
-}
-
-bool Request::checkHTTPVersion() {}
-
 void Request::_get() {
+
   vector<unsigned char> content_bytes;
   unsigned char *ressource_content;
   time_t file_date;
-  try {
     content_bytes = readBinaryFile(ressource_path);
     ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
     headers["Content-Type"] = _getMIMEType(ressource_path);

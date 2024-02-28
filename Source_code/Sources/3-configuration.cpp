@@ -67,8 +67,8 @@ void Server::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw throwMessage("invalid PATH for root");
   root = words[1];
-//  if (root[root.size() - 1] == '/')
-//    root = root.substr(0, root.size() - 1);
+  if (root[root.size() - 1] == '/')
+    root = root.substr(0, root.size() - 1);
 }
 
 static bool checkHostFormat(const string &str) {
@@ -227,11 +227,13 @@ Server &Server::operator=(const Server &rhs) {
 void Location::_setCgiPath(vecStr words) {
   if (!cgiPath.empty())
     throw throwMessage("cgi_path already defined");
-  if (words.size() != 2)
+  if (words.size() < 2)
     throw throwMessage("need cgi_path value");
-  if (!checkWordFormat(words[1]))
-    throw throwMessage("invalid cgi_path");
-  cgiPath = words[1];
+  for (vecStrIt i = words.begin() + 1; i != words.end(); ++i) {
+    if (!checkWordFormat(*i))
+      throw throwMessage("invalid cgi_path");
+    cgiPath.push_back(*i);
+  }
 }
 
 void Location::_setCgiExtension(vecStr words) {
@@ -296,8 +298,8 @@ void Location::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw throwMessage("invalid PATH for root");
   root = words[1];
-//  if (root[root.size() - 1] == '/')
-//    root = root.substr(0, root.size() - 1);
+  if (root[root.size() - 1] == '/')
+    root = root.substr(0, root.size() - 1);
 }
 
 void Location::_findMapLocationSet(const vecStr &lines) {
@@ -312,6 +314,25 @@ void Location::_findMapLocationSet(const vecStr &lines) {
   }
 }
 
+static bool checkValidCgi(string &cgi) {
+  if (cgi == "php")
+    return true;
+  throw throwMessage("cgi extension " + cgi + " invalid");
+}
+
+static bool checkCgi(vecStr &path, vecStr &ext) {
+  pair<vecStrIt, vecStrIt> p;
+  for (p = make_pair(path.begin(), ext.begin());
+       p.first != path.end() && p.second != ext.end(); ++p.first, ++p.second) {
+    if (p.first->length() < p.second->length() ||
+        p.first->substr(p.first->length() - p.second->length()) != *p.second ||
+        !isExec(*p.first) || !checkValidCgi(*p.second)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void Location::checkDefault() {
   if (path.empty())
     path = "/";
@@ -319,12 +340,10 @@ void Location::checkDefault() {
     methods = createSetMethods();
   if (index.empty())
     index = "index.html";
-  if (!cgiExtension.empty() || !cgiPath.empty()) {
-    if (cgiExtension.empty() || cgiPath.empty())
-      throw throwMessage("cgi need path and extention ");
-    if (!isExecutablePath(cgiPath, cgiExtension.front()))
-      throw throwMessage("cgi path or extension invalid");
-  }
+  if (cgiExtension.size() != cgiPath.size())
+    throw throwMessage("cgi need path and extention ");
+  if (!checkCgi(cgiPath, cgiExtension))
+    throw throwMessage("cgi path or extension invalid");
 }
 
 bool Location::_setPath(const string &str) {
@@ -348,6 +367,8 @@ void Location::parse(const string &bock) {
   _findMapLocationSet(locationInfo);
   checkDefault();
 }
+
+bool Location::isCgi() { return !cgiPath.empty() && !cgiExtension.empty(); }
 
 Location::Location()
     : path(), root(), methods(), autoindex(false), index(), cgiExtension(),

@@ -75,5 +75,5 @@ bool autoIndexToHtml(string & path, string & url, ostringstream &oss);
 bool removeDirectory(string &path);
 bool removeFile(string &path);
 bool extractFileToFd(const string & path, int fd, size_t & contentLength);
-
+string checkRessource(string &root, string& path) ;
 #endif // WEBSERV_UTILS_HPP

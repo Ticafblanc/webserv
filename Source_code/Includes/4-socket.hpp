@@ -22,7 +22,6 @@ protected:
   struct sockaddr_in _address;
   mapStrServ _serversConfig;
   Server *_defaultServer;
-
   void createSocketDescriptor();
   void setSocketOptions();
   void setSocketNonBlocking();
@@ -33,7 +32,7 @@ protected:
 
 public:
   Socket();
-  explicit Socket(struct Server &server, Server * defaultServer);
+  explicit Socket(struct Server &server, Server *defaultServer);
   Socket(const Socket &copy);
   virtual ~Socket();
   Socket &operator=(const Socket &op);
@@ -44,29 +43,40 @@ public:
   const uint16_t &getPort() const;
   mapStrServ &getServerConfiguration();
   bool isDefault();
-  Server *getServerByHost(const string &host) ;
+  Server *getDefaultServer() const;
+  Server *getServerByHost(const string &host);
   void closeSd();
 };
 
 class Client : public Socket {
-private:
+protected:
   bool _endRecv;
   string _header;
   string _request;
-  //  Server *_server;
-  //  Location *_location;
+  Server *_server;
+  Location *_location;
+  int _sds[2];
 
 public:
   Client();
-  Client(Socket &server, const sockaddr_in &address, int sd);
+  Client(Socket &server, const sockaddr_in &address, int sd, int sds[2]);
   Client(const Client &copy);
   virtual ~Client();
   Client &operator=(const Client &rhs);
 
+  void updateRessource(const string & host, const string & path);
+  bool allowMethod(const string & method);
   string &getHeader();
   string &getRequest();
   bool isEndRecv() const;
   void setReceived(bool val);
+  Server *getServer() const;
+  void setServer(Server *server);
+  Location *getLocation() const;
+  void setLocation(Location *location);
+  const int *getSds() const ;
+  void closeSd();
+
 };
 
 template <class T = Socket> class SocketManager {
@@ -108,8 +118,6 @@ public:
 
   Client &getClientBySD(const int &sd) { return _sockets[sd]; }
 
-
-
   static pair<bool, int> checkSameListen(Server &server, mapSock &sock) {
     for (mapSockIt itT = sock.begin(); itT != sock.end(); ++itT) {
       if (itT->second.getPort() == server.port &&
@@ -120,7 +128,7 @@ public:
   }
 
   void setServerSocket(vecServ &server) {
-    Server * defaultServer = NULL;
+    Server *defaultServer = NULL;
     if (server.begin()->isDefault())
       defaultServer = &*server.begin();
     for (vecServIt itServ = server.begin(); itServ != server.end(); ++itServ) {

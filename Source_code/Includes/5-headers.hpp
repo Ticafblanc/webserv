@@ -10,14 +10,12 @@
 class Headers {
 private:
   vecStr _firstLine;
-
-public:
-
-private:
   mapStrStr _headerFields;
   Client *_client;
+  istringstream _header;
 
   bool extractData();
+  bool extractFirstLine() ;
 
 public:
   Headers();
@@ -27,6 +25,7 @@ public:
   Headers &operator=(const Headers &op);
 
   void parse();
+  vector<char*> getCgiEnv();
 
   vecStr &getFirstLine();
   void setFirstLine(const int & pos, const string &value);

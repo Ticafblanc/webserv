@@ -61,6 +61,7 @@ typedef set<string>::iterator setStrIt;
 typedef set<int> setInt;
 typedef set<int>::iterator setIntIt;
 typedef map<string, string> mapStrStr;
+typedef mapStrStr::iterator mapStrStrIt;
 typedef map<string, vecStr> mapStrVecStr;
 typedef map<string, vecStr>::iterator mapStrVecStrIt;
 typedef map<int, int> mapIntInt;
@@ -93,6 +94,10 @@ extern char **envp;
 #define STATUS_CODE 3
 #define RAISON_PHRASE 4
 
-//
+//macro cgi sd
+#define MAX_CGI (MAX_CONNECTION / 10)
+#define CGI_SD 0
+#define CGI_CLIENT 1
+
 
 #endif // WEBSERV_MAIN_HPP

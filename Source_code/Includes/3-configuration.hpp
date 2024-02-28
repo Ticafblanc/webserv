@@ -20,7 +20,7 @@ struct Location {
   string index;
   string uriReturn;
   vecStr cgiExtension;
-  string cgiPath;
+  vecStr cgiPath;
   Location();
   Location(const Location& other);
   ~Location();
@@ -28,6 +28,7 @@ struct Location {
   Location &operator=(const Location& rhs);
   void parse(const string &block);
   void checkDefault();
+  bool isCgi();
 
 private:
   bool _setPath(const string &str) ;

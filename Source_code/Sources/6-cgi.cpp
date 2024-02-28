@@ -4,50 +4,15 @@
 
 #include "../Includes/6-cgi.hpp"
 
-/**
- * Creates a new CGI object
- * @param cgi_path the path to the CGI binary to execute
- * @param ressource the file to execute with the CGI
- * @param request the HTTP request to handle
- * @param conf the server configuration
- * @param location the current location conf
- */
-CGI::CGI(Headers &headers)
-    : _headers(&headers), _cgiPath(), _ressourcePath(), _request() {}
+CGI::CGI(Headers &headers) : _headers(&headers) {}
 
 CGI::~CGI() {}
 
-/**
- * Executes and return the CGI
- * @return the string representation of the CGI
- */
-std::string CGI::getOutput() {
-  std::map<std::string, std::string> args;
-  char **args_converted;
-  std::string res;
-
-  args = _getParams();
-  args_converted = _convertParams(args);
-  try {
-    res = _execCGI(args_converted);
-  } catch (std::exception &e) {
-    throwError(e);
-  }
-  return (res);
-}
-
-/**
- * Executes CGI, get its output
- * @param args the char** representation of CGI params
- * @throw CGIException if an error occures
- * @return the string output of the CGI
- */
-std::string CGI::_execCGI(char **args) {
-  pid_t pid;
+int CGI::exec() {
   int exec_res = 0;
   char **exec_args;
   int tmp_fd;
-  int fd[2];
+
   (void)exec_res;
 
   Log("Call CGI.");
@@ -65,7 +30,7 @@ std::string CGI::_execCGI(char **args) {
           "Cannot create temporary file to catch CGI output in /tmp.");
     dup2(tmp_fd, 1);
     dup2(tmp_fd, 2);
-//    exec_res = execve(_cgi_path.c_str(), exec_args, args);
+    //    exec_res = execve(_cgi_path.c_str(), exec_args, args);
     close(0);
     close(tmp_fd);
     close(fd[0]);
@@ -93,8 +58,8 @@ char **CGI::_getExecArgs() {
 
   if (!(args = (char **)malloc(sizeof(char *) * 3)))
     return (0);
-//  args[0] = _newStr(_cgi_path);
-//  args[1] = _newStr(_ressource_path);
+  //  args[0] = _newStr(_cgi_path);
+  //  args[1] = _newStr(_ressource_path);
   args[2] = 0;
   return (args);
 }

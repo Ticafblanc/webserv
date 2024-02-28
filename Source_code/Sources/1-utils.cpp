@@ -37,9 +37,6 @@ bool isFile(const string &path) {
 }
 
 bool isExec(const string &path) {
-//  if (extension.empty() || path.length() < extension.length() || path.substr(path.length() - extension.length()) != extension) {
-//    return false;
-//  }
   struct stat statBuf = {};
   if (stat(path.c_str(), &statBuf) != 0)
     return false;
@@ -58,6 +55,13 @@ int pathType(const string &path) {
   return 0;
 }
 
+string checkRessource(string &root, string &path) {
+  pathType(root + path);
+  if (!pathType(root + path))
+    return "";
+  return root + path;
+}
+
 string setTime() {
   time_t now = time(0);
   tm *timeInfo = gmtime(&now);
@@ -66,26 +70,27 @@ string setTime() {
   return string(buffer);
 }
 
-bool autoIndexToHtml(string & path, string & url, ostringstream &oss){
-  DIR* directory = opendir(path.c_str());
+bool autoIndexToHtml(string &path, string &url, ostringstream &oss) {
+  DIR *directory = opendir(path.c_str());
   if (!directory)
     return false;
   oss << "<!DOCTYPE html><html><head><title>Auto Index of " << url
       << "</title></head><body><h1>Auto Index of " << url << "</h1><ul>";
-  struct dirent* entry;
+  struct dirent *entry;
   while ((entry = readdir(directory)) != NULL) {
-    oss << "<li><a href=\"" << entry->d_name << "\">" << entry->d_name << "</a></li>";
+    oss << "<li><a href=\"" << entry->d_name << "\">" << entry->d_name
+        << "</a></li>";
   }
   oss << "</ul></body></html>";
   closedir(directory);
   return true;
 }
 
-bool removeDirectory(string &path){
-  DIR* directory = opendir(path.c_str());
+bool removeDirectory(string &path) {
+  DIR *directory = opendir(path.c_str());
   if (!directory)
     return removeFile(path);
-  struct dirent* entry;
+  struct dirent *entry;
   while ((entry = readdir(directory)) != NULL) {
     if (string(entry->d_name) != "." || string(entry->d_name) != "..") {
       string entryPath = path + "/" + string(entry->d_name);
@@ -98,24 +103,25 @@ bool removeDirectory(string &path){
   return removeFile(path);
 }
 
-bool removeFile(string &path){
+bool removeFile(string &path) {
   if (remove(path.c_str()) != 0)
     return false;
   return true;
 }
 
-bool extractFileToFd(const string & path, int fd, size_t & contentLength){
-  ifstream is(path.c_str(), ios::binary | ios::in );
-  if(!is.is_open())
+bool extractFileToFd(const string &path, int fd, size_t &contentLength) {
+  ifstream is(path.c_str(), ios::binary | ios::in);
+  if (!is.is_open())
     return false;
-  is.seekg (0, ios::end);
+  is.seekg(0, ios::end);
   contentLength = is.tellg();
-  is.seekg (0, ios::beg);
+  is.seekg(0, ios::beg);
   vector<char> buffer(contentLength);
   //    while (!is.eof()) {
   is.read(buffer.data(), buffer.size());
   streamsize bytes_read = is.gcount();
-  cout <<"conten "<< contentLength <<"gcount " <<  bytes_read << "buffer size" << buffer.size() << endl;
+  cout << "conten " << contentLength << "gcount " << bytes_read << "buffer size"
+       << buffer.size() << endl;
   //        if (bytes_read <= 0) {
   //            break;
   //        }

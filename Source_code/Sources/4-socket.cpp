@@ -51,9 +51,9 @@ static void setServersConfig(struct Server &server, mapStrServ &serversConfig) {
     serversConfig[*i] = &server;
 }
 
-Socket::Socket(struct Server &server, Server * defaultServer)
-    : _ipAddress(server.ipAddress), _port(server.port), _sd(-1), _optionBuffer(),
-      _serversConfig(), _defaultServer(defaultServer) {
+Socket::Socket(struct Server &server, Server *defaultServer)
+    : _ipAddress(server.ipAddress), _port(server.port), _sd(-1),
+      _optionBuffer(), _serversConfig(), _defaultServer(defaultServer) {
   try {
     createSocketDescriptor();
     setSocketOptions();
@@ -120,7 +120,7 @@ bool Socket::isDefault() {
   return false;
 }
 
-Server * Socket::getServerByHost(const string &host) {
+Server *Socket::getServerByHost(const string &host) {
   mapStrServIt pos = _serversConfig.find(host);
   if (pos == _serversConfig.end())
     return _defaultServer;
@@ -129,21 +129,39 @@ Server * Socket::getServerByHost(const string &host) {
 
 const string &Socket::getIpAddress() const { return _ipAddress; }
 const uint16_t &Socket::getPort() const { return _port; }
+Server *Socket::getDefaultServer() const { return _defaultServer; }
 
-Client::Client(Socket &server, const sockaddr_in &address, int sd)
-    : Socket(server), _endRecv(false), _header(), _request() {
+Client::Client(Socket &server, const sockaddr_in &address, int sd, int sds[2])
+    : Socket(server), _endRecv(false), _header(), _request(), _server(NULL),
+      _location(NULL) {
   _address = address;
   _sd = sd;
   getSockaddrIn();
+  _sds[0] = sds[0];
+  _sds[1] = sds[1];
 }
 
-Client::Client() : Socket(), _endRecv(), _header(), _request() {}
+Client::Client()
+    : Socket(), _endRecv(), _header(), _request(), _server(_defaultServer),
+      _location(&_server->defaultLocation), _sds() {}
 
 Client::Client(const Client &copy)
     : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
-      _request(copy._request) {}
+      _request(copy._request), _server(copy._server), _location(copy._location),
+      _sds() {
+  _sds[0] = copy._sds[0];
+  _sds[1] = copy._sds[1];
+}
 
 Client::~Client() {}
+
+void Client::closeSd() {
+  close(_sds[0]);
+  close(_sds[1]);
+  _sds[0] = 0;
+  _sds[1] = 0;
+  Socket::closeSd();
+}
 
 Client &Client::operator=(const Client &rhs) {
   if (this != &rhs) {
@@ -151,13 +169,30 @@ Client &Client::operator=(const Client &rhs) {
     _endRecv = rhs._endRecv;
     _header = rhs._header;
     _request = rhs._request;
+    _server = rhs._server;
+    _location = rhs._location;
+    _sds[0] = rhs._sds[0];
+    _sds[1] = rhs._sds[1];
   }
   return *this;
 }
 
+void Client::updateRessource(const string &host, const string &path) {
+  _server = getServerByHost(host);
+  _location = _server->getLocationByRessource(path);
+}
+
+bool Client::allowMethod(const string &method) {
+  return _location->methods.find(method) != _location->methods.end();
+}
+
 string &Client::getHeader() { return _header; }
 string &Client::getRequest() { return _request; }
-
+Server *Client::getServer() const { return _server; }
+void Client::setServer(Server *server) { _server = server; }
+Location *Client::getLocation() const { return _location; }
+void Client::setLocation(Location *location) { _location = location; }
 bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
+const int *Client::getSds() const { return _sds; }

@@ -21,6 +21,10 @@ private:
 
   void method();
 
+  void initCgi();
+  void sendToCgi();
+  void RecvToCgi();
+
 
   void _get();
   void _head();

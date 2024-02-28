@@ -37,12 +37,14 @@ private:
   void closeConnection(set<int> &toClose, set<int> &sds, fd_set *fdSets);
 
   void checkClient(fd_set *fdSets, int *intVal, set<int> &sds);
-  void recvMessage(Client & clt, set<int> &toClose);
+  void recvMessage(Client &clt, set<int> &toClose);
   static ssize_t recvBuffer(Client &clt);
   static bool recvHeader(Client &clt);
 
   void sendMessage(Client &clt, set<int> &toClose);
-  ssize_t sendBuffer(Client &clt) ;
+  ssize_t sendBuffer(Client &clt);
+
+  void checkCgi(fd_set *fdSets, int *intVal, set<int> &sds);
 };
 
 #endif // WEBSERV_SELECT_HPP
