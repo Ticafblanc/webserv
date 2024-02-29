@@ -5,7 +5,14 @@
 #ifndef WEBSERV_CONFIGURATION_HPP
 #define WEBSERV_CONFIGURATION_HPP
 
-#include "2-parser.hpp"
+#include "2-exception.hpp"
+
+bool splitBlocks(vecStr &split, const string &str, const string &pattern,
+                 vecStr &otherInfo);
+void splitPattern(vecStr &split, const string &str, const char &pattern);
+bool readFile(const string &file, string &fileString);
+bool checkWordFormat(const string &str);
+string readFile(string file);
 
 struct Location {
   typedef void (Location::*locationSet)(vecStr words);
@@ -89,22 +96,11 @@ public:
   Configuration &operator=(const Configuration &other);
   ~Configuration();
 
-  /**
-   * Parse a file into the current configuration object.
-   * @throw Configuration::ParsingException
-   * @param file path to the file to parse
-   */
   void parseConfig(const string &file);
-
-  /**
-   * Get servers configuration
-   * @return servers configurations
-   */
   vecServ &getServers();
 
 private:
   vecServ _servers;
-
 };
 
 #endif // WEBSERV_CONFIGURATION_HPP

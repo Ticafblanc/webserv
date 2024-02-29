@@ -4,6 +4,106 @@
 
 #include "../Includes/3-configuration.hpp"
 
+static bool extractBlocks(vecStr &split, istringstream &isStr, string &line) {
+  bool ret = true;
+  while (getline(isStr, line) && ret) {
+    if (line.find('{') != string::npos) {
+      split.back() += "\n" + line;
+      ret = extractBlocks(split, isStr, line);
+    } else {
+      split.back() += "\n" + line;
+      if (line.find('}') != string::npos) {
+        if (line.size() != 1)
+          return false;
+        return true;
+      }
+    }
+  }
+  return ret;
+}
+
+bool splitBlocks(vecStr &split, const string &str, const string &pattern,
+                 vecStr &otherInfo) {
+  istringstream isStr(str);
+  size_t typePattern = (pattern == "server" ? 1 : 2);
+  string line;
+  bool ret = true;
+  while (getline(isStr, line) && ret) {
+    if (line.find(pattern) != string::npos) {
+      vecStr tmpSplit;
+      splitPattern(tmpSplit, line, ' ');
+      if (tmpSplit[0] == pattern && tmpSplit[typePattern] == "{" &&
+          tmpSplit.size() == typePattern + 1) {
+        split.push_back(line);
+        ret = extractBlocks(split, isStr, line);
+      } else
+        return false;
+    } else {
+      istringstream iss(line);
+      getline(iss >> ws, line, ';');
+      otherInfo.push_back(line);
+    }
+  }
+  return (ret);
+}
+
+void splitPattern(vecStr &split, const string &str, const char &pattern) {
+  istringstream is(str);
+  string toAdd;
+  if (pattern == ' ') {
+    while (is >> ws >> toAdd) {
+      split.push_back(toAdd);
+    }
+  } else {
+    while (getline(is >> ws, toAdd, pattern)) {
+      split.push_back(toAdd);
+    }
+  }
+}
+
+vecStr splitStr(string str) {
+  vecStr split(3);
+
+  int i = 0;
+  istringstream is(str);
+  while (is.good() && i < 3) {
+    is >> split[i];
+    i++;
+  }
+  return split;
+}
+
+static bool uselessLine(string &line) {
+  istringstream iss(line);
+  string word;
+  iss >> ws >> word;
+  return word.empty();
+}
+
+static string removeSpaces(string &line) {
+  if (line.empty())
+    return line;
+  string word;
+  istringstream iss(line);
+  line.clear();
+  while (iss >> ws >> word)
+    line += word + ' ';
+  line[line.size() - 1] = '\n';
+  return line;
+}
+
+static bool removeCommentary(string &line) {
+  size_t commentPos;
+
+  commentPos = line.find('#');
+  if (commentPos == 0)
+    return "";
+  else if (commentPos != string::npos)
+    line = line.substr(0, commentPos);
+  return !line.empty();
+}
+
+
 static const setStr createSetMethods() {
   setStr temp;
   temp.insert("GET");
@@ -32,12 +132,12 @@ void Server::_setMaxClientBody(vecStr words) {
   bool success;
 
   if (clientMaxBodySize > 0)
-    throw throwMessage("client_size already defined");
+    throw ErrnoException("client_size already defined");
   if (words.size() != 2)
-    throw throwMessage("need client_size SIZE");
+    throw ErrnoException("need client_size SIZE");
   clientMaxBodySize = myAtoi(words[1], success);
   if (!success)
-    throw throwMessage("wrong size for client_size");
+    throw ErrnoException("wrong size for client_size");
   if (clientMaxBodySize == 0)
     clientMaxBodySize = std::numeric_limits<size_t>::max();
 }
@@ -48,24 +148,24 @@ void Server::_setErrorPages(vecStr words) {
   bool success;
 
   if (words.size() != 3)
-    throw throwMessage("need error ERROR_NUM ERROR_PAGE");
+    throw ErrnoException("need error ERROR_NUM ERROR_PAGE");
   res = myAtoi(words[1], success);
   if (!success || res > 599)
-    throw throwMessage("invalid ERROR_NUM");
+    throw ErrnoException("invalid ERROR_NUM");
   err.first = res;
   if (!checkWordFormat(words[2]))
-    throw throwMessage("invalid ERROR_URL");
+    throw ErrnoException("invalid ERROR_URL");
   err.second = words[2];
   errorPages.insert(err);
 }
 
 void Server::_setRoot(vecStr words) {
   if (!root.empty())
-    throw throwMessage("root already defined");
+    throw ErrnoException("root already defined");
   if (words.size() != 2)
-    throw throwMessage("need \"root PATH\"");
+    throw ErrnoException("need \"root PATH\"");
   if (!checkWordFormat(words[1]))
-    throw throwMessage("invalid PATH for root");
+    throw ErrnoException("invalid PATH for root");
   root = words[1];
   if (root[root.size() - 1] == '/')
     root = root.substr(0, root.size() - 1);
@@ -93,35 +193,35 @@ void Server::_setListen(vecStr words) {
   size_t res;
 
   if (!ipAddress.empty() || port > 0)
-    throw throwMessage("host and port already defined");
+    throw ErrnoException("host and port already defined");
   if (words.size() < 2)
-    throw throwMessage("need listen HOST:PORT");
+    throw ErrnoException("need listen HOST:PORT");
   splitPattern(addr, words[1], ':');
   if (addr.size() != 2)
-    throw throwMessage("need listen HOST:PORT");
+    throw ErrnoException("need listen HOST:PORT");
   host.push_back(words[1]);
   if (addr[0] == "localhost")
     ipAddress = "127.0.0.1";
   else {
     if (!checkHostFormat(addr[0]))
-      throw throwMessage("wrong HOST format");
+      throw ErrnoException("wrong HOST format");
     ipAddress = addr[0];
   }
   res = myAtoi(addr[1], success);
   if (!success || res > 65535)
-    throw throwMessage("wrong PORT");
+    throw ErrnoException("wrong PORT");
   port = res;
   host.push_back(ipAddress + ":" + addr[1]);
 }
 
 void Server::_setServerNames(vecStr words) {
   if (!names.empty())
-    throw throwMessage("server name already defined");
+    throw ErrnoException("server name already defined");
   if (words.size() < 2)
-    throw throwMessage("need at least one server name");
+    throw ErrnoException("need at least one server name");
   for (vecStrIt it = words.begin() + 1; it != words.end(); ++it) {
     if (!checkWordFormat(*it))
-      throw throwMessage("unvalid SERVER_NAME " + *it);
+      throw ErrnoException("unvalid SERVER_NAME " + *it);
     names.push_back(*it);
   }
 }
@@ -133,7 +233,7 @@ void Server::_findMapServerSet(const vecStr &lines) {
     splitPattern(words, *vecIt, ' ');
     mapServerSetIt it = mss.find(words.front());
     if (it == mss.end())
-      throw throwMessage("server unknown keyword \"" + words[0] + "\"");
+      throw ErrnoException("server unknown keyword \"" + words[0] + "\"");
     ((this->*(it->second))(words));
   }
 }
@@ -162,7 +262,7 @@ void Server::parse(const string &bock) {
   vecStr locBlocks;
   vecStr serverInfo;
   if (!splitBlocks(locBlocks, bock, "location", serverInfo))
-    throw throwMessage("miss match brace { } in location block");
+    throw ErrnoException("miss match brace { } in location block");
   _findMapServerSet(serverInfo);
   for (vecStr::iterator it = locBlocks.begin(); it != locBlocks.end(); ++it) {
     Location tmpLoc;
@@ -226,77 +326,77 @@ Server &Server::operator=(const Server &rhs) {
 
 void Location::_setCgiPath(vecStr words) {
   if (!cgiPath.empty())
-    throw throwMessage("cgi_path already defined");
+    throw ErrnoException("cgi_path already defined");
   if (words.size() < 2)
-    throw throwMessage("need cgi_path value");
+    throw ErrnoException("need cgi_path value");
   for (vecStrIt i = words.begin() + 1; i != words.end(); ++i) {
     if (!checkWordFormat(*i))
-      throw throwMessage("invalid cgi_path");
+      throw ErrnoException("invalid cgi_path");
     cgiPath.push_back(*i);
   }
 }
 
 void Location::_setCgiExtension(vecStr words) {
   if (!cgiExtension.empty())
-    throw throwMessage("cgi_extension already defined");
+    throw ErrnoException("cgi_extension already defined");
   if (words.size() < 2)
-    throw throwMessage("need cgi_extension value");
+    throw ErrnoException("need cgi_extension value");
   for (vecStrIt i = words.begin() + 1; i != words.end(); ++i) {
     if (!checkWordFormat(*i))
-      throw throwMessage("invalid cgi_extension");
+      throw ErrnoException("invalid cgi_extension");
     cgiExtension.push_back(*i);
   }
 }
 
 void Location::_setUrlRedirection(vecStr words) {
   if (!uriReturn.empty())
-    throw throwMessage("return already defined");
+    throw ErrnoException("return already defined");
   if (words.size() != 2)
-    throw throwMessage("need return REDIR_URL");
+    throw ErrnoException("need return REDIR_URL");
   if (!checkWordFormat(words[1]))
-    throw throwMessage("invalid REDIR_URL");
+    throw ErrnoException("invalid REDIR_URL");
   uriReturn = words[1];
 }
 
 void Location::_setIndex(vecStr words) {
   if (!index.empty())
-    throw throwMessage("index already defined");
+    throw ErrnoException("index already defined");
   if (words.size() < 2)
-    throw throwMessage("need at least one index page");
+    throw ErrnoException("need at least one index page");
   for (size_t i = 1; i < words.size(); i++) {
     if (!checkWordFormat(words[i]))
-      throw throwMessage("invalid INDEX");
+      throw ErrnoException("invalid INDEX");
     index = words[i];
   }
 }
 
 void Location::_setAutoIndex(vecStr words) {
   if (words.size() != 2 || (words[1] != "on" && words[1] != "off"))
-    throw throwMessage("autoindex needs 'on' or 'off'");
+    throw ErrnoException("autoindex needs 'on' or 'off'");
   autoindex = (words[1] == "on");
 }
 
 void Location::_setMethods(vecStr words) {
   setStr strMethods = createSetMethods();
   if (!methods.empty())
-    throw throwMessage("methods already defined");
+    throw ErrnoException("methods already defined");
   if (words.size() < 2)
-    throw throwMessage("need at least one method");
+    throw ErrnoException("need at least one method");
   for (vecStrIt i = words.begin() + 1; i != words.end(); ++i) {
     if (strMethods.find(*i) != strMethods.end())
       methods.insert(*i);
     else
-      throw throwMessage("unknown method \"" + *i + "\"");
+      throw ErrnoException("unknown method \"" + *i + "\"");
   }
 }
 
 void Location::_setRoot(vecStr words) {
   if (!root.empty())
-    throw throwMessage("root already defined");
+    throw ErrnoException("root already defined");
   if (words.size() != 2)
-    throw throwMessage("need \"root PATH\"");
+    throw ErrnoException("need \"root PATH\"");
   if (!checkWordFormat(words[1]))
-    throw throwMessage("invalid PATH for root");
+    throw ErrnoException("invalid PATH for root");
   root = words[1];
   if (root[root.size() - 1] == '/')
     root = root.substr(0, root.size() - 1);
@@ -309,7 +409,7 @@ void Location::_findMapLocationSet(const vecStr &lines) {
     splitPattern(words, *vecIt, ' ');
     mapLocationSetIt it = mls.find(words.front());
     if (it == mls.end())
-      throw throwMessage("location unknown keyword \"" + words[0] + "\"");
+      throw ErrnoException("location unknown keyword \"" + words[0] + "\"");
     ((this->*(it->second))(words));
   }
 }
@@ -317,7 +417,7 @@ void Location::_findMapLocationSet(const vecStr &lines) {
 static bool checkValidCgi(string &cgi) {
   if (cgi == "php")
     return true;
-  throw throwMessage("cgi extension " + cgi + " invalid");
+  throw ErrnoException("cgi extension " + cgi + " invalid");
 }
 
 static bool checkCgi(vecStr &path, vecStr &ext) {
@@ -341,9 +441,9 @@ void Location::checkDefault() {
   if (index.empty())
     index = "index.html";
   if (cgiExtension.size() != cgiPath.size())
-    throw throwMessage("cgi need path and extention ");
+    throw ErrnoException("cgi need path and extention ");
   if (!checkCgi(cgiPath, cgiExtension))
-    throw throwMessage("cgi path or extension invalid");
+    throw ErrnoException("cgi path or extension invalid");
 }
 
 bool Location::_setPath(const string &str) {
@@ -361,7 +461,7 @@ void Location::parse(const string &bock) {
   vecStr locationInfo;
   splitBlocks(block, bock, "error", locationInfo);
   if (!_setPath(locationInfo[0])) {
-    throw throwMessage(
+    throw ErrnoException(
         "Location block wrong definition [expected] location path {}");
   }
   _findMapLocationSet(locationInfo);
@@ -452,11 +552,11 @@ void Configuration::parseConfig(const string &pathFile) {
   vecStr configInfo;
 
   if (!readFile(pathFile, fileString))
-    throw throwMessage("Fail to open file");
+    throw ErrnoException("Fail to open file");
   if (!splitBlocks(serverBlocks, fileString, "server", configInfo))
-    throw throwMessage("matching { } issues in a server block");
+    throw ErrnoException("matching { } issues in a server block");
   if (!configInfo.empty())
-    throw throwMessage("not only server blocks");
+    throw ErrnoException("not only server blocks");
   for (vecStr::iterator it = serverBlocks.begin(); it != serverBlocks.end();
        ++it) {
     _servers.push_back(Server());
@@ -468,7 +568,7 @@ void Configuration::parseConfig(const string &pathFile) {
     _servers.back().names.push_back("default_server");
   } else {
     if (!checkSameServer(_servers))
-      throw throwMessage("2 same listen");
+      throw ErrnoException("2 same listen");
     verifyDefaultServer(_servers);
   }
 }
