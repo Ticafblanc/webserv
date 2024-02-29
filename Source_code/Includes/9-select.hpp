@@ -25,20 +25,6 @@ public:
   void loop();
   void deinit();
 
-  class Exception : public ErrnoException {
-  private:
-    int _sd;
-    string _errorPage;
-
-  public:
-    Exception(const string &msg) throw();
-    Exception(const string &msg, const int &sd,
-              const string &errorPage) throw();
-    Exception(const Exception &) throw();
-    Exception &operator=(const Exception &) throw();
-    virtual ~Exception() throw();
-  };
-
 private:
   static Select *_this;
   volatile sig_atomic_t _run;
@@ -49,8 +35,7 @@ private:
   map<int, Response> _response;
   map<int, CGI> _cgi;
   setInt _sds;
-  vecInt _sdCltRecv;
-  vecInt _sdCltSend;
+  vecInt _sdClt;
   vecInt _sdServ;
   vector<fd_set> _fdSets;
 
@@ -58,9 +43,7 @@ private:
   void udateData();
   void init();
 
-  bool check(int ret);
-  void checkClient();
-  void checkServer();
+  void check(int ret);
 
   pair<int, sockaddr_in> acceptConnection(const int &sd);
   void createSocketPair(Client &clt);
@@ -82,10 +65,23 @@ private:
         int ret = *it;
         if ((this->*p)(ret, mS[ret]))
           FD_SET(ret, &fd);
-      } catch (const std::exception &e) {
-        _headers[*it].setFirstLine(STATUS_CODE, "500");
-        FD_SET(*it, &fd);
-        throwError(e);
+      } catch (const ErrnoException &e) {
+        if (const Exception * Ex = dynamic_cast<const Exception *>(&e)) {
+          FD_SET(*it, &_fdSets[WRITE_SDS]);
+          _headers[*it].setStatus(Ex->getErrorPage());
+          Ex->print();
+        }else
+          e.print();
+      }
+    }
+  }
+
+  template <class T> void forLoopSock(T &mS, int *ret, vecInt &vecSd) {
+    for (typename T::iterator it = mS.begin(); (*ret) && it != mS.end(); ++it) {
+      if (FD_ISSET(it->first, &_fdSets[TMP_READ_SDS])) {
+        if (find(vecSd.begin(), vecSd.end(), it->first) == end(vecSd))
+          vecSd.push_back(it->first);
+        (*ret)--;
       }
     }
   }

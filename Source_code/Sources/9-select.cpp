@@ -4,28 +4,6 @@
 
 #include "../Includes/9-select.hpp"
 
-Select::Exception::Exception(const string &msg) throw()
-    : ErrnoException(msg), _sd(), _errorPage() {}
-
-Select::Exception::Exception(const string &msg, const int &sd,
-                             const string &errorPage) throw()
-    : ErrnoException(msg), _sd(sd), _errorPage(errorPage) {}
-
-Select::Exception::Exception(const Exception &e) throw()
-    : ErrnoException(e), _sd(e._sd), _errorPage(e._errorPage) {}
-
-Select::Exception &Select::Exception::operator=(const Exception &e) throw() {
-  if (this != &e){
-    ErrnoException::operator=(e);
-    _sd = e._sd;
-    _errorPage = e._errorPage;
-  }
-  return *this;
-}
-
-Select::Exception::~Exception() throw() {}
-
-
 Select *Select::_this = NULL;
 
 Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
@@ -60,7 +38,7 @@ pair<int, sockaddr_in> Select::acceptConnection(const int &sd) {
   socklen_t size = sizeof(client);
   int newSd = accept(sd, (sockaddr *)&client, &size);
   if (newSd < 0) {
-    throw(ErrnoException("accept() failed, " + itoa(errno)));
+    throw ErrnoException("accept() failed");
   }
   return make_pair(newSd, client);
 }
@@ -68,9 +46,10 @@ pair<int, sockaddr_in> Select::acceptConnection(const int &sd) {
 void Select::createSocketPair(Client &clt) {
   int newSd = socketpair(AF_UNIX, SOCK_STREAM, 0, clt.getSds());
   if (newSd < 0) {
-    throw(ErrnoException("socketpair() failed, " + itoa(errno)));
+    throw Exception("socketpair() failed", clt.getSd(), "500");
   }
-  throw Exception("couicou");
+  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
+  FD_CLR(clt.getSds(), &_fdSets[WRITE_SDS]);
 }
 
 void Select::closeConnection(const int &sd) {
@@ -99,7 +78,8 @@ bool Select::recvHeader(Client &clt) {
       clt.getHeader() = clt.getRequest().substr(0, pos + 2);
       clt.getRequest() = clt.getRequest().substr(pos + 4);
       return true;
-    }
+    } else
+      throw Exception("Headers to long", clt.getSd(), "413");
   }
   return false;
 }
@@ -127,15 +107,16 @@ bool Select::sendMessage(int &r, Client &clt) {
 bool Select::recvMessage(int &r, Client &clt) {
   ssize_t ret = recvBuffer(r, clt);
   if (ret > 0) {
-    if (clt.getHeader().empty())
-      if (recvHeader(clt)) {
-        _headers[r].parse();
-        if (clt.getLocation()->isCgi()) {
-          createSocketPair(clt);
-          _cgi[r].launchChild();
-        }
+    if (recvHeader(clt)) {
+      _headers[r].parse();
+      if (clt.getLocation()->isCgi()) {
+        createSocketPair(clt);
+        _cgi[r].launchChild();
       }
-    if (!clt.isEndRecv())
+    }
+    if (clt.getLocation()->isCgi())
+      _cgi[r].launchChild();
+    else
       _request[r].manageRequest();
     return clt.isEndRecv();
   }
@@ -157,15 +138,22 @@ bool Select::acceptClient(int &r, Socket &srv) {
   return true;
 }
 
-void Select::checkClient() {
+void Select::check(int ret) {
+  if (ret < 0)
+    throw ErrnoException("Select error");
+  forLoopSock(_clientManager.getSockets(), &ret, _sdClt);
+  forLoopSock(_clientManager.getSockets(), &ret, _sdClt);
+  forLoopSock(_serverManager.getSockets(), &ret, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
-  forLoopSd(clt, _fdSets[WRITE_SDS], _sdCltRecv, &Select::recvMessage);
-  forLoopSd(clt, _fdSets[READ_SDS], _sdCltSend, &Select::sendMessage);
-}
-
-void Select::checkServer() {
+  forLoopSd(clt, _fdSets[WRITE_SDS], _sdClt, &Select::recvMessage);
+  forLoopSd(clt, _fdSets[READ_SDS], _sdClt, &Select::sendMessage);
   mapSockServer &srv = _serverManager.getSockets();
   forLoopSd(srv, _fdSets[READ_SDS], _sdServ, &Select::acceptClient);
+}
+
+void Select::udateData() {
+  _fdSets[TMP_READ_SDS] = _fdSets[READ_SDS];
+  _fdSets[TMP_WRITE_SDS] = _fdSets[WRITE_SDS];
 }
 
 void Select::endServer(int signal) {
@@ -174,41 +162,11 @@ void Select::endServer(int signal) {
   cout << "goodbay" << endl;
 }
 
-static bool isset(int &sd, fd_set &fd, vecInt &vecSd) {
-  if (FD_ISSET(sd, &fd)) {
-    vecSd.push_back(sd);
-    return true;
-  }
-  return false;
-}
-
-template <class T>
-static void forLoopSock(T &mS, int *ret, fd_set &fd, vecInt &vecSd) {
-  for (typename T::iterator it = mS.begin(); (*ret) && it != mS.end(); ++it) {
-    if (isset(const_cast<int &>(it->first), fd, vecSd))
-      (*ret)--;
-  }
-}
-
-bool Select::check(int ret) {
-  if (ret > 0) {
-    forLoopSock(_clientManager.getSockets(), &ret, _fdSets[TMP_READ_SDS],
-                _sdCltRecv);
-    forLoopSock(_clientManager.getSockets(), &ret, _fdSets[TMP_WRITE_SDS],
-                _sdCltSend);
-    forLoopSock(_serverManager.getSockets(), &ret, _fdSets[TMP_READ_SDS],
-                _sdServ);
-  } else
-    return false;
-  return true;
-}
-
-void Select::udateData() {
-  _fdSets[TMP_READ_SDS] = _fdSets[READ_SDS];
-  _fdSets[TMP_WRITE_SDS] = _fdSets[WRITE_SDS];
-}
-
 void Select::init() {
+  signal(SIGINT, endServer);
+  signal(SIGQUIT, endServer);
+  signal(SIGTERM, endServer);
+  signal(SIGPIPE, SIG_IGN);
   FD_ZERO(&_fdSets[READ_SDS]);
   FD_ZERO(&_fdSets[WRITE_SDS]);
   FD_ZERO(&_fdSets[TMP_READ_SDS]);
@@ -216,6 +174,7 @@ void Select::init() {
   mapSockServer &sock = _serverManager.getSockets();
   for (mapSockServerIt it = sock.begin(); it != sock.end(); ++it) {
     FD_SET(it->first, &_fdSets[READ_SDS]);
+    FD_SET(it->first, &_fdSets[TMP_READ_SDS]);
     _sds.insert(it->first);
   }
 }
@@ -227,18 +186,15 @@ void Select::deinit() {
 }
 
 void Select::loop() {
-  signal(SIGINT, endServer);
-  signal(SIGQUIT, endServer);
-  signal(SIGTERM, endServer);
   init();
   while (_run) {
-    udateData();
-    if (check(select(*_sds.rbegin() + 1, &_fdSets[TMP_READ_SDS],
-                     &_fdSets[TMP_WRITE_SDS], NULL, NULL))) {
-      checkClient();
-      checkServer();
-    } else
-      throwError(ErrnoException("Select error"));
+    try {
+      udateData();
+      check(select(*_sds.rbegin() + 1, &_fdSets[TMP_READ_SDS],
+                   &_fdSets[TMP_WRITE_SDS], NULL, NULL));
+    } catch (const Exception &e) {
+      e.print();
+    }
   }
   deinit();
 }
