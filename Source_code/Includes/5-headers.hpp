@@ -31,6 +31,8 @@ public:
   void setFirstLine(const int & pos, const string &value);
   mapStrStr &getHeaderFields();
   Client *getClient() ;
+
+  bool isCloseRequest();
 };
 
 ostream &operator<<(ostream &out, const Headers &hb);

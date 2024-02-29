@@ -99,3 +99,9 @@ Client *Headers::getClient() { return _client; }
 void Headers::setFirstLine(const int &pos, const string &value) {
   _firstLine[pos] = value;
 }
+bool Headers::isCloseRequest() {
+  mapStrStrIt it = _headerFields.find("Connection");
+  if (it != _headerFields.end())
+    return it->second == "close";
+  return false;
+}
