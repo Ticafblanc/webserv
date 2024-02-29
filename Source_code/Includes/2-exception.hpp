@@ -7,8 +7,6 @@
 
 #include "1-utils.hpp"
 
-
-
 class ErrnoException : public exception {
 protected:
   string _msg;
@@ -19,10 +17,27 @@ public:
 
   ErrnoException(const ErrnoException &) throw();
   ErrnoException &operator=(const ErrnoException &) throw();
-  virtual ~ErrnoException() throw() ;
+  virtual ~ErrnoException() throw();
   virtual const char *what() const throw();
-  const char *whatErrno() const throw() ;
-  void print()const ;
+  const char *whatErrno() const throw();
+  void print() const;
+};
+
+class Exception : public ErrnoException {
+private:
+  int _sd;
+  string _errorPage;
+
+public:
+  Exception(const string &msg) throw();
+  Exception(const string &msg, const int &sd,
+            const string &errorPage) throw();
+  Exception(const Exception &) throw();
+  Exception &operator=(const Exception &) throw();
+  virtual ~Exception() throw();
+  void print() const;
+  int getSd() const;
+  const string &getErrorPage() const;
 };
 
 #endif // WEBSERV_PARSER_HPP
