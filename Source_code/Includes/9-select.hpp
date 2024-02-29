@@ -9,6 +9,10 @@
 
 typedef SocketManager<Socket> socketServer;
 typedef SocketManager<Client> socketClient;
+typedef socketServer::mapSock mapSockServer;
+typedef socketServer::mapSockIt mapSockServerIt;
+typedef socketClient::mapSock mapSockClient;
+typedef socketClient::mapSockIt mapSockClientIt;
 
 class Select {
 
@@ -19,6 +23,21 @@ public:
   Select &operator=(const Select &op);
 
   void loop();
+  void deinit();
+
+  class Exception : public ErrnoException {
+  private:
+    int _sd;
+    string _errorPage;
+
+  public:
+    Exception(const string &msg) throw();
+    Exception(const string &msg, const int &sd,
+              const string &errorPage) throw();
+    Exception(const Exception &) throw();
+    Exception &operator=(const Exception &) throw();
+    virtual ~Exception() throw();
+  };
 
 private:
   static Select *_this;
@@ -29,24 +48,47 @@ private:
   map<int, Request> _request;
   map<int, Response> _response;
   map<int, CGI> _cgi;
+  setInt _sds;
+  vecInt _sdCltRecv;
+  vecInt _sdCltSend;
+  vecInt _sdServ;
+  vector<fd_set> _fdSets;
 
   static void endServer(int signal);
+  void udateData();
+  void init();
 
-  void checkServer(fd_set *fdSets, int *intVal, set<int> &sds);
-  void acceptConnection(const int &sd, set<int> &sds, fd_set *fdSets);
-  void closeConnection(set<int> &toClose, set<int> &sds, fd_set *fdSets);
+  bool check(int ret);
+  void checkClient();
+  void checkServer();
 
-  void checkClient(fd_set *fdSets, int *intVal, set<int> &sds);
-  bool recvMessage(Client &clt, set<int> &toClose);
-  static ssize_t recvBuffer(Client &clt);
+  pair<int, sockaddr_in> acceptConnection(const int &sd);
+  void createSocketPair(Client &clt);
+  void closeConnection(const int &sd);
+
+  bool sendMessage(int &r, Client &clt);
+  bool acceptClient(int &r, Socket &srv);
+  bool recvMessage(int &r, Client &clt);
+
+  static ssize_t recvBuffer(int &r, Client &clt);
   static bool recvHeader(Client &clt);
+  ssize_t sendBuffer(int &r, Client &clt);
 
-  bool isSend(int sd, fd_set &fd, Client &clt, setInt &);
-  bool isRecv(int sd, fd_set &fd, Client &clt, setInt &);
-  bool sendMessage(Client &clt, set<int> &toClose);
-  ssize_t sendBuffer(Client &clt);
-
-  void checkCgi(fd_set *fdSets, int *intVal, set<int> &sds);
+  template <typename T>
+  void forLoopSd(map<int, T> &mS, fd_set &fd, vecInt &vecSd,
+                 bool (Select::*p)(int &r, T &t)) {
+    for (vecIntIt it = vecSd.begin(); it != vecSd.end(); ++it) {
+      try {
+        int ret = *it;
+        if ((this->*p)(ret, mS[ret]))
+          FD_SET(ret, &fd);
+      } catch (const std::exception &e) {
+        _headers[*it].setFirstLine(STATUS_CODE, "500");
+        FD_SET(*it, &fd);
+        throwError(e);
+      }
+    }
+  }
 };
 
 #endif // WEBSERV_SELECT_HPP
