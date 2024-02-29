@@ -14,8 +14,8 @@ private:
   Client *_client;
   istringstream _header;
 
-  bool extractData();
-  bool extractFirstLine() ;
+  void extractData();
+  void extractFirstLine() ;
 
 public:
   Headers();
@@ -26,10 +26,13 @@ public:
 
   void parse();
   vector<char*> getCgiEnv();
+  vector<char*> getCgiArg();
 
   vecStr &getFirstLine();
   void setFirstLine(const int & pos, const string &value);
+  void setStatus(const string & value);
   mapStrStr &getHeaderFields();
+  string getHeaderField(const string & token);
   Client *getClient() ;
 
   bool isCloseRequest();
