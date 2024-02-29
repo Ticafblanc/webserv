@@ -53,6 +53,7 @@ typedef pair<bool, string> pairBoolStr;
 typedef vector<string> vecStr;
 typedef vector<string>::iterator vecStrIt;
 typedef vector<int> vecInt;
+typedef vecInt::iterator vecIntIt;
 typedef vector<pairStrStr> vecPairStrStr;
 typedef vecPairStrStr::iterator vecPairStrStrIt;
 typedef vector<char> vecChar;
