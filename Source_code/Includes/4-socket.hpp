@@ -55,12 +55,11 @@ protected:
   string _request;
   Server *_server;
   Location *_location;
-  int _sdIn[2];
-  int _sdOut[2];
+  int _sds[2];
 
 public:
   Client();
-  Client(Socket &server, const sockaddr_in &address, int sd, int sds[2]);
+  Client(Socket &server, const sockaddr_in &address, int sd);
   Client(const Client &copy);
   virtual ~Client();
   Client &operator=(const Client &rhs);
@@ -75,8 +74,7 @@ public:
   void setServer(Server *server);
   Location *getLocation() const;
   void setLocation(Location *location);
-  const int *getSdIn() const ;
-  const int *getSdOut() const ;
+  int *getSds() ;
   void closeSd();
 
 };

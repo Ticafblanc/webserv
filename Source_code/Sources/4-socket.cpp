@@ -6,18 +6,18 @@
 
 void Socket::createSocketDescriptor() {
   if ((_sd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-    throw(throwMessageErrno("Creation of the socket descriptor of a socket"));
+    throw ErrnoException("Creation of the socket descriptor of a socket");
 }
 
 void Socket::setSocketOptions() {
   if (setsockopt(_sd, SOL_SOCKET, SO_REUSEADDR /* | SO_REUSEPORT*/,
                  &_optionBuffer, sizeof(_optionBuffer)))
-    throw(throwMessageErrno("Set option of a socket"));
+    throw ErrnoException("Set option of a socket");
 }
 
 void Socket::setSocketNonBlocking() {
   if (fcntl(_sd, F_SETFL, O_NONBLOCK) < 0)
-    throw(throwMessageErrno("Socket to nonblocking"));
+    throw ErrnoException("Socket to nonblocking");
 }
 
 void Socket::initAddress() {
@@ -33,12 +33,12 @@ void Socket::getSockaddrIn() {
 
 void Socket::bindSocket() {
   if (bind(_sd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
-    throw(throwMessageErrno("Bind socket"));
+    throw ErrnoException("Bind socket");
 }
 
 void Socket::socketListener() {
   if (listen(_sd, MAX_CONNECTION) < 0)
-    throw(throwMessageErrno("Set socket to listener"));
+    throw ErrnoException("Set socket to listener");
 }
 
 void Socket::closeSd() {
@@ -54,17 +54,12 @@ static void setServersConfig(struct Server &server, mapStrServ &serversConfig) {
 Socket::Socket(struct Server &server, Server *defaultServer)
     : _ipAddress(server.ipAddress), _port(server.port), _sd(-1),
       _optionBuffer(), _serversConfig(), _defaultServer(defaultServer) {
-  try {
-    createSocketDescriptor();
-    setSocketOptions();
-    setSocketNonBlocking();
-    initAddress();
-    bindSocket();
-    socketListener();
-  } catch (const std::exception &e) {
-    throwError(e);
-    throw(throwMessage("Stop program"));
-  }
+  createSocketDescriptor();
+  setSocketOptions();
+  setSocketNonBlocking();
+  initAddress();
+  bindSocket();
+  socketListener();
   setServersConfig(server, _serversConfig);
 }
 
@@ -131,44 +126,32 @@ const string &Socket::getIpAddress() const { return _ipAddress; }
 const uint16_t &Socket::getPort() const { return _port; }
 Server *Socket::getDefaultServer() const { return _defaultServer; }
 
-Client::Client(Socket &server, const sockaddr_in &address, int sd, int sds[4])
+Client::Client(Socket &server, const sockaddr_in &address, int sd)
     : Socket(server), _endRecv(false), _header(), _request(), _server(NULL),
       _location(NULL) {
   _address = address;
   _sd = sd;
   getSockaddrIn();
-  _sdIn[0] = sds[0];
-  _sdIn[1] = sds[1];
-  _sdOut[0] = sds[3];
-  _sdOut[1] = sds[3];
 }
 
 Client::Client()
     : Socket(), _endRecv(), _header(), _request(), _server(_defaultServer),
-      _location(&_server->defaultLocation), _sdIn(), _sdOut() {}
+      _location(&_server->defaultLocation), _sds() {}
 
 Client::Client(const Client &copy)
     : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
       _request(copy._request), _server(copy._server), _location(copy._location),
-      _sdIn(), _sdOut() {
-  _sdOut[0] = copy._sdOut[0];
-  _sdOut[1] = copy._sdOut[1];
-  _sdOut[0] = copy._sdOut[0];
-  _sdOut[1] = copy._sdOut[1];
+      _sds() {
+  _sds[0] = copy._sds[0];
+  _sds[1] = copy._sds[1];
 }
 
 Client::~Client() {}
 
 void Client::closeSd() {
-  close(_sdIn[0]);
-  close(_sdIn[1]);
-  _sdIn[0] = 0;
-  _sdIn[1] = 0;
-  close(_sdOut[0]);
-  close(_sdOut[1]);
-  _sdOut[0] = 0;
-  _sdOut[1] = 0;
-  Socket::closeSd();
+  close(_sds[0]);
+  close(_sds[1]);
+  _sd = 0;
 }
 
 Client &Client::operator=(const Client &rhs) {
@@ -179,10 +162,8 @@ Client &Client::operator=(const Client &rhs) {
     _request = rhs._request;
     _server = rhs._server;
     _location = rhs._location;
-    _sdIn[0] = rhs._sdIn[0];
-    _sdOut[1] = rhs._sdOut[1];
-    _sdIn[0] = rhs._sdIn[0];
-    _sdOut[1] = rhs._sdOut[1];
+    _sds[0] = rhs._sds[0];
+    _sds[1] = rhs._sds[1];
   }
   return *this;
 }
@@ -205,5 +186,4 @@ void Client::setLocation(Location *location) { _location = location; }
 bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
-const int *Client::getSdIn() const { return _sdIn; }
-const int *Client::getSdOut() const { return _sdOut; }
+int *Client::getSds() { return _sds; }
