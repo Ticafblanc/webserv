@@ -4,12 +4,6 @@
 
 #include "../Includes/7-request.hpp"
 
-/**
- * Creates a request interpretor from the request string and a server
- * configuration
- * @param request the string repreesentation of the HTTP request
- * @param serverConf the server configuration
- */
 Request::Request()
     : _headers(), _cgi(), _client(NULL), _server(NULL), _location(NULL),
       _complete(false), manage(NULL) {}
@@ -39,6 +33,7 @@ Request &Request::operator=(const Request &other) {
   }
   return (*this);
 }
+
 void Request::manageRequest() {
   if (!manage) {
     if (_client->getLocation()->isCgi())
