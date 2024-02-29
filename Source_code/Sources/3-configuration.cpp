@@ -103,7 +103,6 @@ static bool removeCommentary(string &line) {
   return !line.empty();
 }
 
-
 static const setStr createSetMethods() {
   setStr temp;
   temp.insert("GET");
@@ -466,6 +465,12 @@ void Location::parse(const string &bock) {
   }
   _findMapLocationSet(locationInfo);
   checkDefault();
+}
+string Location::getCgiPath(const string &ext) {
+  vecStrIt it = find(cgiExtension.begin(), cgiExtension.end(), ext);
+  if (it != cgiExtension.end())
+    return cgiPath[it - cgiExtension.begin()];
+  return "";
 }
 
 bool Location::isCgi() { return !cgiPath.empty() && !cgiExtension.empty(); }

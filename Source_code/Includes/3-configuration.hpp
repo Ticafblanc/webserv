@@ -35,6 +35,7 @@ struct Location {
   Location &operator=(const Location& rhs);
   void parse(const string &block);
   void checkDefault();
+  string getCgiPath(const string & ext);
   bool isCgi();
 
 private:
