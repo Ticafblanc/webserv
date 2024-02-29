@@ -21,50 +21,6 @@ pair<bool, typename vector<T>::iterator> checkVectorContain(vector<T> &vec,
       return make_pair(true, i);
   return make_pair(false, vec.end());
 }
-
-class Log {
-public:
-  Log(string msg) {
-    struct timeval current_time;
-    char time_buffer[100];
-    bzero(time_buffer, 100);
-    gettimeofday(&current_time, NULL);
-    //    strftime(time_buffere_buffer,100, localtime(&current_time.tv_sec));
-    cout << "[" << time_buffer << "] : " << msg << endl;
-  }
-};
-
-class throwMessage : public exception {
-private:
-  string _msg;
-
-public:
-  throwMessage(const std::string &msg) throw() : _msg(msg) {}
-  throwMessage(const throwMessage &) throw() {}
-  throwMessage &operator=(const throwMessage &) throw();
-  virtual ~throwMessage() throw() {}
-  virtual const char *what() const throw() { return (_msg.c_str()); }
-};
-
-class throwMessageErrno : public exception {
-private:
-  string _msg;
-
-public:
-  throwMessageErrno(const string &msg) throw() {
-    stringstream ss;
-    ss << msg << " : " << strerror(errno);
-    this->_msg = ss.str();
-  }
-
-  throwMessageErrno(const throwMessageErrno &) throw() {}
-  throwMessageErrno &operator=(const throwMessageErrno &) throw();
-  virtual ~throwMessageErrno() throw() {}
-  virtual const char *what() const throw() { return (_msg.c_str()); }
-};
-
-void throwError(const exception &ex);
-void printError(const string &msg);
 string itoa(int nb);
 bool isDirectory(string &path);
 bool isFile(const string &path);

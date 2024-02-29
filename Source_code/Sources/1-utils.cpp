@@ -4,13 +4,7 @@
 
 #include "../Includes/1-utils.hpp"
 
-void throwError(const exception &ex) {
-  cerr << "\033[1m\033[31mERROR \033[0m: " << ex.what() << '\n';
-}
 
-void printError(const string &msg) {
-  cerr << "\033[1m\033[31mERROR \033[0m: " << msg << '\n';
-}
 
 string itoa(int nb) {
   string s;
@@ -61,6 +55,7 @@ string checkRessource(string &root, string &path) {
     return "";
   return root + path;
 }
+
 
 string setTime() {
   time_t now = time(0);
