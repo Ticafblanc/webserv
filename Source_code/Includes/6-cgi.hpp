@@ -16,11 +16,6 @@ private:
   time_t  _time;
 
 
-  map<string, string> _getParams();
-  string _getQueryString();
-  char **_convertParams(map<string, string> args);
-  void _freeArgs(char **args);
-  char *_newStr(string source);
   char **_getExecArgs();
   string _getScriptName();
   string _removeQueryArgs(string query);
