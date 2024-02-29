@@ -62,12 +62,12 @@ void Request::manageRequest() {
 
 void Request::initCgi() {
   if(!_cgi->launchChild())
-    throw throwMessageErrno("error launch child");
+    throw ErrnoException("error launch child");
   manage = ;
 }
 void Request::initCgi() {
   if(!_cgi->launchChild())
-    throw throwMessageErrno("error launch child");
+
   manage = ;
 }
 
@@ -134,7 +134,7 @@ void Request::_post() {
   try {
     if (type == 1) {
       if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
-        throw(throwMessageErrno("TO CHANGE"));
+        throw(ErrnoException("TO CHANGE"));
       write(fd, _header_block.getContent().c_str(),
             _header_block.getContent().length());
       close(fd);
@@ -176,14 +176,14 @@ void Request::_put() {
   try {
     if (type == 0) {
       if ((fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) == -1)
-        throw(throwMessageErrno("TO CHANGE"));
+        throw(ErrnoException("TO CHANGE"));
       write(fd, _header_block.getContent().c_str(),
             _header_block.getContent().length());
       close(fd);
       rtn = 201;
     } else if (type == 1) {
       if ((fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644)) == -1)
-        throw(throwMessageErrno("Create file on put"));
+        throw(ErrnoException("Create file on put"));
       write(fd, _header_block.getContent().c_str(),
             _header_block.getContent().length());
       close(fd);

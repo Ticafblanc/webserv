@@ -53,7 +53,7 @@
 //  Method
 //  this->_request_line._method = lines[0].substr(0, lines[0].find(' '));
 //  if (isValidToken(this->_request_line._method) == false)
-//    throw(throwMessage("Request line not well formated (method)."));
+//    throw(Exception("Request line not well formated (method)."));
 //  lines[0].erase(0, this->_request_line._method.length() + 1);
 //
 //  // Request Target
@@ -71,7 +71,7 @@
 //    this->_request_line._http_version = lines[0].substr(0, lines[0].find('
 //    '));
 //  if (isValidHTTPVersion(this->_request_line._http_version) == false)
-//    throw(throwMessage("Request line not well formated (http version) : " +
+//    throw(Exception("Request line not well formated (http version) : " +
 //                       this->_request_line._http_version));
 //  this->_is_request = true;
 //}
@@ -83,13 +83,13 @@
 //  // HTTP-version
 //  this->_status_line._http_version = first_word;
 //  if (isValidHTTPVersion(this->_status_line._http_version) == false)
-//    throw(throwMessage("Status line not well formated (http_version)."));
+//    throw(Exception("Status line not well formated (http_version)."));
 //  lines[0].erase(0, first_word.length() + 1);
 //
 //  // Status code
 //  tmp = lines[0].substr(0, lines[0].find(" "));
 //  if (isValidStatusCode(tmp) == false)
-//    throw(throwMessage("Status line not well formated (status code)."));
+//    throw(Exception("Status line not well formated (status code)."));
 //  this->_status_line._status_code = std::atoi(tmp.c_str());
 //  lines[0].erase(0, tmp.length() + 1);
 //
@@ -105,7 +105,7 @@
 //    '));
 //  this->_status_line._reason_phrase = lines[0].substr(0, lines[0].find(' '));
 //  if (isValidReasonPhrase(this->_status_line._reason_phrase) == false)
-//    throw(throwMessage("Status line not well formated (reason phrase)."));
+//    throw(Exception("Status line not well formated (reason phrase)."));
 //
 //  this->_is_request = false;
 //}
@@ -126,11 +126,11 @@
 //
 //      Field name
 //     if ((posin = lines[i].find(':')) == std::string::npos)
-//       throw(throwMessage("Header field name not well formated : " +
+//       throw(Exception("Header field name not well formated : " +
 //       lines[i]));
 //     field._field_name = lines[i].substr(0, posin);
 //     if (!isValidToken(field._field_name))
-//       throw(throwMessage("Header field name not well formated : " +
+//       throw(Exception("Header field name not well formated : " +
 //       lines[i]));
 //     lines[i].erase(0, posin + 1);
 //
@@ -158,7 +158,7 @@
 
 // size_t len = header.getPlainRequest().length();
 // if (header.getPlainRequest() == "\r\n" || len < 9)
-//   throw(throwMessage("Empty request"));
+//   throw(Exception("Empty request"));
 // static size_t getContentLen(std::string request) {
 //   size_t pos_in = 0;
 //   std::string line;
@@ -208,7 +208,7 @@
 //   getLines(request, &block_lines);
 //   try {
 //     if (block_lines.size() < 1)
-//       throw(throwMessage("Not valid header (size to low)"));
+//       throw(Exception("Not valid header (size to low)"));
 //     size_t pos = block_lines[0].find(" ");
 //     std::string first_word = block_lines[0].substr(0, block_lines[0].find("
 //     ")); if (pos != std::string::npos) {
@@ -269,6 +269,6 @@
 //   } catch (const std::exception &e) {
 //     throwError(e);
 //     exit(0);
-//     throw(throwMessage("Can't parse header."));
+//     throw(Exception("Can't parse header."));
 //   }
 // }

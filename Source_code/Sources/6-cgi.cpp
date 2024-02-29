@@ -11,14 +11,14 @@ CGI::~CGI() {}
 bool CGI::launchChild() {
   _pid = fork();
   if (_pid == -1)
-    return false;
+    throw ErrnoException("error launch child");
   if (_pid == 0) {
-    dup2(_headers->getClient()->getSdIn()[STDIN_FILENO], STDIN_FILENO);
-    close(_headers->getClient()->getSdOut()[STDIN_FILENO]);
-    dup2(_headers->getClient()->getSdOut()[STDOUT_FILENO], STDOUT_FILENO);
-    close(_headers->getClient()->getSdIn()[STDOUT_FILENO]);
-    execve(_headers->getCgiEnv()[0], _headers->getCgiEnv().data(),
-           _headers->getCgiEnv().data());
+//    dup2(_headers->getClient()->getSdIn()[STDIN_FILENO], STDIN_FILENO);
+//    close(_headers->getClient()->getSdOut()[STDIN_FILENO]);
+//    dup2(_headers->getClient()->getSdOut()[STDOUT_FILENO], STDOUT_FILENO);
+//    close(_headers->getClient()->getSdIn()[STDOUT_FILENO]);
+//    execve(_headers->getCgiEnv()[0], _headers->getCgiEnv().data(),
+//           _headers->getCgiEnv().data());
     //check free and sigpipe
     exit(EXIT_FAILURE);
   }
@@ -27,15 +27,15 @@ bool CGI::launchChild() {
 
 //    write(fd[1], _request.getContent().c_str(),
 //    _request.getContent().length());
-close(fd[1]);
-waitpid(-1, NULL, 0);
-_freeArgs(args);
-_freeArgs(exec_args);
-  }
-  Log("End CGI");
-  //  return (readFile("/tmp/webserv_cgi"));
-  return "";
-}
+//close(fd[1]);
+//waitpid(-1, NULL, 0);
+//_freeArgs(args);
+//_freeArgs(exec_args);
+//  }
+//  Log("End CGI");
+//  //  return (readFile("/tmp/webserv_cgi"));
+//  return "";
+//}
 
 /**
  * Get exec args (script name and file to treat)
