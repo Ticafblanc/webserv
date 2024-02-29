@@ -13,6 +13,7 @@ static string checkArg(int argc, char **argv, char **env) {
 }
 
 int main(int argc, char **argv, char **env) {
+//  Start:
   Configuration config;
   SocketManager<Socket> serverManager;
   SocketManager<Client> clientManager;
@@ -30,8 +31,10 @@ int main(int argc, char **argv, char **env) {
       e.what();
     if (const Select::Exception * Ex = dynamic_cast<const Select::Exception *>(&e))
       select.deinit();
+//    goto Start;
     exit(EXIT_FAILURE);
   }
+//  end:
   cout << "end" << endl;
   exit(EXIT_SUCCESS);
 }
