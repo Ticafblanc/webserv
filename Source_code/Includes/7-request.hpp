@@ -13,11 +13,9 @@ private:
   Headers *_headers;
   CGI *_cgi;
   Client* _client;
-  Server *_server;
-  Location *_location;
   bool _complete;
   typedef void (Request::*pManage)();
-  pManage manage;
+  pManage _manage;
 
   void method();
 
@@ -58,6 +56,8 @@ public:
   Request &operator=(const Request &other);
   ~Request();
   void manager();
+  bool manageIsNull() const;
+  void resetManage(pManage m = NULL);
 };
 
 #endif // WEBSERV_REQUEST_HPP

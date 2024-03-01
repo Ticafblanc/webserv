@@ -68,7 +68,7 @@ ssize_t Select::sendBuffer(int &r, Client &clt) {
   //  string response = _request[clt.getSd()].getResponse(); // switch to
   //  reponse if (!response.empty()) {
   //    rc = send(clt.getSd(), response.c_str(), response.size(), 0);
-  //    if (rc > 0) // manage udate value
+  //    if (rc > 0) // _manage udate value
   //      _request[clt.getSd()].getResponse() = response.substr(rc);
   //  }
   return rc;
@@ -162,6 +162,7 @@ void Select::udateData() {
 void Select::endServer(int signal) {
   (void)signal;
   _this->_run = false;
+  _this->deinit();
   cout << "goodbay" << endl;
 }
 
@@ -169,6 +170,7 @@ void Select::init() {
   signal(SIGINT, endServer);
   signal(SIGQUIT, endServer);
   signal(SIGTERM, endServer);
+  signal(SIGKILL, endServer);
   signal(SIGPIPE, SIG_IGN);
   FD_ZERO(&_fdSets[READ_SDS]);
   FD_ZERO(&_fdSets[WRITE_SDS]);

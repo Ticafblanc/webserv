@@ -5,18 +5,15 @@
 #include "../Includes/7-request.hpp"
 
 Request::Request()
-    : _headers(), _cgi(), _client(NULL), _server(NULL), _location(NULL),
-      _complete(false), manage(NULL) {}
+    : _headers(), _cgi(), _client(NULL), _complete(false), _manage(NULL) {}
 
 Request::Request(Headers &headers, CGI &cgi)
     : _headers(&headers), _cgi(&cgi), _client(headers.getClient()),
-      _server(_client->getDefaultServer()),
-      _location(&_server->defaultLocation), _complete(false), manage(NULL) {}
+      _complete(false), _manage(NULL) {}
 
 Request::Request(const Request &other)
     : _headers(other._headers), _cgi(other._cgi), _client(other._client),
-      _server(other._server), _location(other._location), _complete(false),
-      manage(other.manage) {}
+      _complete(false), _manage(other._manage) {}
 
 Request::~Request() {}
 
@@ -25,34 +22,26 @@ Request &Request::operator=(const Request &other) {
     _headers = other._headers;
     _cgi = other._cgi;
     _client = other._client;
-    _server = other._server;
-    _location = other._location;
     _complete = other._complete;
-    manage = other.manage;
+    _manage = other._manage;
   }
   return (*this);
 }
-
+bool Request::manageIsNull() const { return !_manage; }
+void Request::resetManage(pManage m) { _manage = m; }
 void Request::manager() {
   cout << "request manager" << endl;
-
-  //  if (!manage)
-  //    manage = &Request::method;
-  //  _complete = false;
-  //  while (!_complete) {
-  //    try {
-  //      (this->*manage)();
-  //    } catch (const exception &e) {
-  //      _headers->setFirstLine(STATUS_CODE, "500");
-  //    }
-  //  }
-  //  if (!_headers->getFirstLine()[STATUS_CODE].empty()) {
-  //    _client->setReceived(true);
-  //    manage = NULL;
-  //  }
+  if (manageIsNull()) {
+    resetManage(&Request::method);
+  }
+  _complete = false;
+  while (!_complete)
+    (this->*_manage)();
 }
 
 void Request::method() {
+  cout << "method" << endl;
+
   map<string, pManage> mapTmp;
   mapTmp["GET"] = &Request::_get;
   mapTmp["HEAD"] = &Request::_head;
@@ -62,16 +51,15 @@ void Request::method() {
   mapTmp["CONNECT"] = &Request::_connect;
   mapTmp["OPTIONS"] = &Request::_options;
   mapTmp["TRACE"] = &Request::_trace;
-  setStrIt tmp = _location->methods.find(_headers->getFirstLine()[METHOD]);
-  if (tmp != _location->methods.end())
-    manage = mapTmp[*tmp];
-  else {
-    _headers->setFirstLine(STATUS_CODE, "405");
-    _complete = true;
-  }
+  setStrIt tmp = _client->getLocation()->methods.find(_headers->getFirstLine()[METHOD]);
+  if (tmp != _client->getLocation()->methods.end())
+    _manage = mapTmp[*tmp];
+  else
+    throw Exception("Method not allowed", _client->getSd(), "405");
 }
 
 void Request::_get() {
+  cout << "get" << endl;
 
   //  vector<unsigned char> content_bytes;
   //  unsigned char *ressource_content;
@@ -96,7 +84,8 @@ void Request::_get() {
   //    ""));
 }
 
- void Request::_head() {/* return (_get(ressource_path, headers, false));*/ }
+void Request::_head() { /* return (_get(ressource_path, headers, false));*/
+}
 
 void Request::_post() {
   // struct stat   buffer;
@@ -630,22 +619,22 @@ bool Request::_shouldCallCGI(string ressource_path) {
  * @param response the HTTP response out of the CGI
  * @return the same HTTP response with additional headers
  */
-//string Request::_addCGIHeaders(string response) {
-//  string res;
-//  //  size_t size;
-//  //  int header_char_count = 0;
+// string Request::_addCGIHeaders(string response) {
+//   string res;
+//   //  size_t size;
+//   //  int header_char_count = 0;
 //
-//  string headers = response;
-//  if (response.find("\r\n\r\n") != string::npos)
-//    headers = response.substr(0, response.find("\r\n\r\n"));
-//  if (headers != "") {
+//   string headers = response;
+//   if (response.find("\r\n\r\n") != string::npos)
+//     headers = response.substr(0, response.find("\r\n\r\n"));
+//   if (headers != "") {
 ////    for (size_t i = 0; i < headers.length(); i++)
 ////      if (headers[i] != '\n' && headers[i] != '\r')
 //    //        header_char_count++;
 //  }
 //  //  size = response.size() - count(response.begin(), response.end(), '\n') -
-//  //         count(response.begin(), response.end(), '\r') - header_char_count;
-//  res = response;
+//  //         count(response.begin(), response.end(), '\r') -
+//  header_char_count; res = response;
 //  //  res = "Content-Length: " + uIntegerToString(size) + "\r\n" + res;
 //  res = "Date: " + _getDateHeader() + "\r\n" + res;
 //  if (_getCGIStatus(response).size() > 0)
