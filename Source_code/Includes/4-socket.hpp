@@ -45,14 +45,16 @@ public:
   bool isDefault();
   Server *getDefaultServer() const;
   Server *getServerByHost(const string &host);
-  void closeSd();
+  virtual void closeSd();
 };
 
 class Client : public Socket {
 protected:
   bool _endRecv;
   string _header;
+  string _body;
   string _request;
+  string _ressourcePath;
   Server *_server;
   Location *_location;
   int _sds[2];
@@ -65,8 +67,10 @@ public:
   Client &operator=(const Client &rhs);
 
   void updateRessource(const string & host, const string & path);
+  void setRessourcePath(const string &path);
   bool allowMethod(const string & method);
   string &getHeader();
+  string &getBody();
   string &getRequest();
   bool isEndRecv() const;
   void setReceived(bool val);
@@ -75,6 +79,7 @@ public:
   Location *getLocation() const;
   void setLocation(Location *location);
   int *getSds() ;
+  const string &getRessourcePath() const;
   void closeSd();
 
 };

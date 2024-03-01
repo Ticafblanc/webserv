@@ -127,7 +127,7 @@ const uint16_t &Socket::getPort() const { return _port; }
 Server *Socket::getDefaultServer() const { return _defaultServer; }
 
 Client::Client(Socket &server, const sockaddr_in &address, int sd)
-    : Socket(server), _endRecv(false), _header(), _request(), _server(NULL),
+    : Socket(server), _endRecv(false), _header(),_body(), _request(), _server(NULL),
       _location(NULL) {
   _address = address;
   _sd = sd;
@@ -135,11 +135,11 @@ Client::Client(Socket &server, const sockaddr_in &address, int sd)
 }
 
 Client::Client()
-    : Socket(), _endRecv(), _header(), _request(), _server(_defaultServer),
+    : Socket(), _endRecv(), _header(), _body(), _request(), _server(_defaultServer),
       _location(&_server->defaultLocation), _sds() {}
 
 Client::Client(const Client &copy)
-    : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
+    : Socket(copy), _endRecv(copy._endRecv), _header(copy._header), _body(copy._body),
       _request(copy._request), _server(copy._server), _location(copy._location),
       _sds() {
   _sds[0] = copy._sds[0];
@@ -159,6 +159,7 @@ Client &Client::operator=(const Client &rhs) {
     Socket::operator=(rhs);
     _endRecv = rhs._endRecv;
     _header = rhs._header;
+    _body = rhs._body;
     _request = rhs._request;
     _server = rhs._server;
     _location = rhs._location;
@@ -171,6 +172,14 @@ Client &Client::operator=(const Client &rhs) {
 void Client::updateRessource(const string &host, const string &path) {
   _server = getServerByHost(host);
   _location = _server->getLocationByRessource(path);
+  setRessourcePath(path);
+}
+
+void Client::setRessourcePath(const string &path) {
+  _ressourcePath = _location->root.empty() ? _server->root : _location->root;
+  _ressourcePath += path;
+  if (isDirectory(_ressourcePath))
+    _ressourcePath += _location->index;
 }
 
 bool Client::allowMethod(const string &method) {
@@ -178,6 +187,7 @@ bool Client::allowMethod(const string &method) {
 }
 
 string &Client::getHeader() { return _header; }
+string &Client::getBody() { return _body; }
 string &Client::getRequest() { return _request; }
 Server *Client::getServer() const { return _server; }
 void Client::setServer(Server *server) { _server = server; }
@@ -187,3 +197,4 @@ bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
 int *Client::getSds() { return _sds; }
+const string &Client::getRessourcePath() const { return _ressourcePath; }
