@@ -36,20 +36,20 @@ Request &Request::operator=(const Request &other) {
 void Request::manager() {
   cout << "request manager" << endl;
 
-//  if (!manage)
-//    manage = &Request::method;
-//  _complete = false;
-//  while (!_complete) {
-//    try {
-//      (this->*manage)();
-//    } catch (const exception &e) {
-//      _headers->setFirstLine(STATUS_CODE, "500");
-//    }
-//  }
-//  if (!_headers->getFirstLine()[STATUS_CODE].empty()) {
-//    _client->setReceived(true);
-//    manage = NULL;
-//  }
+  //  if (!manage)
+  //    manage = &Request::method;
+  //  _complete = false;
+  //  while (!_complete) {
+  //    try {
+  //      (this->*manage)();
+  //    } catch (const exception &e) {
+  //      _headers->setFirstLine(STATUS_CODE, "500");
+  //    }
+  //  }
+  //  if (!_headers->getFirstLine()[STATUS_CODE].empty()) {
+  //    _client->setReceived(true);
+  //    manage = NULL;
+  //  }
 }
 
 void Request::method() {
@@ -73,222 +73,225 @@ void Request::method() {
 
 void Request::_get() {
 
-//  vector<unsigned char> content_bytes;
-//  unsigned char *ressource_content;
-//  time_t file_date;
-//  content_bytes = readBinaryFile(ressource_path);
-//  ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
-//  headers["Content-Type"] = _getMIMEType(ressource_path);
-//  pathType(ressource_path, &file_date);
-//  headers["Last-Modified"] = _formatTimestamp(file_date);
-//  if (send_body)
-//    return (_generateResponse(200, headers, ressource_content,
-//                              content_bytes.size()));
-//  return (_generateResponse(200, headers, ""));
-//}
-//catch (const exception &e) {
-//  return (
-//      _generateResponse(403, headers, send_body ? _getErrorHTMLPage(403) : ""));
-//}
-//return (
-//    _generateResponse(500, headers, send_body ? _getErrorHTMLPage(500) : ""));
+  //  vector<unsigned char> content_bytes;
+  //  unsigned char *ressource_content;
+  //  time_t file_date;
+  //  content_bytes = readBinaryFile(ressource_path);
+  //  ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
+  //  headers["Content-Type"] = _getMIMEType(ressource_path);
+  //  pathType(ressource_path, &file_date);
+  //  headers["Last-Modified"] = _formatTimestamp(file_date);
+  //  if (send_body)
+  //    return (_generateResponse(200, headers, ressource_content,
+  //                              content_bytes.size()));
+  //  return (_generateResponse(200, headers, ""));
+  //}
+  // catch (const exception &e) {
+  //  return (
+  //      _generateResponse(403, headers, send_body ? _getErrorHTMLPage(403) :
+  //      ""));
+  //}
+  // return (
+  //    _generateResponse(500, headers, send_body ? _getErrorHTMLPage(500) :
+  //    ""));
 }
 
-//void Request::_head() { return (_get(ressource_path, headers, false)); }
+ void Request::_head() {/* return (_get(ressource_path, headers, false));*/ }
 
 void Request::_post() {
   // struct stat   buffer;
-//  int fd = -1;
-//  int rtn = 0;
-//  int type;
-//  string path;
-//
-//  //  if (_location.upload_path.size() > 0)
-//  //  {
-//  //    string file = string(_header_block.getRequestLine()._request_target,
-//  //    _location.name.size()); path = _location.upload_path + "/" + file;
-//  //  }
-//  //  else
-//  path = ressource_path;
-//  DEBUG("POST path: " + path);
-//  type = pathType(path, NULL);
-//  try {
-//    if (type == 1) {
-//      if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
-//        throw(ErrnoException("TO CHANGE"));
-//      write(fd, _header_block.getContent().c_str(),
-//            _header_block.getContent().length());
-//      close(fd);
-//      rtn = 200;
-//      //      headers["Content-Location"] =
-//      //          _header_block.getRequestLine()._request_target;
-//    } else if (type == 0) {
-//      if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) == -1)
-//        return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-//      write(fd, _header_block.getContent().c_str(),
-//            _header_block.getContent().length());
-//      close(fd);
-//      rtn = 201;
-//      //      headers["Location"] =
-//      //      _header_block.getRequestLine()._request_target;
-//    } else
-//      return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-//  } catch (exception &ex) {
-//    throwError(ex);
-//  }
-//  return (_generateResponse(rtn, headers, ""));
+  //  int fd = -1;
+  //  int rtn = 0;
+  //  int type;
+  //  string path;
+  //
+  //  //  if (_location.upload_path.size() > 0)
+  //  //  {
+  //  //    string file = string(_header_block.getRequestLine()._request_target,
+  //  //    _location.name.size()); path = _location.upload_path + "/" + file;
+  //  //  }
+  //  //  else
+  //  path = ressource_path;
+  //  DEBUG("POST path: " + path);
+  //  type = pathType(path, NULL);
+  //  try {
+  //    if (type == 1) {
+  //      if ((fd = open(path.c_str(), O_WRONLY | O_TRUNC, 0644)) == -1)
+  //        throw(ErrnoException("TO CHANGE"));
+  //      write(fd, _header_block.getContent().c_str(),
+  //            _header_block.getContent().length());
+  //      close(fd);
+  //      rtn = 200;
+  //      //      headers["Content-Location"] =
+  //      //          _header_block.getRequestLine()._request_target;
+  //    } else if (type == 0) {
+  //      if ((fd = open(path.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0644)) ==
+  //      -1)
+  //        return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+  //      write(fd, _header_block.getContent().c_str(),
+  //            _header_block.getContent().length());
+  //      close(fd);
+  //      rtn = 201;
+  //      //      headers["Location"] =
+  //      //      _header_block.getRequestLine()._request_target;
+  //    } else
+  //      return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+  //  } catch (exception &ex) {
+  //    throwError(ex);
+  //  }
+  //  return (_generateResponse(rtn, headers, ""));
 }
 
 void Request::_put() {
-//  int fd = -1;
-//  int rtn = 0;
-//  int type;
-//  string path;
-//
-//  //  if (_location.upload_path.size() > 0)
-//  //  {
-//  //    string file = string(_header_block.getRequestLine()._request_target,
-//  //    _location.name.size()); path = _location.upload_path + "/" + file;
-//  //  }
-//  //  else
-//  path = ressource_path;
-//  DEBUG("PUT path: " + path);
-//  type = pathType(path, NULL);
-//  try {
-//    if (type == 0) {
-//      if ((fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) == -1)
-//        throw(ErrnoException("TO CHANGE"));
-//      write(fd, _header_block.getContent().c_str(),
-//            _header_block.getContent().length());
-//      close(fd);
-//      rtn = 201;
-//    } else if (type == 1) {
-//      if ((fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644)) == -1)
-//        throw(ErrnoException("Create file on put"));
-//      write(fd, _header_block.getContent().c_str(),
-//            _header_block.getContent().length());
-//      close(fd);
-//      rtn = 204;
-//    } else
-//      return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-//    //    headers["Content-Location"] =
-//    //        _header_block.getRequestLine()._request_target;
-//  } catch (exception &ex) {
-//    throwError(ex);
-//    return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
-//  }
-//  return (_generateResponse(rtn, headers, ""));
+  //  int fd = -1;
+  //  int rtn = 0;
+  //  int type;
+  //  string path;
+  //
+  //  //  if (_location.upload_path.size() > 0)
+  //  //  {
+  //  //    string file = string(_header_block.getRequestLine()._request_target,
+  //  //    _location.name.size()); path = _location.upload_path + "/" + file;
+  //  //  }
+  //  //  else
+  //  path = ressource_path;
+  //  DEBUG("PUT path: " + path);
+  //  type = pathType(path, NULL);
+  //  try {
+  //    if (type == 0) {
+  //      if ((fd = open(path.c_str(), O_CREAT | O_WRONLY | O_TRUNC, 0644)) ==
+  //      -1)
+  //        throw(ErrnoException("TO CHANGE"));
+  //      write(fd, _header_block.getContent().c_str(),
+  //            _header_block.getContent().length());
+  //      close(fd);
+  //      rtn = 201;
+  //    } else if (type == 1) {
+  //      if ((fd = open(path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0644)) ==
+  //      -1)
+  //        throw(ErrnoException("Create file on put"));
+  //      write(fd, _header_block.getContent().c_str(),
+  //            _header_block.getContent().length());
+  //      close(fd);
+  //      rtn = 204;
+  //    } else
+  //      return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+  //    //    headers["Content-Location"] =
+  //    //        _header_block.getRequestLine()._request_target;
+  //  } catch (exception &ex) {
+  //    throwError(ex);
+  //    return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
+  //  }
+  //  return (_generateResponse(rtn, headers, ""));
 }
 
 void Request::_delete() {
-//  int type;
-//
-//  type = pathType(ressource_path, NULL);
-//  if (type == 1) {
-//    unlink(ressource_path.c_str());
-//    return (_generateResponse(200, headers, ""));
-//  }
-//  return (_generateResponse(404, headers, _getErrorHTMLPage(404)));
+  //  int type;
+  //
+  //  type = pathType(ressource_path, NULL);
+  //  if (type == 1) {
+  //    unlink(ressource_path.c_str());
+  //    return (_generateResponse(200, headers, ""));
+  //  }
+  //  return (_generateResponse(404, headers, _getErrorHTMLPage(404)));
 }
 
 void Request::_connect() {
-//  _headers->setFirstLine(STATUS_CODE, "200");
-//  _complete = true;
+  //  _headers->setFirstLine(STATUS_CODE, "200");
+  //  _complete = true;
 }
 
 void Request::_trace() {
-//  headers["Content-Type"] = "message/http";
-//  return (_generateResponse(200, headers, _header_block.getPlainRequest()));
+  //  headers["Content-Type"] = "message/http";
+  //  return (_generateResponse(200, headers, _header_block.getPlainRequest()));
 }
-
 
 void Request::_options() {
-//  headers.erase("Content-Type");
-//  string allowed;
-//
-//  for (size_t i = 0; i < _location.methods.size(); ++i) {
-//    //    allowed += _location.methods[i];
-//    if (i < _location.methods.size() - 1)
-//      allowed += ", ";
-//  }
-//  headers["Allow"] = allowed;
-//  return (_generateResponse(200, headers, ""));
+  //  headers.erase("Content-Type");
+  //  string allowed;
+  //
+  //  for (size_t i = 0; i < _location.methods.size(); ++i) {
+  //    //    allowed += _location.methods[i];
+  //    if (i < _location.methods.size() - 1)
+  //      allowed += ", ";
+  //  }
+  //  headers["Allow"] = allowed;
+  //  return (_generateResponse(200, headers, ""));
 }
 
-//void Request::getResponse() {
-  //  map<string, string> headers;
-  //  string method = _header_block.getRequestLine()._method;
-  //  string ressource_path;
-  //
-  //  headers["Content-Type"] = _getMIMEType("a.html");
-  //  if (_header_block.getContent().size() > _conf.clientMaxBodySize)
-  //    return (_generateResponse(413, headers,
-  //                              method != "HEAD" ? _getErrorHTMLPage(413) :
-  //                              ""));
-  //  if (!_isMethodAllowed(method))
-  //    return (_wrongMethod());
-  //  if (method == "TRACE")
-  //    return (_trace(headers));
-  //  else if (method == "OPTIONS")
-  //    return (_options(headers));
-  //  else if (method == "CONNECT")
-  //    return (_generateResponse(200, headers, ""));
-  //  ressource_path = _location.root;
-  //  if (ressource_path[ressource_path.size() - 1] == '/')
-  //    ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
-  //  ressource_path += _ressource;
-  //  DEBUG("ressource path: " + ressource_path);
-  //  if (pathType(ressource_path, NULL) == 2) {
-  //    DEBUG("ressource path: " + ressource_path +
-  //          ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
-  //          + _location.index);
-  //    if (_location.index.length() > 0)
-  //      ressource_path =
-  //          ressource_path +
-  //          ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
-  //          + _location.index;
-  //    else {
-  //      if (_location.autoindex)
-  //        return (_generateResponse(
-  //            200, headers,
-  //            method != "HEAD" ? _getListingHTMLPage(ressource_path,
-  //            _ressource)
-  //                             : ""));
-  //      else
-  //        return (_generateResponse(
-  //            403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
-  //    }
-  //  }
-  //  if (pathType(ressource_path, NULL) == 0 && method != "PUT" &&
-  //      method != "POST")
-  //    return (_generateResponse(404, headers,
-  //                              method != "HEAD" ? _getErrorHTMLPage(404) :
-  //                              ""));
-  //  if (_shouldCallCGI(ressource_path)) {
-  //    DEBUG("call CGI for this request");
-  //    try {
-  //      return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path,
-  //                                 _header_block, _conf, _location)
-  //                                 .getOutput()));
-  //    } catch (const exception &e) {
-  //      cerr << e.what() << endl;
-  //      return (_generateResponse(
-  //          500, headers, method != "HEAD" ? _getErrorHTMLPage(500) : ""));
-  //    }
-  //  }
-  //  if (method == "GET")
-  //    return _get(ressource_path, headers);
-  //  else if (method == "HEAD")
-  //    return _head(ressource_path, headers);
-  //  else if (method == "POST")
-  //    return _post(ressource_path, headers);
-  //  else if (method == "PUT")
-  //    return (_put(ressource_path, headers));
-  //  else if (method == "DELETE")
-  //    return (_delete(ressource_path, headers));
+// void Request::getResponse() {
+//   map<string, string> headers;
+//   string method = _header_block.getRequestLine()._method;
+//   string ressource_path;
+//
+//   headers["Content-Type"] = _getMIMEType("a.html");
+//   if (_header_block.getContent().size() > _conf.clientMaxBodySize)
+//     return (_generateResponse(413, headers,
+//                               method != "HEAD" ? _getErrorHTMLPage(413) :
+//                               ""));
+//   if (!_isMethodAllowed(method))
+//     return (_wrongMethod());
+//   if (method == "TRACE")
+//     return (_trace(headers));
+//   else if (method == "OPTIONS")
+//     return (_options(headers));
+//   else if (method == "CONNECT")
+//     return (_generateResponse(200, headers, ""));
+//   ressource_path = _location.root;
+//   if (ressource_path[ressource_path.size() - 1] == '/')
+//     ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
+//   ressource_path += _ressource;
+//   DEBUG("ressource path: " + ressource_path);
+//   if (pathType(ressource_path, NULL) == 2) {
+//     DEBUG("ressource path: " + ressource_path +
+//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
+//           + _location.index);
+//     if (_location.index.length() > 0)
+//       ressource_path =
+//           ressource_path +
+//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
+//           + _location.index;
+//     else {
+//       if (_location.autoindex)
+//         return (_generateResponse(
+//             200, headers,
+//             method != "HEAD" ? _getListingHTMLPage(ressource_path,
+//             _ressource)
+//                              : ""));
+//       else
+//         return (_generateResponse(
+//             403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
+//     }
+//   }
+//   if (pathType(ressource_path, NULL) == 0 && method != "PUT" &&
+//       method != "POST")
+//     return (_generateResponse(404, headers,
+//                               method != "HEAD" ? _getErrorHTMLPage(404) :
+//                               ""));
+//   if (_shouldCallCGI(ressource_path)) {
+//     DEBUG("call CGI for this request");
+//     try {
+//       return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path,
+//                                  _header_block, _conf, _location)
+//                                  .getOutput()));
+//     } catch (const exception &e) {
+//       cerr << e.what() << endl;
+//       return (_generateResponse(
+//           500, headers, method != "HEAD" ? _getErrorHTMLPage(500) : ""));
+//     }
+//   }
+//   if (method == "GET")
+//     return _get(ressource_path, headers);
+//   else if (method == "HEAD")
+//     return _head(ressource_path, headers);
+//   else if (method == "POST")
+//     return _post(ressource_path, headers);
+//   else if (method == "PUT")
+//     return (_put(ressource_path, headers));
+//   else if (method == "DELETE")
+//     return (_delete(ressource_path, headers));
 //  return ("");
 //}
-
 
 // string Request::_wrongMethod {
 //   map<string, string> headers;
@@ -306,29 +309,28 @@ void Request::_options() {
 //                                 : ""));*/
 // }
 
-
-//string Request::_generateResponse(size_t code, map<string, string> headers,
-//                                  const unsigned char *content,
-//                                  size_t content_size) {
-//  string response;
-//  map<string, string>::iterator it;
+// string Request::_generateResponse(size_t code, map<string, string> headers,
+//                                   const unsigned char *content,
+//                                   size_t content_size) {
+//   string response;
+//   map<string, string>::iterator it;
 //
-//  headers["Content-Length"] = uIntegerToString(content_size);
-//  headers["Select"] = "webserv";
-//  headers["Date"] = _getDateHeader();
-//  response += "HTTP/1.1 ";
-//  response += uIntegerToString(code) + " ";
-//  response += _getStatusDescription(code) + "\r\n";
-//  it = headers.begin();
-//  while (it != headers.end()) {
-//    response += it->first + ": " + it->second + "\r\n";
-//    ++it;
-//  }
-//  response += "\r\n";
-//  for (size_t i = 0; i < content_size; ++i)
-//    response += content[i];
-//  return (response);
-//}
+//   headers["Content-Length"] = uIntegerToString(content_size);
+//   headers["Select"] = "webserv";
+//   headers["Date"] = _getDateHeader();
+//   response += "HTTP/1.1 ";
+//   response += uIntegerToString(code) + " ";
+//   response += _getStatusDescription(code) + "\r\n";
+//   it = headers.begin();
+//   while (it != headers.end()) {
+//     response += it->first + ": " + it->second + "\r\n";
+//     ++it;
+//   }
+//   response += "\r\n";
+//   for (size_t i = 0; i < content_size; ++i)
+//     response += content[i];
+//   return (response);
+// }
 //
 ///**
 // * Creates a HTTP response based on given code and ASCII content
@@ -337,7 +339,7 @@ void Request::_options() {
 // * @param content the string representation of the content
 // * @return the string representation of a HTTP response
 // */
-//string Request::_generateResponse(size_t code, map<string, string> headers,
+// string Request::_generateResponse(size_t code, map<string, string> headers,
 //                                  string content) {
 //  return (_generateResponse(
 //      code, headers, reinterpret_cast<const unsigned char *>(content.c_str()),
@@ -404,126 +406,126 @@ string Request::_getStatusDescription(size_t code) {
  */
 string Request::_getErrorHTMLPage(size_t code) {
   string base;
+  (void)code;
 
-//  if (_conf.errorPages.count(code) > 0)
-//    return (readFile(_conf.errorPages[code]));
-//  base = readFile("./assets/error.html");
-//  base = replace(base, "$1", uIntegerToString(code));
-//  base = replace(base, "$2", _getStatusDescription(code));
+  //  if (_conf.errorPages.count(code) > 0)
+  //    return (readFile(_conf.errorPages[code]));
+  //  base = readFile("./assets/error.html");
+  //  base = replace(base, "$1", uIntegerToString(code));
+  //  base = replace(base, "$2", _getStatusDescription(code));
   return (base);
 }
 
-
-//string Request::_getListingHTMLPage(string path, string ressource) {
-//  string base;
-//  string listing;
-//  string link_base;
-//  //  size_t i;
-//  struct dirent *en;
-//  DIR *dr;
+// string Request::_getListingHTMLPage(string path, string ressource) {
+//   string base;
+//   string listing;
+//   string link_base;
+//   //  size_t i;
+//   struct dirent *en;
+//   DIR *dr;
 //
-//  base = readFile("./assets/listing.html");
-//  base = replace(base, "$1", ressource);
-//  dr = opendir(path.c_str());
-//  //  i = 0;
-//  //  while (_header_block.getRequestLine()._request_target[i] &&
-//  //         _header_block.getRequestLine()._request_target[i] != '?')
-//  //    link_base += _header_block.getRequestLine()._request_target[i++];
-//  if (link_base[link_base.size() - 1] != '/')
-//    link_base += '/';
-//  while ((en = readdir(dr)) != 0)
-//    listing += "<li><a href=\"" + link_base + string(en->d_name) + "\">" +
-//               string(en->d_name) + "</a></li>";
-//  closedir(dr);
-//  base = replace(base, "$2", listing);
-//  return (base);
-//}
+//   base = readFile("./assets/listing.html");
+//   base = replace(base, "$1", ressource);
+//   dr = opendir(path.c_str());
+//   //  i = 0;
+//   //  while (_header_block.getRequestLine()._request_target[i] &&
+//   //         _header_block.getRequestLine()._request_target[i] != '?')
+//   //    link_base += _header_block.getRequestLine()._request_target[i++];
+//   if (link_base[link_base.size() - 1] != '/')
+//     link_base += '/';
+//   while ((en = readdir(dr)) != 0)
+//     listing += "<li><a href=\"" + link_base + string(en->d_name) + "\">" +
+//                string(en->d_name) + "</a></li>";
+//   closedir(dr);
+//   base = replace(base, "$2", listing);
+//   return (base);
+// }
 
-//string Request::_getMIMEType(string filename) {
-//  map<string, string> m;
-//  string ext;
-//  size_t i;
+// string Request::_getMIMEType(string filename) {
+//   map<string, string> m;
+//   string ext;
+//   size_t i;
 //
-//  i = filename.size() - 1;
-//  while (i > 0 && filename[i] != '.')
-//    --i;
-//  if (i == 0)
-//    return ("text/plain");
-//  ext = string(filename, i + 1, filename.size() - i);
-//  m["aac"] = "audio/aac";
-//  m["abw"] = "application/x-abiword";
-//  m["arc"] = "application/octet-stream";
-//  m["avi"] = "video/x-msvideo";
-//  m["azw"] = "application/vnd.amazon.ebook";
-//  m["bin"] = "application/octet-stream";
-//  m["bmp"] = "image/bmp";
-//  m["bz"] = "application/x-bzip";
-//  m["bz2"] = "application/x-bzip2";
-//  m["csh"] = "application/x-csh";
-//  m["css"] = "text/css";
-//  m["csv"] = "text/csv";
-//  m["doc"] = "application/msword";
-//  m["docx"] = "application/"
-//              "vnd.openxmlformats-officedocument.wordprocessingml.document";
-//  m["eot"] = "application/vnd.ms-fontobject";
-//  m["epub"] = "application/epub+zip";
-//  m["gif"] = "image/gif";
-//  m["htm"] = "text/html";
-//  m["html"] = "text/html";
-//  m["ico"] = "image/x-icon";
-//  m["ics"] = "text/calendar";
-//  m["jar"] = "application/java-archive";
-//  m["jpeg"] = "image/jpeg";
-//  m["jpg"] = "image/jpeg";
-//  m["js"] = "application/javascript";
-//  m["json"] = "application/json";
-//  m["mid"] = "audio/midi";
-//  m["midi"] = "audio/midi";
-//  m["mpeg"] = "video/mpeg";
-//  m["mpkg"] = "application/vnd.apple.installer+xml";
-//  m["odp"] = "application/vnd.oasis.opendocument.presentation";
-//  m["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
-//  m["odt"] = "application/vnd.oasis.opendocument.text";
-//  m["oga"] = "audio/ogg";
-//  m["ogv"] = "video/ogg";
-//  m["ogx"] = "application/ogg";
-//  m["otf"] = "font/otf";
-//  m["png"] = "image/png";
-//  m["pdf"] = "application/pdf";
-//  m["ppt"] = "application/vnd.ms-powerpoint";
-//  m["pptx"] = "application/"
-//              "vnd.openxmlformats-officedocument.presentationml.presentation";
-//  m["rar"] = "application/x-rar-compressed";
-//  m["rtf"] = "application/rtf";
-//  m["sh"] = "application/x-sh";
-//  m["svg"] = "image/svg+xml";
-//  m["swf"] = "application/x-shockwave-flash";
-//  m["tar"] = "application/x-tar";
-//  m["tif"] = "image/tiff";
-//  m["tiff"] = "image/tiff";
-//  m["ts"] = "application/typescript";
-//  m["ttf"] = "font/ttf";
-//  m["vsd"] = "application/vnd.visio";
-//  m["wav"] = "audio/x-wav";
-//  m["weba"] = "audio/webm";
-//  m["webm"] = "video/webm";
-//  m["webp"] = "image/webp";
-//  m["woff"] = "font/woff";
-//  m["woff2"] = "font/woff2";
-//  m["xhtml"] = "application/xhtml+xml";
-//  m["xls"] = "application/vnd.ms-excel";
-//  m["xlsx"] =
-//      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-//  m["xml"] = "application/xml";
-//  m["xul"] = "application/vnd.mozilla.xul+xml";
-//  m["zip"] = "application/zip";
-//  m["3gp"] = "audio/3gpp";
-//  m["3g2"] = "audio/3gpp2";
-//  m["7z"] = "application/x-7z-compressed";
-//  if (m.count(ext))
-//    return (m[ext]);
-//  return ("application/octet-stream");
-//}
+//   i = filename.size() - 1;
+//   while (i > 0 && filename[i] != '.')
+//     --i;
+//   if (i == 0)
+//     return ("text/plain");
+//   ext = string(filename, i + 1, filename.size() - i);
+//   m["aac"] = "audio/aac";
+//   m["abw"] = "application/x-abiword";
+//   m["arc"] = "application/octet-stream";
+//   m["avi"] = "video/x-msvideo";
+//   m["azw"] = "application/vnd.amazon.ebook";
+//   m["bin"] = "application/octet-stream";
+//   m["bmp"] = "image/bmp";
+//   m["bz"] = "application/x-bzip";
+//   m["bz2"] = "application/x-bzip2";
+//   m["csh"] = "application/x-csh";
+//   m["css"] = "text/css";
+//   m["csv"] = "text/csv";
+//   m["doc"] = "application/msword";
+//   m["docx"] = "application/"
+//               "vnd.openxmlformats-officedocument.wordprocessingml.document";
+//   m["eot"] = "application/vnd.ms-fontobject";
+//   m["epub"] = "application/epub+zip";
+//   m["gif"] = "image/gif";
+//   m["htm"] = "text/html";
+//   m["html"] = "text/html";
+//   m["ico"] = "image/x-icon";
+//   m["ics"] = "text/calendar";
+//   m["jar"] = "application/java-archive";
+//   m["jpeg"] = "image/jpeg";
+//   m["jpg"] = "image/jpeg";
+//   m["js"] = "application/javascript";
+//   m["json"] = "application/json";
+//   m["mid"] = "audio/midi";
+//   m["midi"] = "audio/midi";
+//   m["mpeg"] = "video/mpeg";
+//   m["mpkg"] = "application/vnd.apple.installer+xml";
+//   m["odp"] = "application/vnd.oasis.opendocument.presentation";
+//   m["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+//   m["odt"] = "application/vnd.oasis.opendocument.text";
+//   m["oga"] = "audio/ogg";
+//   m["ogv"] = "video/ogg";
+//   m["ogx"] = "application/ogg";
+//   m["otf"] = "font/otf";
+//   m["png"] = "image/png";
+//   m["pdf"] = "application/pdf";
+//   m["ppt"] = "application/vnd.ms-powerpoint";
+//   m["pptx"] = "application/"
+//               "vnd.openxmlformats-officedocument.presentationml.presentation";
+//   m["rar"] = "application/x-rar-compressed";
+//   m["rtf"] = "application/rtf";
+//   m["sh"] = "application/x-sh";
+//   m["svg"] = "image/svg+xml";
+//   m["swf"] = "application/x-shockwave-flash";
+//   m["tar"] = "application/x-tar";
+//   m["tif"] = "image/tiff";
+//   m["tiff"] = "image/tiff";
+//   m["ts"] = "application/typescript";
+//   m["ttf"] = "font/ttf";
+//   m["vsd"] = "application/vnd.visio";
+//   m["wav"] = "audio/x-wav";
+//   m["weba"] = "audio/webm";
+//   m["webm"] = "video/webm";
+//   m["webp"] = "image/webp";
+//   m["woff"] = "font/woff";
+//   m["woff2"] = "font/woff2";
+//   m["xhtml"] = "application/xhtml+xml";
+//   m["xls"] = "application/vnd.ms-excel";
+//   m["xlsx"] =
+//       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+//   m["xml"] = "application/xml";
+//   m["xul"] = "application/vnd.mozilla.xul+xml";
+//   m["zip"] = "application/zip";
+//   m["3gp"] = "audio/3gpp";
+//   m["3g2"] = "audio/3gpp2";
+//   m["7z"] = "application/x-7z-compressed";
+//   if (m.count(ext))
+//     return (m[ext]);
+//   return ("application/octet-stream");
+// }
 
 /**
  * Get the right location in configuration based on the asked ressource
@@ -569,14 +571,14 @@ string Request::_formatTimestamp(time_t timestamp) {
  * @param method the HTTP method
  * @return wether the method is accepted on this location or not
  */
-//bool Request::_isMethodAllowed(string method) {
-//  (void)method;
-//  for (size_t i = 0; i < _location.methods.size(); ++i) {
-//    //    if (_location.methods[i] == method)
-//    //      return (true);
-//  }
-//  return (false);
-//}
+// bool Request::_isMethodAllowed(string method) {
+//   (void)method;
+//   for (size_t i = 0; i < _location.methods.size(); ++i) {
+//     //    if (_location.methods[i] == method)
+//     //      return (true);
+//   }
+//   return (false);
+// }
 
 /**
  * Remove location name and arguments from ressource
@@ -591,8 +593,8 @@ string Request::_formatRessource(string ressource) {
 
   i = 0;
   res = ressource;
-//  res.replace(0, _location.path.size(), "/");
-//  res = replace(res, "//", "/");
+  //  res.replace(0, _location.path.size(), "/");
+  //  res = replace(res, "//", "/");
   while (res[i] && res[i] != '?')
     ++i;
   res = string(res, 0, i);
@@ -607,18 +609,18 @@ bool Request::_shouldCallCGI(string ressource_path) {
   size_t i;
   string ext;
 
-//  if (_location.cgiPath.size() == 0)
-//    return (false);
+  //  if (_location.cgiPath.size() == 0)
+  //    return (false);
   i = ressource_path.size() - 1;
   while (i > 0 && ressource_path[i] != '.')
     --i;
   if (i >= ressource_path.size())
     return (false);
   ext = string(ressource_path, i + 1, ressource_path.size() - i);
-//  for (size_t j = 0; j < _location.cgiExtension.size(); ++j) {
-//    if (_location.cgiExtension[j] == ext)
-//      return (true);
-//  }
+  //  for (size_t j = 0; j < _location.cgiExtension.size(); ++j) {
+  //    if (_location.cgiExtension[j] == ext)
+  //      return (true);
+  //  }
   return (false);
 }
 
@@ -628,30 +630,30 @@ bool Request::_shouldCallCGI(string ressource_path) {
  * @param response the HTTP response out of the CGI
  * @return the same HTTP response with additional headers
  */
-string Request::_addCGIHeaders(string response) {
-  string res;
-  size_t size;
-  int header_char_count = 0;
-
-  string headers = response;
-  if (response.find("\r\n\r\n") != string::npos)
-    headers = response.substr(0, response.find("\r\n\r\n"));
-  if (headers != "") {
-    for (size_t i = 0; i < headers.length(); i++)
-      if (headers[i] != '\n' && headers[i] != '\r')
-        header_char_count++;
-  }
-  size = response.size() - count(response.begin(), response.end(), '\n') -
-         count(response.begin(), response.end(), '\r') - header_char_count;
-  res = response;
-//  res = "Content-Length: " + uIntegerToString(size) + "\r\n" + res;
-  res = "Date: " + _getDateHeader() + "\r\n" + res;
-  if (_getCGIStatus(response).size() > 0)
-    res = "HTTP/1.1 " + _getCGIStatus(response) + "\r\n" + res;
-  else
-    res = "HTTP/1.1 200 OK\r\n" + res;
-  return (res);
-}
+//string Request::_addCGIHeaders(string response) {
+//  string res;
+//  //  size_t size;
+//  //  int header_char_count = 0;
+//
+//  string headers = response;
+//  if (response.find("\r\n\r\n") != string::npos)
+//    headers = response.substr(0, response.find("\r\n\r\n"));
+//  if (headers != "") {
+////    for (size_t i = 0; i < headers.length(); i++)
+////      if (headers[i] != '\n' && headers[i] != '\r')
+//    //        header_char_count++;
+//  }
+//  //  size = response.size() - count(response.begin(), response.end(), '\n') -
+//  //         count(response.begin(), response.end(), '\r') - header_char_count;
+//  res = response;
+//  //  res = "Content-Length: " + uIntegerToString(size) + "\r\n" + res;
+//  res = "Date: " + _getDateHeader() + "\r\n" + res;
+//  if (_getCGIStatus(response).size() > 0)
+//    res = "HTTP/1.1 " + _getCGIStatus(response) + "\r\n" + res;
+//  else
+//    res = "HTTP/1.1 200 OK\r\n" + res;
+//  return (res);
+//}
 
 /**
  * Get CGI response status if any
@@ -659,8 +661,8 @@ string Request::_addCGIHeaders(string response) {
  * @return a string containing the code and status if found, an empty string
  * if not
  */
-//string Request::_getCGIStatus(string response) {
-//  vector<string> splits;
+// string Request::_getCGIStatus(string response) {
+//   vector<string> splits;
 
 //  for (size_t i = 0; i < countLines(response); ++i) {
 //    splits = splitWhitespace(getLine(response, i));

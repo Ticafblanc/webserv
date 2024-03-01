@@ -4,8 +4,6 @@
 
 #include "../Includes/1-utils.hpp"
 
-
-
 string itoa(int nb) {
   string s;
   stringstream out;

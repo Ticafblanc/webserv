@@ -35,8 +35,9 @@ private:
   map<int, Response> _response;
   map<int, CGI> _cgi;
   setInt _sds;
-  vecInt _sdClt;
-  vecInt _sdServ;
+  queInt _sdCltRecv;
+  queInt _sdCltSend;
+  queInt _sdServ;
   vector<fd_set> _fdSets;
 
   static void endServer(int signal);
@@ -58,29 +59,33 @@ private:
   ssize_t sendBuffer(int &r, Client &clt);
 
   template <typename T>
-  void forLoopSd(map<int, T> &mS, fd_set &fd, vecInt &vecSd,
+  void forLoopSd(map<int, T> &mS, int flag, queInt &vecSd,
                  bool (Select::*p)(int &r, T &t)) {
-    for (vecIntIt it = vecSd.begin(); it != vecSd.end(); ++it) {
+    while (!vecSd.empty()) {
+      int ret = vecSd.front();
+      vecSd.pop();
       try {
-        int ret = *it;
         if ((this->*p)(ret, mS[ret]))
-          FD_SET(ret, &fd);
-      } catch (const ErrnoException &e) {
-        if (const Exception * Ex = dynamic_cast<const Exception *>(&e)) {
-          FD_SET(*it, &_fdSets[WRITE_SDS]);
-          _headers[*it].setStatus(Ex->getErrorPage());
+          FD_SET(ret, &_fdSets[flag]);
+      } catch (const exception &e) {
+        if (const Exception *Ex = dynamic_cast<const Exception *>(&e)) {
+          FD_SET(ret, &_fdSets[WRITE_SDS]);
+          _headers[ret].setStatus(Ex->getErrorPage());
           Ex->print();
-        }else
-          e.print();
+        } else if (const ErrnoException *E =
+                       dynamic_cast<const ErrnoException *>(&e)) {
+          E->print();
+        } else
+          e.what();
       }
     }
   }
 
-  template <class T> void forLoopSock(T &mS, int *ret, vecInt &vecSd) {
+  template <class T>
+  void forLoopSock(T &mS, int *ret, int flag, queInt &vecSd) {
     for (typename T::iterator it = mS.begin(); (*ret) && it != mS.end(); ++it) {
-      if (FD_ISSET(it->first, &_fdSets[TMP_READ_SDS])) {
-        if (find(vecSd.begin(), vecSd.end(), it->first) == end(vecSd))
-          vecSd.push_back(it->first);
+      if (FD_ISSET(it->first, &_fdSets[flag])) {
+        vecSd.push(it->first);
         (*ret)--;
       }
     }

@@ -1,6 +1,9 @@
 all:
 	@$(MAKE) -C ./Source_code
 
+run:
+	@$(MAKE) run -C ./Source_code
+
 clean:
 	@$(MAKE) clean -C Source_code
 
@@ -14,4 +17,4 @@ finish:
 
 re:	fclean all
 
-.PHONY :	all clean fclean finish re directory title
+.PHONY :	all clean fclean finish re run

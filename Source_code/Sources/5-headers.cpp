@@ -44,12 +44,12 @@ void Headers::extractData() {
     cout << _headerFields.find(token)->first << " : "
          << _headerFields.find(token)->second << endl;
   }
-  if (i == _headerFields.size())
+  if (i != _headerFields.size())
     throw Exception("Headers not complete", _client->getSd(), "400");
 }
 
 void Headers::parse() {
-  _header.str() = _client->getHeader();
+  _header = istringstream(_client->getHeader());
   extractFirstLine();
   extractData();
   _client->updateRessource(_headerFields["Host"], _firstLine[PATH]);

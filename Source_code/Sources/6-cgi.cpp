@@ -4,6 +4,8 @@
 
 #include "../Includes/6-cgi.hpp"
 
+CGI::CGI() : _headers(), _pid(), _time() {}
+
 CGI::CGI(Headers &headers) : _headers(&headers), _pid(), _time() {}
 
 CGI::~CGI() {}

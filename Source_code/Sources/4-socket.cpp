@@ -33,7 +33,7 @@ void Socket::getSockaddrIn() {
 
 void Socket::bindSocket() {
   if (bind(_sd, (struct sockaddr *)&_address, sizeof(_address)) < 0)
-    throw ErrnoException("Bind socket");
+    throw ErrnoException("Bind socket " + _ipAddress + ":" + itoa(_port));
 }
 
 void Socket::socketListener() {

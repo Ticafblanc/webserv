@@ -48,8 +48,8 @@ private:
   bool _isMethodAllowed(string method);
   string _formatRessource(string ressource);
   bool _shouldCallCGI(string ressource_path);
-  string _addCGIHeaders(string response);
-  string _getCGIStatus(string response);
+//  string _addCGIHeaders(string response);
+//  string _getCGIStatus(string response);
 
 public:
   Request();

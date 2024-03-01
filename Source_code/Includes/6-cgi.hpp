@@ -22,7 +22,7 @@ private:
 
 public:
   CGI();
-  CGI(Headers &headers);
+  explicit CGI(Headers &headers);
   ~CGI();
 
   void launchChild();

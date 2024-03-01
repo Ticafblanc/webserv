@@ -8,14 +8,15 @@ Select *Select::_this = NULL;
 
 Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
     : _run(true), _serverManager(sm), _clientManager(cm), _headers(),
-      _request(), _response(), _cgi(), _sds(), _fdSets() {
+      _request(), _response(), _cgi(), _sds(), _fdSets(4) {
   _this = this;
 }
 
 Select::Select(const Select &copy)
     : _run(true), _serverManager(copy._serverManager),
-      _clientManager(copy._clientManager), _headers(copy._headers), _request(),
-      _response(copy._response), _cgi(copy._cgi), _sds(copy._sds), _fdSets() {}
+      _clientManager(copy._clientManager), _headers(copy._headers),
+      _request(copy._request), _response(copy._response), _cgi(copy._cgi),
+      _sds(copy._sds), _fdSets(copy._fdSets) {}
 
 Select::~Select() {}
 
@@ -49,7 +50,7 @@ void Select::createSocketPair(Client &clt) {
     throw Exception("socketpair() failed", clt.getSd(), "500");
   }
   FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
-  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
+//  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
 }
 
 void Select::closeConnection(const int &sd) {
@@ -62,12 +63,14 @@ void Select::closeConnection(const int &sd) {
 
 ssize_t Select::sendBuffer(int &r, Client &clt) {
   ssize_t rc = -1;
-  string response = _request[clt.getSd()].getResponse(); // switch to reponse
-  if (!response.empty()) {
-    rc = send(clt.getSd(), response.c_str(), response.size(), 0);
-    if (rc > 0) // manage udate value
-      _request[clt.getSd()].getResponse() = response.substr(rc);
-  }
+  (void)r;
+  (void)clt;
+  //  string response = _request[clt.getSd()].getResponse(); // switch to
+  //  reponse if (!response.empty()) {
+  //    rc = send(clt.getSd(), response.c_str(), response.size(), 0);
+  //    if (rc > 0) // manage udate value
+  //      _request[clt.getSd()].getResponse() = response.substr(rc);
+  //  }
   return rc;
 }
 
@@ -115,13 +118,13 @@ bool Select::recvMessage(int &r, Client &clt) {
       }
     }
     if (clt.getLocation()->isCgi())
-            _cgi[r].manager();
+      _cgi[r].manager();
     else
       _request[r].manager();
     return clt.isEndRecv();
   }
-  closeConnection(r);
-  return false;
+    closeConnection(r);
+    return false;
 }
 
 bool Select::acceptClient(int &r, Socket &srv) {
@@ -141,14 +144,14 @@ bool Select::acceptClient(int &r, Socket &srv) {
 void Select::check(int ret) {
   if (ret < 0)
     throw ErrnoException("Select error");
-  forLoopSock(_clientManager.getSockets(), &ret, _sdClt);
-  forLoopSock(_clientManager.getSockets(), &ret, _sdClt);
-  forLoopSock(_serverManager.getSockets(), &ret, _sdServ);
+  forLoopSock(_clientManager.getSockets(), &ret,TMP_READ_SDS, _sdCltRecv);
+  forLoopSock(_clientManager.getSockets(), &ret,TMP_WRITE_SDS, _sdCltSend);
+  forLoopSock(_serverManager.getSockets(), &ret,TMP_READ_SDS, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
-  forLoopSd(clt, _fdSets[WRITE_SDS], _sdClt, &Select::recvMessage);
-  forLoopSd(clt, _fdSets[READ_SDS], _sdClt, &Select::sendMessage);
+  forLoopSd(clt, WRITE_SDS, _sdCltRecv, &Select::recvMessage);
+  forLoopSd(clt, READ_SDS, _sdCltSend, &Select::sendMessage);
   mapSockServer &srv = _serverManager.getSockets();
-  forLoopSd(srv, _fdSets[READ_SDS], _sdServ, &Select::acceptClient);
+  forLoopSd(srv, READ_SDS, _sdServ, &Select::acceptClient);
 }
 
 void Select::udateData() {
@@ -174,7 +177,6 @@ void Select::init() {
   mapSockServer &sock = _serverManager.getSockets();
   for (mapSockServerIt it = sock.begin(); it != sock.end(); ++it) {
     FD_SET(it->first, &_fdSets[READ_SDS]);
-    FD_SET(it->first, &_fdSets[TMP_READ_SDS]);
     _sds.insert(it->first);
   }
 }

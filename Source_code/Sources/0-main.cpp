@@ -22,14 +22,14 @@ int main(int argc, char **argv, char **env) {
     string path = checkArg(argc, argv, env);
     config.parseConfig(path);
     serverManager.setServerSocket(config.getServers());
-    //      cout << " ready to loop" <<endl;
+//          cout << " ready to loop" <<endl;
     select.loop();
   } catch (const exception &e) {
     if (const ErrnoException * E = dynamic_cast<const ErrnoException*>(&e))
       E->print();
     else
       e.what();
-    if (const Select::Exception * Ex = dynamic_cast<const Select::Exception *>(&e))
+    if (const Exception * Ex = dynamic_cast<const Exception *>(&e))
       select.deinit();
 //    goto Start;
     exit(EXIT_FAILURE);

@@ -3,6 +3,29 @@
 //
 
 #include "../Includes/3-configuration.hpp"
+std::string readFile(std::string file) {
+  char buffer[BUFFER_SIZE + 1] = {0};
+  int fd;
+  int i;
+  int res;
+  std::string result;
+
+  fd = open(file.c_str(), O_RDONLY);
+  if (fd < -1) {
+    std::cout << "Error" << std::endl;
+    throw ErrnoException( "The file " + file + " does not exists.");
+  }
+  while ((res = read(fd, buffer, BUFFER_SIZE)) > 0) {
+    result += buffer;
+    i = 0;
+    while (i < BUFFER_SIZE)
+      buffer[i++] = 0;
+  }
+  if (res < 0)
+    throw ErrnoException( "Error while reading " + file + ".");
+  close(fd);
+  return (result);
+}
 
 static bool extractBlocks(vecStr &split, istringstream &isStr, string &line) {
   bool ret = true;
@@ -101,6 +124,31 @@ static bool removeCommentary(string &line) {
   else if (commentPos != string::npos)
     line = line.substr(0, commentPos);
   return !line.empty();
+}
+
+bool checkWordFormat(const string &str) {
+  string validChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+                     "0123456789-._~:/?#[]@!$&'()*+,;=";
+
+  for (string::const_iterator i = str.begin(); i != str.end(); ++i) {
+    if (validChar.find(*i) == std::string::npos) {
+      return (false);
+    }
+  }
+  return (true);
+}
+
+bool readFile(const string &file, string &fileString) {
+  ifstream fileStream(file.c_str());
+  string line;
+
+  if (!fileStream.is_open())
+    return false;
+  while (getline(fileStream, line)) {
+    if (!uselessLine(line) && removeCommentary(line))
+      fileString += removeSpaces(line);
+  }
+  return (true);
 }
 
 static const setStr createSetMethods() {

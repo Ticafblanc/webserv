@@ -71,6 +71,7 @@ typedef map<int, int> mapIntInt;
 typedef map<int, pairStrStr> mapIntPairStrStr;
 typedef map<int, string> mapIntStr;
 typedef queue<string> queStr;
+typedef queue<int> queInt;
 
 extern char **envp;
 
