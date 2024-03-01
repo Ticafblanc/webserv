@@ -17,16 +17,13 @@ private:
   typedef void (Request::*pManage)();
   pManage _manage;
 
-  void method();
-
-  void _get();
+  void _method();
   void _head();
+  void _get();
+  void _delete();
   void _post();
   void _put();
-  void _delete();
-  void _connect();
   void _trace();
-  void _options();
 
   string _wrongMethod();
   string _generateResponse(size_t code,

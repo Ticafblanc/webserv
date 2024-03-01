@@ -32,14 +32,14 @@ void Request::resetManage(pManage m) { _manage = m; }
 void Request::manager() {
   cout << "request manager" << endl;
   if (manageIsNull()) {
-    resetManage(&Request::method);
+    resetManage(&Request::_method);
   }
   _complete = false;
   while (!_complete)
     (this->*_manage)();
 }
 
-void Request::method() {
+void Request::_method() {
   cout << "method" << endl;
 
   map<string, pManage> mapTmp;
@@ -48,43 +48,48 @@ void Request::method() {
   mapTmp["POST"] = &Request::_post;
   mapTmp["PUT"] = &Request::_put;
   mapTmp["DELETE"] = &Request::_delete;
-  mapTmp["CONNECT"] = &Request::_connect;
-  mapTmp["OPTIONS"] = &Request::_options;
   mapTmp["TRACE"] = &Request::_trace;
-  setStrIt tmp = _client->getLocation()->methods.find(_headers->getFirstLine()[METHOD]);
+  setStrIt tmp =
+      _client->getLocation()->methods.find(_headers->getFirstLine()[METHOD]);
   if (tmp != _client->getLocation()->methods.end())
     _manage = mapTmp[*tmp];
   else
     throw Exception("Method not allowed", _client->getSd(), "405");
 }
 
-void Request::_get() {
-  cout << "get" << endl;
-
-  //  vector<unsigned char> content_bytes;
-  //  unsigned char *ressource_content;
-  //  time_t file_date;
-  //  content_bytes = readBinaryFile(ressource_path);
-  //  ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
-  //  headers["Content-Type"] = _getMIMEType(ressource_path);
-  //  pathType(ressource_path, &file_date);
-  //  headers["Last-Modified"] = _formatTimestamp(file_date);
-  //  if (send_body)
-  //    return (_generateResponse(200, headers, ressource_content,
-  //                              content_bytes.size()));
-  //  return (_generateResponse(200, headers, ""));
-  //}
-  // catch (const exception &e) {
-  //  return (
-  //      _generateResponse(403, headers, send_body ? _getErrorHTMLPage(403) :
-  //      ""));
-  //}
-  // return (
-  //    _generateResponse(500, headers, send_body ? _getErrorHTMLPage(500) :
-  //    ""));
+void Request::_head() {
+  cout << "get " << _headers->getFirstLine()[PATH] << " "
+       << _client->getRessourcePath() << endl;
+  _complete = true;
+  if (!checkPermissionR(_client->getRessourcePath())) {
+    if (!isFile(_client->getRessourcePath())) {
+      throw Exception("uri not found", _client->getSd(), "404");
+    }
+    throw Exception("uri not found", _client->getSd(), "403");
+  }
+  _headers->setHead();
+  _complete = true;
 }
 
-void Request::_head() { /* return (_get(ressource_path, headers, false));*/
+void Request::_get() {
+  _head();
+  ifstream ifs(_client->getRessourcePath().c_str());
+  if (!ifs.is_open())
+    throw Exception("fail to open file " + _client->getRessourcePath(),
+                    _client->getSd(), "500");
+  _client->getBody() = string((std::istreambuf_iterator<char>(ifs)),
+                      std::istreambuf_iterator<char>());
+  _headers->setGet();
+  _complete = true;
+}
+
+void Request::_delete() {
+  _head();
+  if (remove(_client->getRessourcePath().c_str()))
+    throw Exception("fail to delete file " + _client->getRessourcePath(),
+                    _client->getSd(), "500");
+  _headers->setDelete();
+  _complete = true;
 }
 
 void Request::_post() {
@@ -129,6 +134,8 @@ void Request::_post() {
   //    throwError(ex);
   //  }
   //  return (_generateResponse(rtn, headers, ""));
+  _headers->setPost();
+  _complete = true;
 }
 
 void Request::_put() {
@@ -172,220 +179,13 @@ void Request::_put() {
   //    return (_generateResponse(500, headers, _getErrorHTMLPage(500)));
   //  }
   //  return (_generateResponse(rtn, headers, ""));
-}
-
-void Request::_delete() {
-  //  int type;
-  //
-  //  type = pathType(ressource_path, NULL);
-  //  if (type == 1) {
-  //    unlink(ressource_path.c_str());
-  //    return (_generateResponse(200, headers, ""));
-  //  }
-  //  return (_generateResponse(404, headers, _getErrorHTMLPage(404)));
-}
-
-void Request::_connect() {
-  //  _headers->setFirstLine(STATUS_CODE, "200");
-  //  _complete = true;
+  _headers->setPut();
+  _complete = true;
 }
 
 void Request::_trace() {
-  //  headers["Content-Type"] = "message/http";
-  //  return (_generateResponse(200, headers, _header_block.getPlainRequest()));
-}
-
-void Request::_options() {
-  //  headers.erase("Content-Type");
-  //  string allowed;
-  //
-  //  for (size_t i = 0; i < _location.methods.size(); ++i) {
-  //    //    allowed += _location.methods[i];
-  //    if (i < _location.methods.size() - 1)
-  //      allowed += ", ";
-  //  }
-  //  headers["Allow"] = allowed;
-  //  return (_generateResponse(200, headers, ""));
-}
-
-// void Request::getResponse() {
-//   map<string, string> headers;
-//   string method = _header_block.getRequestLine()._method;
-//   string ressource_path;
-//
-//   headers["Content-Type"] = _getMIMEType("a.html");
-//   if (_header_block.getContent().size() > _conf.clientMaxBodySize)
-//     return (_generateResponse(413, headers,
-//                               method != "HEAD" ? _getErrorHTMLPage(413) :
-//                               ""));
-//   if (!_isMethodAllowed(method))
-//     return (_wrongMethod());
-//   if (method == "TRACE")
-//     return (_trace(headers));
-//   else if (method == "OPTIONS")
-//     return (_options(headers));
-//   else if (method == "CONNECT")
-//     return (_generateResponse(200, headers, ""));
-//   ressource_path = _location.root;
-//   if (ressource_path[ressource_path.size() - 1] == '/')
-//     ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
-//   ressource_path += _ressource;
-//   DEBUG("ressource path: " + ressource_path);
-//   if (pathType(ressource_path, NULL) == 2) {
-//     DEBUG("ressource path: " + ressource_path +
-//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
-//           + _location.index);
-//     if (_location.index.length() > 0)
-//       ressource_path =
-//           ressource_path +
-//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
-//           + _location.index;
-//     else {
-//       if (_location.autoindex)
-//         return (_generateResponse(
-//             200, headers,
-//             method != "HEAD" ? _getListingHTMLPage(ressource_path,
-//             _ressource)
-//                              : ""));
-//       else
-//         return (_generateResponse(
-//             403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
-//     }
-//   }
-//   if (pathType(ressource_path, NULL) == 0 && method != "PUT" &&
-//       method != "POST")
-//     return (_generateResponse(404, headers,
-//                               method != "HEAD" ? _getErrorHTMLPage(404) :
-//                               ""));
-//   if (_shouldCallCGI(ressource_path)) {
-//     DEBUG("call CGI for this request");
-//     try {
-//       return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path,
-//                                  _header_block, _conf, _location)
-//                                  .getOutput()));
-//     } catch (const exception &e) {
-//       cerr << e.what() << endl;
-//       return (_generateResponse(
-//           500, headers, method != "HEAD" ? _getErrorHTMLPage(500) : ""));
-//     }
-//   }
-//   if (method == "GET")
-//     return _get(ressource_path, headers);
-//   else if (method == "HEAD")
-//     return _head(ressource_path, headers);
-//   else if (method == "POST")
-//     return _post(ressource_path, headers);
-//   else if (method == "PUT")
-//     return (_put(ressource_path, headers));
-//   else if (method == "DELETE")
-//     return (_delete(ressource_path, headers));
-//  return ("");
-//}
-
-// string Request::_wrongMethod {
-//   map<string, string> headers;
-//   string allowed;
-//
-//   for (size_t i = 0; i < _location.methods.size(); ++i) {
-//     //    allowed += _location.methods[i];
-//     if (i < _location.methods.size() - 1)
-//       allowed += ", ";
-//   }
-//   headers["Allow"] = allowed;
-//   return "";/*(_generateResponse(405, headers,
-//                             _header_block.getRequestLine()._method != "HEAD"
-//                                 ? _getErrorHTMLPage(405)
-//                                 : ""));*/
-// }
-
-// string Request::_generateResponse(size_t code, map<string, string> headers,
-//                                   const unsigned char *content,
-//                                   size_t content_size) {
-//   string response;
-//   map<string, string>::iterator it;
-//
-//   headers["Content-Length"] = uIntegerToString(content_size);
-//   headers["Select"] = "webserv";
-//   headers["Date"] = _getDateHeader();
-//   response += "HTTP/1.1 ";
-//   response += uIntegerToString(code) + " ";
-//   response += _getStatusDescription(code) + "\r\n";
-//   it = headers.begin();
-//   while (it != headers.end()) {
-//     response += it->first + ": " + it->second + "\r\n";
-//     ++it;
-//   }
-//   response += "\r\n";
-//   for (size_t i = 0; i < content_size; ++i)
-//     response += content[i];
-//   return (response);
-// }
-//
-///**
-// * Creates a HTTP response based on given code and ASCII content
-// * @param code the status code of the response
-// * @param headers headers to inject in response
-// * @param content the string representation of the content
-// * @return the string representation of a HTTP response
-// */
-// string Request::_generateResponse(size_t code, map<string, string> headers,
-//                                  string content) {
-//  return (_generateResponse(
-//      code, headers, reinterpret_cast<const unsigned char *>(content.c_str()),
-//      content.size()));
-//}
-
-/**
- * Get the status description following the rfc 7231 section 6.1
- * @param code the HTTP status code
- * @return the corresponding reason description
- */
-string Request::_getStatusDescription(size_t code) {
-  map<size_t, string> m;
-
-  m[100] = "Continue";
-  m[101] = "Switching Protocols";
-  m[200] = "OK";
-  m[201] = "Created";
-  m[202] = "Accepted";
-  m[203] = "Non-Authoritative Information";
-  m[204] = "No Content";
-  m[205] = "Reset Content";
-  m[206] = "Partial Content";
-  m[300] = "Multiple Choices";
-  m[301] = "Moved Permanently";
-  m[302] = "Found";
-  m[303] = "See Other";
-  m[304] = "Not Modified";
-  m[305] = "Use Proxy";
-  m[307] = "Temporary Redirect";
-  m[400] = "Bad Request";
-  m[401] = "Unauthorized";
-  m[402] = "Payment Required";
-  m[403] = "Forbidden";
-  m[404] = "Not Found";
-  m[405] = "Method Not Allowed";
-  m[406] = "Not Acceptable";
-  m[407] = "Proxy Authentication Required";
-  m[408] = "Request Timeout";
-  m[409] = "Conflict";
-  m[410] = "Gone";
-  m[411] = "Length Required";
-  m[412] = "Precondition Failed";
-  m[413] = "Payload Too Large";
-  m[414] = "URI Too Long";
-  m[415] = "Unsupported Media Type";
-  m[416] = "Range Not Satisfiable";
-  m[417] = "Expectation Failed";
-  m[426] = "Upgrade Required";
-  m[500] = "Internal Select Error";
-  m[501] = "Not Implemented";
-  m[502] = "Bad Gateway";
-  m[503] = "Service Unavailable";
-  m[504] = "Gateway Timeout";
-  m[505] = "HTTP Version Not Supported";
-  return m[code];
-  return ("Error");
+  _headers->setTrace();
+  _complete = true;
 }
 
 /**
