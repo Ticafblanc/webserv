@@ -13,7 +13,7 @@ static void delVecPC(vecCharP& vP){
     delete *it;
 }
 
-bool CGI::launchChild() {
+void CGI::launchChild() {
   _pid = fork();
   if (_pid == -1)
     throw Exception("error launch child", _headers->getClient()->getSd(),
@@ -31,10 +31,11 @@ bool CGI::launchChild() {
     delVecPC(env);
     exit(EXIT_FAILURE);
   }
-  return true;
 }
 
-bool CGI::manage() {}
+void  CGI::manage() {
+
+}
 //    write(fd[1], _request.getContent().c_str(),
 //    _request.getContent().length());
 // close(fd[1]);

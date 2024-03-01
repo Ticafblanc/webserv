@@ -25,7 +25,8 @@ public:
   CGI(Headers &headers);
   ~CGI();
 
-  bool launchChild();
+  void launchChild();
+  void manage();
 };
 
 class CGIException : public exception {
