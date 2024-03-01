@@ -13,27 +13,40 @@ private:
   mapStrStr _headerFields;
   Client *_client;
   istringstream _header;
+  bool _complete;
+  mapStrStr _statusCode;
 
-  void extractData();
-  void extractFirstLine() ;
+  void _setMapStatus();
+  void _extractData();
+  void _extractFirstLine();
 
 public:
   Headers();
-  explicit Headers(Client & clt);
+  explicit Headers(Client &clt);
   Headers(const Headers &copy);
   ~Headers();
   Headers &operator=(const Headers &op);
 
   void parse();
-  vector<char*> getCgiEnv();
-  vector<char*> getCgiArg();
+  vector<char *> getCgiEnv();
+  vector<char *> getCgiArg();
 
   vecStr &getFirstLine();
-  void setFirstLine(const int & pos, const string &value);
-  void setStatus(const string & value);
+  void setFirstLine(const int &pos, const string &value);
+  void setHead();
+  void setGet();
+  void setDelete();
+  void setPost();
+  void setPut();
+  void setTrace();
+  string extractQueryString();
+  string extractPath();
+  string extractExt();
+  void setStatus(const string &value);
   mapStrStr &getHeaderFields();
-  string getHeaderField(const string & token);
-  Client *getClient() ;
+  void setHeaderFields(const string &token, const string &value);
+  string getHeaderField(const string &token);
+  Client *getClient();
 
   bool isCloseRequest();
 };

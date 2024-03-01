@@ -4,13 +4,27 @@
 
 #include "../Includes/5-headers.hpp"
 
-Headers::Headers() : _firstLine(5), _headerFields(), _client(NULL), _header() {}
+static char *cast(string line) {
+  char *c = new char[line.size()];
+  return c;
+}
 
-Headers::Headers(Client &clt) : _firstLine(5), _headerFields(), _client(&clt) {}
+Headers::Headers()
+    : _firstLine(5), _headerFields(), _client(NULL), _header(),
+      _complete(false), _statusCode() {
+  _setMapStatus();
+}
+
+Headers::Headers(Client &clt)
+    : _firstLine(5), _headerFields(), _client(&clt), _complete(false),
+      _statusCode() {
+  _setMapStatus();
+}
 
 Headers::Headers(const Headers &copy)
     : _firstLine(copy._firstLine), _headerFields(copy._headerFields),
-      _client(copy._client), _header() {}
+      _client(copy._client), _header(), _complete(false),
+      _statusCode(copy._statusCode) {}
 
 Headers::~Headers() {}
 
@@ -19,12 +33,13 @@ Headers &Headers::operator=(const Headers &rhs) {
     _firstLine = rhs._firstLine;
     _headerFields = rhs._headerFields;
     _client = rhs._client;
-    _header.str() = rhs._header.str();
+    _header.str(rhs._header.str());
+    _statusCode = rhs._statusCode;
   }
   return *this;
 }
 
-void Headers::extractFirstLine() {
+void Headers::_extractFirstLine() {
   string line;
   if (getline(_header >> ws, line, '\r')) {
     istringstream fl(line);
@@ -33,7 +48,7 @@ void Headers::extractFirstLine() {
   if (_firstLine[HTTP_V] != "HTTP/1.1")
     throw Exception("Http version not supported", _client->getSd(), "505");
 }
-void Headers::extractData() {
+void Headers::_extractData() {
   string line, token, value;
   size_t i = 0;
   while (getline(_header >> ws, line, '\r') && ++i) {
@@ -50,49 +65,46 @@ void Headers::extractData() {
 
 void Headers::parse() {
   _header = istringstream(_client->getHeader());
-  extractFirstLine();
-  extractData();
-  _client->updateRessource(_headerFields["Host"], _firstLine[PATH]);
+  _extractFirstLine();
+  _extractData();
+  _client->updateRessource(_headerFields["Host"], extractPath());
   if (!_client->allowMethod(_firstLine[METHOD]))
     throw Exception("Headers not complete", _client->getSd(), "405");
 }
 
-static string extractQueryString(const string &uri) {
+string Headers::extractQueryString() {
+  string uri = _firstLine[PATH];
   size_t pos = uri.find('?');
   if (pos != std::string::npos)
     return uri.substr(pos + 1);
-  return "";
+  return uri;
 }
 
-static string extractPath(const string &uri) {
+string Headers::extractPath() {
+  string uri = _firstLine[PATH];
   size_t pos = uri.find('?');
   if (pos != std::string::npos)
     return uri.substr(0, pos);
-  return "";
+  return uri;
 }
 
-static string extractExt(const string &uri) {
-  string path = extractPath(uri);
+string Headers::extractExt() {
+  string path = extractPath();
   size_t pos = path.find_last_of('.');
   if (pos != std::string::npos)
     return path.substr(pos);
   return "";
 }
 
-static char *cast(string line) {
-  char *c = new char[line.size()];
-  return c;
-}
-
 vector<char *> Headers::getCgiEnv() {
   vector<char *> env;
   execve(env[0], env.data(), env.data());
   env.push_back(cast("REQUEST_METHOD=" + _firstLine[METHOD]));
-  env.push_back(cast("QUERY_STRING=" + extractQueryString(_firstLine[PATH])));
+  env.push_back(cast("QUERY_STRING=" + extractQueryString()));
   env.push_back(cast("AUTH_TYPE=Basic"));
   env.push_back(cast("GATEWAY_INTERFACE=CGI/1.1"));
-  env.push_back(cast("SCRIPT_NAME=" + extractPath(_firstLine[PATH])));
-  env.push_back(cast("SCRIPT_FILENAME=" + extractPath(_firstLine[PATH])));
+  env.push_back(cast("SCRIPT_NAME=" + extractPath()));
+  env.push_back(cast("SCRIPT_FILENAME=" + extractPath()));
   env.push_back(cast("PATH_INFO=" + _firstLine[PATH]));
   env.push_back(cast("PATH_TRANSLATED=" + _firstLine[PATH]));
   env.push_back(cast("REMOTE_ADDR=" + _client->getIpAddress()));
@@ -118,18 +130,20 @@ vector<char *> Headers::getCgiEnv() {
 
 vector<char *> Headers::getCgiArg() {
   vector<char *> arg;
-  string execPath =
-      _client->getLocation()->getCgiPath(extractExt(_firstLine[PATH]));
+  string execPath = _client->getLocation()->getCgiPath(extractExt());
   if (execPath.empty())
     throw Exception("Extension not found", _client->getSd(), "404");
   arg.push_back(cast(execPath));
-  arg.push_back(cast(extractPath(_firstLine[PATH])));
+  arg.push_back(cast(extractPath()));
   arg.push_back(cast(NULL));
   return arg;
 }
 
 vecStr &Headers::getFirstLine() { return _firstLine; }
 mapStrStr &Headers::getHeaderFields() { return _headerFields; }
+void Headers::setHeaderFields(const string &token, const string &value) {
+  _headerFields[token] = value;
+}
 string Headers::getHeaderField(const string &token) {
   mapStrStrIt it = _headerFields.find(token);
 
@@ -152,4 +166,55 @@ bool Headers::isCloseRequest() {
   if (it != _headerFields.end())
     return it->second == "close";
   return false;
+}
+
+void Headers::setHead(){}
+void Headers::setGet(){}
+void Headers::setDelete(){}
+void Headers::setPost(){}
+void Headers::setPut(){}
+void Headers::setTrace(){}
+
+void Headers::_setMapStatus() {
+  _statusCode["100"] = "Continue";
+  _statusCode["101"] = "Switching Protocols";
+  _statusCode["200"] = "OK";
+  _statusCode["201"] = "Created";
+  _statusCode["202"] = "Accepted";
+  _statusCode["203"] = "Non-Authoritative Information";
+  _statusCode["204"] = "No Content";
+  _statusCode["205"] = "Reset Content";
+  _statusCode["206"] = "Partial Content";
+  _statusCode["300"] = "Multiple Choices";
+  _statusCode["301"] = "Moved Permanently";
+  _statusCode["302"] = "Found";
+  _statusCode["303"] = "See Other";
+  _statusCode["304"] = "Not Modified";
+  _statusCode["305"] = "Use Proxy";
+  _statusCode["307"] = "Temporary Redirect";
+  _statusCode["400"] = "Bad Request";
+  _statusCode["401"] = "Unauthorized";
+  _statusCode["402"] = "Payment Required";
+  _statusCode["403"] = "Forbidden";
+  _statusCode["404"] = "Not Found";
+  _statusCode["405"] = "Method Not Allowed";
+  _statusCode["406"] = "Not Acceptable";
+  _statusCode["407"] = "Proxy Authentication Required";
+  _statusCode["408"] = "Request Timeout";
+  _statusCode["409"] = "Conflict";
+  _statusCode["410"] = "Gone";
+  _statusCode["411"] = "Length Required";
+  _statusCode["412"] = "Precondition Failed";
+  _statusCode["413"] = "Payload Too Large";
+  _statusCode["414"] = "URI Too Long";
+  _statusCode["415"] = "Unsupported Media Type";
+  _statusCode["416"] = "Range Not Satisfiable";
+  _statusCode["417"] = "Expectation Failed";
+  _statusCode["426"] = "Upgrade Required";
+  _statusCode["500"] = "Internal Select Error";
+  _statusCode["501"] = "Not Implemented";
+  _statusCode["502"] = "Bad Gateway";
+  _statusCode["503"] = "Service Unavailable";
+  _statusCode["504"] = "Gateway Timeout";
+  _statusCode["505"] = "HTTP Version Not Supported";
 }
