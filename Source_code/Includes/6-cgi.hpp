@@ -26,7 +26,7 @@ public:
   ~CGI();
 
   void launchChild();
-  void manage();
+  void manager();
 };
 
 class CGIException : public exception {

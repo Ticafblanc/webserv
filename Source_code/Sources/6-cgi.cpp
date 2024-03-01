@@ -33,7 +33,7 @@ void CGI::launchChild() {
   }
 }
 
-void  CGI::manage() {
+void  CGI::manager() {
 
 }
 //    write(fd[1], _request.getContent().c_str(),
