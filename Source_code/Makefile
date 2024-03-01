@@ -16,9 +16,12 @@ PROJECT = webserv
 
 BIN_PATH = ../Bin/
 
+EXEC_PATH = ../
+
 BIN_NAME = $(PROJECT)
 
 BIN = $(addprefix $(BIN_PATH),$(BIN_NAME))
+EXEC = $(addprefix $(EXEC_PATH),$(BIN_NAME))
 
 	#  INCLUDES  #
 
@@ -89,7 +92,7 @@ $(OBJ_PATH)%.o:$(SRC_PATH)%.cpp
 		@echo $(BLUE) $(notdir $@) is created !!
 
 $(BIN): title directory $(OBJ)
-		@$(CC) $(OBJ) $(INC_FLAGS) -o $(BIN)
+		@$(CC) $(OBJ) $(INC_FLAGS) -o $(EXEC)
 		@echo $(BLUE) $(notdir $(BIN)) is created !!
 
 run: all
