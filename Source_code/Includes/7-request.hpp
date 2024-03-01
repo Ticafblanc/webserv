@@ -16,15 +16,10 @@ private:
   Server *_server;
   Location *_location;
   bool _complete;
-  typedef void (Request::*manager)();
-  manager manage;
+  typedef void (Request::*pManage)();
+  pManage manage;
 
   void method();
-
-  void initCgi();
-  void sendToCgi();
-  void RecvToCgi();
-
 
   void _get();
   void _head();
@@ -62,8 +57,7 @@ public:
   Request(const Request &other);
   Request &operator=(const Request &other);
   ~Request();
-  void manageRequest();
-  string getResponse();
+  void manager();
 };
 
 #endif // WEBSERV_REQUEST_HPP
