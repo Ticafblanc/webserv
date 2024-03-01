@@ -22,14 +22,15 @@ pair<bool, typename vector<T>::iterator> checkVectorContain(vector<T> &vec,
   return make_pair(false, vec.end());
 }
 string itoa(int nb);
-bool isDirectory(string &path);
+bool isDirectory(const string &path);
 bool isFile(const string &path);
 bool isExec(const string &path);
-int pathType(const string &path);
+bool checkPermissionR(const & path);
+bool checkPermissionW(const & path);
+bool checkPermissionX(const & path);
 string setTime();
 bool autoIndexToHtml(string & path, string & url, ostringstream &oss);
 bool removeDirectory(string &path);
 bool removeFile(string &path);
 bool extractFileToFd(const string & path, int fd, size_t & contentLength);
-string checkRessource(string &root, string& path) ;
 #endif // WEBSERV_UTILS_HPP

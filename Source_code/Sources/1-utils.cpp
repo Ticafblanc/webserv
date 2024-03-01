@@ -37,22 +37,11 @@ bool isExec(const string &path) {
           statBuf.st_mode & S_IXOTH);
 }
 
-int pathType(const string &path) {
-  if (isDirectory(path))
-    return 1;
-  if (isFile(path))
-    return 2;
-  if (isExec(path))
-    return 3;
-  return 0;
-}
+bool checkPermissionR(const &path) { return !access(path.c_str(), R_OK); }
 
-string checkRessource(string &root, string &path) {
-  pathType(root + path);
-  if (!pathType(root + path))
-    return "";
-  return root + path;
-}
+bool checkPermissionW(const &path) { return !access(path.c_str(), W_OK); }
+
+bool checkPermissionX(const &path) { return !access(path.c_str(), X_OK); }
 
 
 string setTime() {
