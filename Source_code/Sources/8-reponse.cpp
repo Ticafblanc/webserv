@@ -272,3 +272,141 @@
 //     throw(Exception("Can't parse header."));
 //   }
 // }
+//    content_bytes = readBinaryFile(ressource_path);
+//    ressource_content = reinterpret_cast<unsigned char *>(&content_bytes[0]);
+//    headers["Content-Type"] = _getMIMEType(ressource_path);
+//    pathType(ressource_path, &file_date);
+//    headers["Last-Modified"] = _formatTimestamp(file_date);
+//    if (send_body)
+// void Request::getResponse() {
+//   map<string, string> headers;
+//   string method = _header_block.getRequestLine()._method;
+//   string ressource_path;
+//
+//   headers["Content-Type"] = _getMIMEType("a.html");
+//   if (_header_block.getContent().size() > _conf.clientMaxBodySize)
+//     return (_generateResponse(413, headers,
+//                               method != "HEAD" ? _getErrorHTMLPage(413) :
+//                               ""));
+//   if (!_isMethodAllowed(method))
+//     return (_wrongMethod());
+//   if (method == "TRACE")
+//     return (_trace(headers));
+//   else if (method == "OPTIONS")
+//     return (_options(headers));
+//   else if (method == "CONNECT")
+//     return (_generateResponse(200, headers, ""));
+//   ressource_path = _location.root;
+//   if (ressource_path[ressource_path.size() - 1] == '/')
+//     ressource_path = string(ressource_path, 0, ressource_path.size() - 1);
+//   ressource_path += _ressource;
+//   DEBUG("ressource path: " + ressource_path);
+//   if (pathType(ressource_path, NULL) == 2) {
+//     DEBUG("ressource path: " + ressource_path +
+//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
+//           + _location.index);
+//     if (_location.index.length() > 0)
+//       ressource_path =
+//           ressource_path +
+//           ((ressource_path[ressource_path.length() - 1] == '/') ? "" : "/")
+//           + _location.index;
+//     else {
+//       if (_location.autoindex)
+//         return (_generateResponse(
+//             200, headers,
+//             method != "HEAD" ? _getListingHTMLPage(ressource_path,
+//             _ressource)
+//                              : ""));
+//       else
+//         return (_generateResponse(
+//             403, headers, method != "HEAD" ? _getErrorHTMLPage(403) : ""));
+//     }
+//   }
+//   if (pathType(ressource_path, NULL) == 0 && method != "PUT" &&
+//       method != "POST")
+//     return (_generateResponse(404, headers,
+//                               method != "HEAD" ? _getErrorHTMLPage(404) :
+//                               ""));
+//   if (_shouldCallCGI(ressource_path)) {
+//     DEBUG("call CGI for this request");
+//     try {
+//       return (_addCGIHeaders(CGI(_location.cgiPath, ressource_path,
+//                                  _header_block, _conf, _location)
+//                                  .getOutput()));
+//     } catch (const exception &e) {
+//       cerr << e.what() << endl;
+//       return (_generateResponse(
+//           500, headers, method != "HEAD" ? _getErrorHTMLPage(500) : ""));
+//     }
+//   }
+//   if (method == "GET")
+//     return _get(ressource_path, headers);
+//   else if (method == "HEAD")
+//     return _head(ressource_path, headers);
+//   else if (method == "POST")
+//     return _post(ressource_path, headers);
+//   else if (method == "PUT")
+//     return (_put(ressource_path, headers));
+//   else if (method == "DELETE")
+//     return (_delete(ressource_path, headers));
+//  return ("");
+//}
+
+// string Request::_wrongMethod {
+//   map<string, string> headers;
+//   string allowed;
+//
+//   for (size_t i = 0; i < _location.methods.size(); ++i) {
+//     //    allowed += _location.methods[i];
+//     if (i < _location.methods.size() - 1)
+//       allowed += ", ";
+//   }
+//   headers["Allow"] = allowed;
+//   return "";/*(_generateResponse(405, headers,
+//                             _header_block.getRequestLine()._method != "HEAD"
+//                                 ? _getErrorHTMLPage(405)
+//                                 : ""));*/
+// }
+
+// string Request::_generateResponse(size_t code, map<string, string> headers,
+//                                   const unsigned char *content,
+//                                   size_t content_size) {
+//   string response;
+//   map<string, string>::iterator it;
+//
+//   headers["Content-Length"] = uIntegerToString(content_size);
+//   headers["Select"] = "webserv";
+//   headers["Date"] = _getDateHeader();
+//   response += "HTTP/1.1 ";
+//   response += uIntegerToString(code) + " ";
+//   response += _getStatusDescription(code) + "\r\n";
+//   it = headers.begin();
+//   while (it != headers.end()) {
+//     response += it->first + ": " + it->second + "\r\n";
+//     ++it;
+//   }
+//   response += "\r\n";
+//   for (size_t i = 0; i < content_size; ++i)
+//     response += content[i];
+//   return (response);
+// }
+//
+///**
+// * Creates a HTTP response based on given code and ASCII content
+// * @param code the status code of the response
+// * @param headers headers to inject in response
+// * @param content the string representation of the content
+// * @return the string representation of a HTTP response
+// */
+// string Request::_generateResponse(size_t code, map<string, string> headers,
+//                                  string content) {
+//  return (_generateResponse(
+//      code, headers, reinterpret_cast<const unsigned char *>(content.c_str()),
+//      content.size()));
+//}
+
+/**
+ * Get the status description following the rfc 7231 section 6.1
+ * @param code the HTTP status code
+ * @return the corresponding reason description
+ */
