@@ -3,29 +3,6 @@
 //
 
 #include "../Includes/3-configuration.hpp"
-std::string readFile(std::string file) {
-  char buffer[BUFFER_SIZE + 1] = {0};
-  int fd;
-  int i;
-  int res;
-  std::string result;
-
-  fd = open(file.c_str(), O_RDONLY);
-  if (fd < -1) {
-    std::cout << "Error" << std::endl;
-    throw ErrnoException( "The file " + file + " does not exists.");
-  }
-  while ((res = read(fd, buffer, BUFFER_SIZE)) > 0) {
-    result += buffer;
-    i = 0;
-    while (i < BUFFER_SIZE)
-      buffer[i++] = 0;
-  }
-  if (res < 0)
-    throw ErrnoException( "Error while reading " + file + ".");
-  close(fd);
-  return (result);
-}
 
 static bool extractBlocks(vecStr &split, istringstream &isStr, string &line) {
   bool ret = true;
@@ -214,8 +191,8 @@ void Server::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw ErrnoException("invalid PATH for root");
   root = words[1];
-  if (root[root.size() - 1] == '/')
-    root = root.substr(0, root.size() - 1);
+  if (root[root.size() - 1] != '/')
+    root += '/';
 }
 
 static bool checkHostFormat(const string &str) {
@@ -300,8 +277,9 @@ void Server::checkDefault() {
   if (clientMaxBodySize == 0)
     clientMaxBodySize = 1048576;
   if (locations.empty()) {
-    locations[root] = Location();
-    locations[root].checkDefault();
+    Location loc;
+    loc.checkDefault();
+    locations[loc.path] = loc;
   }
 }
 
@@ -410,11 +388,9 @@ void Location::_setIndex(vecStr words) {
     throw ErrnoException("index already defined");
   if (words.size() < 2)
     throw ErrnoException("need at least one index page");
-  for (size_t i = 1; i < words.size(); i++) {
-    if (!checkWordFormat(words[i]))
-      throw ErrnoException("invalid INDEX");
-    index = words[i];
-  }
+  if (!checkWordFormat(words[1]))
+    throw ErrnoException("invalid INDEX");
+  index = words[1];
 }
 
 void Location::_setAutoIndex(vecStr words) {
@@ -445,8 +421,8 @@ void Location::_setRoot(vecStr words) {
   if (!checkWordFormat(words[1]))
     throw ErrnoException("invalid PATH for root");
   root = words[1];
-  if (root[root.size() - 1] == '/')
-    root = root.substr(0, root.size() - 1);
+  if (root[root.size() - 1] != '/')
+    root += '/';
 }
 
 void Location::_findMapLocationSet(const vecStr &lines) {
