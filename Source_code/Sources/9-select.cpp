@@ -49,7 +49,7 @@ void Select::createSocketPair(Client &clt) {
     throw Exception("socketpair() failed", clt.getSd(), "500");
   }
   FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
-  FD_CLR(clt.getSds(), &_fdSets[WRITE_SDS]);
+  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
 }
 
 void Select::closeConnection(const int &sd) {
@@ -115,9 +115,9 @@ bool Select::recvMessage(int &r, Client &clt) {
       }
     }
     if (clt.getLocation()->isCgi())
-      _cgi[r].launchChild();
+            _cgi[r].manager();
     else
-      _request[r].manageRequest();
+      _request[r].manager();
     return clt.isEndRecv();
   }
   closeConnection(r);

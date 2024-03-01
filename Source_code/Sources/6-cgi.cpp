@@ -34,6 +34,7 @@ void CGI::launchChild() {
 }
 
 void  CGI::manager() {
+  cout << "cgi manager" << endl;
 
 }
 //    write(fd[1], _request.getContent().c_str(),
