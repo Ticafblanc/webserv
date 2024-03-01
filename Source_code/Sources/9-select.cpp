@@ -79,7 +79,7 @@ bool Select::recvHeader(Client &clt) {
     size_t pos = clt.getRequest().find("\r\n\r\n");
     if (pos != string::npos) {
       clt.getHeader() = clt.getRequest().substr(0, pos + 2);
-      clt.getRequest() = clt.getRequest().substr(pos + 4);
+      clt.getBody() = clt.getRequest().substr(pos + 4);
       return true;
     } else
       throw Exception("Headers to long", clt.getSd(), "413");
