@@ -53,7 +53,7 @@ protected:
   bool _endRecv;
   string _header;
   string _body;
-  string _request;
+  vecStr _request;
   string _ressourcePath;
   Server *_server;
   Location *_location;
@@ -71,7 +71,7 @@ public:
   bool allowMethod(const string & method);
   string &getHeader();
   string &getBody();
-  string &getRequest();
+  vecStr &getRequest();
   bool isEndRecv() const;
   void setReceived(bool val);
   Server *getServer() const;
@@ -79,7 +79,7 @@ public:
   Location *getLocation() const;
   void setLocation(Location *location);
   int *getSds() ;
-  const string &getRessourcePath() const;
+  string &getRessourcePath();
   void closeSd();
 
 };

@@ -11,14 +11,21 @@ class Headers {
 private:
   vecStr _firstLine;
   mapStrStr _headerFields;
+  string _boundary;
   Client *_client;
   istringstream _header;
   bool _complete;
   mapStrStr _statusCode;
+  mapStrStr _mimeType;
 
   void _setMapStatus();
+  void _setMapMimeType();
   void _extractData();
   void _extractFirstLine();
+  void _extractUri();
+  void _extractQueryString();
+  void _extractPath();
+  void _extractExt();
 
 public:
   Headers();
@@ -37,18 +44,17 @@ public:
   void setGet();
   void setDelete();
   void setPost();
-  void setPut();
-  void setTrace();
-  string extractQueryString();
-  string extractPath();
-  string extractExt();
+
   void setStatus(const string &value);
   mapStrStr &getHeaderFields();
+  size_t getContentLength() ;
   void setHeaderFields(const string &token, const string &value);
   string getHeaderField(const string &token);
   Client *getClient();
 
   bool isCloseRequest();
+  bool isDataForm() ;
+  bool isValidMimeType();
 };
 
 ostream &operator<<(ostream &out, const Headers &hb);

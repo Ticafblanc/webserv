@@ -5,7 +5,7 @@
 #ifndef WEBSERV_CONFIGURATION_HPP
 #define WEBSERV_CONFIGURATION_HPP
 
-#include "2-exception.hpp"
+#include "2-utils.hpp"
 
 bool splitBlocks(vecStr &split, const string &str, const string &pattern,
                  vecStr &otherInfo);

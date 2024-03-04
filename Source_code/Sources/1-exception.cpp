@@ -2,7 +2,7 @@
 // Created by Matthis DoQuocBao on 2024-02-22.
 //
 
-#include "../Includes/2-exception.hpp"
+#include "../Includes/1-exception.hpp"
 
 ErrnoException::ErrnoException(const string &msg) throw()
     : _msg(msg), _errno(strerror(errno)) {}

@@ -18,33 +18,12 @@ private:
   pManage _manage;
 
   void _method();
+  void _checkRessource(bool (*p)(const string &));
   void _head();
   void _get();
   void _delete();
   void _post();
-  void _put();
-  void _trace();
-
-  string _wrongMethod();
-  string _generateResponse(size_t code,
-                                map<string, string> headers,
-                                string content);
-  string _generateResponse(size_t code,
-                                map<string, string> headers,
-                                const unsigned char *content,
-                                size_t content_size);
-  string _getStatusDescription(size_t code);
-  string _getErrorHTMLPage(size_t code);
-  string _getListingHTMLPage(string path, string ressource);
-  string _getMIMEType(string filename);
-  string _getDateHeader();
-  string _formatTimestamp(time_t timestamp);
-//  Location _getLocation(string ressource);
-  bool _isMethodAllowed(string method);
-  string _formatRessource(string ressource);
-  bool _shouldCallCGI(string ressource_path);
-//  string _addCGIHeaders(string response);
-//  string _getCGIStatus(string response);
+  void _continuePost();
 
 public:
   Request();

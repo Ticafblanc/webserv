@@ -90,13 +90,18 @@ extern char **envp;
 
 // macro for recv/send data
 #define BUFFER_SIZE 1024
+#define URI_SIZE 200
 
 //macro for Header firstline
 #define METHOD 0
-#define PATH 1
+#define URI 1
 #define HTTP_V 2
 #define STATUS_CODE 3
 #define RAISON_PHRASE 4
+#define PATH 5
+#define EXT 6
+#define QUERY_STRING 7
+
 
 //macro cgi sd
 #define MAX_CGI (MAX_CONNECTION / 10)

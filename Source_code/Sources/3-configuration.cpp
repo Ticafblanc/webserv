@@ -133,11 +133,7 @@ static const setStr createSetMethods() {
   temp.insert("GET");
   temp.insert("HEAD");
   temp.insert("POST");
-  temp.insert("PUT");
   temp.insert("DELETE");
-  temp.insert("CONNECT");
-  temp.insert("OPTIONS");
-  temp.insert("TRACE");
   return temp;
 }
 
@@ -187,9 +183,9 @@ void Server::_setRoot(vecStr words) {
   if (!root.empty())
     throw ErrnoException("root already defined");
   if (words.size() != 2)
-    throw ErrnoException("need \"root PATH\"");
+    throw ErrnoException("need \"root URI\"");
   if (!checkWordFormat(words[1]))
-    throw ErrnoException("invalid PATH for root");
+    throw ErrnoException("invalid URI for root");
   root = words[1];
   if (root[root.size() - 1] != '/')
     root += '/';
@@ -303,7 +299,7 @@ bool Server::isDefault() const { return defaultServer; }
 Location *Server::getLocationByRessource(const string &path) {
   string tmpPath(path);
   while (!tmpPath.empty()) {
-    mapStrLoc::iterator tmp = locations.find(path);
+    mapStrLoc::iterator tmp = locations.find(tmpPath);
     if (tmp != locations.end())
       return &tmp->second;
     else
@@ -417,9 +413,9 @@ void Location::_setRoot(vecStr words) {
   if (!root.empty())
     throw ErrnoException("root already defined");
   if (words.size() != 2)
-    throw ErrnoException("need \"root PATH\"");
+    throw ErrnoException("need \"root URI\"");
   if (!checkWordFormat(words[1]))
-    throw ErrnoException("invalid PATH for root");
+    throw ErrnoException("invalid URI for root");
   root = words[1];
   if (root[root.size() - 1] != '/')
     root += '/';

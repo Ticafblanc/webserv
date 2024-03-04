@@ -410,3 +410,44 @@
  * @param code the HTTP status code
  * @return the corresponding reason description
  */
+/**
+ * Get the HTML page for a given status error
+ * @param status the status of the response
+ * @return a HTML page describing the error
+ */
+string Request::_getErrorHTMLPage(size_t code) {
+  string base;
+  (void)code;
+
+  if (_conf.errorPages.count(code) > 0)
+    return (readFile(_conf.errorPages[code]));
+  base = readFile("./assets/error.html");
+  base = replace(base, "$1", uIntegerToString(code));
+  base = replace(base, "$2", _getStatusDescription(code));
+  return (base);
+}
+
+// string Request::_getListingHTMLPage(string path, string ressource) {
+//   string base;
+//   string listing;
+//   string link_base;
+//   //  size_t i;
+//   struct dirent *en;
+//   DIR *dr;
+//
+//   base = readFile("./assets/listing.html");
+//   base = replace(base, "$1", ressource);
+//   dr = opendir(path.c_str());
+//   //  i = 0;
+//   //  while (_header_block.getRequestLine()._request_target[i] &&
+//   //         _header_block.getRequestLine()._request_target[i] != '?')
+//   //    link_base += _header_block.getRequestLine()._request_target[i++];
+//   if (link_base[link_base.size() - 1] != '/')
+//     link_base += '/';
+//   while ((en = readdir(dr)) != 0)
+//     listing += "<li><a href=\"" + link_base + string(en->d_name) + "\">" +
+//                string(en->d_name) + "</a></li>";
+//   closedir(dr);
+//   base = replace(base, "$2", listing);
+//   return (base);
+// }

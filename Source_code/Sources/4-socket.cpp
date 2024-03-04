@@ -172,14 +172,11 @@ Client &Client::operator=(const Client &rhs) {
 void Client::updateRessource(const string &host, const string &path) {
   _server = getServerByHost(host);
   _location = _server->getLocationByRessource(path);
-  setRessourcePath(path);
 }
 
 void Client::setRessourcePath(const string &path) {
   _ressourcePath = _location->root.empty() ? _server->root : _location->root;
-  _ressourcePath += path;
-  if (isDirectory(_ressourcePath))
-    _ressourcePath += _location->index;
+  _ressourcePath += path.substr(0, _ressourcePath.length());
 }
 
 bool Client::allowMethod(const string &method) {
@@ -188,7 +185,7 @@ bool Client::allowMethod(const string &method) {
 
 string &Client::getHeader() { return _header; }
 string &Client::getBody() { return _body; }
-string &Client::getRequest() { return _request; }
+vecStr &Client::getRequest() { return _request; }
 Server *Client::getServer() const { return _server; }
 void Client::setServer(Server *server) { _server = server; }
 Location *Client::getLocation() const { return _location; }
@@ -197,4 +194,4 @@ bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
 int *Client::getSds() { return _sds; }
-const string &Client::getRessourcePath() const { return _ressourcePath; }
+string &Client::getRessourcePath(){ return _ressourcePath; }

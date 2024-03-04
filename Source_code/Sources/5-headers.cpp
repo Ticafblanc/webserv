@@ -4,27 +4,28 @@
 
 #include "../Includes/5-headers.hpp"
 
-static char *cast(string line) {
+static char *cast(const string& line) {
   char *c = new char[line.size()];
   return c;
 }
 
 Headers::Headers()
-    : _firstLine(5), _headerFields(), _client(NULL), _header(),
-      _complete(false), _statusCode() {
+    : _firstLine(8), _headerFields(), _boundary("boundary="), _client(NULL),
+      _header(), _complete(false), _statusCode(), _mimeType() {
   _setMapStatus();
 }
 
 Headers::Headers(Client &clt)
-    : _firstLine(5), _headerFields(), _client(&clt), _complete(false),
-      _statusCode() {
+    : _firstLine(8), _headerFields(), _boundary("boundary="), _client(&clt),
+      _complete(false), _statusCode(), _mimeType() {
   _setMapStatus();
 }
 
 Headers::Headers(const Headers &copy)
     : _firstLine(copy._firstLine), _headerFields(copy._headerFields),
-      _client(copy._client), _header(), _complete(false),
-      _statusCode(copy._statusCode) {}
+      _boundary(copy._boundary), _client(copy._client), _header(),
+      _complete(false), _statusCode(copy._statusCode),
+      _mimeType(copy._mimeType) {}
 
 Headers::~Headers() {}
 
@@ -32,9 +33,11 @@ Headers &Headers::operator=(const Headers &rhs) {
   if (this != &rhs) {
     _firstLine = rhs._firstLine;
     _headerFields = rhs._headerFields;
+    _boundary = rhs._boundary;
     _client = rhs._client;
     _header.str(rhs._header.str());
     _statusCode = rhs._statusCode;
+    _mimeType = rhs._mimeType;
   }
   return *this;
 }
@@ -43,11 +46,17 @@ void Headers::_extractFirstLine() {
   string line;
   if (getline(_header >> ws, line, '\r')) {
     istringstream fl(line);
-    fl >> ws >> _firstLine[METHOD] >> _firstLine[PATH] >> _firstLine[HTTP_V];
+    fl >> ws >> _firstLine[METHOD] >> _firstLine[URI] >> _firstLine[HTTP_V];
   }
+  if (!_client->allowMethod(_firstLine[METHOD]))
+    throw Exception("Methode not implemented", _client->getSd(), "501");
+  if (_firstLine[URI].length() > URI_SIZE)
+    throw Exception("uri too long", _client->getSd(), "414");
   if (_firstLine[HTTP_V] != "HTTP/1.1")
     throw Exception("Http version not supported", _client->getSd(), "505");
+  _extractUri();
 }
+
 void Headers::_extractData() {
   string line, token, value;
   size_t i = 0;
@@ -67,54 +76,70 @@ void Headers::parse() {
   _header = istringstream(_client->getHeader());
   _extractFirstLine();
   _extractData();
-  _client->updateRessource(_headerFields["Host"], extractPath());
-  if (!_client->allowMethod(_firstLine[METHOD]))
-    throw Exception("Headers not complete", _client->getSd(), "405");
+//  _extractBoundary();
+  _client->updateRessource(_headerFields["Host"], _firstLine[PATH]);
 }
 
-string Headers::extractQueryString() {
-  string uri = _firstLine[PATH];
+void Headers::_extractUri() {
+  _extractQueryString();
+  _extractPath();
+  _extractExt();
+}
+
+void Headers::_extractQueryString() {
+  string uri = _firstLine[URI];
   size_t pos = uri.find('?');
   if (pos != std::string::npos)
-    return uri.substr(pos + 1);
-  return uri;
+    _firstLine[QUERY_STRING] = uri.substr(pos + 1);
 }
 
-string Headers::extractPath() {
-  string uri = _firstLine[PATH];
+void Headers::_extractPath() {
+  string uri = _firstLine[URI];
   size_t pos = uri.find('?');
   if (pos != std::string::npos)
-    return uri.substr(0, pos);
-  return uri;
+    _firstLine[PATH] = uri.substr(0, pos);
 }
 
-string Headers::extractExt() {
-  string path = extractPath();
+void Headers::_extractExt() {
+  string path = _firstLine[PATH];
   size_t pos = path.find_last_of('.');
   if (pos != std::string::npos)
-    return path.substr(pos);
-  return "";
+    _firstLine[EXT] = path.substr(pos);
 }
+
+//void Headers::_extractBoundary() {
+//  mapStrStrIt it = _headerFields.find("Content-Type");
+//  if (it != _headerFields.end()) {
+//    string contentType = _headerFields["Content-Type"];
+//    if (contentType.find("multipart/form-data") != string::npos) {
+//      size_t pos = contentType.find(_boundary);
+//      if (pos != std::string::npos) {
+//        _boundary = contentType.substr(pos + _boundary.length());
+//        return;
+//      }
+//      throw Exception("no boundary string", _client->getSd(), "400");
+//    }
+//  }
+//}
 
 vector<char *> Headers::getCgiEnv() {
   vector<char *> env;
   execve(env[0], env.data(), env.data());
-  env.push_back(cast("REQUEST_METHOD=" + _firstLine[METHOD]));
-  env.push_back(cast("QUERY_STRING=" + extractQueryString()));
-  env.push_back(cast("AUTH_TYPE=Basic"));
   env.push_back(cast("GATEWAY_INTERFACE=CGI/1.1"));
-  env.push_back(cast("SCRIPT_NAME=" + extractPath()));
-  env.push_back(cast("SCRIPT_FILENAME=" + extractPath()));
-  env.push_back(cast("PATH_INFO=" + _firstLine[PATH]));
-  env.push_back(cast("PATH_TRANSLATED=" + _firstLine[PATH]));
   env.push_back(cast("REMOTE_ADDR=" + _client->getIpAddress()));
+  env.push_back(cast("AUTH_TYPE=Basic"));
+  env.push_back(cast("REDIRECT_STATUS=200"));
+  env.push_back(cast("DOCUMENT_ROOT=" + _client->getLocation()->root));
+  env.push_back(cast("QUERY_STRING=" + _firstLine[QUERY_STRING]));
+  env.push_back(cast("REQUEST_METHOD=" + _firstLine[METHOD]));
+  env.push_back(cast("REQUEST_URI=" + _firstLine[URI]));
+  env.push_back(cast("SCRIPT_NAME=" + _firstLine[PATH]));
+  env.push_back(cast("SCRIPT_FILENAME=" + _firstLine[PATH]));
+  env.push_back(cast("PATH_INFO=" + _firstLine[URI]));
+  env.push_back(cast("PATH_TRANSLATED=" + _firstLine[URI]));
   env.push_back(cast("SERVER_NAME=" + getHeaderField("host")));
   env.push_back(cast("SERVER_PORT" + itoa(_client->getPort())));
-  env.push_back(cast("HTTP_COOKIE=" + getHeaderField("cookie")));
-  env.push_back(cast("DOCUMENT_ROOT=" + _client->getLocation()->root));
-  env.push_back(cast("REQUEST_URI=" + _firstLine[PATH]));
   env.push_back(cast("SERVER_PROTOCOL=" + _firstLine[HTTP_V]));
-  env.push_back(cast("REDIRECT_STATUS=200"));
   env.push_back(cast("SERVER_SOFTWARE=webserv/1.0"));
   for (mapStrStrIt it = _headerFields.begin(); it != _headerFields.end();
        ++it) {
@@ -130,11 +155,11 @@ vector<char *> Headers::getCgiEnv() {
 
 vector<char *> Headers::getCgiArg() {
   vector<char *> arg;
-  string execPath = _client->getLocation()->getCgiPath(extractExt());
+  string execPath = _client->getLocation()->getCgiPath(_firstLine[EXT]);
   if (execPath.empty())
     throw Exception("Extension not found", _client->getSd(), "404");
-  arg.push_back(cast(execPath));
-  arg.push_back(cast(extractPath()));
+  arg.push_back(cast(_client->getLocation()->getCgiPath(execPath)));
+  arg.push_back(cast(_firstLine[PATH]));
   arg.push_back(cast(NULL));
   return arg;
 }
@@ -144,6 +169,7 @@ mapStrStr &Headers::getHeaderFields() { return _headerFields; }
 void Headers::setHeaderFields(const string &token, const string &value) {
   _headerFields[token] = value;
 }
+
 string Headers::getHeaderField(const string &token) {
   mapStrStrIt it = _headerFields.find(token);
 
@@ -151,6 +177,15 @@ string Headers::getHeaderField(const string &token) {
     return it->second;
   return "";
 }
+
+size_t Headers::getContentLength() {
+  mapStrStrIt it = _headerFields.find("Content-Length");
+
+  if (it != _headerFields.end())
+    return stol(it->second);
+  return 0;
+}
+
 Client *Headers::getClient() { return _client; }
 void Headers::setFirstLine(const int &pos, const string &value) {
   _firstLine[pos] = value;
@@ -168,12 +203,20 @@ bool Headers::isCloseRequest() {
   return false;
 }
 
-void Headers::setHead(){}
-void Headers::setGet(){}
-void Headers::setDelete(){}
-void Headers::setPost(){}
-void Headers::setPut(){}
-void Headers::setTrace(){}
+//bool Headers::isDataForm() {
+//  mapStrStrIt it = _headerFields.find("Content-Type");
+//  if (it != _headerFields.end()) {
+//    string tok("multipart/form-data");
+//    string form = it->second.substr(0, tok.length());
+//    return it->second == tok;
+//  }
+//  return false;
+//}
+
+void Headers::setHead() {}
+void Headers::setGet() {}
+void Headers::setDelete() {}
+void Headers::setPost() {}
 
 void Headers::_setMapStatus() {
   _statusCode["100"] = "Continue";
@@ -217,4 +260,27 @@ void Headers::_setMapStatus() {
   _statusCode["503"] = "Service Unavailable";
   _statusCode["504"] = "Gateway Timeout";
   _statusCode["505"] = "HTTP Version Not Supported";
+}
+
+bool Headers::isValidMimeType() {
+  return _mimeType.find(_firstLine[EXT]) != _mimeType.end();
+}
+
+void Headers::_setMapMimeType() {
+  _mimeType["arc"] = "application/octet-stream";
+  _mimeType["bin"] = "application/octet-stream";
+  _mimeType["aform"] = "application/x-www-form-urlencoded";
+//  _mimeType["mform"] = "multipart/form-data";
+  _mimeType["css"] = "text/css";
+  _mimeType["csv"] = "text/csv";
+  _mimeType["htm"] = "text/html";
+  _mimeType["html"] = "text/html";
+  _mimeType["jpeg"] = "image/jpeg";
+  _mimeType["jpg"] = "image/jpeg";
+  _mimeType["oga"] = "audio/ogg";
+  _mimeType["ogv"] = "video/ogg";
+  _mimeType["ogx"] = "application/ogg";
+  _mimeType["otf"] = "font/otf";
+  _mimeType["png"] = "image/png";
+  _mimeType["pdf"] = "application/pdf";
 }

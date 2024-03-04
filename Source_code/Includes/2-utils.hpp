@@ -11,7 +11,7 @@
 #define DEBUG(x)
 #endif
 
-#include "0-main.hpp"
+#include "1-exception.hpp"
 
 template <class T>
 pair<bool, typename vector<T>::iterator> checkVectorContain(vector<T> &vec,
@@ -25,9 +25,10 @@ string itoa(int nb);
 bool isDirectory(const string &path);
 bool isFile(const string &path);
 bool isExec(const string &path);
-bool checkPermissionR(const & path);
-bool checkPermissionW(const & path);
-bool checkPermissionX(const & path);
+bool checkPermissionR(const string & path);
+bool checkPermissionW(const string & path);
+bool checkPermissionRW(const string & path);
+bool checkPermissionX(const string& path);
 string setTime();
 bool autoIndexToHtml(string & path, string & url, ostringstream &oss);
 bool removeDirectory(string &path);

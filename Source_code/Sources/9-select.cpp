@@ -76,10 +76,10 @@ ssize_t Select::sendBuffer(int &r, Client &clt) {
 
 bool Select::recvHeader(Client &clt) {
   if (clt.getHeader().empty()) {
-    size_t pos = clt.getRequest().find("\r\n\r\n");
+    size_t pos = clt.getRequest().rbegin()->find("\r\n\r\n");
     if (pos != string::npos) {
-      clt.getHeader() = clt.getRequest().substr(0, pos + 2);
-      clt.getBody() = clt.getRequest().substr(pos + 4);
+      clt.getHeader() = clt.getRequest().rbegin()->substr(0, pos + 2);
+      clt.getBody() = clt.getRequest().rbegin()->substr(pos + 4);
       return true;
     } else
       throw Exception("Headers to long", clt.getSd(), "413");
@@ -92,7 +92,7 @@ ssize_t Select::recvBuffer(int &r, Client &clt) {
   bzero(buffer, BUFFER_SIZE + 1);
   ssize_t rc = recv(r, buffer, BUFFER_SIZE, 0);
   if (rc > 0) {
-    clt.getRequest().append(buffer);
+    clt.getRequest().push_back(buffer);
   }
   return rc;
 }
