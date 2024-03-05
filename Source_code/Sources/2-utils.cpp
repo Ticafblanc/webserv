@@ -49,18 +49,32 @@ void checkRessource(string &Path, const string &index, const int &sd,
     else
       throw Exception("Permission fail " + Path, sd, "403");
   } else
-    throw Exception("uri " + Path +" not found", sd, "404");
+    throw Exception("uri " + Path + " not found", sd, "404");
 }
 
-string setTime() {
-  time_t now = time(0);
-  tm *timeInfo = gmtime(&now);
-  char buffer[80];
-  strftime(buffer, 80, "%a, %d %b %Y %H:%M:%S GMT", timeInfo);
-  return string(buffer);
+string defaultHtml(const string &statusCode, const string &raisonPhrase,
+                   const string &Detail) {
+  ostringstream oss;
+  oss << "<!DOCTYPE html>"
+      << "<html>"
+      << "<head>"
+      << "<title>" << statusCode << " - " << raisonPhrase << "</title>"
+      << "<style>"
+      << "html {color-scheme: light dark;}"
+      << "body {width: 35em;margin: 0 auto;"
+      << "font-family: Tahoma, Verdana,Arial, sans-serif;}"
+      << "h1{color: blue;}"
+      << "</style>"
+      << "</head>"
+      << "<body>"
+      << "<h1>" << statusCode << " - " << raisonPhrase << "</h1>"
+      << "<p>" << Detail  << "</p>"
+      << "</body>"
+      << "</html>";
+  return oss.str();
 }
 
-bool autoIndexToHtml(string &path, string & body) {
+bool autoIndexToHtml(string &path, string &body) {
   ostringstream oss;
   DIR *directory = opendir(path.c_str());
   if (!directory)

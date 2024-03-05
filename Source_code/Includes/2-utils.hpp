@@ -30,5 +30,7 @@ bool checkPermissionRW(const string &path);
 bool checkPermissionX(const string &path);
 void checkRessource(string &Path, const string &index, const int &sd,
                     bool (*p)(const string &));
+string defaultHtml(const string &statusCode, const string &raisonPhrase,
+                   const string &Detail);
 bool autoIndexToHtml(string &path, string &body);
 #endif // WEBSERV_UTILS_HPP
