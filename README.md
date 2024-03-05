@@ -70,7 +70,7 @@ Knowing its arcane will be useful, even if you won’t be working on a website.
 
 * [CLion](https://www.jetbrains.com/clion/promo/?source=google&medium=cpc&campaign=11960744855&term=clion&content=489240779234&gclid=EAIaIQobChMIjYSpkeeX_AIVh6XICh0CqwhAEAAYASAAEgLIVPD_BwE)
 * [AstroNvim](https://github.com/AstroNvim/AstroNvim)
-* [VsCode](https://code.visualstudio.com/)
+
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -105,10 +105,7 @@ c++98
 ### Usage
 - ./webserv [configuration file]
 
-- Add configs in -> usr->local/etc/webserv/servers/
-- Default config -> usr->local/etc/webserv/webserv.conf
-- Logs will be in -> usr->local/var/log/webserv/
-- Default webroot is -> usr->local/var/www/
+- Default webroot is -> www/default.com
 - Default listen address -> http://localhost:8080
 
 
@@ -117,32 +114,12 @@ c++98
 <!-- ROADMAP -->
 ## Roadmap
 
-- [X] read doc
-- [X] build project and dependance (Matthis)
-- [ ] build class serverSocket (Matthis)
-- [ ] build class data sever to store data after parsing (Matthis)
-- [X] build main.cpp to start (Matthis)
-- [X] create branch test (Matthis)
-- [X] set git action to automate pull_request master(Matthis)
-- [X] create directory like nginx
-- [x] parsing file and subdivising serverSocket blocks
-- [ ] parsing subdivised serverSocket blocks and creating instances of data_server
-- [X] create directory like nginx (Matthis)
-- [X] set container to merge project on linux (Matthis)
-- [ ] set test library/header (Jean-Benoit)
-- [X] set basic test for github action (Jean-Benoit)
-- [ ] set test for parsing (Yannick)
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
 
 Matthis DoQuocBao - [![LinkedIn][linkedin-shield]][linkedin-url] - matthisdqb@icloud.com
-
-Yannick St-laurent - [![LinkedIn][linkedin-shield]][linkedin-url-yan] - https://github.com/yann1731 - yan_1731@hotmail.com
-
-Jean-Benoit Rossignol - https://github.com/xApologize - https://gitlab.com/jeanbenoit.rossignol.eleve
 
 Project Link: [https://github.com/Ticafblanc/webserv](https://github.com/Ticafblanc/webserv)
 
