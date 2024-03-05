@@ -30,6 +30,7 @@ bool Request::manageIsNull() const { return !_manage; }
 void Request::resetManage(pManage m) { _manage = m; }
 void Request::_reset() {
   _client->getHeader().clear();
+  _client->getRequest().clear();
   _manage = NULL;
   _complete = true;
 }
