@@ -8,7 +8,7 @@ static string checkArg(int argc, char **argv, char **env) {
   if (argc > 2)
     throw ErrnoException("Please use : ./WebServ <path>");
   envp = env;
-  string path = argc == 2 ? argv[1] : "conf/webserv.conf";
+  string path = argc == 2 ? argv[1] : "www/default.com/conf/default.conf";
   return path;
 }
 
@@ -24,12 +24,12 @@ int main(int argc, char **argv, char **env) {
     serverManager.setServerSocket(config.getServers());
 //          cout << " ready to loop" <<endl;
     select.loop();
-  } catch (const exception &e) {
-    if (const ErrnoException * E = dynamic_cast<const ErrnoException*>(&e))
+  } catch (exception &e) {
+    if (ErrnoException * E = dynamic_cast<ErrnoException*>(&e))
       E->print();
     else
       cerr << e.what() << endl;
-    if (const Exception * Ex = dynamic_cast<const Exception *>(&e))
+    if (Exception * Ex = dynamic_cast<Exception *>(&e))
       select.deinit();
 //    goto Start;
     exit(EXIT_FAILURE);
