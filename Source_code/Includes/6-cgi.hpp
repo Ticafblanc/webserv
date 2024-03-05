@@ -9,35 +9,46 @@
 
 
 class CGI {
-private:
+protected:
   Headers *_headers;
   int _fd[2];
   pid_t _pid;
   time_t  _time;
 
-
-  char **_getExecArgs();
-  string _getScriptName();
-  string _removeQueryArgs(string query);
-
 public:
   CGI();
   explicit CGI(Headers &headers);
-  ~CGI();
+  virtual ~CGI();
+  CGI(const CGI& copy);
+  CGI &operator=(const CGI& rhs);
 
-  void launchChild();
+  virtual void manager() = 0;
+};
+
+class CGIChild : public CGI{
+public:
+  CGIChild();
+  explicit CGIChild(Headers &headers);
+  ~CGIChild();
+
+  CGIChild(const CGIChild& copy);
+  CGIChild &operator=(const CGIChild& rhs);
+
   void manager();
 };
 
-class CGIException : public exception {
-private:
-  string _msg;
-
+class CGIParent : public CGI {
 public:
-  CGIException(string message = "Unable to execute CGI.")
-      : _msg(message){};
-  ~CGIException() throw(){};
-  const char *what() const throw() { return (_msg.c_str()); };
+  CGIParent();
+  explicit CGIParent(Headers &headers);
+  ~CGIParent();
+
+  CGIParent(const CGIParent& copy);
+  CGIParent &operator=(const CGIParent& rhs);
+
+  void manager();
 };
+
+
 
 #endif // WEBSERV_CGI_HPP
