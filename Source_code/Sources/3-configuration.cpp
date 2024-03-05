@@ -261,15 +261,15 @@ void Server::_findMapServerSet(const vecStr &lines) {
 void Server::checkDefault() {
   if (names.empty()) {
     names.push_back("localhost");
-    names.push_back("localhost:80");
-    names.push_back("127.0.0.1:80");
+    names.push_back("localhost:2121");
+    names.push_back("127.0.0.1:2121");
   }
   if (ipAddress.empty())
     ipAddress = "127.0.0.1";
   if (port == 0)
-    port = 80;
+    port = 8080;
   if (root.empty())
-    root = "/";
+    root = "www/default.com";
   if (clientMaxBodySize == 0)
     clientMaxBodySize = 1048576;
   if (locations.empty()) {
@@ -589,9 +589,7 @@ void Configuration::parseConfig(const string &pathFile) {
     _servers.back().parse(*it);
   }
   if (_servers.empty()) {
-    _servers.push_back(Server());
-    _servers.back().checkDefault();
-    _servers.back().names.push_back("default_server");
+    throw ErrnoException("no server config");
   } else {
     if (!checkSameServer(_servers))
       throw ErrnoException("2 same listen");
