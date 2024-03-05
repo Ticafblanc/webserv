@@ -83,7 +83,7 @@ Socket::Socket()
 Socket::Socket(const Socket &copy)
     : _ipAddress(copy._ipAddress), _port(copy._port), _sd(copy._sd),
       _optionBuffer(copy._optionBuffer), _address(copy._address),
-      _serversConfig(copy._serversConfig), _defaultServer(NULL) {}
+      _serversConfig(copy._serversConfig), _defaultServer(copy._defaultServer) {}
 
 Socket::~Socket() {}
 
