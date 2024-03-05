@@ -7,16 +7,18 @@
 Select *Select::_this = NULL;
 
 Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
-    : _run(true), _serverManager(sm), _clientManager(cm), _headers(),
-      _request(), _response(), _cgi(), _sds(), _fdSets(4) {
+    : _run(true), _timeOut(), _timeOutP(&_timeOut), _serverManager(sm),
+      _clientManager(cm), _headers(), _request(), _response(), _cgiChild(),
+      _cgiParent(), _sds(), _fdSets(4) {
   _this = this;
 }
 
 Select::Select(const Select &copy)
-    : _run(true), _serverManager(copy._serverManager),
-      _clientManager(copy._clientManager), _headers(copy._headers),
-      _request(copy._request), _response(copy._response), _cgi(copy._cgi),
-      _sds(copy._sds), _fdSets(copy._fdSets) {}
+    : _run(true), _timeOut(copy._timeOut), _timeOutP(copy._timeOutP),
+      _serverManager(copy._serverManager), _clientManager(copy._clientManager),
+      _headers(copy._headers), _request(copy._request),
+      _response(copy._response), _cgiChild(copy._cgiChild),
+      _cgiParent(copy._cgiParent), _sds(copy._sds), _fdSets(copy._fdSets) {}
 
 Select::~Select() {}
 
@@ -27,7 +29,8 @@ Select &Select::operator=(const Select &rhs) {
     _serverManager = rhs._serverManager;
     _clientManager = rhs._clientManager;
     _headers = rhs._headers;
-    _cgi = rhs._cgi;
+    _cgiChild = rhs._cgiChild;
+    _cgiParent = rhs._cgiParent;
     _sds = rhs._sds;
     _fdSets = rhs._fdSets;
   }
@@ -49,16 +52,19 @@ void Select::createSocketPair(Client &clt) {
   if (newSd < 0) {
     throw Exception("socketpair() failed", clt.getSd(), "500");
   }
-  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
-  //  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
+  FD_SET(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
+  FD_SET(clt.getSds()[STDOUT_FILENO], &_fdSets[READ_SDS]);
+  FD_SET(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
+  FD_SET(clt.getSds()[STDOUT_FILENO], &_fdSets[WRITE_SDS]);
 }
 
 void Select::closeConnection(const int &sd) {
+  cout << "close connexion " << sd << endl;
   FD_CLR(sd, &_fdSets[READ_SDS]);
   FD_CLR(sd, &_fdSets[WRITE_SDS]);
   if (_clientManager.closeSocket(sd) || _serverManager.closeSocket(sd))
     _sds.erase(sd);
-  cout << "close connexion " << sd << endl;
+  cout << "close connexion end " << sd << endl;
 }
 
 bool Select::recvHeader(Client &clt) {
@@ -87,7 +93,7 @@ ssize_t Select::recvBuffer(int &r, Client &clt) {
 
 bool Select::sendMessage(int &r, Client &clt) {
   if (clt.getLocation()->isCgi())
-    _cgi[r].manager();
+    _cgiParent[r].manager();
   else
     _response[clt.getSd()].manager();
   if (!clt.getResponse().empty()) {
@@ -117,11 +123,14 @@ bool Select::recvMessage(int &r, Client &clt) {
       _headers[r].parse();
       if (clt.getLocation()->isCgi()) {
         createSocketPair(clt);
-        _cgi[r].launchChild();
+        _cgiChild[clt.getSds()[STDIN_FILENO]] = CGIChild(_headers[clt.getSd()]);
+        _cgiParent[clt.getSds()[STDOUT_FILENO]] =
+            CGIParent(_headers[clt.getSd()]);
+        _cgiChild[STDIN_FILENO].manager();
       }
     }
     if (clt.getLocation()->isCgi())
-      _cgi[r].manager();
+      _cgiParent[STDOUT_FILENO].manager();
     else
       _request[r].manager();
     return !_headers[r].getFirstLine()[STATUS_CODE].empty();
@@ -135,7 +144,6 @@ bool Select::acceptClient(int &r, Socket &srv) {
   Client clt(srv, ret.second, ret.first);
   _clientManager.registerSocket(clt);
   _headers[ret.first] = Headers(_clientManager.getClientBySD(ret.first));
-  _cgi[ret.first] = CGI(_headers[ret.first]);
   _request[ret.first] = Request(_headers[ret.first]);
   _response[ret.first] = Response(_headers[ret.first]);
   _sds.insert(ret.first);
@@ -147,34 +155,38 @@ bool Select::acceptClient(int &r, Socket &srv) {
 void Select::check(int ret) {
   if (ret < 0)
     throw ErrnoException("Select error");
+  cout << "check" << endl;
   forLoopSock(_clientManager.getSockets(), &ret, TMP_READ_SDS, _sdCltRecv);
   forLoopSock(_clientManager.getSockets(), &ret, TMP_WRITE_SDS, _sdCltSend);
   forLoopSock(_serverManager.getSockets(), &ret, TMP_READ_SDS, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
   forLoopSd(clt, WRITE_SDS, READ_SDS, _sdCltRecv, &Select::recvMessage);
-  forLoopSd(clt, READ_SDS,WRITE_SDS,  _sdCltSend, &Select::sendMessage);
+  forLoopSd(clt, READ_SDS, WRITE_SDS, _sdCltSend, &Select::sendMessage);
   mapSockServer &srv = _serverManager.getSockets();
-  forLoopSd(srv, READ_SDS,WRITE_SDS, _sdServ, &Select::acceptClient);
+  forLoopSd(srv, READ_SDS, WRITE_SDS, _sdServ, &Select::acceptClient);
 }
 
 void Select::udateData() {
   _fdSets[TMP_READ_SDS] = _fdSets[READ_SDS];
   _fdSets[TMP_WRITE_SDS] = _fdSets[WRITE_SDS];
+  _timeOutP->tv_sec = 1;
+  _timeOutP->tv_usec = 0;
 }
 
 void Select::endServer(int signal) {
   (void)signal;
   _this->_run = false;
   _this->deinit();
-  cout << "goodbay" << endl;
+  exit(EXIT_SUCCESS);
 }
 
 void Select::init() {
   signal(SIGINT, endServer);
   signal(SIGQUIT, endServer);
   signal(SIGTERM, endServer);
+  signal(SIGSEGV, endServer);
   signal(SIGKILL, endServer);
-  signal(SIGPIPE, SIG_IGN);
+  signal(SIGPIPE, endServer);
   FD_ZERO(&_fdSets[READ_SDS]);
   FD_ZERO(&_fdSets[WRITE_SDS]);
   FD_ZERO(&_fdSets[TMP_READ_SDS]);
@@ -188,7 +200,9 @@ void Select::init() {
 
 void Select::deinit() {
   for (setIntIt it = _sds.begin(); it != _sds.end(); ++it) {
-    closeConnection(*it);
+    cout << *it << endl;
+    _clientManager.closeSocket(*it);
+    _serverManager.closeSocket(*it);
   }
 }
 
@@ -198,9 +212,9 @@ void Select::loop() {
     try {
       udateData();
       check(select(*_sds.rbegin() + 1, &_fdSets[TMP_READ_SDS],
-                   &_fdSets[TMP_WRITE_SDS], NULL, NULL));
-    } catch (const Exception &e) {
-      e.print();
+                   &_fdSets[TMP_WRITE_SDS], NULL, _timeOutP));
+    } catch (Exception &e) {
+      e.what();
     }
   }
   deinit();
