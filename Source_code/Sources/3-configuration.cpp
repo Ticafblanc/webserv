@@ -445,7 +445,8 @@ static bool checkCgi(vecStr &path, vecStr &ext) {
        p.first != path.end() && p.second != ext.end(); ++p.first, ++p.second) {
     if (p.first->length() < p.second->length() ||
         p.first->substr(p.first->length() - p.second->length()) != *p.second ||
-        !isExec(*p.first) || !checkValidCgi(*p.second)) {
+        !isFile(*p.first) || !checkPermissionX(*p.first) ||
+        !checkValidCgi(*p.second)) {
       return false;
     }
   }

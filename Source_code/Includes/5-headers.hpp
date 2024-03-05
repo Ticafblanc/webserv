@@ -55,7 +55,10 @@ public:
   bool isCloseRequest();
   bool isDataForm() ;
   bool isValidMimeType();
-};
+
+  string getHeaderReponse();
+  void reset() ;
+  };
 
 ostream &operator<<(ostream &out, const Headers &hb);
 

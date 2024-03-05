@@ -169,6 +169,12 @@ Client &Client::operator=(const Client &rhs) {
   return *this;
 }
 
+void Client::reset(){
+  _header.clear();
+  _body.clear();
+  _request.clear();
+}
+
 void Client::updateRessource(const string &host, const string &path) {
   _server = getServerByHost(host);
   _location = _server->getLocationByRessource(path);
@@ -186,6 +192,7 @@ bool Client::allowMethod(const string &method) {
 string &Client::getHeader() { return _header; }
 string &Client::getBody() { return _body; }
 vecStr &Client::getRequest() { return _request; }
+string &Client::getResponse() { return _response; }
 Server *Client::getServer() const { return _server; }
 void Client::setServer(Server *server) { _server = server; }
 Location *Client::getLocation() const { return _location; }

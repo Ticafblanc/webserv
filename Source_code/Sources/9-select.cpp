@@ -50,7 +50,7 @@ void Select::createSocketPair(Client &clt) {
     throw Exception("socketpair() failed", clt.getSd(), "500");
   }
   FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[READ_SDS]);
-//  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
+  //  FD_CLR(clt.getSds()[STDIN_FILENO], &_fdSets[WRITE_SDS]);
 }
 
 void Select::closeConnection(const int &sd) {
@@ -59,19 +59,6 @@ void Select::closeConnection(const int &sd) {
   if (_clientManager.closeSocket(sd) || _serverManager.closeSocket(sd))
     _sds.erase(sd);
   cout << "close connexion " << sd << endl;
-}
-
-ssize_t Select::sendBuffer(int &r, Client &clt) {
-  ssize_t rc = -1;
-  (void)r;
-  (void)clt;
-  //  string response = _request[clt.getSd()].getResponse(); // switch to
-  //  reponse if (!response.empty()) {
-  //    rc = send(clt.getSd(), response.c_str(), response.size(), 0);
-  //    if (rc > 0) // _manage udate value
-  //      _request[clt.getSd()].getResponse() = response.substr(rc);
-  //  }
-  return rc;
 }
 
 bool Select::recvHeader(Client &clt) {
@@ -84,6 +71,7 @@ bool Select::recvHeader(Client &clt) {
     } else
       throw Exception("Headers to long", clt.getSd(), "413");
   }
+  clt.getBody() += *clt.getRequest().rbegin();
   return false;
 }
 
@@ -98,13 +86,28 @@ ssize_t Select::recvBuffer(int &r, Client &clt) {
 }
 
 bool Select::sendMessage(int &r, Client &clt) {
-  ssize_t ret = sendBuffer(r, clt);
-  if (ret > 0) {
-    if (_headers[r].isCloseRequest() /*&& _respons[r].isempt*/)
-      closeConnection(r);
+  if (clt.getLocation()->isCgi())
+    _cgi[r].manager();
+  else
+    _response[clt.getSd()].manager();
+  if (!clt.getResponse().empty()) {
+    size_t rc = send(r, clt.getResponse().c_str(), clt.getResponse().size(), 0);
+    if (rc > 0) {
+      if (rc == clt.getResponse().length()) {
+        clt.getResponse().clear();
+        if (_headers[r].isCloseRequest()) {
+          closeConnection(r);
+          return false;
+        }
+        return true;
+      } else
+        clt.getResponse() = clt.getResponse().substr(rc);
+      return false;
+    }
+    closeConnection(r);
+    return false;
   }
-  closeConnection(r);
-  return false;
+  return true;
 }
 
 bool Select::recvMessage(int &r, Client &clt) {
@@ -121,10 +124,10 @@ bool Select::recvMessage(int &r, Client &clt) {
       _cgi[r].manager();
     else
       _request[r].manager();
-    return clt.isEndRecv();
+    return !_headers[r].getFirstLine()[STATUS_CODE].empty();
   }
-    closeConnection(r);
-    return false;
+  closeConnection(r);
+  return false;
 }
 
 bool Select::acceptClient(int &r, Socket &srv) {
@@ -133,8 +136,8 @@ bool Select::acceptClient(int &r, Socket &srv) {
   _clientManager.registerSocket(clt);
   _headers[ret.first] = Headers(_clientManager.getClientBySD(ret.first));
   _cgi[ret.first] = CGI(_headers[ret.first]);
-  _request[ret.first] = Request(_headers[ret.first], _cgi[ret.first]);
-  //  _response[newSd] = Response(_request[newSd], _cgi[newSd]);
+  _request[ret.first] = Request(_headers[ret.first]);
+  _response[ret.first] = Response(_headers[ret.first]);
   _sds.insert(ret.first);
   r = ret.first;
   cout << "accepte conextion " << ret.first << " " << endl;
@@ -144,9 +147,9 @@ bool Select::acceptClient(int &r, Socket &srv) {
 void Select::check(int ret) {
   if (ret < 0)
     throw ErrnoException("Select error");
-  forLoopSock(_clientManager.getSockets(), &ret,TMP_READ_SDS, _sdCltRecv);
-  forLoopSock(_clientManager.getSockets(), &ret,TMP_WRITE_SDS, _sdCltSend);
-  forLoopSock(_serverManager.getSockets(), &ret,TMP_READ_SDS, _sdServ);
+  forLoopSock(_clientManager.getSockets(), &ret, TMP_READ_SDS, _sdCltRecv);
+  forLoopSock(_clientManager.getSockets(), &ret, TMP_WRITE_SDS, _sdCltSend);
+  forLoopSock(_serverManager.getSockets(), &ret, TMP_READ_SDS, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
   forLoopSd(clt, WRITE_SDS, _sdCltRecv, &Select::recvMessage);
   forLoopSd(clt, READ_SDS, _sdCltSend, &Select::sendMessage);

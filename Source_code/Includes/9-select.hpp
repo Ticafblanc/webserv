@@ -56,7 +56,6 @@ private:
 
   static ssize_t recvBuffer(int &r, Client &clt);
   static bool recvHeader(Client &clt);
-  ssize_t sendBuffer(int &r, Client &clt);
 
   template <typename T>
   void forLoopSd(map<int, T> &mS, int flag, queInt &vecSd,

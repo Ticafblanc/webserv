@@ -54,6 +54,7 @@ protected:
   string _header;
   string _body;
   vecStr _request;
+  string _response;
   string _ressourcePath;
   Server *_server;
   Location *_location;
@@ -66,12 +67,14 @@ public:
   virtual ~Client();
   Client &operator=(const Client &rhs);
 
+  void reset();
   void updateRessource(const string & host, const string & path);
   void setRessourcePath(const string &path);
   bool allowMethod(const string & method);
   string &getHeader();
   string &getBody();
   vecStr &getRequest();
+  string &getResponse();
   bool isEndRecv() const;
   void setReceived(bool val);
   Server *getServer() const;

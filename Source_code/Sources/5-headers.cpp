@@ -4,7 +4,7 @@
 
 #include "../Includes/5-headers.hpp"
 
-static char *cast(const string& line) {
+static char *cast(const string &line) {
   char *c = new char[line.size()];
   return c;
 }
@@ -76,7 +76,6 @@ void Headers::parse() {
   _header = istringstream(_client->getHeader());
   _extractFirstLine();
   _extractData();
-//  _extractBoundary();
   _client->updateRessource(_headerFields["Host"], _firstLine[PATH]);
 }
 
@@ -106,21 +105,6 @@ void Headers::_extractExt() {
   if (pos != std::string::npos)
     _firstLine[EXT] = path.substr(pos);
 }
-
-//void Headers::_extractBoundary() {
-//  mapStrStrIt it = _headerFields.find("Content-Type");
-//  if (it != _headerFields.end()) {
-//    string contentType = _headerFields["Content-Type"];
-//    if (contentType.find("multipart/form-data") != string::npos) {
-//      size_t pos = contentType.find(_boundary);
-//      if (pos != std::string::npos) {
-//        _boundary = contentType.substr(pos + _boundary.length());
-//        return;
-//      }
-//      throw Exception("no boundary string", _client->getSd(), "400");
-//    }
-//  }
-//}
 
 vector<char *> Headers::getCgiEnv() {
   vector<char *> env;
@@ -192,8 +176,8 @@ void Headers::setFirstLine(const int &pos, const string &value) {
 }
 
 void Headers::setStatus(const string &value) {
-  _client->setReceived(true);
   setFirstLine(STATUS_CODE, value);
+  _firstLine[RAISON_PHRASE] = _statusCode[_firstLine[STATUS_CODE]];
 }
 
 bool Headers::isCloseRequest() {
@@ -203,15 +187,30 @@ bool Headers::isCloseRequest() {
   return false;
 }
 
-//bool Headers::isDataForm() {
-//  mapStrStrIt it = _headerFields.find("Content-Type");
-//  if (it != _headerFields.end()) {
-//    string tok("multipart/form-data");
-//    string form = it->second.substr(0, tok.length());
-//    return it->second == tok;
-//  }
-//  return false;
-//}
+void Headers::reset() {
+  _headerFields["Host"] = "";
+  if (_firstLine[METHOD] == "GET") {
+    _headerFields["Content-Length"] = itoa(_client->getBody().length());
+    _headerFields["Content-Type"] = _mimeType[_firstLine[EXT]];
+  }
+  _headerFields["Authorization"] = "";
+  _headerFields["Cookie"] = "";
+  if (_firstLine[STATUS_CODE] == "302")
+    _headerFields["Location"] = _client->getLocation()->uriReturn;
+}
+
+string Headers::getHeaderReponse() {
+  reset();
+  ostringstream oss;
+  oss << " " << _firstLine[HTTP_V] << " " << _firstLine[STATUS_CODE] << " "
+      << _firstLine[RAISON_PHRASE] << "\r\n";
+  for (mapStrStrIt it = _headerFields.begin(); it != _headerFields.end();
+       ++it) {
+    oss << it->first << ": " << it->second << "\r\n";
+  }
+  oss << "\r\n";
+  return oss.str();
+}
 
 void Headers::setHead() {}
 void Headers::setGet() {}
@@ -269,10 +268,8 @@ bool Headers::isValidMimeType() {
 void Headers::_setMapMimeType() {
   _mimeType["arc"] = "application/octet-stream";
   _mimeType["bin"] = "application/octet-stream";
-  _mimeType["aform"] = "application/x-www-form-urlencoded";
-//  _mimeType["mform"] = "multipart/form-data";
+  _mimeType["form"] = "application/x-www-form-urlencoded";
   _mimeType["css"] = "text/css";
-  _mimeType["csv"] = "text/csv";
   _mimeType["htm"] = "text/html";
   _mimeType["html"] = "text/html";
   _mimeType["jpeg"] = "image/jpeg";

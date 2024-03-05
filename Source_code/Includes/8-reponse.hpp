@@ -8,9 +8,17 @@
 #include "7-request.hpp"
 
 class Response {
+private:
+  Headers *_headers;
+  Client* _client;
 
+public:
   Response();
-  Response(Request & request);
+  Response(Headers &headers);
+  Response(const Response &other);
+  Response &operator=(const Response &other);
+  ~Response();
+  void manager();
 };
 
 #endif // WEBSERV_REPONSE_HPP

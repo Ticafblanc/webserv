@@ -12,7 +12,7 @@ string itoa(int nb) {
   return (s);
 }
 
-bool isDirectory(const string &path, const int & sd) {
+bool isDirectory(const string &path) {
   struct stat statBuf = {};
   if (stat(path.c_str(), &statBuf) != 0)
     return false;
@@ -39,6 +39,19 @@ bool checkPermissionX(const string &path) {
   return !access(path.c_str(), X_OK);
 }
 
+void checkRessource(string &Path, const string &index, const int &sd,
+                    bool (*p)(const string &)) {
+  if (isDirectory(Path))
+    Path += index;
+  if (isFile(Path)) {
+    if (p(Path))
+      return;
+    else
+      throw Exception("Permission fail", sd, "403");
+  } else
+    throw Exception("uri not found", sd, "404");
+}
+
 string setTime() {
   time_t now = time(0);
   tm *timeInfo = gmtime(&now);
@@ -47,12 +60,13 @@ string setTime() {
   return string(buffer);
 }
 
-bool autoIndexToHtml(string &path, string &url, ostringstream &oss) {
+bool autoIndexToHtml(string &path, string & body) {
+  ostringstream oss;
   DIR *directory = opendir(path.c_str());
   if (!directory)
     return false;
-  oss << "<!DOCTYPE html><html><head><title>Auto Index of " << url
-      << "</title></head><body><h1>Auto Index of " << url << "</h1><ul>";
+  oss << "<!DOCTYPE html><html><head><title>Auto Index of " << path
+      << "</title></head><body><h1>Auto Index of " << path << "</h1><ul>";
   struct dirent *entry;
   while ((entry = readdir(directory)) != NULL) {
     oss << "<li><a href=\"" << entry->d_name << "\">" << entry->d_name
@@ -60,21 +74,6 @@ bool autoIndexToHtml(string &path, string &url, ostringstream &oss) {
   }
   oss << "</ul></body></html>";
   closedir(directory);
-  return true;
-}
-
-bool extractFileToFd(const string &path, int fd, size_t &contentLength) {
-  ifstream is(path.c_str(), ios::binary | ios::in);
-  if (!is.is_open())
-    return false;
-  is.seekg(0, ios::end);
-  contentLength = is.tellg();
-  is.seekg(0, ios::beg);
-  vector<char> buffer(contentLength);
-  is.read(buffer.data(), buffer.size());
-  streamsize bytes_read = is.gcount();
-  cout << "conten " << contentLength << "gcount " << bytes_read << "buffer size"
-       << buffer.size() << endl;
-  write(fd, buffer.data(), contentLength);
+  body = oss.str();
   return true;
 }

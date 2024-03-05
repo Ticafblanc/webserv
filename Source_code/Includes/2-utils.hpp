@@ -24,14 +24,11 @@ pair<bool, typename vector<T>::iterator> checkVectorContain(vector<T> &vec,
 string itoa(int nb);
 bool isDirectory(const string &path);
 bool isFile(const string &path);
-bool isExec(const string &path);
-bool checkPermissionR(const string & path);
-bool checkPermissionW(const string & path);
-bool checkPermissionRW(const string & path);
-bool checkPermissionX(const string& path);
-string setTime();
-bool autoIndexToHtml(string & path, string & url, ostringstream &oss);
-bool removeDirectory(string &path);
-bool removeFile(string &path);
-bool extractFileToFd(const string & path, int fd, size_t & contentLength);
+bool checkPermissionR(const string &path);
+bool checkPermissionW(const string &path);
+bool checkPermissionRW(const string &path);
+bool checkPermissionX(const string &path);
+void checkRessource(string &Path, const string &index, const int &sd,
+                    bool (*p)(const string &));
+bool autoIndexToHtml(string &path, string &body);
 #endif // WEBSERV_UTILS_HPP
