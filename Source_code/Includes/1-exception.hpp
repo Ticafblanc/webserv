@@ -20,7 +20,7 @@ public:
   virtual ~ErrnoException() throw();
   virtual const char *what() const throw();
   const char *whatErrno() const throw();
-  void print() const;
+  string print() ;
 };
 
 class Exception : public ErrnoException {
@@ -35,7 +35,7 @@ public:
   Exception(const Exception &) throw();
   Exception &operator=(const Exception &) throw();
   virtual ~Exception() throw();
-  void print() const;
+  string print() ;
   int getSd() const;
   const string &getErrorPage() const;
 };

@@ -22,16 +22,17 @@ const char *ErrnoException::what() const throw() { return _msg.c_str(); }
 
 const char *ErrnoException::whatErrno() const throw() { return _errno.c_str(); }
 
-void ErrnoException::print() const {
-  cerr << "\033[1m\033[31mERROR \033[0m: " << _msg << "  [" << _errno << "]"
-       << endl;
+string ErrnoException::print() {
+  string str(_msg + "  [" + _errno + "]");
+  cerr << "\033[1m\033[31mERROR \033[0m: " << str << endl;
+  return str;
 }
 
 Exception::Exception(const string &msg) throw()
     : ErrnoException(msg), _sd(), _errorPage() {}
 
 Exception::Exception(const string &msg, const int &sd,
-                             const string &errorPage) throw()
+                     const string &errorPage) throw()
     : ErrnoException(msg), _sd(sd), _errorPage(errorPage) {}
 
 Exception::Exception(const Exception &e) throw()
@@ -50,8 +51,10 @@ const string &Exception::getErrorPage() const { return _errorPage; }
 
 Exception::~Exception() throw() {}
 
-void Exception::print() const {
-  ErrnoException::print();
+string Exception::print()  {
+  ostringstream oss;
+  oss << "Socket [" << _sd << "] " <<  ErrnoException::print() << endl;
   cerr << "\033[1m\033[31mClient \033[0m: " << _sd << " code return ["
        << _errorPage << "]" << endl;
+  return oss.str();
 }
