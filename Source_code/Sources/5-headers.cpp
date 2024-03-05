@@ -55,6 +55,7 @@ void Headers::_extractFirstLine() {
   if (_firstLine[HTTP_V] != "HTTP/1.1")
     throw Exception("Http version not supported", _client->getSd(), "505");
   _extractUri();
+  cout << _firstLine[METHOD] << _firstLine[URI] << _firstLine[HTTP_V] << endl;
 }
 
 void Headers::_extractData() {
@@ -68,8 +69,8 @@ void Headers::_extractData() {
     cout << _headerFields.find(token)->first << " : "
          << _headerFields.find(token)->second << endl;
   }
-  if (i != _headerFields.size())
-    throw Exception("Headers not complete", _client->getSd(), "400");
+//  if (i != _headerFields.size())
+//    throw Exception("Headers not complete", _client->getSd(), "400");
 }
 
 void Headers::parse() {
@@ -97,13 +98,18 @@ void Headers::_extractPath() {
   size_t pos = uri.find('?');
   if (pos != std::string::npos)
     _firstLine[PATH] = uri.substr(0, pos);
+  else
+    _firstLine[PATH] = uri;
 }
 
 void Headers::_extractExt() {
   string path = _firstLine[PATH];
   size_t pos = path.find_last_of('.');
-  if (pos != std::string::npos)
+  if (pos != std::string::npos && path.substr(pos).length() == 3) {
     _firstLine[EXT] = path.substr(pos);
+    if (!isValidMimeType())
+      throw Exception("invalid mime type", _client->getSd(), "415");
+  }
 }
 
 vector<char *> Headers::getCgiEnv() {

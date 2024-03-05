@@ -58,14 +58,16 @@ private:
   static bool recvHeader(Client &clt);
 
   template <typename T>
-  void forLoopSd(map<int, T> &mS, int flag, queInt &vecSd,
+  void forLoopSd(map<int, T> &mS, int flagSet, int flagClr, queInt &vecSd,
                  bool (Select::*p)(int &r, T &t)) {
     while (!vecSd.empty()) {
       int ret = vecSd.front();
       vecSd.pop();
       try {
-        if ((this->*p)(ret, mS[ret]))
-          FD_SET(ret, &_fdSets[flag]);
+        if ((this->*p)(ret, mS[ret])) {
+          FD_SET(ret, &_fdSets[flagSet]);
+          FD_CLR(ret, &_fdSets[flagClr]);
+        }
       } catch (const exception &e) {
         if (const Exception *Ex = dynamic_cast<const Exception *>(&e)) {
           FD_SET(ret, &_fdSets[WRITE_SDS]);

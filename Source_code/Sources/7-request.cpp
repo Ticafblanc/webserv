@@ -29,12 +29,13 @@ Request &Request::operator=(const Request &other) {
 bool Request::manageIsNull() const { return !_manage; }
 void Request::resetManage(pManage m) { _manage = m; }
 void Request::_reset() {
+  _client->getHeader().clear();
   _manage = NULL;
   _complete = true;
 }
 
 void Request::manager() {
-  cout << "request manager" << endl;
+  cout << "request manager " << _client->getSd() << endl;
   if (manageIsNull()) {
     resetManage(&Request::_method);
   }
@@ -58,8 +59,6 @@ void Request::_get() {
   cout << "get " << _headers->getFirstLine()[URI] << " "
        << _client->getRessourcePath() << endl;
   try {
-    if (!_headers->isValidMimeType())
-      throw Exception("invalid mime type", _client->getSd(), "415");
     checkRessource(_client->getRessourcePath(), _client->getLocation()->index,
                    _client->getSd(), checkPermissionR);
     ifstream ifs(_client->getRessourcePath().c_str());

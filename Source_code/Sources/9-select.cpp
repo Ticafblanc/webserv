@@ -151,10 +151,10 @@ void Select::check(int ret) {
   forLoopSock(_clientManager.getSockets(), &ret, TMP_WRITE_SDS, _sdCltSend);
   forLoopSock(_serverManager.getSockets(), &ret, TMP_READ_SDS, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
-  forLoopSd(clt, WRITE_SDS, _sdCltRecv, &Select::recvMessage);
-  forLoopSd(clt, READ_SDS, _sdCltSend, &Select::sendMessage);
+  forLoopSd(clt, WRITE_SDS, READ_SDS, _sdCltRecv, &Select::recvMessage);
+  forLoopSd(clt, READ_SDS,WRITE_SDS,  _sdCltSend, &Select::sendMessage);
   mapSockServer &srv = _serverManager.getSockets();
-  forLoopSd(srv, READ_SDS, _sdServ, &Select::acceptClient);
+  forLoopSd(srv, READ_SDS,WRITE_SDS, _sdServ, &Select::acceptClient);
 }
 
 void Select::udateData() {

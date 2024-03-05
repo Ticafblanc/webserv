@@ -42,8 +42,10 @@ void Socket::socketListener() {
 }
 
 void Socket::closeSd() {
-  close(_sd);
-  _sd = 0;
+  if (_sd > 2) {
+    close(_sd);
+    _sd = 0;
+  }
 }
 
 static void setServersConfig(struct Server &server, mapStrServ &serversConfig) {
@@ -127,21 +129,22 @@ const uint16_t &Socket::getPort() const { return _port; }
 Server *Socket::getDefaultServer() const { return _defaultServer; }
 
 Client::Client(Socket &server, const sockaddr_in &address, int sd)
-    : Socket(server), _endRecv(false), _header(),_body(), _request(), _server(NULL),
-      _location(NULL) {
+    : Socket(server), _endRecv(false), _header(), _body(), _request(),
+      _server(server.getDefaultServer()), _location(&_server->defaultLocation),
+      _sds() {
   _address = address;
   _sd = sd;
   getSockaddrIn();
 }
 
 Client::Client()
-    : Socket(), _endRecv(), _header(), _body(), _request(), _server(_defaultServer),
-      _location(&_server->defaultLocation), _sds() {}
+    : Socket(), _endRecv(), _header(), _body(), _request(),
+      _server(_defaultServer), _location(&_server->defaultLocation), _sds() {}
 
 Client::Client(const Client &copy)
-    : Socket(copy), _endRecv(copy._endRecv), _header(copy._header), _body(copy._body),
-      _request(copy._request), _server(copy._server), _location(copy._location),
-      _sds() {
+    : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
+      _body(copy._body), _request(copy._request), _server(copy._server),
+      _location(copy._location), _sds() {
   _sds[0] = copy._sds[0];
   _sds[1] = copy._sds[1];
 }
@@ -149,9 +152,11 @@ Client::Client(const Client &copy)
 Client::~Client() {}
 
 void Client::closeSd() {
-  close(_sds[0]);
-  close(_sds[1]);
-  _sd = 0;
+  if (_sds[0] > 2)
+    close(_sds[0]);
+  if (_sds[1] > 2)
+    close(_sds[1]);
+  Socket::closeSd();
 }
 
 Client &Client::operator=(const Client &rhs) {
@@ -169,7 +174,7 @@ Client &Client::operator=(const Client &rhs) {
   return *this;
 }
 
-void Client::reset(){
+void Client::reset() {
   _header.clear();
   _body.clear();
   _request.clear();
@@ -178,11 +183,12 @@ void Client::reset(){
 void Client::updateRessource(const string &host, const string &path) {
   _server = getServerByHost(host);
   _location = _server->getLocationByRessource(path);
+  setRessourcePath(path);
 }
 
 void Client::setRessourcePath(const string &path) {
   _ressourcePath = _location->root.empty() ? _server->root : _location->root;
-  _ressourcePath += path.substr(0, _ressourcePath.length());
+  _ressourcePath += path.substr(_location->path.length());
 }
 
 bool Client::allowMethod(const string &method) {
@@ -201,4 +207,4 @@ bool Client::isEndRecv() const { return _endRecv; }
 
 void Client::setReceived(bool val) { _endRecv = val; }
 int *Client::getSds() { return _sds; }
-string &Client::getRessourcePath(){ return _ressourcePath; }
+string &Client::getRessourcePath() { return _ressourcePath; }

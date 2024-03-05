@@ -47,9 +47,9 @@ void checkRessource(string &Path, const string &index, const int &sd,
     if (p(Path))
       return;
     else
-      throw Exception("Permission fail", sd, "403");
+      throw Exception("Permission fail " + Path, sd, "403");
   } else
-    throw Exception("uri not found", sd, "404");
+    throw Exception("uri " + Path +" not found", sd, "404");
 }
 
 string setTime() {
