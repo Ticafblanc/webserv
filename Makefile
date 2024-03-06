@@ -4,6 +4,12 @@ all:
 run:
 	@$(MAKE) run -C ./Source_code
 
+test: all
+	@./webserv www/all.conf
+	@python3 Test/Tester.py
+
+#pip install requests
+
 clean:
 	@$(MAKE) clean -C Source_code
 

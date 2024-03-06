@@ -47,8 +47,6 @@ void Request::manager() {
 
 void Request::_method() {
   cout << "method" << endl;
-  if (!_client->allowMethod(_headers->getFirstLine()[METHOD]))
-    throw Exception("Headers not complete", _client->getSd(), "405");
   map<string, pManage> mapTmp;
   mapTmp["GET"] = &Request::_get;
   mapTmp["POST"] = &Request::_post;

@@ -288,6 +288,8 @@ void Server::parse(const string &bock) {
   for (vecStr::iterator it = locBlocks.begin(); it != locBlocks.end(); ++it) {
     Location tmpLoc;
     tmpLoc.parse(*it);
+    if (locations.find(tmpLoc.path) != locations.end())
+      throw ErrnoException("2 same location path " + tmpLoc.path);
     locations[tmpLoc.path] = tmpLoc;
   }
   names.insert(names.begin(), host.begin(), host.end());

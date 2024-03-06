@@ -10,15 +10,47 @@ html {
 header, footer, main {
   padding: 20px;
   font-family: Arial, serif;
+  display: flex;
 }
 
 header, footer {
-  background-color: #2b4a2d;
-  color: #fff;
+  background-color: #00B9BB;
+  flex-direction: column;
+  align-items: center;
+}
+main {
+  flex-direction: column;
+  align-items: center;
 }
 
-header a {
+div.index {
+  height: max-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+h1{
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 10px 0;
+
+}
+
+img{
+  margin: 0 auto 10px;
+  padding: 10px;
+  border: 5px solid darkslategray;
+}
+
+a {
   color: white;
+  align-items: center;
+}
+
+p {
+  color: white;
+  align-items: center;
 }
 
 header .link {
@@ -35,84 +67,49 @@ header .link.inactive {
   padding: 0 0 10px;
   border-bottom: 5px solid #fff;
 }
-h1{
-  font-size: 2rem;
-  font-weight: bold;
-  padding: 10px 0;
-
-}
-img{
-  margin: 0 auto 10px;
-  display: block;
-  padding: 10px;
-  border: 5px solid darkslategray;
-}
 
 p{
   padding: 10px 0;
 }
 
 /*style accueille.html*/
-img.volant{
-  width: 200px;
+
+div.redir {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
 }
 
-.upper_separator {
-  border-top: 4px outset darkslategrey;
+a.static{
+  background-color: darkorange;
+  padding: 1rem 10rem;
+  margin-right: 2rem;
 }
 
-/*style histiore*/
-img.histoire{
-  width: 350px;
-}
-/*style Terrain.html*/
-.background_terrain{
-  background-color: #698062;
-  margin: 0 auto ;
-  padding:  10px 20px 20px 20px;
-  width: 250px;
+a.cgi{
+  background-color: royalblue;
+  padding: 1rem 10rem;
+  margin-left: 2rem;
 }
 
-caption{
-  padding: 10px;
+img.map{
+  width: 1000px;
 }
 
-table {
-  background-color: #2b4a2d;
-  margin: 0 auto;
-  border-collapse: separate;
-  border-spacing: 2px;
+img.site{
+  margin-left: 15rem;
+  width: 1000px;
 }
 
-table td {
-  border: 1px solid #fff;
+aside {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  height: 50rem;
+  background-color: #00B9BB;
 }
 
-table caption {
-  color: #fff;
+a.aside {
+  padding: 2rem 2rem;
 }
 
-.back {
-  height: 20px;
-}
-
-.middle {
-  height: 100px;
-}
-
-.front {
-  height: 40px;
-}
-
-.side {
-  width: 15px;
-}
-
-.center {
-  width: 65px;
-}
-
-.net {
-  border: 3px solid #698062;
-  padding: 1px;
-}

@@ -121,7 +121,11 @@ bool Select::recvMessage(int &r, Client &clt) {
   if (ret > 0) {
     if (recvHeader(clt)) {
       _headers[r].parse();
+      if (!clt.allowMethod(_headers[r].getFirstLine()[METHOD]))
+        throw Exception("not allowed method", clt.getSd(), "405");
       if (clt.getLocation()->isCgi()) {
+        if (!(_headers[r].getFirstLine()[METHOD] != "GET") || !(_headers[r].getFirstLine()[METHOD] != "POST"))
+          throw Exception("Method cgi not implemented", clt.getSd(), "501");
         createSocketPair(clt);
         _cgiChild[clt.getSds()[STDIN_FILENO]] = CGIChild(_headers[clt.getSd()]);
         _cgiParent[clt.getSds()[STDOUT_FILENO]] =
