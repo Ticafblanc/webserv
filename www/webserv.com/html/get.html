@@ -25,11 +25,16 @@
 </header>
 
 <main>
-    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="fileData" value="VGhpcyBpcyBhbiBleGFtcGxlIGZpbGUgY29udGVudC4="/>
-        <input type="hidden" name="fileName" value="example.txt"/>
-        <button type="submit">Envoyer le fichier</button>
+    <h1>Form get valid</h1>
+    <form action="post.html" method="get">
+        <input type="submit" value="return post">
     </form>
+    <h1>Form get error</h1>
+    <form action="/" method="get">
+        <input type="submit" value="return error 404">
+    </form>
+    <h1>get error right access</h1>
+    <a href="noAccess.html" class="static">noAccess.html</a>
 </main>
 
 <footer>

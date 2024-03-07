@@ -25,9 +25,21 @@
 </header>
 
 <main>
+    <h1>Form delete valid</h1>
     <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="hidden" name="fileData" value="VGhpcyBpcyBhbiBleGFtcGxlIGZpbGUgY29udGVudC4="/>
-        <input type="hidden" name="fileName" value="example.txt"/>
+        <input type="file" name="file" value=""/>
+        <button type="submit">upload file</button>
+    </form>
+    <h1>Form delete noAccess</h1>
+    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="file" name="file" value="noAccess.html"/>
+        <button type="submit">upload file</button>
+    </form>
+    <h1>Form delete error</h1>
+    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
+        <input type="text" name="url" value="https://profile.intra.42.fr/"/>
+        <input type="text" name="username" value="Matthis"/>
+        <input type="password" name="password" value=""/>
         <button type="submit">Envoyer le fichier</button>
     </form>
 </main>
