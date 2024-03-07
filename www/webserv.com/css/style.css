@@ -1,115 +1,105 @@
 html {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 *, *::before, *::after {
-  box-sizing: inherit;
+    box-sizing: inherit;
 }
 
 /*style globale*/
-header, footer, main {
-  padding: 20px;
-  font-family: Arial, serif;
-  display: flex;
+header, footer , main {
+    padding: 2rem;
+    font-family: Arial, serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 header, footer {
-  background-color: #00B9BB;
-  flex-direction: column;
-  align-items: center;
-}
-main {
-  flex-direction: column;
-  align-items: center;
+    padding: 20px;
+    background-color: #00B9BB;
 }
 
-div.index {
-  height: max-content;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+div.test {
+    font-family: Arial, serif;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
-h1{
-  font-size: 2rem;
-  font-weight: bold;
-  padding: 10px 0;
+/*styl font*/
 
-}
-
-img{
-  margin: 0 auto 10px;
-  padding: 10px;
-  border: 5px solid darkslategray;
+h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    padding: 10px 0px 20px ;
 }
 
 a {
-  color: white;
-  align-items: center;
+    color: white;
+    text-align: center;
+    margin: 1rem;
 }
 
-p {
-  color: white;
-  align-items: center;
+p.footer {
+    color: white;
+    align-items: center;
 }
 
-header .link {
-  display: inline-block;
-  width: 100px;
+/*style image*/
+
+img {
+    margin: 10px;
+    padding: 10px;
+    border: 5px solid darkslategray;
 }
 
-header .link.active {
-  padding: 0 0 5px;
-  border-bottom: 10px solid #fff;
+/*style acceuille*/
+
+a.static {
+    background-color: darkorange;
+    width: 400px;
 }
 
-header .link.inactive {
-  padding: 0 0 10px;
-  border-bottom: 5px solid #fff;
+a.cgi {
+    background-color: royalblue;
+    width: 400px;
 }
 
-p{
-  padding: 10px 0;
+img.map {
+    width: 1000px;
 }
 
-/*style accueille.html*/
+/*style index*/
 
-div.redir {
-  display: flex;
-  flex-direction: row;
-  padding: 1rem;
+a.in {
+    border: 3px solid black;
+    padding: 1rem;
 }
 
-a.static{
-  background-color: darkorange;
-  padding: 1rem 10rem;
-  margin-right: 2rem;
+a.out {
+    padding: 0.9rem;
 }
 
-a.cgi{
-  background-color: royalblue;
-  padding: 1rem 10rem;
-  margin-left: 2rem;
-}
-
-img.map{
-  width: 1000px;
-}
-
-img.site{
-  margin-left: 15rem;
-  width: 1000px;
-}
-
+/*style aside*/
 aside {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  height: 50rem;
-  background-color: #00B9BB;
+    display: flex;
+    flex-direction: row;
+    background-color: #00B9BB;
+    align-items: center;
 }
 
-a.aside {
-  padding: 2rem 2rem;
+a.request {
+    width: 255px;
 }
+
+img.site {
+    width: 1000px;
+    height: 600px;
+}
+
+
+
+
+
 

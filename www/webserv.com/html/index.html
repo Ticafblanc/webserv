@@ -12,24 +12,24 @@
 
 <body>
 <header>
-    <nav>
-        <h1><a href="../accueille.html">Werbserv 42</a></h1>
-    </nav>
+    <h1><a href="../accueille.html">Werbserv 42</a></h1>
+    <div class="test">
+        <a href="index.html" class="static in">Static request</a>
+        <a href="../cgi-pass/index.php" class="cgi out">Dynamic request</a>
+    </div>
+    <aside>
+        <a href="get.html" class="static request out">GET request</a>
+        <a href="post.html" class="static request out">POST request</a>
+        <a href="delete.html" class="static request out">DELETE request</a>
+    </aside>
 </header>
 
-<div class="index">
-    <aside>
-        <a href="get.html" class="aside">GET request</a>
-        <a href="post.html" class="aside">POST request</a>
-        <a href="delete.html" class="aside">DELETE request</a>
-    </aside>
-    <main>
-        <img src="../image/static-site.png" alt="Static site" class="site">
-    </main>
-</div>
+<main>
+    <img src="../image/static-site.png" alt="Static site" class="site">
+</main>
 
 <footer>
-    <p>&copy; Copyright Matthis DoQuocBao | Collège La Cité</p>
+    <p>&copy; Copyright Matthis DoQuocBao | 42 Quebec</p>
 </footer>
 </body>
 </html>
