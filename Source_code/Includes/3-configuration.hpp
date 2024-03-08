@@ -25,7 +25,7 @@ struct Location {
   setStr methods;
   bool autoindex;
   string index;
-  string uriReturn;
+  pairStrStr uriReturn;
   vecStr cgiExtension;
   vecStr cgiPath;
   Location();

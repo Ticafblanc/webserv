@@ -203,7 +203,6 @@ bool Client::timeOut(bool add) {
     _timeOut++;
   else
     _timeOut = 0;
-  cout << "timout " << _timeOut << endl;
   return _timeOut < 4;
 }
 

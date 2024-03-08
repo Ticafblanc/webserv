@@ -372,13 +372,16 @@ void Location::_setCgiExtension(vecStr words) {
 }
 
 void Location::_setUrlRedirection(vecStr words) {
-  if (!uriReturn.empty())
+  if (!uriReturn.first.empty())
     throw ErrnoException("return already defined");
-  if (words.size() != 2)
-    throw ErrnoException("need return REDIR_URL");
-  if (!checkWordFormat(words[1]))
+  if (words.size() != 3)
+    throw ErrnoException("need return code REDIR_URL");
+  if (!checkWordFormat(words[1]) || !checkWordFormat(words[2]))
     throw ErrnoException("invalid REDIR_URL");
-  uriReturn = words[1];
+  int tmp = stoi(words[1]);
+  if (tmp != 301 && tmp != 302)
+    throw ErrnoException("code return not available 301 302");
+  uriReturn = make_pair(words[1], words[2]);
 }
 
 void Location::_setIndex(vecStr words) {
@@ -436,7 +439,7 @@ void Location::_findMapLocationSet(const vecStr &lines) {
 }
 
 static bool checkValidCgi(string &cgi) {
-  if (cgi == "php")
+  if (cgi == "php" || cgi == "python")
     return true;
   throw ErrnoException("cgi extension " + cgi + " invalid");
 }

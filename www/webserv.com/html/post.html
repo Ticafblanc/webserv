@@ -26,9 +26,10 @@
 
 <main>
     <h1>Form post valid</h1>
-    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="file" name="file" value=""/>
-        <button type="submit">upload file</button>
+    <form action="/upload/upload.php" method="post" enctype="multipart/form-data">
+        Sélectionnez un fichier à uploader :
+        <input type="file" name="fileToUpload" id="fileToUpload">
+        <input type="submit" value="Uploader le fichier" name="submit">
     </form>
     <h1>Form post noAccess</h1>
     <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">

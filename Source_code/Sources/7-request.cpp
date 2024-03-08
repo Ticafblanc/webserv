@@ -67,8 +67,9 @@ void Request::_get() {
     _client->getBody() = string((std::istreambuf_iterator<char>(ifs)),
                                 std::istreambuf_iterator<char>());
   } catch (const Exception &Ex) {
-    if (!_client->getLocation()->uriReturn.empty())
-      throw Exception("Redirect", _client->getSd(), "302");
+    if (!_client->getLocation()->uriReturn.first.empty())
+      throw Exception("Redirect", _client->getSd(),
+                      _client->getLocation()->uriReturn.first);
     if (!_client->getLocation()->autoindex ||
         !autoIndexToHtml(_client->getRessourcePath(), _client->getBody()))
       throw Ex;
@@ -82,7 +83,7 @@ void Request::_get() {
 void Request::_delete() {
   cout << "delete " << _headers->getFirstLine()[URI] << " "
        << _client->getRessourcePath() << endl;
-  checkRessource(_client->getRessourcePath(),_client->getLocation()->index,
+  checkRessource(_client->getRessourcePath(), _client->getLocation()->index,
                  _client->getSd(), checkPermissionW);
   if (remove(_client->getRessourcePath().c_str()))
     throw Exception("fail to delete file " + _client->getRessourcePath(),
@@ -93,7 +94,7 @@ void Request::_delete() {
 
 string status;
 void Request::_post() {
-  cout << "put " << _headers->getFirstLine()[URI] << " "
+  cout << "post " << _headers->getFirstLine()[URI] << " "
        << _client->getRessourcePath() << endl;
   if (!_headers->isValidMimeType())
     throw Exception("invalid mime type", _client->getSd(), "415");

@@ -108,7 +108,7 @@ void Headers::_extractExt() {
   if (pos != std::string::npos && path.substr(pos).length() == 3) {
     _firstLine[EXT] = path.substr(pos);
     if (!isValidMimeType())
-      throw Exception("invalid mime type", _client->getSd(), "415");
+      throw Exception("invalid mime type [" + _firstLine[EXT] + "]", _client->getSd(), "415");
   }
 }
 
@@ -201,8 +201,8 @@ void Headers::reset() {
   }
   _headerFields["Authorization"] = "";
   _headerFields["Cookie"] = "";
-  if (_firstLine[STATUS_CODE] == "302")
-    _headerFields["Location"] = _client->getLocation()->uriReturn;
+  if (_firstLine[STATUS_CODE] == "301" || _firstLine[STATUS_CODE] == "302")
+    _headerFields["Location"] = _client->getLocation()->uriReturn.second;
 }
 
 string Headers::getHeaderReponse() {
@@ -224,22 +224,13 @@ void Headers::setDelete() {}
 void Headers::setPost() {}
 
 void Headers::_setMapStatus() {
-  _statusCode["100"] = "Continue";
-  _statusCode["101"] = "Switching Protocols";
   _statusCode["200"] = "OK";
   _statusCode["201"] = "Created";
-  _statusCode["202"] = "Accepted";
-  _statusCode["203"] = "Non-Authoritative Information";
   _statusCode["204"] = "No Content";
   _statusCode["205"] = "Reset Content";
   _statusCode["206"] = "Partial Content";
-  _statusCode["300"] = "Multiple Choices";
   _statusCode["301"] = "Moved Permanently";
-  _statusCode["302"] = "Found";
-  _statusCode["303"] = "See Other";
-  _statusCode["304"] = "Not Modified";
-  _statusCode["305"] = "Use Proxy";
-  _statusCode["307"] = "Temporary Redirect";
+  _statusCode["302"] = "Temporary Redirect";
   _statusCode["400"] = "Bad Request";
   _statusCode["401"] = "Unauthorized";
   _statusCode["402"] = "Payment Required";
@@ -286,4 +277,5 @@ void Headers::_setMapMimeType() {
   _mimeType["otf"] = "font/otf";
   _mimeType["png"] = "image/png";
   _mimeType["pdf"] = "application/pdf";
+  _mimeType["php"] = "application/pdf";
 }
