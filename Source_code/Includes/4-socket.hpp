@@ -59,6 +59,7 @@ protected:
   Server *_server;
   Location *_location;
   int _sds[2];
+  int _timeOut;
 
 public:
   Client();
@@ -78,6 +79,7 @@ public:
   bool isEndRecv() const;
   void setReceived(bool val);
   Server *getServer() const;
+  bool timeOut(bool add) ;
   void setServer(Server *server);
   Location *getLocation() const;
   void setLocation(Location *location);

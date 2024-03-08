@@ -52,7 +52,7 @@ private:
   pair<int, sockaddr_in> acceptConnection(const int &sd);
   void createSocketPair(Client &clt);
   void closeConnection(const int &sd);
-
+  void checkClient(mapSockClient &clts, queInt sdCltRecv, queInt sdCltSend);
   bool sendMessage(int &r, Client &clt);
   bool acceptClient(int &r, Socket &srv);
   bool recvMessage(int &r, Client &clt);
@@ -80,8 +80,7 @@ private:
               _headers[ret].getFirstLine()[STATUS_CODE],
               _headers[ret].getFirstLine()[RAISON_PHRASE], Ex->print());
           _clientManager.getSockets()[ret].getHeader().clear();
-        } else if (ErrnoException *E =
-                       dynamic_cast<ErrnoException *>(&e)) {
+        } else if (ErrnoException *E = dynamic_cast<ErrnoException *>(&e)) {
           E->print();
         } else
           e.what();

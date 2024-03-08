@@ -83,7 +83,8 @@ Socket::Socket()
 Socket::Socket(const Socket &copy)
     : _ipAddress(copy._ipAddress), _port(copy._port), _sd(copy._sd),
       _optionBuffer(copy._optionBuffer), _address(copy._address),
-      _serversConfig(copy._serversConfig), _defaultServer(copy._defaultServer) {}
+      _serversConfig(copy._serversConfig), _defaultServer(copy._defaultServer) {
+}
 
 Socket::~Socket() {}
 
@@ -131,7 +132,7 @@ Server *Socket::getDefaultServer() const { return _defaultServer; }
 Client::Client(Socket &server, const sockaddr_in &address, int sd)
     : Socket(server), _endRecv(false), _header(), _body(), _request(),
       _server(server.getDefaultServer()), _location(&_server->defaultLocation),
-      _sds() {
+      _sds(), _timeOut(0) {
   _address = address;
   _sd = sd;
   getSockaddrIn();
@@ -139,12 +140,13 @@ Client::Client(Socket &server, const sockaddr_in &address, int sd)
 
 Client::Client()
     : Socket(), _endRecv(), _header(), _body(), _request(),
-      _server(_defaultServer), _location(&_server->defaultLocation), _sds() {}
+      _server(_defaultServer), _location(&_server->defaultLocation), _sds(),
+      _timeOut(0) {}
 
 Client::Client(const Client &copy)
     : Socket(copy), _endRecv(copy._endRecv), _header(copy._header),
       _body(copy._body), _request(copy._request), _server(copy._server),
-      _location(copy._location), _sds() {
+      _location(copy._location), _sds(), _timeOut(copy._timeOut) {
   _sds[0] = copy._sds[0];
   _sds[1] = copy._sds[1];
 }
@@ -170,6 +172,7 @@ Client &Client::operator=(const Client &rhs) {
     _location = rhs._location;
     _sds[0] = rhs._sds[0];
     _sds[1] = rhs._sds[1];
+    _timeOut = rhs._timeOut;
   }
   return *this;
 }
@@ -193,6 +196,15 @@ void Client::setRessourcePath(const string &path) {
 
 bool Client::allowMethod(const string &method) {
   return _location->methods.find(method) != _location->methods.end();
+}
+
+bool Client::timeOut(bool add) {
+  if (add)
+    _timeOut++;
+  else
+    _timeOut = 0;
+  cout << "timout " << _timeOut << endl;
+  return _timeOut < 4;
 }
 
 string &Client::getHeader() { return _header; }

@@ -11,6 +11,8 @@ Select::Select(SocketManager<Socket> &sm, SocketManager<Client> &cm)
       _clientManager(cm), _headers(), _request(), _response(), _cgiChild(),
       _cgiParent(), _sds(), _fdSets(4) {
   _this = this;
+  _timeOutP->tv_sec = 1;
+  _timeOutP->tv_usec = 0;
 }
 
 Select::Select(const Select &copy)
@@ -64,7 +66,6 @@ void Select::closeConnection(const int &sd) {
   FD_CLR(sd, &_fdSets[WRITE_SDS]);
   if (_clientManager.closeSocket(sd) || _serverManager.closeSocket(sd))
     _sds.erase(sd);
-  cout << "close connexion end " << sd << endl;
 }
 
 bool Select::recvHeader(Client &clt) {
@@ -124,7 +125,8 @@ bool Select::recvMessage(int &r, Client &clt) {
       if (!clt.allowMethod(_headers[r].getFirstLine()[METHOD]))
         throw Exception("not allowed method", clt.getSd(), "405");
       if (clt.getLocation()->isCgi()) {
-        if (!(_headers[r].getFirstLine()[METHOD] != "GET") || !(_headers[r].getFirstLine()[METHOD] != "POST"))
+        if (!(_headers[r].getFirstLine()[METHOD] != "GET") ||
+            !(_headers[r].getFirstLine()[METHOD] != "POST"))
           throw Exception("Method cgi not implemented", clt.getSd(), "501");
         createSocketPair(clt);
         _cgiChild[clt.getSds()[STDIN_FILENO]] = CGIChild(_headers[clt.getSd()]);
@@ -152,29 +154,55 @@ bool Select::acceptClient(int &r, Socket &srv) {
   _response[ret.first] = Response(_headers[ret.first]);
   _sds.insert(ret.first);
   r = ret.first;
-  cout << "accepte conextion " << ret.first << " " << endl;
+  cout << "accepte conextion " << ret.first << endl;
   return true;
+}
+
+void Select::checkClient(mapSockClient &clts, queInt sdCltRecv,
+                         queInt sdCltSend) {
+  setInt tmp;
+  while (!sdCltRecv.empty()) {
+    tmp.insert(sdCltRecv.front());
+    sdCltRecv.pop();
+  }
+  while (!sdCltSend.empty()) {
+    tmp.insert(sdCltSend.front());
+    sdCltSend.pop();
+  }
+  for (mapSockClientIt it = clts.begin(); it != clts.end(); ++it) {
+    if (tmp.find(it->first) != tmp.end()) {
+      tmp.erase(it->first);
+      it->second.timeOut(false);
+    }else if (!it->second.timeOut(true)){
+      tmp.insert(it->first);
+    }
+  }
+  for (setIntIt it = tmp.begin(); it != tmp.end(); ++it)
+    closeConnection(*it);
 }
 
 void Select::check(int ret) {
   if (ret < 0)
     throw ErrnoException("Select error");
   cout << "check" << endl;
-  forLoopSock(_clientManager.getSockets(), &ret, TMP_READ_SDS, _sdCltRecv);
-  forLoopSock(_clientManager.getSockets(), &ret, TMP_WRITE_SDS, _sdCltSend);
-  forLoopSock(_serverManager.getSockets(), &ret, TMP_READ_SDS, _sdServ);
   mapSockClient &clt = _clientManager.getSockets();
+  mapSockServer &srv = _serverManager.getSockets();
+  forLoopSock(clt, &ret, TMP_READ_SDS, _sdCltRecv);
+  forLoopSock(clt, &ret, TMP_WRITE_SDS, _sdCltSend);
+  checkClient(clt, _sdCltRecv, _sdCltSend);
+  forLoopSock(srv, &ret, TMP_READ_SDS, _sdServ);
   forLoopSd(clt, WRITE_SDS, READ_SDS, _sdCltRecv, &Select::recvMessage);
   forLoopSd(clt, READ_SDS, WRITE_SDS, _sdCltSend, &Select::sendMessage);
-  mapSockServer &srv = _serverManager.getSockets();
   forLoopSd(srv, READ_SDS, WRITE_SDS, _sdServ, &Select::acceptClient);
 }
 
 void Select::udateData() {
   _fdSets[TMP_READ_SDS] = _fdSets[READ_SDS];
   _fdSets[TMP_WRITE_SDS] = _fdSets[WRITE_SDS];
-  _timeOutP->tv_sec = 1;
-  _timeOutP->tv_usec = 0;
+  if (_clientManager.getSockets().empty())
+    _timeOutP = NULL;
+  else
+    _timeOutP = &_timeOut;
 }
 
 void Select::endServer(int signal) {
@@ -200,14 +228,15 @@ void Select::init() {
     FD_SET(it->first, &_fdSets[READ_SDS]);
     _sds.insert(it->first);
   }
+  cout << "Init OK" << endl;
 }
 
 void Select::deinit() {
   for (setIntIt it = _sds.begin(); it != _sds.end(); ++it) {
-    cout << *it << endl;
     _clientManager.closeSocket(*it);
     _serverManager.closeSocket(*it);
   }
+  cout << "Deinit OK" << endl;
 }
 
 void Select::loop() {
@@ -221,5 +250,4 @@ void Select::loop() {
       e.what();
     }
   }
-  deinit();
 }

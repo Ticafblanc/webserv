@@ -13,7 +13,7 @@ static string checkArg(int argc, char **argv, char **env) {
 }
 
 int main(int argc, char **argv, char **env) {
-//  Start:
+Start:
   Configuration config;
   SocketManager<Socket> serverManager;
   SocketManager<Client> clientManager;
@@ -22,19 +22,16 @@ int main(int argc, char **argv, char **env) {
     string path = checkArg(argc, argv, env);
     config.parseConfig(path);
     serverManager.setServerSocket(config.getServers());
-//          cout << " ready to loop" <<endl;
-    select.loop();
   } catch (exception &e) {
-    if (ErrnoException * E = dynamic_cast<ErrnoException*>(&e))
+    if (ErrnoException *E = dynamic_cast<ErrnoException *>(&e))
       E->print();
     else
       cerr << e.what() << endl;
-    if (Exception * Ex = dynamic_cast<Exception *>(&e))
+    if (Exception *Ex = dynamic_cast<Exception *>(&e))
       select.deinit();
-//    goto Start;
     exit(EXIT_FAILURE);
   }
-//  end:
-  cout << "end" << endl;
-  exit(EXIT_SUCCESS);
+  select.loop();
+  select.deinit();
+  goto Start;
 }
