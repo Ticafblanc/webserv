@@ -439,7 +439,7 @@ void Location::_findMapLocationSet(const vecStr &lines) {
 }
 
 static bool checkValidCgi(string &cgi) {
-  if (cgi == "php" || cgi == "python")
+  if (cgi == "php" || cgi == "python3")
     return true;
   throw ErrnoException("cgi extension " + cgi + " invalid");
 }

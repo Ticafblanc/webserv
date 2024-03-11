@@ -25,6 +25,16 @@
 
 <main>
     <p>Date et Heure actuelle : <?php echo date('d/m/Y H:i:s'); ?></p>
+
+        <!-- <div class = "text__pass">
+            Enter you secret words:
+        </div>
+        <form action="">
+            <input type="password" onkeyup="password_length(event);">
+            <div class="bar_container">
+                <div id="password-length"></div>
+            </div>
+        </form> -->
 </main>
 
 
