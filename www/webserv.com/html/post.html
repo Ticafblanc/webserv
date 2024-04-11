@@ -26,9 +26,9 @@
 
 <main>
     <h1>Form post valid</h1>
-    <form action="/upload/upload.php" method="post" enctype="multipart/form-data">
+    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
         Sélectionnez un fichier à uploader :
-        <input type="file" name="fileToUpload" id="fileToUpload">
+        <input type="file" name="nameFileToUpload" id="idFileToUpload">
         <input type="submit" value="Uploader le fichier" name="submit">
     </form>
     <h1>Form post noAccess</h1>
@@ -37,11 +37,16 @@
         <button type="submit">upload file</button>
     </form>
     <h1>Form post error</h1>
-    <form action="/upload" method="post" enctype="application/x-www-form-urlencoded">
-        <input type="text" name="url" value="https://profile.intra.42.fr/"/>
-        <input type="text" name="username" value="Matthis"/>
-        <input type="password" name="password" value=""/>
-        <button type="submit">Envoyer le fichier</button>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        Sélectionnez un fichier à uploader :
+        <input type="file" name="nameErrorFormFileToUpload" id="idErrorFormFileToUpload">
+        <input type="submit" value="Uploader le fichier" name="submit">
+    </form>
+    <h1>name post error</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        Sélectionnez un fichier à uploader :
+        <input type="file" name="nameerrorNameFileToUpload" id="idErrorNameFileToUpload">
+        <input type="submit" value="Uploader le fichier" name="submit">
     </form>
 </main>
 
