@@ -18,6 +18,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <curl/curl.h>
 #include <dirent.h>
 #include <exception>
 #include <fcntl.h>

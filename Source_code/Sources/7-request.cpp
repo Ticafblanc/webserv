@@ -92,19 +92,42 @@ void Request::_delete() {
   _reset();
 }
 
+// static bool curlFile(string url, const string path) {
+//   CURL *curl;
+//   CURLcode res;
+//   curl_global_init(CURL_GLOBAL_ALL);
+//   curl = curl_easy_init();
+//   if (curl) {
+//     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+//     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, path.c_str());
+//     res = curl_easy_perform(curl);
+//     if (res != CURLE_OK) {
+//       std::cerr << "Failed to upload file: " << curl_easy_strerror(res)
+//                 << std::endl;
+//     }
+//     curl_easy_cleanup(curl);
+//   }
+//   curl_global_cleanup();
+//   return false;
+// }
+
 string status;
 void Request::_post() {
   cout << "post " << _headers->getFirstLine()[URI] << " "
        << _client->getRessourcePath() << endl;
-  if (!_headers->isValidMimeType())
-    throw Exception("invalid mime type", _client->getSd(), "415");
-  if (isFile(_client->getRessourcePath())) {
-    if (!checkPermissionW(_client->getRessourcePath()))
-      throw Exception("no permission for Ressource ", _client->getSd(), "403");
-    status = "201";
+  if (_client->getLocation()->upload) {
+    if (!_headers->isValidMimeType())
+      throw Exception("invalid mime type", _client->getSd(), "415");
+    if (isFile(_client->getRessourcePath())) {
+      if (!checkPermissionW(_client->getRessourcePath()))
+        throw Exception("no permission for Ressource ", _client->getSd(),
+                        "403");
+      status = "201";
+    } else
+      status = "204";
+    _manage = &Request::_continuePost;
   } else
-    status = "204";
-  _manage = &Request::_continuePost;
+  // print data ...
 }
 
 void Request::_continuePost() {

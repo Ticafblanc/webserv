@@ -290,6 +290,8 @@ void Server::parse(const string &bock) {
     tmpLoc.parse(*it);
     if (locations.find(tmpLoc.path) != locations.end())
       throw ErrnoException("2 same location path " + tmpLoc.path);
+    if (tmpLoc.path == "/upload")
+      tmpLoc.upload = true;
     locations[tmpLoc.path] = tmpLoc;
   }
   names.insert(names.begin(), host.begin(), host.end());
@@ -502,8 +504,8 @@ string Location::getCgiPath(const string &ext) {
 bool Location::isCgi() { return !cgiPath.empty() && !cgiExtension.empty(); }
 
 Location::Location()
-    : path(), root(), methods(), autoindex(false), index(), cgiExtension(),
-      cgiPath() {
+    : path(), root(), methods(), autoindex(false), upload(false), index(),
+      cgiExtension(), cgiPath() {
   mls["methods"] = &Location::_setMethods;
   mls["root"] = &Location::_setRoot;
   mls["autoindex"] = &Location::_setAutoIndex;
@@ -515,8 +517,9 @@ Location::Location()
 
 Location::Location(const Location &other)
     : mls(other.mls), path(other.path), root(other.root),
-      methods(other.methods), autoindex(other.autoindex), index(other.index),
-      cgiExtension(other.cgiExtension), cgiPath(other.cgiPath) {}
+      methods(other.methods), autoindex(other.autoindex), upload(other.upload),
+      index(other.index), cgiExtension(other.cgiExtension),
+      cgiPath(other.cgiPath) {}
 
 Location::~Location() {}
 
@@ -527,6 +530,7 @@ Location &Location::operator=(const Location &rhs) {
     root = rhs.root;
     methods = rhs.methods;
     autoindex = rhs.autoindex;
+    upload = rhs.upload;
     index = rhs.index;
     uriReturn = rhs.uriReturn;
     cgiExtension = rhs.cgiExtension;

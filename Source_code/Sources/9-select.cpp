@@ -89,6 +89,7 @@ ssize_t Select::recvBuffer(int &r, Client &clt) {
   if (rc > 0) {
     clt.getRequest().push_back(buffer);
   }
+  cout << rc << clt.getRequest().front() << BUFFER_SIZE << endl;
   return rc;
 }
 

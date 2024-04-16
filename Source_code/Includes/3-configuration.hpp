@@ -24,6 +24,7 @@ struct Location {
   string root;
   setStr methods;
   bool autoindex;
+  bool upload;
   string index;
   pairStrStr uriReturn;
   vecStr cgiExtension;

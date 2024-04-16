@@ -55,7 +55,8 @@ void Headers::_extractFirstLine() {
   if (_firstLine[HTTP_V] != "HTTP/1.1")
     throw Exception("Http version not supported", _client->getSd(), "505");
   _extractUri();
-  cout << _firstLine[METHOD] << _firstLine[URI] << _firstLine[HTTP_V] << endl;
+  cout << _firstLine[METHOD] << "|" << _firstLine[URI] << "|"
+       << _firstLine[HTTP_V] << endl;
 }
 
 void Headers::_extractData() {
